@@ -26,13 +26,25 @@ CONTROLS = ["random_k", "whitening_only"]
 
 
 def _load(paths):
-    rows = []
+    rows, bad = [], 0
     for p in paths:
         for gp in glob.glob(p):
             for line in open(gp):
                 line = line.strip()
-                if line:
-                    rows.append(json.loads(line))
+                if not line:
+                    continue
+                try:
+                    r = json.loads(line)
+                except json.JSONDecodeError:
+                    bad += 1; continue                       # corrupted (concurrent-append interleave); skip loudly
+                if all(k in r for k in ("dataset", "backbone", "feature_object", "training_method",
+                                        "fit_regime", "eraser", "delta_bacc", "heldout_subject", "seed")):
+                    rows.append(r)
+                else:
+                    bad += 1                                 # interleaved partial dict missing required keys
+    if bad:
+        print(f"[agg] WARNING: skipped {bad} malformed JSONL line(s) (concurrent-append artifact); "
+              f"the completeness matrix reflects only valid rows.", flush=True)
     return rows
 
 

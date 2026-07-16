@@ -1,0 +1,347 @@
+{
+  "verdicts": {
+    "BNCI2014_001|dgcnn_forward_graph_adapter|graph_z|erm": {
+      "verdict": "INCONCLUSIVE",
+      "level_meets": {
+        "L0_STRICT_SOURCE_ORIGINAL_HEAD": false,
+        "L1_STRICT_SOURCE_FRESH_HEAD": false,
+        "L2_TARGET_X_UNLABELED_FRESH_HEAD": false,
+        "L3_ORACLE_GLOBAL_GEOMETRY_FRESH_HEAD": false
+      },
+      "L1_lw_leace": {
+        "mean": -0.004790380658436211,
+        "ci_lo": -0.013245884773662526,
+        "ci_hi": 0.0029899691358024586,
+        "n_clusters": 9,
+        "state": "practical_gain_ruled_out",
+        "dataset": "BNCI2014_001",
+        "backbone": "dgcnn_forward_graph_adapter",
+        "feature_object": "graph_z",
+        "training_method": "erm",
+        "level": "L1_STRICT_SOURCE_FRESH_HEAD",
+        "eraser": "lw_leace_full"
+      },
+      "L2_lw_leace": {
+        "mean": -0.00524048353909465,
+        "ci_lo": -0.017521862139917695,
+        "ci_hi": 0.00990226337448559,
+        "n_clusters": 9,
+        "state": "practical_gain_ruled_out",
+        "dataset": "BNCI2014_001",
+        "backbone": "dgcnn_forward_graph_adapter",
+        "feature_object": "graph_z",
+        "training_method": "erm",
+        "level": "L2_TARGET_X_UNLABELED_FRESH_HEAD",
+        "eraser": "lw_leace_full"
+      },
+      "L3_lw_leace": {
+        "mean": -0.005494694468370194,
+        "ci_lo": -0.009299701227390225,
+        "ci_hi": -0.0018385169932529527,
+        "n_clusters": 9,
+        "state": "practical_gain_ruled_out",
+        "dataset": "BNCI2014_001",
+        "backbone": "dgcnn_forward_graph_adapter",
+        "feature_object": "graph_z",
+        "training_method": "erm",
+        "level": "L3_ORACLE_GLOBAL_GEOMETRY_FRESH_HEAD",
+        "eraser": "lw_leace_full"
+      },
+      "specific_gain": {
+        "L0_STRICT_SOURCE_ORIGINAL_HEAD": {
+          "mean": 0.0002623456790123623,
+          "ci_lo": -0.005215084876543198,
+          "ci_hi": 0.006172839506172853,
+          "n_clusters": 6,
+          "state": "practical_gain_ruled_out"
+        },
+        "L1_STRICT_SOURCE_FRESH_HEAD": {
+          "mean": -0.006051954732510281,
+          "ci_lo": -0.01616594328703702,
+          "ci_hi": 0.0017857349537036982,
+          "n_clusters": 9,
+          "state": "practical_gain_ruled_out"
+        },
+        "L2_TARGET_X_UNLABELED_FRESH_HEAD": {
+          "mean": -0.006415895061728389,
+          "ci_lo": -0.019547389403292183,
+          "ci_hi": 0.006158002186213994,
+          "n_clusters": 9,
+          "state": "practical_gain_ruled_out"
+        },
+        "L3_ORACLE_GLOBAL_GEOMETRY_FRESH_HEAD": {
+          "mean": -0.005894180831217351,
+          "ci_lo": -0.008149629210159711,
+          "ci_hi": -0.0037420677582502616,
+          "n_clusters": 9,
+          "state": "practical_gain_ruled_out"
+        }
+      },
+      "gate_positive": false
+    },
+    "BNCI2014_001|dgcnn_forward_graph_adapter|graph_z|graphcmi": {
+      "verdict": "GENERIC_DIMENSIONALITY_EFFECT",
+      "level_meets": {
+        "L0_STRICT_SOURCE_ORIGINAL_HEAD": false,
+        "L1_STRICT_SOURCE_FRESH_HEAD": false,
+        "L2_TARGET_X_UNLABELED_FRESH_HEAD": false,
+        "L3_ORACLE_GLOBAL_GEOMETRY_FRESH_HEAD": false
+      },
+      "L1_lw_leace": {
+        "mean": -0.0010850694444444538,
+        "ci_lo": -0.005316840277777778,
+        "ci_hi": 0.003327546296296284,
+        "n_clusters": 8,
+        "state": "practical_gain_ruled_out",
+        "dataset": "BNCI2014_001",
+        "backbone": "dgcnn_forward_graph_adapter",
+        "feature_object": "graph_z",
+        "training_method": "graphcmi",
+        "level": "L1_STRICT_SOURCE_FRESH_HEAD",
+        "eraser": "lw_leace_full"
+      },
+      "L2_lw_leace": {
+        "mean": 0.0031105324074074143,
+        "ci_lo": -0.008572952835648141,
+        "ci_hi": 0.015010127314814825,
+        "n_clusters": 8,
+        "state": "inconclusive",
+        "dataset": "BNCI2014_001",
+        "backbone": "dgcnn_forward_graph_adapter",
+        "feature_object": "graph_z",
+        "training_method": "graphcmi",
+        "level": "L2_TARGET_X_UNLABELED_FRESH_HEAD",
+        "eraser": "lw_leace_full"
+      },
+      "L3_lw_leace": {
+        "mean": -0.008147273363479746,
+        "ci_lo": -0.012892168490256227,
+        "ci_hi": -0.002925145348837189,
+        "n_clusters": 8,
+        "state": "practical_gain_ruled_out",
+        "dataset": "BNCI2014_001",
+        "backbone": "dgcnn_forward_graph_adapter",
+        "feature_object": "graph_z",
+        "training_method": "graphcmi",
+        "level": "L3_ORACLE_GLOBAL_GEOMETRY_FRESH_HEAD",
+        "eraser": "lw_leace_full"
+      },
+      "specific_gain": {
+        "L0_STRICT_SOURCE_ORIGINAL_HEAD": {
+          "mean": -0.0042165798611111145,
+          "ci_lo": -0.01047526041666667,
+          "ci_hi": 0.001590838396990741,
+          "n_clusters": 8,
+          "state": "practical_gain_ruled_out"
+        },
+        "L1_STRICT_SOURCE_FRESH_HEAD": {
+          "mean": -0.0035141782407407474,
+          "ci_lo": -0.009351128472222239,
+          "ci_hi": 0.002178096064814807,
+          "n_clusters": 8,
+          "state": "practical_gain_ruled_out"
+        },
+        "L2_TARGET_X_UNLABELED_FRESH_HEAD": {
+          "mean": 0.00038773148148149323,
+          "ci_lo": -0.011881419994212947,
+          "ci_hi": 0.012872540509259274,
+          "n_clusters": 8,
+          "state": "inconclusive"
+        },
+        "L3_ORACLE_GLOBAL_GEOMETRY_FRESH_HEAD": {
+          "mean": -0.01148372558076764,
+          "ci_lo": -0.015601751713077856,
+          "ci_hi": -0.007219932389238783,
+          "n_clusters": 8,
+          "state": "practical_gain_ruled_out"
+        }
+      },
+      "gate_positive": false
+    },
+    "BNCI2015_001|dgcnn_forward_graph_adapter|graph_z|erm": {
+      "verdict": "NO_POSITIVE_REGIME",
+      "level_meets": {
+        "L0_STRICT_SOURCE_ORIGINAL_HEAD": false,
+        "L1_STRICT_SOURCE_FRESH_HEAD": false,
+        "L2_TARGET_X_UNLABELED_FRESH_HEAD": false,
+        "L3_ORACLE_GLOBAL_GEOMETRY_FRESH_HEAD": false
+      },
+      "L1_lw_leace": {
+        "mean": -0.030208333333333334,
+        "ci_lo": -0.06374999999999997,
+        "ci_hi": -0.010625000000000008,
+        "n_clusters": 4,
+        "state": "practical_gain_ruled_out",
+        "dataset": "BNCI2015_001",
+        "backbone": "dgcnn_forward_graph_adapter",
+        "feature_object": "graph_z",
+        "training_method": "erm",
+        "level": "L1_STRICT_SOURCE_FRESH_HEAD",
+        "eraser": "lw_leace_full"
+      },
+      "L2_lw_leace": {
+        "mean": -0.030416666666666693,
+        "ci_lo": -0.071875,
+        "ci_hi": 0.0006249999999999862,
+        "n_clusters": 4,
+        "state": "practical_gain_ruled_out",
+        "dataset": "BNCI2015_001",
+        "backbone": "dgcnn_forward_graph_adapter",
+        "feature_object": "graph_z",
+        "training_method": "erm",
+        "level": "L2_TARGET_X_UNLABELED_FRESH_HEAD",
+        "eraser": "lw_leace_full"
+      },
+      "L3_lw_leace": {
+        "mean": -0.02595039682539688,
+        "ci_lo": -0.038017857142857256,
+        "ci_hi": -0.016329365079365166,
+        "n_clusters": 4,
+        "state": "practical_gain_ruled_out",
+        "dataset": "BNCI2015_001",
+        "backbone": "dgcnn_forward_graph_adapter",
+        "feature_object": "graph_z",
+        "training_method": "erm",
+        "level": "L3_ORACLE_GLOBAL_GEOMETRY_FRESH_HEAD",
+        "eraser": "lw_leace_full"
+      },
+      "specific_gain": {
+        "L0_STRICT_SOURCE_ORIGINAL_HEAD": {
+          "mean": -0.011139628427128444,
+          "ci_lo": -0.02081666666666669,
+          "ci_hi": -0.0012716630591630643,
+          "n_clusters": 6,
+          "state": "practical_gain_ruled_out"
+        },
+        "L1_STRICT_SOURCE_FRESH_HEAD": {
+          "mean": -0.028739583333333332,
+          "ci_lo": -0.05953958333333334,
+          "ci_hi": -0.008166666666666681,
+          "n_clusters": 4,
+          "state": "practical_gain_ruled_out"
+        },
+        "L2_TARGET_X_UNLABELED_FRESH_HEAD": {
+          "mean": -0.029358333333333365,
+          "ci_lo": -0.06753750000000003,
+          "ci_hi": -0.0010666666666667064,
+          "n_clusters": 4,
+          "state": "practical_gain_ruled_out"
+        },
+        "L3_ORACLE_GLOBAL_GEOMETRY_FRESH_HEAD": {
+          "mean": -0.02786044642857145,
+          "ci_lo": -0.03988264880952386,
+          "ci_hi": -0.017359246031746017,
+          "n_clusters": 4,
+          "state": "practical_gain_ruled_out"
+        }
+      },
+      "gate_positive": false
+    },
+    "BNCI2015_001|dgcnn_forward_graph_adapter|graph_z|graphcmi": {
+      "verdict": "INCONCLUSIVE",
+      "level_meets": {
+        "L0_STRICT_SOURCE_ORIGINAL_HEAD": false,
+        "L1_STRICT_SOURCE_FRESH_HEAD": false,
+        "L2_TARGET_X_UNLABELED_FRESH_HEAD": false,
+        "L3_ORACLE_GLOBAL_GEOMETRY_FRESH_HEAD": false
+      },
+      "L1_lw_leace": {
+        "mean": -0.018090277777777778,
+        "ci_lo": -0.03672482638888887,
+        "ci_hi": -0.0021064814814814856,
+        "n_clusters": 12,
+        "state": "practical_gain_ruled_out",
+        "dataset": "BNCI2015_001",
+        "backbone": "dgcnn_forward_graph_adapter",
+        "feature_object": "graph_z",
+        "training_method": "graphcmi",
+        "level": "L1_STRICT_SOURCE_FRESH_HEAD",
+        "eraser": "lw_leace_full"
+      },
+      "L2_lw_leace": {
+        "mean": -0.017546296296296292,
+        "ci_lo": -0.04239583333333329,
+        "ci_hi": 0.0045726273148148,
+        "n_clusters": 12,
+        "state": "practical_gain_ruled_out",
+        "dataset": "BNCI2015_001",
+        "backbone": "dgcnn_forward_graph_adapter",
+        "feature_object": "graph_z",
+        "training_method": "graphcmi",
+        "level": "L2_TARGET_X_UNLABELED_FRESH_HEAD",
+        "eraser": "lw_leace_full"
+      },
+      "L3_lw_leace": {
+        "mean": -0.034227513227513225,
+        "ci_lo": -0.04212285879629631,
+        "ci_hi": -0.026794025573192225,
+        "n_clusters": 12,
+        "state": "practical_gain_ruled_out",
+        "dataset": "BNCI2015_001",
+        "backbone": "dgcnn_forward_graph_adapter",
+        "feature_object": "graph_z",
+        "training_method": "graphcmi",
+        "level": "L3_ORACLE_GLOBAL_GEOMETRY_FRESH_HEAD",
+        "eraser": "lw_leace_full"
+      },
+      "specific_gain": {
+        "L0_STRICT_SOURCE_ORIGINAL_HEAD": {
+          "mean": -0.02500000000000002,
+          "ci_lo": -0.046624627525252524,
+          "ci_hi": -0.007399002525252563,
+          "n_clusters": 11,
+          "state": "practical_gain_ruled_out"
+        },
+        "L1_STRICT_SOURCE_FRESH_HEAD": {
+          "mean": -0.017871527777777774,
+          "ci_lo": -0.035611423611111075,
+          "ci_hi": -0.0028009895833333385,
+          "n_clusters": 12,
+          "state": "practical_gain_ruled_out"
+        },
+        "L2_TARGET_X_UNLABELED_FRESH_HEAD": {
+          "mean": -0.01728587962962962,
+          "ci_lo": -0.041890781249999995,
+          "ci_hi": 0.004782002314814819,
+          "n_clusters": 12,
+          "state": "practical_gain_ruled_out"
+        },
+        "L3_ORACLE_GLOBAL_GEOMETRY_FRESH_HEAD": {
+          "mean": -0.037129955441353966,
+          "ci_lo": -0.04489272465318087,
+          "ci_hi": -0.029887792625477888,
+          "n_clusters": 12,
+          "state": "practical_gain_ruled_out"
+        }
+      },
+      "gate_positive": false
+    }
+  },
+  "n_rows": 15498,
+  "strata": [
+    [
+      "BNCI2014_001",
+      "dgcnn_forward_graph_adapter",
+      "graph_z",
+      "erm"
+    ],
+    [
+      "BNCI2014_001",
+      "dgcnn_forward_graph_adapter",
+      "graph_z",
+      "graphcmi"
+    ],
+    [
+      "BNCI2015_001",
+      "dgcnn_forward_graph_adapter",
+      "graph_z",
+      "erm"
+    ],
+    [
+      "BNCI2015_001",
+      "dgcnn_forward_graph_adapter",
+      "graph_z",
+      "graphcmi"
+    ]
+  ]
+}
