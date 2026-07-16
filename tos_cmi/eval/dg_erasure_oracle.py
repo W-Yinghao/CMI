@@ -126,3 +126,53 @@ def evaluate_on_target(Z, y, d, target_dom, B, S, seed=0):
     ident = _head_bacc(delete(Z[src], B, ()), y[src], delete(Z[tgt], B, ()), y[tgt], seed)
     got = _head_bacc(delete(Z[src], B, tuple(S)), y[src], delete(Z[tgt], B, tuple(S)), y[tgt], seed)
     return {"identity_target_bacc": ident, "chosen_target_bacc": got, "d_target": got - ident, "chosen_S": list(S)}
+
+
+# --------------------------------------------------------------- greedy variants (O(r^2), for real EEG where 2^r is too slow)
+def _source_meta_bacc(Zs, ys, ds, B, S, source_doms, seed):
+    Zsd = delete(Zs, B, S); accs = []
+    for mv in source_doms:
+        tr = ds != mv; te = ds == mv
+        if len(np.unique(ys[tr])) < 2 or te.sum() == 0:
+            continue
+        accs.append(_head_bacc(Zsd[tr], ys[tr], Zsd[te], ys[te], seed))
+    return float(np.mean(accs)) if accs else float("nan")
+
+
+def source_meta_greedy(Z, y, d, target_dom, B, seed=0, max_k=None, gamma_cmi=0.0):
+    """Greedy forward selection of the DG deletion subset by SOURCE-LOSO meta-validation (O(r^2)). Adds the
+    direction that most improves source-held-out bAcc until no gain (>1e-4) or max_k. Source-only."""
+    src = d != target_dom; Zs, ys, ds = Z[src], y[src], d[src]
+    source_doms = np.unique(ds); r = B.shape[0]; max_k = r if max_k is None else min(max_k, r)
+    full_cmi = cmi_proxy(Zs, ys, ds, seed)
+    S, cur = [], _source_meta_bacc(Zs, ys, ds, B, [], source_doms, seed)
+    base = cur
+    for _ in range(max_k):
+        cand = [(_source_meta_bacc(Zs, ys, ds, B, S + [j], source_doms, seed), j) for j in range(r) if j not in S]
+        if not cand:
+            break
+        bm, bj = max(cand, key=lambda x: (x[0] if np.isfinite(x[0]) else -1))
+        if not np.isfinite(bm) or bm <= cur + 1e-4:
+            break
+        S.append(bj); cur = bm
+    Zsd = delete(Zs, B, S)
+    return {"full_source_cmi": full_cmi, "S_star": S, "star": {"source_meta_bacc": cur,
+            "source_meta_gain": cur - base, "cmi_reduction": full_cmi - cmi_proxy(Zsd, ys, ds, seed)}}
+
+
+def target_dg_greedy(Z, y, d, target_dom, B, seed=0, max_k=None):
+    """Greedy target-label UPPER BOUND: add the direction that most improves TARGET bAcc (O(r^2))."""
+    src = d != target_dom; tgt = d == target_dom
+    Zs, ys, Zt, yt = Z[src], y[src], Z[tgt], y[tgt]; r = B.shape[0]; max_k = r if max_k is None else min(max_k, r)
+    ident = _head_bacc(Zs, ys, Zt, yt, seed)
+    tgt_b = lambda S: _head_bacc(delete(Zs, B, S), ys, delete(Zt, B, S), yt, seed)
+    S, cur = [], ident
+    for _ in range(max_k):
+        cand = [(tgt_b(S + [j]), j) for j in range(r) if j not in S]
+        if not cand:
+            break
+        bm, bj = max(cand, key=lambda x: (x[0] if np.isfinite(x[0]) else -1))
+        if not np.isfinite(bm) or bm <= cur + 1e-4:
+            break
+        S.append(bj); cur = bm
+    return {"identity_target_bacc": ident, "best": {"S": S, "k": len(S)}, "d_target_best": cur - ident}
