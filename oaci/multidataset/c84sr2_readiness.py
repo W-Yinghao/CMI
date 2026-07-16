@@ -81,10 +81,19 @@ def _write_tables(*, verify_external_bytes: bool) -> dict[str, Any]:
         {"risk": risk, "blocking": 1, "status": "CLOSED", "evidence": "protocol+implementation+synthetic+red_team"}
         for risk in risks
     ])
-    write_csv(TABLE_DIR / "failure_reason_ledger.csv", [{
-        "failure_id": "NONE", "stage": "C84SR2_readiness", "blocking": 0,
-        "reason": "no_open_failure_after_validation", "gate_if_open": FAILURE_GATE,
-    }])
+    write_csv(TABLE_DIR / "failure_reason_ledger.csv", [
+        {
+            "failure_id": "C84SR2_READINESS_ATTEMPT_1",
+            "stage": "pre_lock_implementation_commit_binding", "blocking": 0,
+            "reason": "operator_supplied_incorrect_full_commit_argument_lock_not_written",
+            "gate_if_open": FAILURE_GATE,
+        },
+        {
+            "failure_id": "NONE_OPEN", "stage": "C84SR2_readiness", "blocking": 0,
+            "reason": "no_open_failure_after_correct_commit_binding",
+            "gate_if_open": FAILURE_GATE,
+        },
+    ])
     return {
         "protocol": protocol, "stage_a": stage_a, "compatibility": compatibility,
         "external": external_summary, "synthetic": synthetic, "static": static,
