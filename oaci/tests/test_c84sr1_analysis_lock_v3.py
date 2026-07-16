@@ -19,7 +19,7 @@ def test_v3_lock_self_identity_and_status():
     assert lock["analysis_contract"]["method_context_rows"] == 18_608
 
 
-def test_v3_lock_is_preserved_but_nonoperative_after_additive_sr2_repair():
+def test_v3_lock_is_preserved_but_nonoperative_after_additive_sr3_repair():
     lock = read_json(LOCK_PATH)
     replay = verify_lock_bound_readiness(lock)
     assert replay["readiness_tables"] >= 10
@@ -31,7 +31,15 @@ def test_v3_lock_is_preserved_but_nonoperative_after_additive_sr2_repair():
     }
     drift = [row["path"] for row in lock["runtime_bound_repository_objects"]
              if current[row["path"]] != row["sha256"]]
-    assert drift == ["oaci/multidataset/c84sr1_context_enumerator.py"]
+    assert drift == [
+        "oaci/multidataset/c84s_common.py",
+        "oaci/multidataset/c84s_analysis.py",
+        "oaci/multidataset/c84sr1_context_enumerator.py",
+        "oaci/multidataset/c84sr1_q0_store.py",
+        "oaci/multidataset/c84sr1_method_context_materialization.py",
+        "oaci/multidataset/c84sr1_analysis.py",
+        "oaci/multidataset/c84sr1_stage_b_selection.py",
+    ]
 
 
 def test_v3_lock_preserves_historical_nonoperative_locks():
