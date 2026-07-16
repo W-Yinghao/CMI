@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import hashlib
 from pathlib import Path
-from typing import Any, Mapping, Sequence
+from typing import Any, Callable, Mapping, Sequence
 
 import numpy as np
 from scipy import stats
@@ -21,7 +21,8 @@ SHARD_INDEX_FIELDS = (
     "level", "path", "sha256", "bytes", "candidate_count",
     "finite_records", "FULL_records", "total_records",
 )
-_PLAN_CACHE: dict[tuple[str, str, str, int], dict[str, Any]] = {}
+BudgetProvider = Callable[[str], tuple[int, ...]]
+_PLAN_CACHE: dict[tuple[str, str, str, int, tuple[int, ...]], dict[str, Any]] = {}
 
 
 def _digest_bytes(hex_digest: str) -> np.ndarray:
@@ -35,11 +36,18 @@ def _array_digest(value: np.ndarray) -> str:
     return hashlib.sha256(array.tobytes()).hexdigest()
 
 
-def expected_finite_records(dataset: str, chains: int = Q0_CHAINS) -> int:
-    return len(finite_budgets(dataset)) * int(chains)
+def expected_finite_records(
+    dataset: str, chains: int = Q0_CHAINS, *,
+    budget_provider: BudgetProvider = finite_budgets,
+) -> int:
+    return len(budget_provider(dataset)) * int(chains)
 
 
-def validate_payload(payload: Mapping[str, np.ndarray], *, chains: int = Q0_CHAINS) -> dict[str, Any]:
+def validate_payload(
+    payload: Mapping[str, np.ndarray], *, chains: int = Q0_CHAINS,
+    budget_provider: BudgetProvider = finite_budgets,
+    schema_version: str = SCHEMA_VERSION,
+) -> dict[str, Any]:
     required = {
         "schema_version", "dataset", "target_subject_id", "panel",
         "training_seed", "level", "context_id", "candidate_ids",
@@ -55,7 +63,7 @@ def validate_payload(payload: Mapping[str, np.ndarray], *, chains: int = Q0_CHAI
     scalar_text = lambda key: str(np.asarray(payload[key]).item().decode("ascii")
                                   if np.asarray(payload[key]).dtype.kind == "S"
                                   else np.asarray(payload[key]).item())
-    require(scalar_text("schema_version") == SCHEMA_VERSION, "Q0 shard schema drift")
+    require(scalar_text("schema_version") == schema_version, "Q0 shard schema drift")
     dataset = scalar_text("dataset")
     identity = {
         "dataset": dataset,
@@ -71,7 +79,8 @@ def validate_payload(payload: Mapping[str, np.ndarray], *, chains: int = Q0_CHAI
     decoded = [value.decode("ascii") for value in candidate_ids.tolist()]
     require(len(set(decoded)) == CANDIDATES, "Q0 candidate IDs are not unique")
 
-    count = expected_finite_records(dataset, chains)
+    budgets = budget_provider(dataset)
+    count = expected_finite_records(dataset, chains, budget_provider=budget_provider)
     one_dimensional = {
         "finite_chain": np.uint16,
         "finite_chain_seed": np.uint64,
@@ -92,7 +101,7 @@ def validate_payload(payload: Mapping[str, np.ndarray], *, chains: int = Q0_CHAI
             "Q0 finite candidate order is not a permutation")
     require(np.all(np.asarray(payload["finite_selected_index"]) == orders[:, 0]),
             "Q0 selected index differs from order head")
-    for budget in finite_budgets(dataset):
+    for budget in budgets:
         mask = np.asarray(payload["finite_budget_code"]) == Q0_BUDGET_CODES[budget]
         observed = np.sort(np.asarray(payload["finite_chain"])[mask])
         require(np.array_equal(observed, np.arange(chains, dtype=np.uint16)),
@@ -100,7 +109,7 @@ def validate_payload(payload: Mapping[str, np.ndarray], *, chains: int = Q0_CHAI
         require(np.all(np.asarray(payload["finite_sample_size"])[mask] == 2 * budget),
                 f"Q0 sample-size drift: B{budget}")
     require(set(np.unique(np.asarray(payload["finite_budget_code"])).tolist()) ==
-            {Q0_BUDGET_CODES[value] for value in finite_budgets(dataset)},
+            {Q0_BUDGET_CODES[value] for value in budgets},
             "Q0 finite budget coverage drift")
 
     require(np.asarray(payload["FULL_sample_size"]).dtype == np.uint16 and
@@ -125,10 +134,15 @@ def validate_payload(payload: Mapping[str, np.ndarray], *, chains: int = Q0_CHAI
 
 def write_context_shard(
     path: str | Path, payload: Mapping[str, np.ndarray], *, chains: int = Q0_CHAINS,
+    budget_provider: BudgetProvider = finite_budgets,
+    schema_version: str = SCHEMA_VERSION,
 ) -> dict[str, Any]:
     path = Path(path)
     require(not path.exists(), "Q0 shard already exists")
-    identity = validate_payload(payload, chains=chains)
+    identity = validate_payload(
+        payload, chains=chains, budget_provider=budget_provider,
+        schema_version=schema_version,
+    )
     path.parent.mkdir(parents=True, exist_ok=True)
     np.savez_compressed(path, **payload)
     with np.load(path, allow_pickle=False) as archive:
@@ -136,7 +150,10 @@ def write_context_shard(
     require(set(replay) == set(payload), "persisted Q0 shard fields drift")
     for name, value in payload.items():
         require(np.array_equal(replay[name], value), f"persisted Q0 shard array drift: {name}")
-    validate_payload(replay, chains=chains)
+    validate_payload(
+        replay, chains=chains, budget_provider=budget_provider,
+        schema_version=schema_version,
+    )
     return {
         **identity, "path": str(path), "sha256": sha256_file(path),
         "bytes": path.stat().st_size,
@@ -145,6 +162,8 @@ def write_context_shard(
 
 def read_context_shard(
     path: str | Path, *, expected_sha256: str | None = None, chains: int = Q0_CHAINS,
+    budget_provider: BudgetProvider = finite_budgets,
+    schema_version: str = SCHEMA_VERSION,
 ) -> tuple[dict[str, np.ndarray], dict[str, Any]]:
     path = Path(path)
     require(path.is_file(), "Q0 shard absent")
@@ -152,7 +171,10 @@ def read_context_shard(
         require(sha256_file(path) == expected_sha256, "Q0 shard SHA drift")
     with np.load(path, allow_pickle=False) as archive:
         payload = {name: archive[name] for name in archive.files}
-    identity = validate_payload(payload, chains=chains)
+    identity = validate_payload(
+        payload, chains=chains, budget_provider=budget_provider,
+        schema_version=schema_version,
+    )
     return payload, identity
 
 
@@ -164,6 +186,8 @@ def build_context_payload(
     target_trial_ids: Sequence[str],
     construction_rows: Sequence[Mapping[str, Any]],
     chains: int = Q0_CHAINS,
+    budget_provider: BudgetProvider = finite_budgets,
+    schema_version: str = SCHEMA_VERSION,
 ) -> dict[str, np.ndarray]:
     """Compute one Q0 shard with exact streams and batched candidate metrics."""
     dataset = str(identity["dataset"])
@@ -185,12 +209,12 @@ def build_context_payload(
     labels = np.asarray([int(row["canonical_class_label"]) for row in rows], dtype=int)
     indices = np.asarray([target_index[value] for value in construction_ids], dtype=int)
     construction_logits = target_logits[:, indices]
-    budgets = finite_budgets(dataset)
+    budgets = budget_provider(dataset)
     plan_identity = hashlib.sha256(
         ("\n".join(construction_ids.tolist()) + "\n" +
          "".join(map(str, labels.tolist()))).encode("utf-8")
     ).hexdigest()
-    plan_key = (dataset, target, plan_identity, int(chains))
+    plan_key = (dataset, target, plan_identity, int(chains), tuple(budgets))
     if plan_key not in _PLAN_CACHE:
         canonical = {class_id: np.where(labels == class_id)[0] for class_id in (0, 1)}
         require(set(np.unique(labels).tolist()) == {0, 1}, "Q0 construction class mapping drift")
@@ -225,7 +249,7 @@ def build_context_payload(
     plan = _PLAN_CACHE[plan_key]
     finite_count = len(budgets) * chains
     payload: dict[str, np.ndarray] = {
-        "schema_version": np.asarray(SCHEMA_VERSION.encode("ascii"), dtype="S64"),
+        "schema_version": np.asarray(schema_version.encode("ascii"), dtype="S64"),
         "dataset": np.asarray(dataset.encode("ascii"), dtype="S32"),
         "target_subject_id": np.asarray(target.encode("ascii"), dtype="S32"),
         "panel": np.asarray(str(identity["panel"]).encode("ascii"), dtype="S4"),
@@ -330,16 +354,21 @@ def build_context_payload(
         "FULL_candidate_score_digest": np.asarray([_digest_bytes(_array_digest(np.asarray(full_scores, dtype="<f8")))], dtype=np.uint8),
         "FULL_construction_metric_digest": np.asarray([_digest_bytes(_array_digest(np.asarray(full_metrics, dtype="<f8")))], dtype=np.uint8),
     })
-    validate_payload(payload, chains=chains)
+    validate_payload(
+        payload, chains=chains, budget_provider=budget_provider,
+        schema_version=schema_version,
+    )
     return payload
 
 
 def synthetic_payload(
     identity: Mapping[str, Any], candidate_ids: Sequence[str], *, chains: int = Q0_CHAINS,
+    budget_provider: BudgetProvider = finite_budgets,
+    schema_version: str = SCHEMA_VERSION,
 ) -> dict[str, np.ndarray]:
     """Production-schema fixture used by full-scale storage calibration."""
     dataset = str(identity["dataset"])
-    budgets = finite_budgets(dataset)
+    budgets = budget_provider(dataset)
     count = len(budgets) * chains
     chain = np.tile(np.arange(chains, dtype=np.uint16), len(budgets))
     budget_code = np.repeat(np.asarray([Q0_BUDGET_CODES[value] for value in budgets], dtype=np.uint8), chains)
@@ -353,7 +382,7 @@ def synthetic_payload(
     digest[:, 1] = (chain & 0xFF).astype(np.uint8)
     digest[:, 2] = (chain >> 8).astype(np.uint8)
     payload = {
-        "schema_version": np.asarray(SCHEMA_VERSION.encode("ascii"), dtype="S64"),
+        "schema_version": np.asarray(schema_version.encode("ascii"), dtype="S64"),
         "dataset": np.asarray(dataset.encode("ascii"), dtype="S32"),
         "target_subject_id": np.asarray(str(identity["target_subject_id"]).encode("ascii"), dtype="S32"),
         "panel": np.asarray(str(identity["panel"]).encode("ascii"), dtype="S4"),
@@ -377,5 +406,8 @@ def synthetic_payload(
         "FULL_candidate_score_digest": np.zeros((1, 32), dtype=np.uint8),
         "FULL_construction_metric_digest": np.zeros((1, 32), dtype=np.uint8),
     }
-    validate_payload(payload, chains=chains)
+    validate_payload(
+        payload, chains=chains, budget_provider=budget_provider,
+        schema_version=schema_version,
+    )
     return payload

@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 from pathlib import Path
-from typing import Any, Mapping, Sequence
+from typing import Any, Callable, Mapping, Sequence
 
 import numpy as np
 
@@ -39,6 +39,8 @@ RESULT_TABLE_FIELDS_V2 = {
 
 def validate_method_context_rows_v2(
     rows: Sequence[Mapping[str, Any]],
+    *, method_provider: Callable[[str], tuple[str, ...]] = expected_methods,
+    expected_row_count: int = 18608,
 ) -> list[dict[str, Any]]:
     expected_fields = set(METHOD_CONTEXT_FIELDS_V2)
     output: list[dict[str, Any]] = []
@@ -56,7 +58,7 @@ def validate_method_context_rows_v2(
         row["method_id"] = str(row["method_id"])
         row["rank_measurement_applicable"] = int(row["rank_measurement_applicable"])
         row["performance_estimate_applicable"] = int(row["performance_estimate_applicable"])
-        require(row["method_id"] in expected_methods(row["dataset"]), "method identity drift")
+        require(row["method_id"] in method_provider(row["dataset"]), "method identity drift")
         for field in (
             "standardized_regret", "selected_utility", "source_relative_regret_gain",
             "top1", "top5", "top10", "coverage",
@@ -98,8 +100,9 @@ def validate_method_context_rows_v2(
     require({dataset: len(values) for dataset, values in targets.items()} == DATASET_TARGET_COUNTS,
             "method-context target coverage drift")
     for context, methods in groups.items():
-        require(methods == set(expected_methods(str(context[0]))), f"context method coverage drift: {context}")
-    require(len(groups) == 944 and len(output) == 18608, "method-context exact arithmetic drift")
+        require(methods == set(method_provider(str(context[0]))), f"context method coverage drift: {context}")
+    require(len(groups) == 944 and len(output) == expected_row_count,
+            "method-context exact arithmetic drift")
     lookup = {tuple(row[field] for field in METHOD_CONTEXT_FIELDS_V2[:6]): row for row in output}
     for context, methods in groups.items():
         source = lookup[context + ("S1",)]["standardized_regret"]
@@ -130,11 +133,12 @@ def _historical_projection(rows: Sequence[Mapping[str, Any]]) -> list[dict[str, 
 
 def _measurement_table(
     rows: Sequence[Mapping[str, Any]], dataset_decisions: Sequence[Mapping[str, Any]],
+    *, method_provider: Callable[[str], tuple[str, ...]] = expected_methods,
 ) -> list[dict[str, Any]]:
     q1 = {(row["dataset"], row["method_id"]): int(row["Q1_pass"]) for row in dataset_decisions}
     output = []
     for dataset in DATASET_TARGET_COUNTS:
-        for method in expected_methods(dataset):
+        for method in method_provider(dataset):
             method_rows = [row for row in rows if row["dataset"] == dataset and row["method_id"] == method]
             rank_flag = int(method_rows[0]["rank_measurement_applicable"])
             performance_flag = int(method_rows[0]["performance_estimate_applicable"])
@@ -195,12 +199,25 @@ def derive_tables_v2(
     q0_mc_rows: Sequence[Mapping[str, Any]],
     draws: int,
     blocker: bool,
+    method_provider: Callable[[str], tuple[str, ...]] = expected_methods,
+    expected_row_count: int = 18608,
 ) -> tuple[dict[str, list[dict[str, Any]]], dict[str, Any]]:
-    normalized = validate_method_context_rows_v2(rows)
-    projected = historical.validate_method_context_rows(_historical_projection(normalized))
-    tables, result = historical._derive_tables(projected, draws=draws, blocker=blocker)
+    normalized = validate_method_context_rows_v2(
+        rows, method_provider=method_provider, expected_row_count=expected_row_count,
+    )
+    projected = historical.validate_method_context_rows(
+        _historical_projection(normalized),
+        expected_method_provider=method_provider,
+        expected_row_count=expected_row_count,
+    )
+    tables, result = historical._derive_tables(
+        projected, draws=draws, blocker=blocker,
+        expected_method_provider=method_provider,
+    )
     tables["method_context_decisions.csv"] = normalized
-    tables["measurement_vs_decision.csv"] = _measurement_table(normalized, tables["dataset_Q1_Q2.csv"])
+    tables["measurement_vs_decision.csv"] = _measurement_table(
+        normalized, tables["dataset_Q1_Q2.csv"], method_provider=method_provider,
+    )
     tables["selected_regime_distribution.csv"] = _regime_table(normalized, q0_regime_rows)
     tables["q0_selected_regime_distribution.csv"] = [dict(row) for row in q0_regime_rows]
     tables["q0_monte_carlo_diagnostics.csv"] = [dict(row) for row in q0_mc_rows]
@@ -223,6 +240,10 @@ def run_analysis_and_freeze_v2(
     blocker: bool = False,
     synthetic: bool = False,
     failure_injection_after: str | None = None,
+    method_provider: Callable[[str], tuple[str, ...]] = expected_methods,
+    expected_row_count: int = 18608,
+    result_schema: str = "c84sr1_result_v2",
+    manifest_schema: str = "c84sr1_result_artifact_manifest_v2",
 ) -> dict[str, Any]:
     require(selection_freeze_identity.get("status") == "SELECTION_FROZEN_EVALUATION_DESCRIPTOR_NOT_YET_AVAILABLE",
             "Stage C lacks immutable selection freeze")
@@ -233,9 +254,10 @@ def run_analysis_and_freeze_v2(
     tables, result = derive_tables_v2(
         method_context_rows, q0_regime_rows=q0_regime_rows,
         q0_mc_rows=q0_mc_rows, draws=draws, blocker=blocker,
+        method_provider=method_provider, expected_row_count=expected_row_count,
     )
     result.update({
-        "schema_version": "c84sr1_result_v2",
+        "schema_version": result_schema,
         "selection_freeze_sha256": str(selection_freeze_identity["sha256"]),
         "evaluation_view_manifest_sha256": str(evaluation_view_identity["manifest_sha256"]),
         "synthetic": bool(synthetic),
@@ -249,7 +271,7 @@ def run_analysis_and_freeze_v2(
             if failure_injection_after == name:
                 raise RuntimeError("injected C84SR1 Stage-C result failure")
         manifest = {
-            "schema_version": "c84sr1_result_artifact_manifest_v2",
+            "schema_version": manifest_schema,
             "selection_freeze_sha256": str(selection_freeze_identity["sha256"]),
             "evaluation_view_manifest_sha256": str(evaluation_view_identity["manifest_sha256"]),
             "table_count": len(artifacts), "artifacts": artifacts,

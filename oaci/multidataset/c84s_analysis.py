@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 from pathlib import Path
-from typing import Any, Mapping, Sequence
+from typing import Any, Callable, Mapping, Sequence
 
 import numpy as np
 
@@ -127,6 +127,8 @@ def _finite(value: Any, field: str) -> float:
 
 def validate_method_context_rows(
     rows: Sequence[Mapping[str, Any]],
+    *, expected_method_provider: Callable[[str], tuple[str, ...]] = expected_methods,
+    expected_row_count: int = 18608,
 ) -> list[dict[str, Any]]:
     """Validate the complete mixed-method table before opening a result root."""
     normalized: list[dict[str, Any]] = []
@@ -147,7 +149,7 @@ def validate_method_context_rows(
         require(row["panel"] in PANELS, "panel identity drift")
         require(row["training_seed"] in SEEDS, "training-seed identity drift")
         require(row["level"] in LEVELS, "level identity drift")
-        require(row["method_id"] in expected_methods(row["dataset"]), "method identity drift")
+        require(row["method_id"] in expected_method_provider(row["dataset"]), "method identity drift")
         for field in (
             "standardized_regret", "selected_utility",
             "source_relative_regret_gain", "top1", "top5", "top10",
@@ -188,12 +190,12 @@ def validate_method_context_rows(
                 f"eight-context coverage drift: {dataset}/{target}",
             )
     for context, methods in groups.items():
-        require(methods == set(expected_methods(context[0])), f"method set drift: {context}")
+        require(methods == set(expected_method_provider(context[0])), f"method set drift: {context}")
     expected_rows = sum(
-        DATASET_TARGET_COUNTS[dataset] * 8 * len(expected_methods(dataset))
+        DATASET_TARGET_COUNTS[dataset] * 8 * len(expected_method_provider(dataset))
         for dataset in DATASET_TARGET_COUNTS
     )
-    require(len(normalized) == expected_rows == 18608, "method-context row-count drift")
+    require(len(normalized) == expected_rows == expected_row_count, "method-context row-count drift")
 
     lookup = {
         tuple(row[field] for field in METHOD_CONTEXT_FIELDS[:5]) + (row["method_id"],): row
@@ -233,6 +235,7 @@ def _derive_tables(
     *,
     draws: int,
     blocker: bool,
+    expected_method_provider: Callable[[str], tuple[str, ...]] = expected_methods,
 ) -> tuple[dict[str, list[dict[str, Any]]], dict[str, Any]]:
     lookup = {
         (
@@ -516,7 +519,7 @@ def _derive_tables(
     def summary_rows(table: str) -> list[dict[str, Any]]:
         output: list[dict[str, Any]] = []
         for dataset in DATASET_TARGET_COUNTS:
-            for method in expected_methods(dataset):
+            for method in expected_method_provider(dataset):
                 method_rows = [
                     row for row in rows
                     if row["dataset"] == dataset and row["method_id"] == method
@@ -580,7 +583,7 @@ def _derive_tables(
     coverage_rows: list[dict[str, Any]] = []
     regime_rows: list[dict[str, Any]] = []
     for dataset in DATASET_TARGET_COUNTS:
-        for method in expected_methods(dataset):
+        for method in expected_method_provider(dataset):
             method_rows = [row for row in rows if row["dataset"] == dataset and row["method_id"] == method]
             coverage_rows.append({
                 "dataset": dataset, "method_id": method,

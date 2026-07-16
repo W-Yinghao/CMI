@@ -7,6 +7,7 @@ import json
 import os
 from pathlib import Path
 import tempfile
+import time
 from typing import Any, Iterable, Mapping
 
 
@@ -77,10 +78,45 @@ def atomic_publish_directory(final_root: str | Path, writer: Any) -> Path:
     try:
         writer(staging)
         os.replace(staging, final)
-    except BaseException:
+    except BaseException as primary_error:
+        cleanup_notes: list[str] = []
+        cleanup_callback = getattr(writer, "cleanup_on_failure", None)
+        if cleanup_callback is not None:
+            try:
+                cleanup_callback()
+            except BaseException as cleanup_error:
+                cleanup_notes.append(
+                    f"writer cleanup failed: {type(cleanup_error).__name__}: {cleanup_error}"
+                )
         if staging.exists():
             import shutil
-            shutil.rmtree(staging)
+            last_cleanup_error: BaseException | None = None
+            for attempt in range(4):
+                try:
+                    shutil.rmtree(staging)
+                    last_cleanup_error = None
+                    break
+                except BaseException as cleanup_error:
+                    last_cleanup_error = cleanup_error
+                    if attempt < 3:
+                        time.sleep(0.05 * (attempt + 1))
+            if last_cleanup_error is not None:
+                cleanup_notes.append(
+                    "staging cleanup failed after four attempts; residual preserved at "
+                    f"{staging}: {type(last_cleanup_error).__name__}: {last_cleanup_error}"
+                )
+        for note in cleanup_notes:
+            add_note = getattr(primary_error, "add_note", None)
+            if callable(add_note):
+                add_note(note)
+                continue
+            try:
+                notes = list(getattr(primary_error, "__notes__", ()))
+                notes.append(note)
+                setattr(primary_error, "__notes__", notes)
+            except BaseException:
+                # Cleanup diagnostics must never replace the primary failure.
+                pass
         raise
     return final
 
@@ -93,4 +129,3 @@ def require(condition: bool, message: str) -> None:
 def digest_low64(key: str) -> int:
     """Return the locked big-endian integer from the final eight SHA-256 bytes."""
     return int.from_bytes(hashlib.sha256(key.encode("ascii")).digest()[-8:], "big")
-

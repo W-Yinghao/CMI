@@ -1,8 +1,9 @@
-"""C84SR1 Stage-B complete selection materialization and atomic freeze."""
+"""C84SR3 Stage-B selection freeze with availability-safe Q0 budgets."""
 from __future__ import annotations
 
 import argparse
-import csv
+from collections import Counter, defaultdict
+import hashlib
 import json
 from pathlib import Path
 import time
@@ -12,111 +13,129 @@ import numpy as np
 
 from . import c84s_selectors as selectors
 from .c84s_common import (
-    atomic_publish_directory, read_csv, read_json, require, sha256_file, write_json,
+    atomic_publish_directory, require, sha256_file, write_csv, write_json,
 )
-from .c84sr1_common import (
-    FIXED_METHODS, Q0_CHAINS, SCORE_METHODS, reject_evaluation_tokens,
-)
+from .c84sr1_common import FIXED_METHODS, Q0_CHAINS, SCORE_METHODS
 from .c84sr1_context_enumerator import ContextDescriptor, enumerate_contexts
 from .c84sr1_field_reader import FrozenZooReader, zoo_then_target_key
-from .c84sr1_q0_store import (
+from .c84sr1_stage_b_selection import (
+    ACCESS_FIELDS, CONTEXT_FIELDS, CSVStream, FIXED_FIELDS, Q0_COVERAGE_FIELDS,
+    Q0_REGIME_FIELDS, RANK_FIELDS, SAMPLE_FIELDS, SCORE_FIELDS,
+    _context_prefix, _fixed_indices, _load_construction_handoff,
+)
+from .c84sr3_common import (
+    DATASET_TARGET_COUNTS, EXPECTED_CONSTRUCTION_CLASS_RANGE,
+    HISTORICAL_SECONDARY_BUDGETS, OPERATIVE_FINITE_BUDGETS,
+    Q0_RECORDS, Q0_SAMPLE_DIGEST_ROWS, finite_budgets,
+)
+from .c84sr3_q0_store import (
     SHARD_INDEX_FIELDS, build_context_payload, write_context_shard,
 )
 
 
-CONTEXT_FIELDS = (
-    "context_id", "dataset", "target_subject_id", "panel", "training_seed", "level",
+AVAILABILITY_FIELDS = (
+    "dataset", "budget", "budget_role", "targets", "feasible_targets",
+    "infeasible_targets", "min_labels_per_class", "max_labels_per_class",
+    "operative", "disposition",
 )
-SCORE_FIELDS = CONTEXT_FIELDS + ("method_id", "candidate_index", "candidate_id", "raw_score")
-RANK_FIELDS = CONTEXT_FIELDS + ("method_id", "candidate_index", "candidate_id", "rank")
-FIXED_FIELDS = CONTEXT_FIELDS + ("method_id", "selected_candidate_index", "selected_candidate_id")
-SAMPLE_FIELDS = (
-    "dataset", "target_subject_id", "chain", "chain_seed", "budget",
-    "sample_trial_id_sha256", "sample_size",
-)
-Q0_REGIME_FIELDS = CONTEXT_FIELDS + ("budget", "regime", "chain_count", "fraction")
-Q0_COVERAGE_FIELDS = CONTEXT_FIELDS + ("budget", "expected_records", "observed_records", "coverage")
-ACCESS_FIELDS = CONTEXT_FIELDS + ("method_id", "view", "read_allowed", "rows", "labels")
 
 
-class CSVStream:
-    def __init__(self, path: Path, fields: Sequence[str]):
-        self.path = path
-        self.fields = tuple(fields)
-        self.handle = path.open("w", encoding="utf-8", newline="")
-        self.writer = csv.DictWriter(self.handle, fieldnames=self.fields, lineterminator="\n")
-        self.writer.writeheader()
-        self.rows = 0
-
-    def write(self, row: Mapping[str, Any]) -> None:
-        require(tuple(row) == self.fields, f"streaming CSV field order drift: {self.path.name}")
-        self.writer.writerow(row)
-        self.rows += 1
-
-    def close(self) -> dict[str, Any]:
-        if not self.handle.closed:
-            self.handle.flush()
-            self.handle.close()
-        return {"path": self.path.name, "rows": self.rows, "sha256": sha256_file(self.path)}
-
-    def abort(self) -> None:
-        if not self.handle.closed:
-            self.handle.flush()
-            self.handle.close()
+def _q0_sample_plan_identity(payload: Mapping[str, np.ndarray]) -> str:
+    digest = hashlib.sha256()
+    for name in (
+        "finite_chain", "finite_chain_seed", "finite_budget_code",
+        "finite_sample_size", "finite_sample_digest", "FULL_sample_size",
+        "FULL_sample_digest",
+    ):
+        value = np.ascontiguousarray(np.asarray(payload[name]))
+        digest.update(name.encode("ascii"))
+        digest.update(value.dtype.str.encode("ascii"))
+        digest.update(str(value.shape).encode("ascii"))
+        digest.update(value.tobytes())
+    return digest.hexdigest()
 
 
-def _context_prefix(context: ContextDescriptor) -> dict[str, Any]:
-    return {
-        "context_id": context.context_id, "dataset": context.dataset,
-        "target_subject_id": context.target_subject_id, "panel": context.panel,
-        "training_seed": context.training_seed, "level": context.level,
-    }
+def construction_budget_availability(
+    construction_rows: Sequence[Mapping[str, Any]],
+    contexts: Sequence[ContextDescriptor], *, synthetic: bool,
+) -> list[dict[str, Any]]:
+    target_sets: dict[str, set[str]] = defaultdict(set)
+    for context in contexts:
+        target_sets[context.dataset].add(context.target_subject_id)
+    require(
+        {dataset: len(targets) for dataset, targets in target_sets.items()}
+        == DATASET_TARGET_COUNTS,
+        "construction availability target coverage drift",
+    )
 
+    counts: Counter[tuple[str, str, int]] = Counter()
+    seen_trials: set[tuple[str, str, str]] = set()
+    for row in construction_rows:
+        dataset = str(row["dataset"])
+        target = str(row["target_subject_id"])
+        label = int(row["canonical_class_label"])
+        require(dataset in target_sets and target in target_sets[dataset],
+                "construction row is outside registered targets")
+        require(label in (0, 1), "construction class identity drift")
+        trial_key = (dataset, target, str(row["target_trial_id"]))
+        require(trial_key not in seen_trials, "duplicate construction trial identity")
+        seen_trials.add(trial_key)
+        counts[(dataset, target, label)] += 1
 
-def _default_context_loader(context: ContextDescriptor) -> dict[str, Any]:
-    raise RuntimeError("use one FrozenZooReader instance per Stage-B execution")
+    rows: list[dict[str, Any]] = []
+    for dataset in DATASET_TARGET_COUNTS:
+        targets = sorted(target_sets[dataset])
+        class_counts = [counts[(dataset, target, label)] for target in targets for label in (0, 1)]
+        require(all(value >= 8 for value in class_counts),
+                f"primary Q0 construction minimum failed: {dataset}")
+        if not synthetic:
+            expected_min, expected_max = EXPECTED_CONSTRUCTION_CLASS_RANGE[dataset]
+            require(min(class_counts) == expected_min and max(class_counts) == expected_max,
+                    f"construction availability range drift: {dataset}")
 
-
-def _load_construction_handoff(path: str | Path) -> tuple[dict[str, Any], list[dict[str, Any]]]:
-    handoff = read_json(path)
-    reject_evaluation_tokens(handoff)
-    require(handoff["stage"] == "Stage_A_to_Stage_B", "Stage-A-to-B handoff stage drift")
-    descriptor = handoff["construction_descriptor"]
-    require(descriptor["kind"] == "construction", "Stage B received non-construction view")
-    root = Path(descriptor["root"])
-    manifest_path = root / "manifest.json"
-    require(sha256_file(manifest_path) == descriptor["manifest_sha256"], "construction manifest SHA drift")
-    manifest = read_json(manifest_path)
-    require(manifest["candidate_artifacts"] == manifest["EEG_arrays"] == 0,
-            "construction view contains forbidden payload")
-    labels_path = root / manifest["table"]["path"]
-    require(sha256_file(labels_path) == manifest["table"]["sha256"], "construction label table SHA drift")
-    rows = read_csv(labels_path)
-    require(len(rows) == int(descriptor["row_count"]), "construction row count drift")
-    return handoff, rows
-
-
-def _fixed_indices(regimes: Sequence[str], orders: Sequence[int]) -> dict[str, int]:
-    lookup = {(str(regime), int(order)): index for index, (regime, order) in enumerate(zip(regimes, orders))}
-    result = {
-        "B1": lookup[("ERM", 0)], "B2": lookup[("OACI", 40)],
-        "B3": lookup[("SRC", 40)], "B4O": lookup[("OACI", 20)],
-        "B4S": lookup[("SRC", 20)],
-    }
-    require(set(result) == set(FIXED_METHODS), "fixed default identity drift")
-    return result
+        planned = (1, 2, 4, 8, *HISTORICAL_SECONDARY_BUDGETS[dataset])
+        for budget in (*planned, "FULL"):
+            if budget == "FULL":
+                feasible = len(targets)
+                role = "PRIMARY"
+            else:
+                feasible = sum(
+                    min(counts[(dataset, target, 0)], counts[(dataset, target, 1)]) >= int(budget)
+                    for target in targets
+                )
+                role = "PRIMARY" if int(budget) <= 8 else "SECONDARY"
+            operative = budget == "FULL" or budget in OPERATIVE_FINITE_BUDGETS[dataset]
+            disposition = (
+                "FEASIBLE" if feasible == len(targets) else
+                "INPUT_UNAVAILABLE_ALL_TARGETS" if feasible == 0 else
+                "PARTIALLY_AVAILABLE_FORBIDDEN"
+            )
+            rows.append({
+                "dataset": dataset, "budget": str(budget), "budget_role": role,
+                "targets": len(targets), "feasible_targets": feasible,
+                "infeasible_targets": len(targets) - feasible,
+                "min_labels_per_class": min(class_counts),
+                "max_labels_per_class": max(class_counts),
+                "operative": int(operative), "disposition": disposition,
+            })
+            if operative:
+                require(feasible == len(targets),
+                        f"operative Q0 budget is not universally feasible: {dataset}/B{budget}")
+            elif dataset == "Lee2019_MI" and budget == 32:
+                require(feasible == 0, "Lee B32 availability contract drift")
+            else:
+                require(False, f"unexpected unavailable Q0 budget: {dataset}/B{budget}")
+    require(len(rows) == 19, "Q0 availability registry row arithmetic drift")
+    return rows
 
 
 def run_stage_b(
-    *,
-    stage_a_handoff_path: str | Path,
-    final_root: str | Path,
+    *, stage_a_handoff_path: str | Path, final_root: str | Path,
     contexts: Sequence[ContextDescriptor] | None = None,
     context_loader: Callable[[ContextDescriptor], Mapping[str, Any]] | None = None,
     score_provider: Callable[[ContextDescriptor, Mapping[str, Any]], Mapping[str, np.ndarray]] | None = None,
     q0_builder: Callable[..., Mapping[str, np.ndarray]] = build_context_payload,
-    chains: int = Q0_CHAINS,
-    synthetic: bool = False,
+    chains: int = Q0_CHAINS, synthetic: bool = False,
     failure_injection_context: int | None = None,
 ) -> dict[str, Any]:
     handoff, construction_rows = _load_construction_handoff(stage_a_handoff_path)
@@ -124,13 +143,23 @@ def run_stage_b(
         list(enumerate_contexts() if contexts is None else contexts),
         key=zoo_then_target_key,
     )
-    loader = FrozenZooReader(include_source=True) if context_loader is None else context_loader
     if not synthetic:
-        require(chains == Q0_CHAINS and len(contexts) == 944, "real Stage-B scope reduction")
+        require(chains == Q0_CHAINS and len(contexts) == 944,
+                "real C84SR3 Stage-B scope reduction")
+    availability = construction_budget_availability(
+        construction_rows, contexts, synthetic=synthetic,
+    )
+    loader = FrozenZooReader(include_source=True) if context_loader is None else context_loader
     final_root = Path(final_root)
-    require(not final_root.exists(), "Stage-B final root exists")
+    require(not final_root.exists(), "C84SR3 Stage-B final root exists")
+    active_streams: dict[str, CSVStream] = {}
+
+    def close_active_streams() -> None:
+        for stream in active_streams.values():
+            stream.abort()
 
     def writer(staging: Path) -> None:
+        availability_sha = write_csv(staging / "q0_budget_availability.csv", availability)
         streams = {
             "candidate_scores.csv": CSVStream(staging / "candidate_scores.csv", SCORE_FIELDS),
             "candidate_ranks.csv": CSVStream(staging / "candidate_ranks.csv", RANK_FIELDS),
@@ -141,13 +170,14 @@ def run_stage_b(
             "q0_selection_coverage_diagnostics.csv": CSVStream(staging / "q0_selection_coverage_diagnostics.csv", Q0_COVERAGE_FIELDS),
             "selection_input_access_ledger.csv": CSVStream(staging / "selection_input_access_ledger.csv", ACCESS_FIELDS),
         }
-        shard_root = staging / "q0_shards"
+        active_streams.update(streams)
         seen_samples: set[tuple[str, str]] = set()
+        sample_plan_identities: dict[tuple[str, str], str] = {}
         q0_records = 0
         context_rows = []
         for context_index, context in enumerate(contexts):
             if failure_injection_context is not None and context_index == failure_injection_context:
-                raise RuntimeError("injected Stage-B context failure")
+                raise RuntimeError("injected C84SR3 Stage-B context failure")
             data = dict(loader(context))
             candidate_ids = list(map(str, data["candidate_ids"]))
             regimes = list(map(str, data["regimes"]))
@@ -167,7 +197,8 @@ def run_stage_b(
             prefix = _context_prefix(context)
             for method in SCORE_METHODS:
                 scores = np.asarray(score_vectors[method], dtype=float)
-                require(scores.shape == (81,) and np.all(np.isfinite(scores)), f"score vector drift: {method}")
+                require(scores.shape == (81,) and np.all(np.isfinite(scores)),
+                        f"score vector drift: {method}")
                 order = np.lexsort((np.arange(81), -scores))
                 ranks = np.empty(81, dtype=int)
                 ranks[order] = np.arange(1, 82)
@@ -193,26 +224,24 @@ def run_stage_b(
             )
             relative_shard = Path("q0_shards") / f"{context.context_id}.npz"
             shard = write_context_shard(staging / relative_shard, payload, chains=chains)
-            shard_row = {
+            streams["q0_selection_shard_index.csv"].write({
                 key: (str(relative_shard) if key == "path" else shard[key])
                 for key in SHARD_INDEX_FIELDS
-            }
-            streams["q0_selection_shard_index.csv"].write(shard_row)
+            })
             q0_records += int(shard["total_records"])
             codes = np.asarray(payload["finite_budget_code"], dtype=np.uint8)
             selected = np.asarray(payload["finite_selected_index"], dtype=np.uint8)
             finite_regimes = np.asarray(regimes, dtype=str)[selected]
-            for budget in sorted(set(codes.tolist())):
+            for budget in finite_budgets(context.dataset):
                 mask = codes == budget
-                expected = chains
                 streams["q0_selection_coverage_diagnostics.csv"].write({
-                    **prefix, "budget": str(int(budget)), "expected_records": expected,
-                    "observed_records": int(np.sum(mask)), "coverage": float(np.mean(mask) * len(codes) / expected),
+                    **prefix, "budget": str(budget), "expected_records": chains,
+                    "observed_records": int(np.sum(mask)), "coverage": float(np.sum(mask) / chains),
                 })
                 for regime in ("ERM", "OACI", "SRC"):
                     count = int(np.sum(finite_regimes[mask] == regime))
                     streams["q0_selected_regime_distribution.csv"].write({
-                        **prefix, "budget": str(int(budget)), "regime": regime,
+                        **prefix, "budget": str(budget), "regime": regime,
                         "chain_count": count, "fraction": count / float(chains),
                     })
             streams["q0_selection_coverage_diagnostics.csv"].write({
@@ -227,6 +256,14 @@ def run_stage_b(
                     "chain_count": count, "fraction": float(count),
                 })
             sample_key = (context.dataset, context.target_subject_id)
+            sample_plan_identity = _q0_sample_plan_identity(payload)
+            if sample_key in sample_plan_identities:
+                require(
+                    sample_plan_identities[sample_key] == sample_plan_identity,
+                    "Q0 paired sample-plan identity drift across repeated contexts",
+                )
+            else:
+                sample_plan_identities[sample_key] = sample_plan_identity
             if sample_key not in seen_samples:
                 seen_samples.add(sample_key)
                 chains_array = np.asarray(payload["finite_chain"])
@@ -269,19 +306,25 @@ def run_stage_b(
             context_rows.append({**prefix, "candidate_count": 81})
 
         artifacts = {name: stream.close() for name, stream in streams.items()}
+        artifacts["q0_budget_availability.csv"] = {
+            "path": "q0_budget_availability.csv", "rows": len(availability),
+            "sha256": availability_sha,
+        }
         require(len(context_rows) == len(contexts), "Stage-B context count drift")
         if not synthetic:
             expected_rows = {
-                "candidate_scores.csv": 535248, "candidate_ranks.csv": 535248,
+                "candidate_scores.csv": 535248,
+                "candidate_ranks.csv": 535248,
                 "fixed_default_selections.csv": 4720,
                 "q0_selection_shard_index.csv": 944,
-                "q0_sample_digest_registry.csv": 1138806,
+                "q0_sample_digest_registry.csv": Q0_SAMPLE_DIGEST_ROWS,
             }
             for name, expected in expected_rows.items():
-                require(artifacts[name]["rows"] == expected, f"Stage-B exact row count drift: {name}")
-            require(q0_records == 9110448, "Stage-B exact Q0 record count drift")
+                require(artifacts[name]["rows"] == expected,
+                        f"C84SR3 Stage-B exact row count drift: {name}")
+            require(q0_records == Q0_RECORDS, "C84SR3 Stage-B Q0 record count drift")
         context_sha = write_json(staging / "C84S_STAGE_B_CONTEXT_REGISTRY.json", {
-            "schema_version": "c84sr1_stage_b_context_registry_v1",
+            "schema_version": "c84sr3_stage_b_context_registry_v2",
             "contexts": context_rows, "context_count": len(context_rows),
         })
         artifacts["C84S_STAGE_B_CONTEXT_REGISTRY.json"] = {
@@ -289,7 +332,7 @@ def run_stage_b(
             "sha256": context_sha,
         }
         manifest = {
-            "schema_version": "c84sr1_selection_freeze_manifest_v2",
+            "schema_version": "c84sr3_selection_freeze_manifest_v3",
             "status": "SELECTION_FROZEN_EVALUATION_DESCRIPTOR_NOT_YET_AVAILABLE",
             "stage_A_handoff_sha256": sha256_file(stage_a_handoff_path),
             "evaluation_label_descriptor_received": False,
@@ -297,34 +340,36 @@ def run_stage_b(
             "contexts": len(contexts), "score_methods": list(SCORE_METHODS),
             "fixed_methods": list(FIXED_METHODS), "Q0_chains": chains,
             "Q0_records": q0_records, "Q0_shards": len(contexts),
+            "Lee_Q0_B32_status": "INPUT_UNAVAILABLE_NO_SELECTION_OR_RESULT_ROW",
             "artifacts": artifacts,
         }
-        manifest_sha = write_json(staging / "C84S_SELECTION_FREEZE_MANIFEST_V2.json", manifest)
-        (staging / "C84S_SELECTION_FREEZE_MANIFEST_V2.sha256").write_text(
-            f"{manifest_sha}  C84S_SELECTION_FREEZE_MANIFEST_V2.json\n", encoding="ascii",
+        manifest_sha = write_json(staging / "C84S_SELECTION_FREEZE_MANIFEST_V3.json", manifest)
+        (staging / "C84S_SELECTION_FREEZE_MANIFEST_V3.sha256").write_text(
+            f"{manifest_sha}  C84S_SELECTION_FREEZE_MANIFEST_V3.json\n", encoding="ascii",
         )
-        write_json(staging / "C84S_STAGE_B_HANDOFF.json", {
-            "schema_version": "c84sr1_stage_b_to_c_handoff_v1", "stage": "Stage_B_to_Stage_C",
+        write_json(staging / "C84S_STAGE_B_HANDOFF_V2.json", {
+            "schema_version": "c84sr3_stage_b_to_c_handoff_v2", "stage": "Stage_B_to_Stage_C",
             "selection_freeze_manifest_sha256": manifest_sha,
             "selection_freeze_status": manifest["status"],
             "evaluation_descriptor_received": False,
         })
 
+    writer.cleanup_on_failure = close_active_streams  # type: ignore[attr-defined]
     published = atomic_publish_directory(final_root, writer)
-    manifest = read_json(published / "C84S_SELECTION_FREEZE_MANIFEST_V2.json")
+    manifest_path = published / "C84S_SELECTION_FREEZE_MANIFEST_V3.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     return {
-        "stage": "Stage_B", "root": str(published),
-        "status": manifest["status"],
-        "sha256": sha256_file(published / "C84S_SELECTION_FREEZE_MANIFEST_V2.json"),
-        "contexts": manifest["contexts"], "Q0_records": manifest["Q0_records"],
+        "stage": "Stage_B", "root": str(published), "status": manifest["status"],
+        "sha256": sha256_file(manifest_path), "contexts": manifest["contexts"],
+        "Q0_records": manifest["Q0_records"],
     }
 
 
 def run_stage_b_real(*, stage_a_handoff_path: str | Path, final_root: str | Path) -> dict[str, Any]:
     attempt_path = Path(final_root).parent / f"{Path(final_root).name}.stage_b_attempt.json"
-    require(not attempt_path.exists(), "Stage-B attempt exists")
+    require(not attempt_path.exists(), "C84SR3 Stage-B attempt exists")
     attempt = {
-        "schema_version": "c84sr1_stage_attempt_v1", "stage": "Stage_B",
+        "schema_version": "c84sr3_stage_attempt_v2", "stage": "Stage_B",
         "status": "STARTED", "started_at_unix_ns": time.time_ns(),
         "evaluation_descriptor_received": False, "scientific_statistics": 0,
     }
@@ -340,6 +385,7 @@ def run_stage_b_real(*, stage_a_handoff_path: str | Path, final_root: str | Path
         attempt.update({
             "status": "FAILED", "finished_at_unix_ns": time.time_ns(),
             "error_type": type(error).__name__, "error": str(error),
+            "error_notes": list(getattr(error, "__notes__", ())),
             "partial_final_root": Path(final_root).exists(),
         })
         write_json(attempt_path, attempt)

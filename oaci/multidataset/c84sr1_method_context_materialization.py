@@ -1,7 +1,7 @@
 """Immutable Stage-B selections to canonical C84SR1 method-context rows."""
 from __future__ import annotations
 
-from typing import Any, Mapping, Sequence
+from typing import Any, Callable, Mapping, Sequence
 
 import numpy as np
 from scipy import stats
@@ -158,6 +158,8 @@ def materialize_context(
     fixed_selected_indices: Mapping[str, int],
     q0_payload: Mapping[str, np.ndarray],
     q0_chains: int = 2048,
+    budget_provider: Callable[[str], tuple[int, ...]] = finite_budgets,
+    method_provider: Callable[[str], tuple[str, ...]] = expected_methods,
 ) -> tuple[list[dict[str, Any]], list[dict[str, Any]], list[dict[str, Any]]]:
     """Materialize all deterministic and stochastic methods for one context."""
     dataset = str(identity["dataset"])
@@ -212,7 +214,7 @@ def materialize_context(
     q0_mc_rows: list[dict[str, Any]] = []
     finite_codes = np.asarray(q0_payload["finite_budget_code"], dtype=np.uint8)
     finite_orders = np.asarray(q0_payload["finite_candidate_order"], dtype=np.uint8)
-    for budget in finite_budgets(dataset):
+    for budget in budget_provider(dataset):
         mask = finite_codes == Q0_BUDGET_CODES[budget]
         orders = finite_orders[mask]
         require(len(orders) == q0_chains, f"Q0 integrated chain count drift: {dataset}/B{budget}")
@@ -275,11 +277,11 @@ def materialize_context(
     rank_applicable["Q0_FULL"] = True
     performance_applicable["Q0_FULL"] = False
 
-    expected = set(expected_methods(dataset))
+    expected = set(method_provider(dataset))
     require(set(endpoints) == expected, f"materialized method set drift: {dataset}")
     source_regret = float(endpoints["S1"]["standardized_regret"])
     rows = []
-    for method in expected_methods(dataset):
+    for method in method_provider(dataset):
         row = _row(
             identity, method, endpoints[method],
             rank_applicable=rank_applicable[method],
