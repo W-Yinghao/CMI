@@ -43,3 +43,40 @@ conditioning)? A protocol ladder (L0 strict/original-head → L1 strict/fresh-he
 
 ## Stage log
 - Stage 0 (provenance): DONE.
+- Stage 1 (config freeze): DONE @cb39f75. config_sha256=3e050d97…
+- Stage 2/3 (ladder + erasers/heads/firewall + runner/aggregator/verdict): DONE @0bca008. Smoke on real npz.
+- Stage 4 (task_direction_consistency): DONE @0bca008 (delegated, 11/11 tests verified).
+- Stage 5 (gates G0-G3 + H5): DONE @0bca008.
+- Stage 6 (CMI ruler across erasers): DONE @0bca008 (smoke: LEACE 0.646→0.123 vs random 0.626 — LEACE
+  specifically removes subject leakage; whitening-only 0.116 = conditioning effect).
+- Stage 9 (tests): DONE @5894ffa. 25 new ladder tests + 98-test regression sweep, 0 regressions.
+- **DGCNN graph_z ladder (both datasets COMPLETE)**: @f7772f5. 15496 valid rows (33 concurrent-append-corrupt
+  lines skipped, 0.2%, NO fold lost; completeness full). Diagnostics + gate H5 @d0b2b6f.
+- Stage 10 (figures): DONE @d0b2b6f (forest, schematic, regime map from real data).
+
+### Real DGCNN result (the primary finding)
+On the task-trained DGCNN graph_z representation, **subject-axis erasure is never SPECIFICALLY beneficial in
+any regime**:
+| stratum | verdict | L1 LEACE Δ | L2 LEACE Δ | L3 LEACE Δ (oracle) | beats random? |
+|---------|---------|-----------|-----------|--------------------|---------------|
+| BNCI2014 erm | INCONCLUSIVE | −0.005 [−0.013,+0.003] | −0.005 | −0.006 [−0.009,−0.002] | NO (all levels) |
+| BNCI2014 graphcmi | GENERIC_DIMENSIONALITY_EFFECT | −0.001 | +0.003 (gain CI incl 0) | −0.008 | NO |
+| BNCI2015 erm | NO_POSITIVE_REGIME | −0.030 [−0.064,−0.011] | −0.030 | −0.026 [−0.038,−0.016] | NO |
+| BNCI2015 graphcmi | INCONCLUSIVE | small | small | small-neg | NO |
+- specific_erasure_gain (LEACE − same-rank random) is negative or CI-includes-0 at EVERY level/stratum →
+  `beats_random=False` everywhere. Even the L3 ORACLE (cohort-conditioned) does not create a benefit.
+- Gate H5 (source-only G1/G2/G3 vs identity, subject-cluster CI): NO policy positive. The identity fallback
+  REDUCES HARM (BNCI2015 graphcmi always-erase −0.018 → gated −0.000 by refusing 31/36) but never beats
+  identity → gate is a guarded harm-reducer, not a positive method.
+- CMI ruler (Stage 6): LW-LEACE specifically lowers measured leakage (mlp_small_kl 0.65→0.12) far more than
+  same-rank random (0.63) — i.e. LEACE *does* remove subject identity as measured — yet this does not yield a
+  beneficial readout (the measurement→control gap, again).
+
+### Environment blocker (Stage 7) — HONEST
+- TOS frozen-dump regeneration hit env rot in `eeg2025`: moabb 1.5.0 renamed `BNCI2014001`→`BNCI2014_001`
+  (breaks braindecode 0.8's import) AND torchaudio has a broken ABI (`undefined symbol`), which crashes the
+  braindecode(EEGNet)/TSMNet dump path. The pure-torch DGCNN path was unaffected (that's why P0/P1 worked).
+- **EEGNet dumps**: relaunched in env `icml` (moabb 1.2.0 + braindecode 0.8 compatible), serialized
+  (singleton) to avoid the NFS moabb-cache lock. Jobs 897813-815. RUNNING.
+- **TSMNet dumps**: still BLOCKED — `spdnets` absent in `icml`; torchaudio broken in `eeg2025`. Documented as
+  a blocker; EEGNet alone covers the frozen non-graph (FMScope-style) regime.
