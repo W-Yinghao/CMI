@@ -1,0 +1,2 @@
+failure_id,stage,blocking,reason,real_label_access,real_selector_scores,scientific_statistics
+NONE,C84SL_readiness,0,protocol_implementation_and_synthetic_reconciliation_passed,0,0,0

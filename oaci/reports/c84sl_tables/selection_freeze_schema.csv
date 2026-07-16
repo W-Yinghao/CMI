@@ -1,0 +1,8 @@
+artifact,evaluation_descriptor_before_freeze,required
+zero_label_candidate_scores.csv,0,1
+zero_label_candidate_ranks.csv,0,1
+q0_chain_selection.npz,0,1
+q0_sample_digest_registry.csv,0,1
+fixed_default_selections.csv,0,1
+selection_input_access_ledger.csv,0,1
+C84S_SELECTION_FREEZE_MANIFEST.json,0,1

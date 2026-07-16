@@ -1,0 +1,3 @@
+view,fields,EEG_arrays,candidate_scores,physically_separate_root
+construction,dataset|target_subject_id|target_trial_id|session|run|canonical_class_label|split_identity,0,0,1
+evaluation,dataset|target_subject_id|target_trial_id|session|run|canonical_class_label|split_identity,0,0,1

@@ -1,0 +1,6 @@
+component,formula,decision_endpoint
+bAcc,macro_recall_K2,0
+NLL,negative_log_true_probability,0
+ECE,15_equal_width_bins,0
+utility,mean_midrank_bAcc_negNLL_negECE,1
+regret,max_minus_selected_over_range,1
