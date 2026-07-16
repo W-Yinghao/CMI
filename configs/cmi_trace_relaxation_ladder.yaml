@@ -1,0 +1,125 @@
+# CMI-Trace Relaxation Ladder — FROZEN experiment configuration (Stage 1).
+# Frozen BEFORE any real result. Grids/levels/policies/thresholds MUST NOT be edited after a real job runs
+# (a change = new config hash = new experiment). The sha256 of this file's canonical bytes is stamped into
+# every output row (config_hash) alongside the Git SHA.
+schema_version: 1
+title: "CMI-Trace protocol relaxation ladder: when (if ever) does subject-axis erasure become beneficial, and is it identity-specific?"
+base: {branch: agent/cmi-trace-p0p1, sha: 2a7ce8f}
+
+# --------------------------------------------------------------------- datasets / seeds
+datasets: [BNCI2014_001, BNCI2015_001]
+seeds: [0, 1, 2]
+
+# --------------------------------------------------------------------- feature families
+feature_families:
+  dgcnn_graph_z:            # existing P0/P1 audit artifacts (graph_z primary object), CPU, no regeneration
+    source: results/cmi_trace_p0p1/objective_comparison/<ds>/audit/*.audit.npz
+    object: graph_z
+    training_methods_primary: [erm, cigl_graph_node]   # fixed encoder-CMI anchor; nested = appendix sensitivity
+    training_methods_appendix: [cigl_nested]
+  tos_frozen:               # regenerated in Stage 7 (GPU)
+    backbones: [EEGNet, TSMNet]
+    dump: tos_cmi/results/tos_cmi_eeg_frozen/<ds>_<bb>_LOSO/sub<t>_erm_lam0_seed<s>.npz
+    training_method: erm
+
+# --------------------------------------------------------------------- inference
+inference:
+  statistical_unit: held_out_subject_outer_fold
+  main_interval: paired_subject_fold_cluster_bootstrap_95
+  seeds_travel_together: true
+  n_boot: 10000
+  seed_sd: descriptive_only
+  never_window_as_unit: true
+
+# --------------------------------------------------------------------- erasers + controls
+erasers:
+  primary:
+    - identity                 # full / no erasure
+    - lw_leace_full            # Ledoit-Wolf LEACE removing the complete centered subject span, rank = k-1
+    - repo_leace               # current repository LEACE (implementation sensitivity)
+    - tos_vd                   # TOS conditional D|Y deletion (score-Fisher); tos features primary
+    - random_k                 # same-rank random removal, >=50 draws
+    - whitening_only           # standardization/whitening with ZERO deletion (conditioning control)
+  optional: [rlace, inlp, lw_leace_truncated]
+  n_random_draws: 50
+  every_informed_deletion_needs_matched_rank_random_control: true
+
+# --------------------------------------------------------------------- benefit standards (report ALL; never conflate)
+benefit_standards:
+  statistically_positive: "lower_95_CI(delta_bAcc) > 0"
+  confirmed_practical_benefit: "lower_95_CI(delta_bAcc) > +0.01"
+  practical_gain_ruled_out: "upper_95_CI(delta_bAcc) < +0.01"
+  otherwise: inconclusive
+  note: "Failure of the +0.01 criterion is NEVER described as 'no statistical improvement'."
+
+# --------------------------------------------------------------------- the four-level ladder
+ladder:
+  L0_STRICT_SOURCE_ORIGINAL_HEAD:
+    eraser_fit: source_only
+    head: replay_original
+    metadata: {uses_target_x: false, uses_target_subject_group: false, uses_target_y: false,
+               is_source_only_dg: true, is_transductive: false, is_oracle_diagnostic: false}
+    reuse_p0p1_reliance: true
+  L1_STRICT_SOURCE_FRESH_HEAD:
+    eraser_fit: source_only
+    head: fresh
+    head_primary: standardized_l2_logreg
+    head_sensitivity: fixed_small_mlp
+    comparisons: [full, whitening_only, lw_leace_full, repo_leace, tos_vd, random_k]
+    metadata: {uses_target_x: false, uses_target_subject_group: false, uses_target_y: false,
+               is_source_only_dg: true, is_transductive: false, is_oracle_diagnostic: false}
+  L2_TARGET_X_UNLABELED_FRESH_HEAD:
+    eraser_fit: source_plus_target_x_and_group
+    head: fresh_on_source
+    metadata: {uses_target_x: true, uses_target_subject_group: true, uses_target_y: false,
+               is_source_only_dg: false, is_transductive: true, is_oracle_diagnostic: false}
+    name: target_unlabeled_transductive_calibration
+  L3_ORACLE_GLOBAL_GEOMETRY_FRESH_HEAD:
+    eraser_fit: whole_cohort_lw_leace_full_subject_span   # rank k-1 unless k-1 >= feature dim
+    head: fresh_subject_grouped_cv
+    metadata: {uses_target_x: true, uses_target_subject_group: true, uses_target_y: false,
+               is_source_only_dg: false, is_transductive: false, is_oracle_diagnostic: true}
+    name: cohort_conditioned_representation_diagnostic_upper_bound
+
+# --------------------------------------------------------------------- head separation (Stage 3)
+head_separation:
+  compute_both_where_head_exists: [original_head_effect, fresh_head_effect]
+  specific_erasure_gain: "delta_bAcc(lw_leace_full) - delta_bAcc(random_k)"   # paired cluster CI
+  positive_fresh_negative_original_wording: "improved relearnability / readout conditioning after erasure, NOT reduced original-predictor reliance"
+
+# --------------------------------------------------------------------- selective erasure policies (Stage 5; EXPLORATORY)
+gate_policies:
+  G0_always_erase: diagnostic_only
+  G1_source_competence_safety:
+    conditions_all: [source_task_clears_chance, source_cv_task_drop_after_erasure_le_0.02, linear_subject_decode_materially_reduced]
+    else: identity
+  G2_shared_task_direction:
+    conditions: [G1, task_direction_consistency_exceeds_source_null_p_le_0.05]
+  G3_subject_specific_erasure:
+    conditions: [G2, informed_deletion_reduces_source_subject_decode_more_than_matched_rank_random_source_only_CI_favorable]
+  exploratory: true
+  no_target_tuned_thresholds: true
+  decision_before_target_scoring: true
+
+# --------------------------------------------------------------------- CMI ruler (Stage 6)
+cmi_ruler:
+  reuse: [cmi/eval/conditional_subject_leakage.py, cmi/eval/multicapacity_probe.py]
+  representations: [full, whitening_only, lw_leace_full, tos_vd, random_k]
+  report: [mlp_small_posterior_kl_primary, linear_posterior_kl, mlp_large_posterior_kl,
+           familywise_max_with_matching_max_null, normalized_leakage_over_H_D_given_Y, permutation_p, convergence_diag]
+  cross_fitting: [eraser_fit_split, subject_posterior_fit_split, posterior_eval_split]
+  forbidden_terms: [exact CMI, unbiased CMI, universal upper bound, calibrated bits, "Barber-Agakov bound"]
+  use_term: cross-fitted neural posterior plug-in estimate
+
+# --------------------------------------------------------------------- statistics (Stage 8)
+statistics:
+  primary_contrasts:
+    H1: L1 lw_leace_full vs full
+    H2: L2 lw_leace_full vs full
+    H3: L3 lw_leace_full vs full
+    H4: lw_leace_full vs random_k at each level
+    H5: source-only G1/G2/G3 policy vs identity fallback
+  multiplicity: holm_across_primary_family
+  exploratory_marked: true
+  verdicts: [STRICT_FRESH_POSITIVE, TRANSDUCTIVE_POSITIVE, ORACLE_ONLY_POSITIVE, SELECTIVE_STRICT_POSITIVE,
+             GENERIC_DIMENSIONALITY_EFFECT, NO_POSITIVE_REGIME, INCONCLUSIVE]

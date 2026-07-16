@@ -1,0 +1,11 @@
+{
+  "experiment": "cmi_trace_relaxation_ladder",
+  "branch": "agent/cmi-trace-relaxation-ladder",
+  "base_sha": "2a7ce8f",
+  "config_file": "configs/cmi_trace_relaxation_ladder.yaml",
+  "config_sha256": "3e050d97cfb776b0f40a811849e681e76844024954b247328c14f732933cd910",
+  "created_at_repo_sha": "2a7ce8f80eef96245c7b6e7cc876dce56ecaf49f",
+  "env_gpu": "eeg2025", "env_cpu": "c84c-eeg2025-v3",
+  "status": "config_frozen; modules pending",
+  "feature_families": {"dgcnn_graph_z": "existing P0/P1 audit npz (216+288 on disk)", "tos_frozen": "EEGNet/TSMNet dumps pending GPU regen"}
+}
