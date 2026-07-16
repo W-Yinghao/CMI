@@ -27,7 +27,7 @@ At protocol creation:
 
 This protocol and its SHA-256 sidecar must be committed and pushed before the first C84S implementation commit. The later analysis execution lock must bind this committed protocol, every operative implementation byte, the complete field, and all 1,944 target artifacts and sidecars.
 
-The final pre-implementation protocol SHA-256 is `f0d4980e0367f60727dddd85add70df9d049b3747e727f88dc9b5d9823f4867f`. A protocol-only clarification fixed digest-byte interpretation, ECE binning, and tie resolution before any implementation file existed.
+The final pre-implementation protocol SHA-256 is `abf56676901bd7e5f484ffe4f4bb49de625d5c7b87cc34c0e3ab2bdb39361c5e`. Protocol-only clarifications fixed digest-byte interpretation, ECE binning, tie resolution, and the distinction between the 3-of-4 decision component and complete panel/seed stability before any implementation commit.
 
 ## Authorization
 

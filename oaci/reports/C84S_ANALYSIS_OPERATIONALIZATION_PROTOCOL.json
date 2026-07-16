@@ -143,7 +143,8 @@
     "LOTO_totals": {"Lee2019_MI": 22, "Cho2017": 20, "PhysionetMI": 76},
     "supporting_method_identity_preserved": true,
     "method_substitution_across_LOTO_panels": false,
-    "panel_seed_instability_activates_D": true
+    "panel_seed_instability_activates_D": true,
+    "panel_seed_stability_rule": "a method supporting A or B must satisfy the required Q1 direction in all four panel_x_seed cell means; a method supporting A must also be within the Q2 margin in all four cell means; the registered 3-of-4 condition remains the Q1/Q2 pass component but is not called full panel/seed stability"
   },
   "taxonomy": {
     "precedence": ["C84-E", "C84-D", "C84-A", "C84-B", "C84-C"],
