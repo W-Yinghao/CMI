@@ -49,14 +49,18 @@ harmful/null (prose "k*=0 everywhere" was overstated; corrected).
 - P0.1 exact-head-null nullspace result is on DGCNN graph rep (stored head), NOT EEGNet — fixed in draft+C14.
 - P0.2 the harmful "CMI-only" selector optimizes a LINEAR within-label subject-decodability PROXY, not the
   validated posterior-KL ruler — renamed in draft+C14+docstring.
-- P0.3 CMI CERTIFICATION (CORRECTED, F2.0b, commit pending): eraser-fit cond basis (disjoint from posterior
-  pt/pe), split-specific greedy ticket applied identically, paired ΔÎ_specific=mean kl(random)−kl(ticket),
-  capacities linear/small/large, subject-cluster CI. **NOT certified either dataset**: primary large-capacity
-  ΔÎ_specific −0.007 [−0.035,+0.027] (BNCI2014), −0.011 [−0.032,+0.011] (BNCI2015), both LCB<0 — ticket
-  removes NO more validated leakage than matched-rank random (ticket +0.040 vs random +0.047; +0.025 vs
-  +0.036). Flawed "1/4 cells certified" pass RETRACTED. => ticket = "a deletion within a subject-derived
-  basis"; DG benefit NOT attributable to subject-leakage removal (sharp instance of leakage≠DG-relevance).
-  Tests: tos_cmi/tests/test_cmi_certification_firewall.py (eraser-fit disjoint, split-specific, paired).
+- P0.3 CMI CERTIFICATION (CORRECTED F2.0b + F2.0d B6 fixes): eraser-fit cond basis (disjoint from posterior
+  pt/pe), split-specific greedy ticket applied identically, PER-SPLIT EXACT-RANK random controls, capacities
+  tiny_mlp(hd8)/small/large, paired ΔÎ_specific=mean kl(random)−kl(ticket), subject-cluster CI. **NOT
+  certified either dataset** (fixed-code cert2b, 27+36 folds): primary large-capacity ΔÎ_specific −0.003
+  [−0.030,+0.029] (BNCI2014), −0.009 [−0.030,+0.012] (BNCI2015), both LCB<0 — ticket removes NO more validated
+  leakage than matched-rank random (ticket +0.040 vs random +0.043; +0.023 vs +0.032). Verdict identical to
+  the pre-fix screening (which read −0.007/−0.011). Flawed "1/4 cells certified" RETRACTED. => ticket = "a
+  deletion within a subject-derived basis"; DG benefit NOT attributable to subject-leakage removal (sharp
+  instance of leakage≠DG-relevance). NOTE: paper/ (draft + C14) is FROZEN and still shows the −0.007/−0.011
+  screening numbers; reconcile to −0.003/−0.009 at manuscript unfreeze (verdict unchanged). Gate-5 full
+  null-calibrated ruler (true-linear + retrained perm null) deferred to F2.1. Tests:
+  test_cmi_certification_firewall.py (eraser-fit disjoint, split-specific, paired).
 - P0.4 greedy source selector = outer-source-fitted basis + source-LOSO selection (NOT fully-nested;
   info-advantage is conservative for a negative) — clarified in draft+docstring.
 - P0.5 wf_verify meta marked historical (tested-and-refuted NO_CONFIRMED); explicit synthetic DGP×selector
