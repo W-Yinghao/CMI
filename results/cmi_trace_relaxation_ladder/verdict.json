@@ -1,5 +1,84 @@
 {
   "verdicts": {
+    "BNCI2014_001|EEGNet|frozen_z|erm": {
+      "verdict": "TRANSDUCTIVE_POSITIVE",
+      "level_meets": {
+        "L0_STRICT_SOURCE_ORIGINAL_HEAD": false,
+        "L1_STRICT_SOURCE_FRESH_HEAD": false,
+        "L2_TARGET_X_UNLABELED_FRESH_HEAD": true,
+        "L3_ORACLE_GLOBAL_GEOMETRY_FRESH_HEAD": false
+      },
+      "L1_lw_leace": {
+        "mean": -0.009837962962962958,
+        "ci_lo": -0.01954893261316872,
+        "ci_hi": -0.0011574074074073932,
+        "n_clusters": 9,
+        "state": "practical_gain_ruled_out",
+        "dataset": "BNCI2014_001",
+        "backbone": "EEGNet",
+        "feature_object": "frozen_z",
+        "training_method": "erm",
+        "level": "L1_STRICT_SOURCE_FRESH_HEAD",
+        "eraser": "lw_leace_full"
+      },
+      "L2_lw_leace": {
+        "mean": 0.019161522633744855,
+        "ci_lo": 0.004951131687242794,
+        "ci_hi": 0.03517232510288066,
+        "n_clusters": 9,
+        "state": "inconclusive",
+        "dataset": "BNCI2014_001",
+        "backbone": "EEGNet",
+        "feature_object": "frozen_z",
+        "training_method": "erm",
+        "level": "L2_TARGET_X_UNLABELED_FRESH_HEAD",
+        "eraser": "lw_leace_full"
+      },
+      "L3_lw_leace": {
+        "mean": -0.03523019547325102,
+        "ci_lo": -0.04611641589506171,
+        "ci_hi": -0.026331018518518524,
+        "n_clusters": 9,
+        "state": "practical_gain_ruled_out",
+        "dataset": "BNCI2014_001",
+        "backbone": "EEGNet",
+        "feature_object": "frozen_z",
+        "training_method": "erm",
+        "level": "L3_ORACLE_GLOBAL_GEOMETRY_FRESH_HEAD",
+        "eraser": "lw_leace_full"
+      },
+      "specific_gain": {
+        "L0_STRICT_SOURCE_ORIGINAL_HEAD": {
+          "mean": -0.0002764917695473227,
+          "ci_lo": -0.00909352494855966,
+          "ci_hi": 0.009174382716049385,
+          "n_clusters": 9,
+          "state": "practical_gain_ruled_out"
+        },
+        "L1_STRICT_SOURCE_FRESH_HEAD": {
+          "mean": -0.0002764917695473227,
+          "ci_lo": -0.00909352494855966,
+          "ci_hi": 0.009174382716049385,
+          "n_clusters": 9,
+          "state": "practical_gain_ruled_out"
+        },
+        "L2_TARGET_X_UNLABELED_FRESH_HEAD": {
+          "mean": 0.033887602880658424,
+          "ci_lo": 0.02001906507201646,
+          "ci_hi": 0.047868248456790115,
+          "n_clusters": 9,
+          "state": "confirmed_practical_benefit"
+        },
+        "L3_ORACLE_GLOBAL_GEOMETRY_FRESH_HEAD": {
+          "mean": 0.015681584362139914,
+          "ci_lo": 0.0048190940072016485,
+          "ci_hi": 0.02416250321502057,
+          "n_clusters": 9,
+          "state": "inconclusive"
+        }
+      },
+      "gate_positive": false
+    },
     "BNCI2014_001|dgcnn_forward_graph_adapter|graph_z|erm": {
       "verdict": "INCONCLUSIVE",
       "level_meets": {
@@ -317,8 +396,14 @@
       "gate_positive": false
     }
   },
-  "n_rows": 15496,
+  "n_rows": 21436,
   "strata": [
+    [
+      "BNCI2014_001",
+      "EEGNet",
+      "frozen_z",
+      "erm"
+    ],
     [
       "BNCI2014_001",
       "dgcnn_forward_graph_adapter",

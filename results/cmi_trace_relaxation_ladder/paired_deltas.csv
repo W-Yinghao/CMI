@@ -1,4 +1,8 @@
 dataset,backbone,training_method,level,metric,mean,ci_lo,ci_hi,n_clusters,beats_random,holm_reject
+BNCI2014_001,EEGNet,erm,L0_STRICT_SOURCE_ORIGINAL_HEAD,specific_erasure_gain(lw_leace - random_k),-0.0002764917695473227,-0.00909352494855966,0.009174382716049385,9,False,False
+BNCI2014_001,EEGNet,erm,L1_STRICT_SOURCE_FRESH_HEAD,specific_erasure_gain(lw_leace - random_k),-0.0002764917695473227,-0.00909352494855966,0.009174382716049385,9,False,False
+BNCI2014_001,EEGNet,erm,L2_TARGET_X_UNLABELED_FRESH_HEAD,specific_erasure_gain(lw_leace - random_k),0.033887602880658424,0.02001906507201646,0.047868248456790115,9,True,True
+BNCI2014_001,EEGNet,erm,L3_ORACLE_GLOBAL_GEOMETRY_FRESH_HEAD,specific_erasure_gain(lw_leace - random_k),0.015681584362139914,0.0048190940072016485,0.02416250321502057,9,True,True
 BNCI2014_001,dgcnn_forward_graph_adapter,erm,L0_STRICT_SOURCE_ORIGINAL_HEAD,specific_erasure_gain(lw_leace - random_k),0.0002623456790123623,-0.005215084876543198,0.006172839506172853,6,False,False
 BNCI2014_001,dgcnn_forward_graph_adapter,erm,L1_STRICT_SOURCE_FRESH_HEAD,specific_erasure_gain(lw_leace - random_k),-0.006051954732510281,-0.01616594328703702,0.0017857349537036982,9,False,False
 BNCI2014_001,dgcnn_forward_graph_adapter,erm,L2_TARGET_X_UNLABELED_FRESH_HEAD,specific_erasure_gain(lw_leace - random_k),-0.006415895061728389,-0.019547389403292183,0.006158002186213994,9,False,False

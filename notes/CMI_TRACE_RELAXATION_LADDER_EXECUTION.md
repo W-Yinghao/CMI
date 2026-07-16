@@ -72,6 +72,19 @@ any regime**:
   same-rank random (0.63) — i.e. LEACE *does* remove subject identity as measured — yet this does not yield a
   beneficial readout (the measurement→control gap, again).
 
+### Frozen EEGNet result (the HEADLINE — reconciles FMScope with our strict result)
+On frozen EEGNet features (BNCI2014_001 ERM), LW-LEACE subject-axis erasure verdict = **TRANSDUCTIVE_POSITIVE**:
+| level | LEACE Δ bAcc | random Δ | whiten Δ | specific gain (LEACE−random) | beats random? |
+|-------|--------------|----------|----------|------------------------------|---------------|
+| L1 strict/fresh | −0.010 [−0.019,−0.001] | −0.010 | −0.000 | −0.000 [−0.009,+0.009] | **No** |
+| L2 target-X/fresh | **+0.019 [+0.005,+0.035]** | −0.015 | +0.000 | **+0.034 [+0.020,+0.048]** | **Yes** |
+| L3 oracle (grouped-CV) | −0.035 | −0.051 | −0.000 | +0.016 [+0.005,+0.024] | Yes |
+- Erasure is beneficial ONLY transductively (L2, using the unseen subject's UNLABELED geometry; target Y
+  never used) and is subject-SPECIFIC (beats matched-rank random + whitening-only). It is NULL under strict
+  source-only DG (L1) — consistent with the confirmed P0/P1 strict result — and ABSENT on the task-trained
+  DGCNN graph representation. FMScope's positive + our strict null can both be correct: the benefit needs a
+  frozen encoder AND target-geometry access.
+
 ### Environment blocker (Stage 7) — HONEST
 - TOS frozen-dump regeneration hit env rot in `eeg2025`: moabb 1.5.0 renamed `BNCI2014001`→`BNCI2014_001`
   (breaks braindecode 0.8's import) AND torchaudio has a broken ABI (`undefined symbol`), which crashes the

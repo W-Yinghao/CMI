@@ -1,4 +1,5 @@
 dataset,backbone,feature_object,training_method,n_folds,n_seeds,levels
+BNCI2014_001,EEGNet,frozen_z,erm,9,3,4
 BNCI2014_001,dgcnn_forward_graph_adapter,graph_z,erm,9,3,4
 BNCI2014_001,dgcnn_forward_graph_adapter,graph_z,graphcmi,9,3,4
 BNCI2015_001,dgcnn_forward_graph_adapter,graph_z,erm,12,3,4
