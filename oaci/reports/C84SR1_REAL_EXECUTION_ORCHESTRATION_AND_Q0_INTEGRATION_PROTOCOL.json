@@ -1,0 +1,259 @@
+{
+  "schema_version": "c84sr1_real_execution_orchestration_q0_integration_protocol_v1",
+  "milestone": "C84SR1",
+  "created_at_utc": "2026-07-16T04:20:00Z",
+  "status": "LOCKED_BEFORE_IMPLEMENTATION_REAL_C84S_NOT_AUTHORIZED",
+  "chronology": {
+    "base_head": "9cdeb9ae2794226ff789411dea0ced10026a216f",
+    "historical_v2_lock_preserved": true,
+    "historical_v2_lock_sha256": "94c896f0f00c53441095da6225f9ac574eb4a9baa904821a5dab3f11ea76f75c",
+    "authorized_preflight_blocker_sha256": "2dc1ec7b5cc26c7abd605a03107497c0f8b81d2c1a179086c8f3f45b13d826d5",
+    "historical_v2_authorization_consumed": false,
+    "historical_direct_authorization_reusable": false,
+    "target_labels_before_repair": 0,
+    "real_selector_scores_before_repair": 0,
+    "scientific_statistics_before_repair": 0,
+    "training_forward_GPU_oracle_before_repair": [0, 0, 0, 0],
+    "repair_prospective_to_all_C84S_labels_selections_and_results": true,
+    "protocol_precedes_implementation": true
+  },
+  "frozen_inputs": {
+    "complete_field_manifest_sha256": "cfffcac1a55148941b809b69bed2c9a8957a94729ed7f2c2c29ed8d48c0134d8",
+    "model_field_manifest_sha256": "d8931b81a3d68f4b1e098ac6e3ede3cd44cdb6c70cdef9f18a76e0a8c62ecdb2",
+    "target_raw_manifest_sha256": "9539747e903dfe67295ee04a97441b85c0bb2179c9ef1bd2177788865e0ba5fd",
+    "target_trial_registry_sha256": "52526aaf7d9bd941bac693a0947971dc35b9083c1c783619f97055926aceabb8",
+    "method_registry_sha256": "ef48ecf7fcc55188b78b0878d86f07f6239fe4f6c88bbc854829b3a1c7a1a120",
+    "scientific_protocol_v3_sha256": "bf6c7f718413b4b2ac2ad9786aa2e47dc045a536e7237d5d8c0464b6598130b8",
+    "operationalization_protocol_sha256": "abf56676901bd7e5f484ffe4f4bb49de625d5c7b87cc34c0e3ab2bdb39361c5e",
+    "end_to_end_repair_protocol_sha256": "b2d52a3bfdcb89b8a8db5d1a5501fb7b24a22ad860dbe1d6da2c5e6d77ca189c",
+    "frontier_clarification_sha256": "020251ded9dbe4688ef08e9854875fc06b789120f4697c661b94f96eeef66fca",
+    "candidate_units": 1944,
+    "target_artifacts": 1944,
+    "context_digest_sidecars": 1944,
+    "source_audit_artifacts": 1944,
+    "training_sidecars": 1944,
+    "target_subjects": 118,
+    "target_trial_rows": 9621,
+    "target_contexts": 944,
+    "candidate_context_slices": 76464
+  },
+  "unchanged_scientific_contract": {
+    "datasets": ["Lee2019_MI", "Cho2017", "PhysionetMI"],
+    "panels": ["A", "B"],
+    "training_seeds": [5, 6],
+    "levels": [0, 1],
+    "candidates_per_context": 81,
+    "strict_source_primary": "S1",
+    "zero_label_primaries": ["U5", "U7", "U11", "U13", "U14", "U15"],
+    "Q0_primary_budgets": [1, 2, 4, 8, "FULL"],
+    "Q0_secondary_budgets_Lee_Cho": [16, 32],
+    "Q0_chains": 2048,
+    "maxT_draws": 65536,
+    "principal_cluster": "target_subject",
+    "taxonomy_precedence": ["C84-E", "C84-D", "C84-A", "C84-B", "C84-C"],
+    "label_taxonomy": ["C84-L4", "C84-L3", "C84-L1", "C84-L2"],
+    "method_formula_changed": false,
+    "score_direction_or_tie_rule_changed": false,
+    "margin_budget_target_level_or_taxonomy_changed": false
+  },
+  "context_enumeration": {
+    "unit": "dataset_x_target_subject_x_panel_x_training_seed_x_level",
+    "dataset_context_counts": {
+      "Lee2019_MI": 176,
+      "Cho2017": 160,
+      "PhysionetMI": 608
+    },
+    "total_contexts": 944,
+    "candidate_order": "ERM_then_OACI_trajectory_1_to_40_then_SRC_trajectory_1_to_40_then_unit_id",
+    "candidates_per_context": 81,
+    "field_descriptor_is_authoritative": true,
+    "filename_or_directory_order_is_authoritative": false,
+    "required_equalities": [
+      "source_labels_domains_trial_ids_equal_across_81_candidates",
+      "target_trial_ids_equal_across_81_candidates",
+      "construction_trial_ids_subset_of_frozen_target_order"
+    ]
+  },
+  "stage_A": {
+    "module": "oaci.multidataset.c84sr1_stage_a_labels",
+    "candidate_artifact_access": false,
+    "split_salt": "C84_TARGET_SPLIT_V1",
+    "construction_count": "floor(n_class/2)",
+    "evaluation_count": "n_class-floor(n_class/2)",
+    "minimum_per_split_class": 8,
+    "combined_label_file": false,
+    "stage_B_handoff_contains_only_construction_descriptor": true,
+    "evaluation_descriptor_sealed_until_stage_C": true,
+    "attempt_ledger_required": true
+  },
+  "stage_B": {
+    "modules": [
+      "oaci.multidataset.c84sr1_stage_b_selection",
+      "oaci.multidataset.c84sr1_context_enumerator",
+      "oaci.multidataset.c84sr1_q0_store"
+    ],
+    "evaluation_descriptor_available": false,
+    "oracle_available": false,
+    "score_methods": ["S1", "U5", "U7", "U11", "U13", "U14", "U15"],
+    "score_rows": 535248,
+    "rank_rows": 535248,
+    "fixed_methods": ["B1", "B2", "B3", "B4O", "B4S"],
+    "fixed_rows": 4720,
+    "B0_role": "Stage_C_analytic_random",
+    "B5_role": "Stage_C_evaluation_ceiling_only",
+    "atomic_selection_freeze": true
+  },
+  "Q0_storage": {
+    "schema_version": "c84sr1_q0_context_shard_v1",
+    "format": "one_compressed_non_object_NPZ_per_target_context_plus_canonical_CSV_index",
+    "shards": 944,
+    "context_id": "first_24_hex_of_SHA256_of_canonical_dataset_target_panel_seed_level_identity",
+    "candidate_ids": "fixed_width_ASCII_S64_array_shape_81",
+    "finite_record_arrays": {
+      "chain": "uint16",
+      "chain_seed": "uint64",
+      "budget_code": "uint8",
+      "sample_size": "uint16",
+      "sample_digest": "uint8_shape_records_32",
+      "selected_index": "uint8",
+      "candidate_order": "uint8_shape_records_81",
+      "candidate_score_digest": "uint8_shape_records_32",
+      "construction_metric_digest": "uint8_shape_records_32"
+    },
+    "FULL_record": "separate_single_record_arrays_without_artificial_chain",
+    "top5_top10_identity_storage": "lossless_normalized_candidate_order_prefix_indices_resolved_through_the_persisted_candidate_ids_array",
+    "budget_codes": {"1": 1, "2": 2, "4": 4, "8": 8, "16": 16, "32": 32, "FULL": 255},
+    "Lee_Cho_finite_records_per_context": 12288,
+    "Lee_Cho_total_records_per_context": 12289,
+    "Physionet_finite_records_per_context": 8192,
+    "Physionet_total_records_per_context": 8193,
+    "total_records": 9110448,
+    "FULL_records": 944,
+    "finite_chain_coverage": "each_registered_budget_has_chains_0_through_2047_exactly_once",
+    "object_dtype": false,
+    "sample_digest_registry": "deduplicated_by_dataset_target_chain_budget_because_the_nested_sample_is_paired_across_all_eight_contexts",
+    "sample_digest_registry_rows": 1138806
+  },
+  "Q0_context_integration": {
+    "finite_budget_estimand": "arithmetic_mean_over_2048_chain_level_endpoints_within_one_context",
+    "integrated_endpoints": [
+      "standardized_regret",
+      "selected_utility",
+      "top1_indicator",
+      "top5_indicator",
+      "top10_indicator",
+      "Spearman",
+      "Kendall",
+      "pairwise_ordering_accuracy"
+    ],
+    "coverage": "1.0_only_when_all_2048_chains_are_valid_otherwise_block",
+    "source_relative_gain": "computed_after_chain_integration_using_the_locked_zero_source_regret_convention",
+    "accuracy_estimation_MAE": null,
+    "performance_estimate_applicable": false,
+    "selected_regime": "STOCHASTIC_Q0",
+    "selected_regime_distribution": "exact_chain_fractions_per_context_budget",
+    "FULL": "single_deterministic_selection_and_regime",
+    "chains_are_scientific_N": false
+  },
+  "Q0_diagnostics_view_reconciliation": {
+    "reason": "mean_regret_and_selected_utility_require_evaluation_labels_and_cannot_be_written_by_Stage_B",
+    "Stage_B_output": "q0_selection_coverage_diagnostics.csv_with_only_chain_budget_storage_and_regime_coverage",
+    "Stage_C_output": "q0_monte_carlo_diagnostics.csv_with_mean_regret_MCSE_topk_MCSE_regime_fractions_and_utility_range",
+    "scientific_contract_changed": false,
+    "evaluation_descriptor_reaches_Stage_B": false
+  },
+  "measurement_applicability": {
+    "rank_measurement_methods": ["S1", "U5", "U7", "U11", "U13", "U14", "U15", "Q0_all_budgets"],
+    "performance_estimate_methods": ["S1", "U7", "U13", "U15"],
+    "rank_inapplicable_methods": ["B0", "B1", "B2", "B3", "B4O", "B4S", "B5"],
+    "performance_inapplicable_methods": ["B0", "B1", "B2", "B3", "B4O", "B4S", "B5", "U5", "U11", "U14", "Q0_all_budgets"],
+    "inapplicable_value": null,
+    "applicability_flags": ["rank_measurement_applicable", "performance_estimate_applicable"],
+    "Q0_rank_metric": "tie_resolved_ordinal_candidate_order_compared_with_evaluation_utility_then_averaged_across_chains",
+    "context_catastrophic_failure_field": "removed",
+    "target_level_Q1_Q2_catastrophic_tables_retained": true
+  },
+  "deterministic_control_semantics": {
+    "fixed_default_top1_top5_top10": "all_equal_the_single_deployed_candidate_top1_hit_indicator_because_no_candidate_ranking_is_defined",
+    "B0": "analytic_uniform_random_with_topk_probabilities_1_over_81_5_over_81_10_over_81",
+    "B5": "evaluation_only_oracle_with_zero_regret_and_top1_top5_top10_equal_one",
+    "coverage": 1.0
+  },
+  "stage_C": {
+    "modules": [
+      "oaci.multidataset.c84sr1_stage_c_evaluation",
+      "oaci.multidataset.c84sr1_method_context_materialization",
+      "oaci.multidataset.c84sr1_analysis"
+    ],
+    "inputs": ["immutable_selection_freeze_V2", "sealed_evaluation_descriptor", "frozen_target_logits"],
+    "construction_descriptor_available": false,
+    "selector_callable_available": false,
+    "candidate_utilities_per_context": 81,
+    "method_context_schema_version": "c84sr1_method_context_v2",
+    "method_context_rows": 18608,
+    "dataset_rows": {"Lee2019_MI": 3696, "Cho2017": 3360, "PhysionetMI": 11552},
+    "atomic_result_publication": true
+  },
+  "coordinator": {
+    "module": "oaci.multidataset.c84sr1_execute",
+    "command": "python -m oaci.multidataset.c84sr1_execute run-real --authorization-record PATH --output-root FRESH_ROOT",
+    "authorization_consumed_before_label_access": true,
+    "attempt_ledger_created_before_protected_imports": true,
+    "stage_processes": ["Stage_A_subprocess", "Stage_B_subprocess", "Stage_C_subprocess"],
+    "one_way_handoffs": true,
+    "all_commands_exits_hashes_and_receipts_persisted": true,
+    "notebook_shell_or_unbound_glue": false
+  },
+  "execution_time_replay": {
+    "target_and_context_artifacts": 3888,
+    "source_and_training_artifacts": 3888,
+    "total_external_files": 7776,
+    "stream_SHA256_before_label_access": true,
+    "report_bytes_wall_time_and_failures": true
+  },
+  "resource_hard_limits": {
+    "RAM_GiB": 128,
+    "CPU_workers": 32,
+    "external_output_GiB": 40,
+    "wall_hours": 48,
+    "GPU": false,
+    "Git_file_MiB": 50,
+    "runtime_scope_reduction": false
+  },
+  "synthetic_calibration": {
+    "must_use_production_stage_entrypoints": true,
+    "precomputed_method_context_injection": false,
+    "full_context_arithmetic": 944,
+    "full_Q0_record_schema": 9110448,
+    "full_method_context_arithmetic": 18608,
+    "full_scale_Q0_storage_and_reader_required": true,
+    "taxonomy_branches": ["C84-A", "C84-B", "C84-C", "C84-D", "C84-E"],
+    "label_frontier_branches": ["C84-L1", "C84-L2", "C84-L3", "C84-L4"],
+    "partial_failure_each_stage": true,
+    "authorization_consumption_replay": true
+  },
+  "historical_object_policy": {
+    "C84S_ANALYSIS_EXECUTION_LOCK_json_preserved": true,
+    "C84S_ANALYSIS_EXECUTION_LOCK_V2_json_preserved": true,
+    "historical_locks_operative_for_real_execution": false,
+    "historical_authorization_migrates": false
+  },
+  "future_lock": {
+    "path": "oaci/reports/C84S_ANALYSIS_EXECUTION_LOCK_V3.json",
+    "status": "LOCKED_READY_FOR_FRESH_DIRECT_PI_AUTHORIZATION_NOT_AUTHORIZED",
+    "fresh_direct_statement_required": "授权 C84S"
+  },
+  "forbidden": {
+    "real_target_label_access_in_C84SR1": true,
+    "real_selector_scores_in_C84SR1": true,
+    "real_scientific_statistics_in_C84SR1": true,
+    "training": true,
+    "forward": true,
+    "GPU": true,
+    "same_label_oracle": true,
+    "new_method_or_retuning": true,
+    "C85": true
+  },
+  "success_gate": "C84S_REAL_EXECUTION_ORCHESTRATION_Q0_INTEGRATION_REPAIRED_AND_LOCKED_READY_FOR_FRESH_PI_AUTHORIZATION",
+  "failure_gate": "C84S_REAL_EXECUTION_SELECTION_AGGREGATION_RESOURCE_OR_PROVENANCE_RECONCILIATION_REQUIRED"
+}
