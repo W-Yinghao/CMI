@@ -89,6 +89,9 @@ Authoritative C85R documents:
 ```text
 oaci/reports/C85R_SYNTHETIC_CONTRACT_SEMANTIC_REPAIR_PROTOCOL.json
 oaci/reports/c85r_tables/synthetic_generator_contract_v2.json
+oaci/reports/C85R_OVERALL_REPORT.md
+oaci/reports/C85R_OVERALL_REPORT.json
+oaci/reports/C85R_OVERALL_REPORT.sha256
 oaci/reports/C85R_PROTOCOL_READINESS.md
 oaci/reports/C85R_FINAL_REPORT_RED_TEAM.md
 oaci/reports/C85R_REGRESSION_VERIFICATION.md

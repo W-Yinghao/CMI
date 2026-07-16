@@ -1,0 +1,234 @@
+{
+  "schema_version": "c85r_overall_report_v1",
+  "milestone": "C85R",
+  "generated_at_utc": "2026-07-16T19:39:00Z",
+  "report_completion": {
+    "reason": "The committed readiness, red-team, and regression files had complete endings, but C85R lacked the project-standard standalone overall Markdown/JSON/hash report.",
+    "existing_reports_truncated_on_disk": false,
+    "existing_reports_modified": false,
+    "scientific_recomputation": false,
+    "protocol_or_contract_change": false
+  },
+  "final_gate": "C85_SYNTHETIC_CONTRACT_V2_SEMANTICALLY_REPAIRED_READY_FOR_C85T_PM_REVIEW",
+  "semantic_status": "SEMANTICALLY_VALIDATED_NOT_SCIENTIFICALLY_EXECUTED",
+  "repository": {
+    "branch": "oaci",
+    "accepted_C85P_head": "00146d25fc15c56c771c87062bb1f2d2f262f59a",
+    "repair_protocol_commit": "03bb684e59e3432ae6f484c8c8a537213f52a6cd",
+    "implementation_commit": "360c422f3110d61cfef5d09fead78562bb52c497",
+    "readiness_report_commit": "9b1aaf07a7e73278b5d5308b8e51ce9c4586e201",
+    "report_completion_base_head": "9b1aaf07a7e73278b5d5308b8e51ce9c4586e201"
+  },
+  "identity": {
+    "C85P_protocol_sha256": "af4c2cb35a6b6555d6c9ded3105eb7ad4f061ba237d3e8cc3ed6f5a18aede006",
+    "historical_generator_v1_sha256": "c87fec6a6572291fad8849f6c08bea2cb3f49467e243ded1d44c1f38e3d0b297",
+    "C85R_repair_protocol_sha256": "e37bb444fdd174ba4ca1f95e91d9193378f11dd0ef2aeac3e03cbf6249a34b68",
+    "operative_generator_v2_sha256": "e055c2a785374a3067ce90746a5941b39847b88a4f33e4ff8da5ca8adfde355a"
+  },
+  "historical_preservation": {
+    "C85P_protocol": "BYTE_IDENTICAL",
+    "historical_generator_v1": "BYTE_IDENTICAL",
+    "C85P_registry_tables": 32,
+    "C85P_registry_rows": 193,
+    "C85P_readiness_redteam_regression_reports": "BYTE_IDENTICAL",
+    "historical_contract_in_place_edit": false
+  },
+  "blockers": {
+    "S10": "Historical coarse Bayes and rich always-action-1 policies both have exact regret risk 11/40, contradicting the strict-reversal criterion.",
+    "S9": "The V1 contract did not define a joint four-action full-information loss-vector law or population-optimal action.",
+    "S6_S7": "The V1 contract did not define the stochastic action-error law or pairwise dependence needed for T7-linked simulation."
+  },
+  "S10_exact_audit": {
+    "prior": ["1/4", "1/2", "1/4"],
+    "state_regrets": {
+      "theta0": ["0", "3/5", "1"],
+      "theta1": ["7/10", "0", "4/5"],
+      "theta2": ["1", "1/2", "0"]
+    },
+    "coarse_joint_action_risks": {
+      "y0": {"action0": "7/40", "action1": "3/20", "action2": "9/20"},
+      "y1": {"action0": "17/40", "action1": "1/8", "action2": "1/5"}
+    },
+    "coarse_Bayes_policy": {"y0": 1, "y1": 1},
+    "coarse_unrestricted_and_registered_risk": "11/40",
+    "historical_rich_policy": "always_action_1",
+    "historical_rich_registered_risk": "11/40",
+    "historical_strict_reversal": false,
+    "V2_only_changed_scientific_object": "rich_registered_policy",
+    "V2_rich_policy": "always_action_0",
+    "V2_rich_unrestricted_risk": "0",
+    "V2_rich_registered_risk": "3/5",
+    "V2_rich_policy_gap": "3/5",
+    "V2_registered_reversal": "13/40",
+    "utility_prior_channel_or_garbling_changed": false
+  },
+  "S9_exact_law": {
+    "strata": ["L", "H"],
+    "stratum_masses": ["4/5", "1/5"],
+    "rademacher_support": [-1, 1],
+    "rademacher_probability": "1/2",
+    "loss_vector": ["3/10", "3/10+1/20+sigma_h*R", "13/20", "17/20"],
+    "sigma": {"L": "1/50", "H": "1/5"},
+    "support_rows": [
+      {"stratum": "L", "R": -1, "joint_probability": "2/5", "losses": ["3/10", "33/100", "13/20", "17/20"], "loss1_minus_loss0": "3/100"},
+      {"stratum": "L", "R": 1, "joint_probability": "2/5", "losses": ["3/10", "37/100", "13/20", "17/20"], "loss1_minus_loss0": "7/100"},
+      {"stratum": "H", "R": -1, "joint_probability": "1/10", "losses": ["3/10", "3/20", "13/20", "17/20"], "loss1_minus_loss0": "-3/20"},
+      {"stratum": "H", "R": 1, "joint_probability": "1/10", "losses": ["3/10", "11/20", "13/20", "17/20"], "loss1_minus_loss0": "1/4"}
+    ],
+    "all_losses_in_unit_interval": true,
+    "population_mean_losses": ["3/10", "7/20", "13/20", "17/20"],
+    "unique_population_optimal_action": 0,
+    "pairwise_mean_both_strata": "1/20",
+    "pairwise_sd": {"L": "1/50", "H": "1/5"},
+    "budget": 64,
+    "passive_allocation": {"L": 51, "H": 13},
+    "Neyman_allocation": {"L": 18, "H": 46},
+    "passive_variance": "1327/10359375",
+    "Neyman_variance": "317/6468750",
+    "Neyman_variance_below_passive_in_fixed_scenario": true,
+    "universal_active_superiority_claim": false
+  },
+  "S6_S7_error_law": {
+    "estimated_utility": "u_hat_a=u_a+xi_a",
+    "action_errors": "iid Normal(0,pairwise_sigma^2/2)",
+    "selection": "argmax with first canonical action index tie rule",
+    "pairwise_sigma": "1/50",
+    "action_error_variance": "1/5000",
+    "pairwise_difference_variance": "1/2500",
+    "shared_star_covariance": "1/5000",
+    "pairwise_difference_correlation": "1/2",
+    "pairwise_differences_independent": false,
+    "future_replicates_per_scenario": 4096,
+    "scientific_replicates_executed_C85R": 0,
+    "future_outputs_per_scenario": 8,
+    "future_outputs_computed_C85R": 0
+  },
+  "T7": {
+    "sub_gaussian_convention": "E exp(lambda*(xi_i-xi_star)) <= exp(lambda^2*sigma_i^2/2)",
+    "event_inclusion_target": "selecting i implies xi_i-xi_star >= Delta_i",
+    "primary_open_bound_target": "min(1,sum_{i:Delta_i>epsilon} exp(-Delta_i^2/(2*sigma_i^2)))",
+    "historical_looser_diagnostic": "min(1,sum_{i:Delta_i>epsilon} exp(-(Delta_i-epsilon)^2/(2*sigma_i^2)))",
+    "independence_assumption": false,
+    "proof_completed": false,
+    "status": "OPEN"
+  },
+  "proof_precision": {
+    "T3": "Equality of randomized action kernels P_theta^E-almost surely for every state/prior in the comparison; one coupled draw is insufficient.",
+    "T4": "Unique different optimal actions or disjoint optimal-action sets with an explicit decoder, nonoptimal regret at least Delta, equal prior, common observation space, randomized rules, and fixed TV convention.",
+    "T6": "C85T must derive the exact S5 CVaR alpha region with alpha strictly in (0,1)."
+  },
+  "scenario_preservation": {
+    "S0": "UNCHANGED",
+    "S1": "UNCHANGED",
+    "S2": "UNCHANGED",
+    "S3": "UNCHANGED",
+    "S4": "UNCHANGED",
+    "S5": "UNCHANGED",
+    "S6": "ADDITIVE_ERROR_LAW_AND_OUTPUT_SCHEMA_ONLY",
+    "S7": "ADDITIVE_ERROR_LAW_AND_OUTPUT_SCHEMA_ONLY",
+    "S8": "UNCHANGED",
+    "S9": "GENERATIVE_LAW_COMPLETION_WITH_HISTORICAL_FIELDS_PRESERVED",
+    "S10": "RICH_REGISTERED_POLICY_ONLY_PLUS_AUDIT_METADATA"
+  },
+  "theorem_statuses": {
+    "T1": "OPEN",
+    "T2": "OPEN",
+    "T3": "OPEN",
+    "T4": "OPEN",
+    "T5": "OPEN",
+    "T6": "OPEN",
+    "T7": "OPEN"
+  },
+  "semantic_preflight": {
+    "checks": 16,
+    "passed": 16,
+    "failed": 0,
+    "scenario_count": 11,
+    "deterministic_seed_scenarios_replayed": 11,
+    "scientific_random_draws": 0,
+    "proofs_completed": 0,
+    "theorem_status_transitions": 0
+  },
+  "artifact_manifest": [
+    {"path": "c85r_tables/S10_historical_exact_risk_audit.csv", "rows": 6, "bytes": 709, "sha256": "65a215a86f349ec621b9453115d5879a57256cae117b403b31467855ee8300fd"},
+    {"path": "c85r_tables/S6_S7_noise_coupling_contract.csv", "rows": 2, "bytes": 410, "sha256": "f26a61ee93daa38b2b063174c630a9747cd56d6bf7507ddfe0a47cb6705b83cb"},
+    {"path": "c85r_tables/S6_S7_output_contract.csv", "rows": 16, "bytes": 1125, "sha256": "5a7c4f416b7f16a133fb627dad685f0a55ad7358492423470b1a7e2f735c59e2"},
+    {"path": "c85r_tables/S9_allocation_contract.csv", "rows": 2, "bytes": 313, "sha256": "28d383b4188b00de296d3e117e4657d6dcd214077c10897cc6250ea80d5db8d3"},
+    {"path": "c85r_tables/S9_analytic_variance_contract.csv", "rows": 2, "bytes": 383, "sha256": "2b5dc8ba176922cd69619e531e20d3aefd58c5f86d3dd5192a4fe7ea72cf3b30"},
+    {"path": "c85r_tables/S9_loss_vector_law.csv", "rows": 4, "bytes": 775, "sha256": "be85c6bf9ba409111455124ceb241e14afb0c2772e42d84a427793a27489f879"},
+    {"path": "c85r_tables/T7_bound_supersession.csv", "rows": 2, "bytes": 338, "sha256": "9077a6eff26f484978e8dab6c51fb9bdae65530c6fc4b062ee26ac38e23569a4"},
+    {"path": "c85r_tables/artifact_identity_replay.csv", "rows": 4, "bytes": 636, "sha256": "6762566a7cc1290fc62388adcf7a6b7e80e9cab9b1fe30a4c947e1dfe3f2c27d"},
+    {"path": "c85r_tables/deterministic_seed_replay.csv", "rows": 11, "bytes": 1431, "sha256": "850c39a2a49aad609141ac232d02c8f1a3ee6da9d11b81c98f874390ff0fec4b"},
+    {"path": "c85r_tables/failure_reason_ledger.csv", "rows": 1, "bytes": 165, "sha256": "66262295378d03b5ce9de645e07efb114fbffa2bb600e08f4040ef3890076612"},
+    {"path": "c85r_tables/historical_contract_supersession.csv", "rows": 4, "bytes": 794, "sha256": "262e710cfdac451328b410f4a923fea88589e563f699bd15cc0f2a1fa2133828"},
+    {"path": "c85r_tables/proof_obligation_precision_addendum.csv", "rows": 3, "bytes": 884, "sha256": "10b64d6f25f4e18ccfeb48299190a215543f8890ac1c495b0c3540f7394c54f8"},
+    {"path": "c85r_tables/risk_register.csv", "rows": 12, "bytes": 1129, "sha256": "262324edd7d755dae7d0def125fe16cec971f61e28608f8a08f9fe72bd92a56d"},
+    {"path": "c85r_tables/semantic_satisfiability_validation.csv", "rows": 16, "bytes": 1584, "sha256": "3f0beacad448b93781bad324e54a108ca4121fa1250189ef2b535ae1739fe804"},
+    {"path": "c85r_tables/theorem_status_replay.csv", "rows": 7, "bytes": 238, "sha256": "7e3924bb86b663b4d695cee9a56aa7d0228054c223d0ecd65ad0bf9ad5c38194"}
+  ],
+  "artifact_totals": {
+    "CSV_tables": 15,
+    "CSV_rows": 92,
+    "V2_contract_and_sidecar_files": 2,
+    "red_team_passed": 64,
+    "red_team_failed": 0,
+    "C85R_tests": 30
+  },
+  "regression": {
+    "commit": "360c422f3110d61cfef5d09fead78562bb52c497",
+    "environment": "/home/infres/yinwang/anaconda3/envs/c84c-eeg2025-v3-exact",
+    "Python": "3.13.7",
+    "GPU": 0,
+    "sacct_used": false,
+    "suites": [
+      {"name": "focused", "passed": 321, "skipped": 0, "deselected": 0, "seconds": 6.99, "stdout_sha256": "5bf6e56ac6a143ef7e7467457effa6bf0ac2380b94bc8fadae452ca60d9060f9", "stderr_bytes": 0},
+      {"name": "C65", "passed": 932, "skipped": 1, "deselected": 3, "seconds": 74.39, "stdout_sha256": "9f9a97c603362a7d1787541228d889ecf8f63e16e80af586f3deae0e77a31e39", "stderr_bytes": 0},
+      {"name": "C23", "passed": 1343, "skipped": 1, "deselected": 3, "seconds": 104.33, "stdout_sha256": "26a9ce1ec21b8a6134227338ee921b96907b53cc7110b1085732f93b2240bdfa", "stderr_bytes": 0},
+      {"name": "full", "passed": 2267, "skipped": 1, "deselected": 3, "seconds": 315.50, "stdout_sha256": "673dee5461dfde332ebee8507e4ea0996e746ac6a4a9fecf7c8bff794fe121f9", "stderr_bytes": 0}
+    ],
+    "empty_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "protected_counters": {
+    "S0_S10_4096_replicate_scientific_simulations": 0,
+    "project_proofs_completed": 0,
+    "theorem_status_transitions": 0,
+    "EEG_array_reads": 0,
+    "direct_label_view_reads": 0,
+    "candidate_array_reads": 0,
+    "selector_calls": 0,
+    "empirical_inference_calls": 0,
+    "new_empirical_p_values": 0,
+    "training_calls": 0,
+    "forward_calls": 0,
+    "GPU_jobs": 0,
+    "active_acquisition_executions": 0,
+    "C85T_authorizations": 0,
+    "C85E_authorizations": 0,
+    "new_dataset_or_model_zoo_actions": 0,
+    "manuscript_actions": 0
+  },
+  "claim_contract": {
+    "supported": [
+      "The historical S10 strict-reversal criterion was contradicted by exact equal registered risks.",
+      "The V2 S10 fixed-policy repair creates the intended restricted-policy reversal while preserving utilities and experiments.",
+      "The S9 V2 law is a complete full-information loss-vector experiment with exact fixed-scenario allocations and variances.",
+      "The S6/S7 V2 error law has the registered pairwise scale and explicit shared-star dependence.",
+      "The V2 contract is semantically satisfiable and ready for C85T PM review."
+    ],
+    "forbidden": [
+      "Any T1-T7 theorem is proved.",
+      "Any S0-S10 scientific synthetic result has been executed.",
+      "Neyman or active allocation is universally superior.",
+      "The T7 primary bound is already established.",
+      "C85T, C85E, active acquisition, new data/model zoos, or manuscript work is authorized."
+    ]
+  },
+  "next_boundary": {
+    "possible_stage": "C85T",
+    "status": "NOT_AUTHORIZED_PM_REVIEW_REQUIRED",
+    "must_bind": "exact C85R V2 generator contract",
+    "C85E": "NOT_AUTHORIZED",
+    "active_acquisition": "NOT_AUTHORIZED",
+    "manuscript": "NOT_AUTHORIZED"
+  }
+}
