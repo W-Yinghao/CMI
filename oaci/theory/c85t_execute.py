@@ -86,6 +86,17 @@ def replay_execution_lock(lock_path: Path) -> tuple[dict[str, Any], str]:
         raise DecisionContractError("C85T V2 generator bytes drifted")
     if lock.get("operationalization_protocol_sha256") != sha256_file(OPERATIONALIZATION_PROTOCOL):
         raise DecisionContractError("C85T operationalization protocol drifted")
+    registry = lock.get("runtime_bound_registry")
+    if not isinstance(registry, dict):
+        raise DecisionContractError("C85T runtime-bound registry identity is absent")
+    registry_path = REPO_ROOT / registry["path"]
+    if (
+        not registry_path.is_file()
+        or registry_path.stat().st_size != registry["size_bytes"]
+        or sha256_file(registry_path) != registry["sha256"]
+        or _run_git("hash-object", "--", registry["path"]) != registry["git_blob"]
+    ):
+        raise DecisionContractError("C85T runtime-bound registry drifted")
     return lock, lock_sha
 
 

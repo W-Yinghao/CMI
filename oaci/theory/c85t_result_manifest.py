@@ -2,12 +2,15 @@
 from __future__ import annotations
 
 from contextlib import AbstractContextManager
+import argparse
+import csv
 from datetime import datetime, timezone
 import hashlib
 import json
 import os
 from pathlib import Path
 import shutil
+import subprocess
 from typing import Any
 from uuid import uuid4
 
@@ -20,6 +23,12 @@ ATTEMPT_SCHEMA = "c85t_execution_attempt_ledger_v1"
 SUCCESS_GATE = (
     "C85T_DECISION_THEORY_PROOF_AUDIT_AND_SYNTHETIC_VALIDATION_COMPLETE_"
     "C85E_PROTOCOL_REVIEW_REQUIRED"
+)
+READINESS_SUCCESS_GATE = (
+    "C85T_PROOF_AND_SYNTHETIC_EXECUTION_IMPLEMENTED_AND_LOCKED_READY_FOR_PI_AUTHORIZATION"
+)
+READINESS_FAILURE_GATE = (
+    "C85T_RNG_ESTIMAND_PROOF_STATUS_OR_EXECUTION_PROVENANCE_RECONCILIATION_REQUIRED"
 )
 
 
@@ -166,3 +175,244 @@ def replay_manifest(root: Path) -> dict[str, Any]:
     if actual != observed_paths:
         raise DecisionContractError("C85T artifact manifest coverage drifted")
     return manifest
+
+
+def _git_blob(repo_root: Path, relative: str) -> str:
+    return subprocess.run(
+        ["git", "hash-object", "--", relative],
+        cwd=repo_root,
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.strip()
+
+
+def _readiness_bound_paths(repo_root: Path) -> list[str]:
+    reports = repo_root / "oaci" / "reports"
+    paths: set[Path] = {
+        repo_root / "oaci" / "theory" / "__init__.py",
+        repo_root / "oaci" / "theory" / "c85_decision_experiments.py",
+        repo_root / "oaci" / "theory" / "c85_robust_risk.py",
+        repo_root / "oaci" / "theory" / "c85_policy_collapse.py",
+        repo_root / "oaci" / "theory" / "c85_lower_bound_contracts.py",
+        repo_root / "oaci" / "theory" / "c85_synthetic_contract.py",
+        repo_root / "oaci" / "theory" / "c85r_synthetic_semantic_repair.py",
+        repo_root / "oaci" / "theory" / "c85t_rng.py",
+        repo_root / "oaci" / "theory" / "c85t_exact_scenarios.py",
+        repo_root / "oaci" / "theory" / "c85t_monte_carlo.py",
+        repo_root / "oaci" / "theory" / "c85t_proofs.py",
+        repo_root / "oaci" / "theory" / "c85t_result_manifest.py",
+        repo_root / "oaci" / "theory" / "c85t_execute.py",
+        repo_root / "oaci" / "multidataset" / "c84r_regression_suite.py",
+        repo_root / "oaci" / "slurm_c85tl_regression.sh",
+        repo_root / "oaci" / "tests" / "test_c85_decision_theory_protocol.py",
+        repo_root / "oaci" / "tests" / "test_c85_synthetic_contract.py",
+        repo_root / "oaci" / "tests" / "test_c85r_synthetic_semantic_repair.py",
+        repo_root / "oaci" / "tests" / "test_c85r_protocol_lock.py",
+        repo_root / "oaci" / "tests" / "test_c85t_shadow_execution.py",
+        repo_root / "oaci" / "tests" / "test_c85tl_execution_lock.py",
+    }
+    fixed_reports = (
+        "C84A_PM_REALIZED_POLICY_USE_ADDENDUM.md",
+        "C84A_PM_REALIZED_POLICY_USE_ADDENDUM.json",
+        "C84A_PM_REALIZED_POLICY_USE_ADDENDUM.sha256",
+        "C85_TPAMI_DECISION_THEORY_PROTOCOL.json",
+        "C85_TPAMI_DECISION_THEORY_PROTOCOL.sha256",
+        "C85_PROTOCOL_TIMING_AUDIT.md",
+        "C85P_PROTOCOL_READINESS.md",
+        "C85P_FINAL_REPORT_RED_TEAM.md",
+        "C85P_REGRESSION_VERIFICATION.md",
+        "C85R_SYNTHETIC_CONTRACT_SEMANTIC_REPAIR_PROTOCOL.json",
+        "C85R_SYNTHETIC_CONTRACT_SEMANTIC_REPAIR_PROTOCOL.sha256",
+        "C85R_PROTOCOL_TIMING_AUDIT.md",
+        "C85R_PROTOCOL_READINESS.md",
+        "C85R_FINAL_REPORT_RED_TEAM.md",
+        "C85R_REGRESSION_VERIFICATION.md",
+        "C85R_OVERALL_REPORT.md",
+        "C85R_OVERALL_REPORT.json",
+        "C85R_OVERALL_REPORT.sha256",
+        "C85T_PROOF_AND_SYNTHETIC_EXECUTION_OPERATIONALIZATION_PROTOCOL.json",
+        "C85T_PROOF_AND_SYNTHETIC_EXECUTION_OPERATIONALIZATION_PROTOCOL.sha256",
+        "C85T_PROTOCOL_TIMING_AUDIT.md",
+    )
+    paths.update(reports / name for name in fixed_reports)
+    for directory in ("c85p_tables", "c85r_tables", "c85tl_tables"):
+        for path in (reports / directory).glob("*"):
+            if path.is_file() and path.name != "runtime_bound_object_registry.csv":
+                paths.add(path)
+    missing = sorted(path for path in paths if not path.is_file())
+    if missing:
+        raise DecisionContractError(f"readiness bound file is absent: {missing[0]}")
+    return sorted(str(path.relative_to(repo_root)) for path in paths)
+
+
+def materialize_readiness_lock(
+    *, repo_root: Path, implementation_commit: str, created_at_utc: str
+) -> dict[str, Any]:
+    """Materialize the prospective lock without executing a registered scenario."""
+
+    reports = repo_root / "oaci" / "reports"
+    registry_path = reports / "c85tl_tables" / "runtime_bound_object_registry.csv"
+    lock_path = reports / "C85T_EXECUTION_LOCK.json"
+    sidecar_path = reports / "C85T_EXECUTION_LOCK.sha256"
+    if any(path.exists() for path in (registry_path, lock_path, sidecar_path)):
+        raise DecisionContractError("C85T readiness registry/lock must be created once")
+    forbidden = (
+        reports / "C85T_PI_AUTHORIZATION_RECORD.json",
+        reports / "C85T_RESULT.json",
+        reports / "C85_SYNTHETIC_SCIENTIFIC_RESULT.json",
+        reports / "c85t_proofs",
+    )
+    if any(path.exists() for path in forbidden):
+        raise DecisionContractError("C85T execution or proof artifact already exists")
+
+    rows: list[dict[str, Any]] = []
+    for relative in _readiness_bound_paths(repo_root):
+        path = repo_root / relative
+        rows.append(
+            {
+                "path": relative,
+                "size_bytes": path.stat().st_size,
+                "sha256": sha256_file(path),
+                "git_blob": _git_blob(repo_root, relative),
+            }
+        )
+    registry_path.parent.mkdir(parents=True, exist_ok=True)
+    with registry_path.open("w", newline="") as handle:
+        writer = csv.DictWriter(
+            handle, fieldnames=("path", "size_bytes", "sha256", "git_blob")
+        )
+        writer.writeheader()
+        writer.writerows(rows)
+
+    protocol_path = reports / "C85T_PROOF_AND_SYNTHETIC_EXECUTION_OPERATIONALIZATION_PROTOCOL.json"
+    c85p_path = reports / "C85_TPAMI_DECISION_THEORY_PROTOCOL.json"
+    c85r_path = reports / "C85R_SYNTHETIC_CONTRACT_SEMANTIC_REPAIR_PROTOCOL.json"
+    v2_path = reports / "c85r_tables" / "synthetic_generator_contract_v2.json"
+    registry_identity = {
+        "path": str(registry_path.relative_to(repo_root)),
+        "size_bytes": registry_path.stat().st_size,
+        "sha256": sha256_file(registry_path),
+        "git_blob": _git_blob(repo_root, str(registry_path.relative_to(repo_root))),
+    }
+    lock = {
+        "schema_version": "c85t_execution_lock_v1",
+        "milestone": "C85TL",
+        "created_at_utc": created_at_utc,
+        "status": "LOCKED_READY_FOR_DIRECT_PI_AUTHORIZATION_NOT_AUTHORIZED",
+        "authorized": False,
+        "implementation_commit": implementation_commit,
+        "execution_lock_commit_binding": "DISCOVER_FROM_GIT_PATH_AND_BIND_IN_FUTURE_AUTHORIZATION",
+        "c85p_protocol_sha256": sha256_file(c85p_path),
+        "c85r_repair_protocol_sha256": sha256_file(c85r_path),
+        "v2_generator_sha256": sha256_file(v2_path),
+        "operationalization_protocol_sha256": sha256_file(protocol_path),
+        "runtime_bound_object_count": len(rows),
+        "runtime_bound_registry": registry_identity,
+        "bound_repository_objects": rows,
+        "environment": {
+            "prefix": "/home/infres/yinwang/anaconda3/envs/c84c-eeg2025-v3-exact",
+            "python": "3.13.7",
+            "numpy_runtime": "2.4.4",
+            "numpy_metadata_first_match": "2.3.3",
+            "numpy_dual_metadata_bound": True,
+            "bit_generator": "PCG64DXSM",
+            "GPU": 0,
+        },
+        "rng": {
+            "namespace": "C85_SYNTHETIC_V1",
+            "seed": "low64_SHA256_little_endian",
+            "replicates": 4096,
+            "canonical_action_order": True,
+            "parallel_nondeterministic_reduction": False,
+        },
+        "scenario_execution_modes": {
+            "exact_only": ["S0", "S1", "S2", "S3", "S4", "S5", "S8", "S10"],
+            "exact_plus_4096_MC": ["S6", "S7", "S9"],
+            "exact_authoritative_where_available": True,
+        },
+        "S9": {
+            "draw_order": "51_L_then_46_H",
+            "passive_prefix": [51, 13],
+            "neyman_prefix": [18, 46],
+            "all_action_estimators": True,
+            "selection": "canonical_first_argmin",
+            "top2": "stable_estimated_top2_contains_true_best",
+            "analytic_variance_authoritative": True,
+            "universal_active_superiority_claim": False,
+        },
+        "proofs": {
+            "theorems": [f"T{i}" for i in range(1, 8)],
+            "entering_status": "OPEN",
+            "simulation_can_prove": False,
+            "citation_alone_can_prove": False,
+            "independent_PASS_required": True,
+            "T5_may_remain_OPEN": True,
+            "proof_files_created_at_readiness": 0,
+            "status_transitions_at_readiness": 0,
+        },
+        "result": {
+            "schema": RESULT_SCHEMA,
+            "manifest_schema": MANIFEST_SCHEMA,
+            "atomic_staging_and_rename": True,
+            "failed_staging_preserved": True,
+            "successful_C85T_gate": SUCCESS_GATE,
+        },
+        "resources": {
+            "CPU": 1,
+            "GPU": 0,
+            "RAM_GiB_envelope": 8,
+            "wall_minutes_envelope": 30,
+            "external_storage_MiB_envelope": 64,
+            "replicate_reduction": "serial_canonical_order",
+            "runtime_scope_reduction_allowed": False,
+        },
+        "authorization_record_path": "oaci/reports/C85T_PI_AUTHORIZATION_RECORD.json",
+        "authorization_schema": "c85t_direct_pi_authorization_record_v1",
+        "future_direct_statement": "授权 C85T",
+        "forbidden": {
+            "S0_S10_execution_before_fresh_authorization": True,
+            "real_project_data": True,
+            "active_acquisition": True,
+            "C85E": True,
+            "new_data_or_model_zoo": True,
+            "manuscript_work": True,
+        },
+        "readiness_success_gate": READINESS_SUCCESS_GATE,
+        "readiness_failure_gate": READINESS_FAILURE_GATE,
+    }
+    lock_path.write_bytes(canonical_json_bytes(lock))
+    lock_sha = sha256_file(lock_path)
+    sidecar_path.write_text(f"{lock_sha}  {lock_path.name}\n")
+    return {
+        "lock_path": str(lock_path),
+        "lock_sha256": lock_sha,
+        "runtime_bound_object_count": len(rows),
+        "runtime_registry_sha256": registry_identity["sha256"],
+        "registered_scenarios_executed": 0,
+        "proofs_completed": 0,
+        "theorem_status_transitions": 0,
+    }
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser()
+    subparsers = parser.add_subparsers(dest="command", required=True)
+    build = subparsers.add_parser("build-readiness-lock")
+    build.add_argument("--repo-root", type=Path, required=True)
+    build.add_argument("--implementation-commit", required=True)
+    build.add_argument("--created-at-utc", required=True)
+    args = parser.parse_args(argv)
+    if args.command == "build-readiness-lock":
+        value = materialize_readiness_lock(
+            repo_root=args.repo_root.resolve(),
+            implementation_commit=args.implementation_commit,
+            created_at_utc=args.created_at_utc,
+        )
+        print(json.dumps(value, sort_keys=True))
+        return 0
+    raise DecisionContractError("unknown C85TL lock materializer command")
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
