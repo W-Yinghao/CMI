@@ -174,10 +174,42 @@ def _target_splits(yt, n_splits=5, select_frac=0.5, seed=0, temporal=False):
     return splits
 
 
-def crossfit_target_oracle(Zs, ys, Zt, yt, B, seed=0, n_splits=5, select_frac=0.5, max_k=None):
-    """UPPER BOUND with hindsight, but honest: greedily pick a deletion subset (prefix of B) that maximizes
-    T_select bAcc (target labels), and report its gain on the DISJOINT T_query. Averaged over stratified +
-    temporal splits. Also returns the matched-rank random gain on T_query (mean over draws)."""
+def _select_subset(Zs, ys, Zt, yt, B, mode, max_k, seed):
+    """Return the deletion index set that maximizes T_select bAcc. mode='prefix' -> best top-k of the ordered
+    basis; mode='greedy' -> forward-add the arbitrary coordinate that most improves bAcc (STRONGER upper
+    bound, >= prefix). Selection uses target labels (hindsight) on the caller's T_select split only."""
+    r = B.shape[0]
+    ident = _bacc(Zs, ys, Zt, yt, seed)
+    if mode == "prefix":
+        best_k, best = 0, ident
+        for k in range(1, max_k + 1):
+            u = _bacc(delete_topk(Zs, B, k), ys, delete_topk(Zt, B, k), yt, seed)
+            if np.isfinite(u) and u > best + 1e-6:
+                best, best_k = u, k
+        return list(range(best_k))
+    S, cur = [], ident                                        # greedy arbitrary-coordinate
+    for _ in range(max_k):
+        cand = []
+        for j in range(r):
+            if j in S:
+                continue
+            Bj = B[S + [j]]
+            u = _bacc(Zs - (Zs @ Bj.T) @ Bj, ys, Zt - (Zt @ Bj.T) @ Bj, yt, seed)
+            cand.append((u, j))
+        if not cand:
+            break
+        bm, bj = max(cand, key=lambda x: (x[0] if np.isfinite(x[0]) else -1))
+        if not np.isfinite(bm) or bm <= cur + 1e-6:
+            break
+        S.append(bj); cur = bm
+    return S
+
+
+def crossfit_target_oracle(Zs, ys, Zt, yt, B, seed=0, n_splits=5, select_frac=0.5, max_k=None, mode="prefix"):
+    """UPPER BOUND with hindsight, but honest: pick a deletion subset that maximizes T_select bAcc (target
+    labels), report its gain on the DISJOINT T_query. mode 'prefix' (top-k of ordered basis) or 'greedy'
+    (arbitrary coordinates, strongest existence test). Averaged over stratified + temporal splits; also
+    returns the matched-rank random gain on T_query."""
     r = B.shape[0]; max_k = r if max_k is None else min(max_k, r)
     splits = _target_splits(yt, n_splits, select_frac, seed, temporal=False) + \
         _target_splits(yt, 2, select_frac, seed, temporal=True)
@@ -187,24 +219,18 @@ def crossfit_target_oracle(Zs, ys, Zt, yt, B, seed=0, n_splits=5, select_frac=0.
     dq, dq_rand, ks, idq = [], [], [], []
     for sel in splits:
         Ztsel, ytsel, Ztqry, ytqry = Zt[sel], yt[sel], Zt[~sel], yt[~sel]
-        ident_sel = _bacc(delete_topk(Zs, B, 0), ys, delete_topk(Ztsel, B, 0), ytsel, seed)
-        ident_qry = _bacc(delete_topk(Zs, B, 0), ys, delete_topk(Ztqry, B, 0), ytqry, seed)
-        best_k, best_sel = 0, ident_sel                       # select k on T_select
-        for k in range(1, max_k + 1):
-            u = _bacc(delete_topk(Zs, B, k), ys, delete_topk(Ztsel, B, k), ytsel, seed)
-            if np.isfinite(u) and u > best_sel + 1e-6:
-                best_sel, best_k = u, k
-        got_qry = _bacc(delete_topk(Zs, B, best_k), ys, delete_topk(Ztqry, B, best_k), ytqry, seed)
-        dq.append(got_qry - ident_qry); ks.append(best_k); idq.append(ident_qry)
-        # matched-rank random (same k), evaluated on T_query
-        if best_k > 0:
+        ident_qry = _bacc(Zs, ys, Ztqry, ytqry, seed)
+        S = _select_subset(Zs, ys, Ztsel, ytsel, B, mode, max_k, seed)     # select on T_select
+        BS = B[S] if S else np.zeros((0, B.shape[1]))
+        got_qry = _bacc(Zs - (Zs @ BS.T) @ BS if S else Zs, ys,
+                        Ztqry - (Ztqry @ BS.T) @ BS if S else Ztqry, ytqry, seed)
+        dq.append(got_qry - ident_qry); ks.append(len(S)); idq.append(ident_qry)
+        if S:                                                 # matched-rank random on T_query
             rr = []
             for t in range(10):
                 g = np.random.default_rng(9000 + seed + t)
-                idx = g.choice(r, min(best_k, r), replace=False)
-                Br = B[idx]
-                Zsr = Zs - (Zs @ Br.T) @ Br; Ztr = Ztqry - (Ztqry @ Br.T) @ Br
-                rr.append(_bacc(Zsr, ys, Ztr, ytqry, seed))
+                Br = B[g.choice(r, min(len(S), r), replace=False)]
+                rr.append(_bacc(Zs - (Zs @ Br.T) @ Br, ys, Ztqry - (Ztqry @ Br.T) @ Br, ytqry, seed))
             dq_rand.append(float(np.mean(rr)) - ident_qry)
         else:
             dq_rand.append(0.0)

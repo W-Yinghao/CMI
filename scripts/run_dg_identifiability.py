@@ -32,6 +32,8 @@ def main():
     ap.add_argument("--seeds", nargs="+", default=["0", "1", "2"])
     ap.add_argument("--max_rank", type=int, default=10)
     ap.add_argument("--eps", type=float, default=0.01)
+    ap.add_argument("--oracle_mode", default="greedy", choices=["greedy", "prefix"],
+                    help="existence oracle: greedy=arbitrary-coordinate (honest upper bound); prefix=top-k only (weaker)")
     ap.add_argument("--limit", type=int, default=0)
     a = ap.parse_args()
     cfg_hash = hashlib.sha256(CFG.read_bytes()).hexdigest()[:12] if CFG.exists() else "no_config"
@@ -47,7 +49,7 @@ def main():
     if not cells:
         raise SystemExit(f"[dg-id] no dumps for {a.dataset}/{a.backbone}")
     outdir = OUT / f"{a.dataset}_{a.backbone}"; outdir.mkdir(parents=True, exist_ok=True)
-    raw = outdir / "raw_rows.jsonl"
+    raw = outdir / f"raw_rows_seed{'-'.join(a.seeds)}.jsonl"    # per-invocation file (no concurrent-append races)
     done = set()
     if raw.exists():
         for line in open(raw):
@@ -68,7 +70,7 @@ def main():
                     if all((hs, sd, fam, contested, obj) in done for obj in OBJECTIVES):
                         continue
                     B = get_candidate_basis(fam, contested, Zs, ys, ds, max_rank=a.max_rank, seed=sd)
-                    orc = crossfit_target_oracle(Zs, ys, Zt, yt, B, seed=sd, max_k=a.max_rank)
+                    orc = crossfit_target_oracle(Zs, ys, Zt, yt, B, seed=sd, max_k=a.max_rank, mode=a.oracle_mode)
                     sms = nested_source_meta_multi(Zs, ys, ds, fam, contested, max_rank=a.max_rank,
                                                    seed=sd, objectives=tuple(OBJECTIVES), eps=a.eps)
                     ev_cache = {}
@@ -81,6 +83,7 @@ def main():
                         ev = ev_cache[ks]
                         row = dict(dataset=a.dataset, backbone=a.backbone, heldout_subject=hs, seed=sd,
                                    family=fam, contested=bool(contested), objective=obj, rank=int(B.shape[0]),
+                                   oracle_mode=a.oracle_mode,
                                    oracle_delta_query=float(orc["delta_query"]),
                                    oracle_delta_query_random=float(orc["delta_query_random"]),
                                    oracle_k=int(orc["k_selected"]),

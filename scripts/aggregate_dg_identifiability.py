@@ -31,7 +31,7 @@ def _fold_means(rr, key):
 
 def main():
     rows = []
-    for fp in glob.glob(str(OUT / "*/raw_rows.jsonl")):
+    for fp in glob.glob(str(OUT / "*/raw_rows_seed*.jsonl")):    # per-seed greedy-oracle files
         rows += [json.loads(l) for l in open(fp) if l.strip()]
     if not rows:
         sys.exit("[dg-id-agg] no rows")
