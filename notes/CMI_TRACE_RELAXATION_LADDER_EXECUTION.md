@@ -93,3 +93,57 @@ On frozen EEGNet features (BNCI2014_001 ERM), LW-LEACE subject-axis erasure verd
   (singleton) to avoid the NFS moabb-cache lock. Jobs 897813-815. RUNNING.
 - **TSMNet dumps**: still BLOCKED — `spdnets` absent in `icml`; torchaudio broken in `eeg2025`. Documented as
   a blocker; EEGNet alone covers the frozen non-graph (FMScope-style) regime.
+
+---
+
+# FINAL REPORT — CMI-Trace Relaxation Ladder
+
+1. **Branch / final SHA**: `agent/cmi-trace-relaxation-ladder` @ `b0be840` (9 commits, pushed).
+2. **Base SHA**: `agent/cmi-trace-p0p1 @ 2a7ce8f`.
+3. **Commits** (reviewable stages): config-freeze → ladder+gates+diagnostics+task-direction → tests →
+   real DGCNN results → figures → claim boundary → EEGNet dumps → CMI ruler → frozen-EEGNet headline.
+4. **Files changed**: 35 vs base (+25,382). New: `tos_cmi/eeg/{relaxation_ladder,selective_erasure}.py`,
+   `cmi/eval/task_direction_consistency.py`, `scripts/run_cmi_trace_relaxation_ladder.py`,
+   `scripts/aggregate_cmi_trace_relaxation_ladder.py`, `scripts/run_cmi_trace_ladder_diagnostics.py`,
+   2 sbatch, `configs/cmi_trace_relaxation_ladder.yaml`, 3 figure generators, 4 test files, results + claims.
+5. **Tests / regressions**: 36 new (25 ladder firewall/aggregation/units + 11 task-direction) + 98-test
+   regression sweep (ladder + P0/P1 + pre-existing) — **0 failures, 0 regressions**.
+6. **SLURM jobs**: DGCNN ladder 897776-779 (DONE); diagnostics 897805-806 (DONE); CMI ruler 897807-808
+   (DONE); EEGNet dumps BNCI2014 897813-815 (DONE 27/27); TOS EEGNet ladder 897820 (DONE); EEGNet diag
+   897821 (running); BNCI2015 EEGNet dumps 897822-824 (running); TSMNet dumps env-blocked.
+7. **Completeness**: DGCNN graph_z — BNCI2014 (9 folds×3 seeds) + BNCI2015 (12×3), erm + encoder-CMI, 4
+   levels: FULL (15,496 valid rows; 33 concurrent-append-corrupt skipped, 0 folds lost). Frozen EEGNet —
+   BNCI2014 erm (9×3), 4 levels: FULL (5,940 rows). BNCI2015 EEGNet: dumps regenerating.
+8-9. **L0-L3 effect + LEACE-vs-random specificity**: see the two tables above. DGCNN: LEACE never beats
+   random at any level (specific gain ≤0 or CI incl 0), both datasets. Frozen EEGNet: L1 null, **L2
+   +0.019 [+0.005,+0.035] beats random by +0.034 [+0.020,+0.048]** (subject-specific), L3 oracle beats
+   random but hurts grouped-CV.
+10. **Direction / overlap** (source-only, real): task-direction consistency BNCI2014 0.275 / BNCI2015 0.459;
+   task–subject subspace overlap BNCI2014 0.047 / BNCI2015 0.143 (LOW — task and identity subspaces largely
+   orthogonal on graph_z, which is why removing the subject axis neither helps nor much hurts the task there).
+11. **Gate accept/refuse (H5, source-only)**: BNCI2014 G1/G2/G3 accept 52/54; BNCI2015 accept 28/72 (refuses
+   where erasure would hurt). NO policy beats identity (all H5 CIs negative or straddle 0) — a guarded
+   harm-reducer, not a positive method.
+12. **Deterministic verdicts**: DGCNN {INCONCLUSIVE, GENERIC_DIMENSIONALITY_EFFECT, NO_POSITIVE_REGIME,
+   INCONCLUSIVE}; frozen-EEGNet BNCI2014 ERM = **TRANSDUCTIVE_POSITIVE**.
+13. **Claims**: CONFIRMED — DGCNN has no beneficial erasure regime; frozen-EEGNet erasure is transductively
+   (L2) beneficial + subject-specific but NULL under strict DG (L1). P0/P1 strict result UNCHANGED (L1 null
+   everywhere). WEAKENED/OVERTURNED — none. PENDING — BNCI2015×EEGNet transductive replication (dumps
+   running); TSMNet frozen backbone (env-blocked); EEGNet diagnostics/CMI-ruler (running).
+14. **Manuscript-safe wording**: see `paper/cmi_trace/relaxation_ladder_claims.md`. Key sentence:
+   "Access to the new subject's unlabeled geometry can make subject-axis erasure beneficial on a frozen
+   encoder representation (transductive L2), but the effect does not hold under strict source-only DG and is
+   absent on the task-trained graph representation; the benefit is subject-specific, not dimensionality." No
+   forbidden claim used (grep-clean). Do NOT call L2 source-only DG; do NOT generalize to "erasure fails".
+15. **Remaining blockers**: (a) BNCI2015×EEGNet dumps (running) → transductive replication; (b) TSMNet env
+   (spdnets/torchaudio) for a 2nd frozen backbone; (c) EEGNet gate/direction/overlap/CMI-ruler diagnostics
+   (running) → EEGNet regime-map point.
+
+## GO / NO-GO verdict
+**GO — as an exploratory regime-mapping study with a clean, honest, publishable reconciliation.** The ladder
+delivers a genuine finding: subject-axis erasure is beneficial ONLY in a specific regime (frozen encoder +
+transductive access to the unseen subject's unlabeled geometry), is subject-SPECIFIC there (beats random +
+whitening), and is NULL under strict source-only DG on every representation — reconciling the concurrent
+FMScope positive with our confirmed strict-DG null without weakening either. The scope is correctly bounded:
+this is exploratory (post-hoc question), L2 is transductive (not DG), the oracle is a diagnostic, and the
+frozen-EEGNet finding must not be over-generalized pending BNCI2015 replication + a 2nd backbone.
