@@ -13,9 +13,128 @@ and collaboration sections before acting.
 
 ---
 
-## 0. Current continuation state through C85TL (2026-07-16)
+## 0. Current continuation state through C85TR1 (2026-07-16)
 
-C85TL implemented and locked the only future C85T proof/synthetic execution
+C85TR1 additively repaired the C85T execution guard, S9 RNG-byte identity,
+replicate persistence, proof-review governance, and lifecycle evidence. It
+stopped at:
+
+```text
+C85T_EXECUTION_GUARD_RNG_REPLICATE_PERSISTENCE_AND_PROOF_REVIEW_REPAIRED_V2_LOCK_READY_FOR_PI_AUTHORIZATION
+```
+
+Authoritative C85TR1 identities:
+
+```text
+repair protocol commit:
+  46442b281d61d00a575fae17685648b749659263
+
+repair protocol SHA-256:
+  9c0a7084a7ddd83ef96b8d7f95faf89138829729c0acc5c3d6baeb0ef87ab13d
+
+implementation commit:
+  f17e25d0d8dc117f7973f90743e07139eeb0c1e1
+
+C85T V2 execution-lock commit:
+  920c5540a6ae157b77f2acb36f227bfdc172110b
+
+C85T V2 execution-lock SHA-256:
+  0f6907f9b997634b48062e97e789d50ae189dcc3c01f03cb5cee8b105c379719
+
+runtime registry SHA-256:
+  7a52c6c82b81e65f1fb8872705e239b51925d89c955c2145fc18f1fea244919d
+```
+
+The historical C85TL lock remains byte-identical at SHA
+`4a289a46040b10855c6f23def53c328bdce0a8b1c71b7e90523887b6c1db7991`
+and is marked `SUPERSEDED_BEFORE_AUTHORIZATION_OR_REGISTERED_EXECUTION`.
+It had no authorization or registered execution and must not be used.
+
+C85TR1 repairs:
+
+```text
+S9 Generator.integers uses numpy.int64;
+mapped Rademacher values are frozen as little-endian int64 bytes;
+probability reports contain raw and [0,1]-clipped intervals;
+S6/S7/S9 deterministic replicate NPZ arrays are mandatory;
+aggregates are recomputed from reloaded arrays;
+authorization uses one global O_CREAT|O_EXCL receipt and exact root;
+registered execution requires a private process-issued capability;
+C85T freezes proof candidates with T1-T7 still OPEN;
+C85V is the later independent proof-review stage;
+lifecycle evidence is ordered append-only JSONL;
+V2 results publish atomically after exact manifest replay.
+```
+
+Future result arithmetic is fixed:
+
+```text
+scenario results:                    11
+S6/S7 logical replicate rows:     8,192
+S9 logical replicate-design rows: 8,192
+S9 raw int64 digest rows:          4,096
+proof candidates:                      7
+formal theorem statuses OPEN:          7
+```
+
+The V2 lock binds 133 repository objects plus a separate runtime registry.
+Future runtime requires exact environment, clean branch `oaci`,
+`HEAD == origin/oaci`, exact file SHA/Git blobs, a fresh authorization, and one
+content-addressed output root.
+
+Accepted final-lock regressions:
+
+```text
+focused: 375 passed
+C65:     986 passed, 1 skipped, 3 deselected
+C23:   1,397 passed, 1 skipped, 3 deselected
+full:  2,321 passed, 1 skipped, 3 deselected
+```
+
+All accepted stderr files are empty. Final red team is 96/96 PASS. `squeue`
+showed zero active C84/C85/OACI jobs; `sacct` was not used.
+
+No V2 authorization record exists. The `授权 C85T` phrase in the C85TR1
+request preceded the V2 lock and is explicitly not reusable. After PM accepts
+this readiness state, a **new** direct statement must bind lock commit
+`920c5540...`, lock SHA `0f6907f9...`, one authorization ID, and one exact
+output root.
+
+The only operative future command is:
+
+```text
+python -m oaci.theory.c85t_execute_v2 run-locked \
+  --execution-lock oaci/reports/C85T_EXECUTION_LOCK_V2.json \
+  --output-root <EXACT_AUTHORIZED_CONTENT_ADDRESSED_ROOT>
+```
+
+A successful future C85T stops at:
+
+```text
+C85T_SYNTHETIC_VALIDATION_AND_PROOF_CANDIDATES_FROZEN_C85V_REVIEW_REQUIRED
+```
+
+C85V, C85E, active acquisition, real project data, new data/model zoos, and
+manuscript work remain unauthorized.
+
+Authoritative C85TR1 documents:
+
+```text
+oaci/reports/C85TR1_EXECUTION_GUARD_RNG_PERSISTENCE_AND_PROOF_REVIEW_PROTOCOL.json
+oaci/reports/C85T_EXECUTION_LOCK_V2.json
+oaci/reports/C85TR1_OVERALL_REPORT.md
+oaci/reports/C85TR1_OVERALL_REPORT.json
+oaci/reports/C85TR1_OVERALL_REPORT.sha256
+oaci/reports/C85TR1_PROTOCOL_READINESS.md
+oaci/reports/C85TR1_FINAL_REPORT_RED_TEAM.md
+oaci/reports/C85TR1_REGRESSION_VERIFICATION.md
+oaci/reports/OACI_EEG_DG_PROJECT_MEMORY_THROUGH_C85TR1.md
+oaci/reports/c85tr1_tables/
+```
+
+### Prior continuation state through C85TL
+
+C85TL implemented and locked the historical future C85T proof/synthetic execution
 path. It stopped at:
 
 ```text
@@ -1350,12 +1469,13 @@ Run a rung's report: `python -m oaci.<subpackage>.report --out-dir oaci/reports`
 - Preserve C84S gates C84-D/C84-L4, all C84A exploratory tags, the C85P theory
   protocol, and the C85R V2 scenario law.
 - C85T may start only after the exact fresh direct statement `授权 C85T` is
-  bound to lock SHA `4a289a46040b...` and lock commit `9d414ebb...`.
-- Use only `python -m oaci.theory.c85t_execute run-locked`; no notebook,
+  bound to V2 lock SHA `0f6907f9b997...` and lock commit `920c5540...`.
+- The direct statement supplied before V2 lock creation is not reusable.
+- Use only `python -m oaci.theory.c85t_execute_v2 run-locked`; no notebook,
   `python -c`, unbound shell glue, alternate RNG, or parallel reduction may
   create a result.
-- T5 may remain OPEN. Simulation cannot prove any theorem, and every other
-  non-OPEN transition requires the locked independent proof red team.
+- C85T must leave T1-T7 formally OPEN. It freezes proof candidates only; a
+  separately approved C85V performs independent review without rerunning MC.
 - Do not access real project data or start C85E, active acquisition, new data/
   model execution, selector retuning, or manuscript changes.
 
