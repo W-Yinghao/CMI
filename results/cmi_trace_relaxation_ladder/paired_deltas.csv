@@ -2,7 +2,7 @@ dataset,backbone,training_method,level,metric,mean,ci_lo,ci_hi,n_clusters,beats_
 BNCI2014_001,dgcnn_forward_graph_adapter,erm,L0_STRICT_SOURCE_ORIGINAL_HEAD,specific_erasure_gain(lw_leace - random_k),0.0002623456790123623,-0.005215084876543198,0.006172839506172853,6,False,False
 BNCI2014_001,dgcnn_forward_graph_adapter,erm,L1_STRICT_SOURCE_FRESH_HEAD,specific_erasure_gain(lw_leace - random_k),-0.006051954732510281,-0.01616594328703702,0.0017857349537036982,9,False,False
 BNCI2014_001,dgcnn_forward_graph_adapter,erm,L2_TARGET_X_UNLABELED_FRESH_HEAD,specific_erasure_gain(lw_leace - random_k),-0.006415895061728389,-0.019547389403292183,0.006158002186213994,9,False,False
-BNCI2014_001,dgcnn_forward_graph_adapter,erm,L3_ORACLE_GLOBAL_GEOMETRY_FRESH_HEAD,specific_erasure_gain(lw_leace - random_k),-0.005894180831217351,-0.008149629210159711,-0.0037420677582502616,9,False,False
+BNCI2014_001,dgcnn_forward_graph_adapter,erm,L3_ORACLE_GLOBAL_GEOMETRY_FRESH_HEAD,specific_erasure_gain(lw_leace - random_k),-0.005883071310068955,-0.00814045311242963,-0.003730138984052103,9,False,False
 BNCI2014_001,dgcnn_forward_graph_adapter,graphcmi,L0_STRICT_SOURCE_ORIGINAL_HEAD,specific_erasure_gain(lw_leace - random_k),-0.0042165798611111145,-0.01047526041666667,0.001590838396990741,8,False,False
 BNCI2014_001,dgcnn_forward_graph_adapter,graphcmi,L1_STRICT_SOURCE_FRESH_HEAD,specific_erasure_gain(lw_leace - random_k),-0.0035141782407407474,-0.009351128472222239,0.002178096064814807,8,False,False
 BNCI2014_001,dgcnn_forward_graph_adapter,graphcmi,L2_TARGET_X_UNLABELED_FRESH_HEAD,specific_erasure_gain(lw_leace - random_k),0.00038773148148149323,-0.011881419994212947,0.012872540509259274,8,False,False
@@ -14,4 +14,4 @@ BNCI2015_001,dgcnn_forward_graph_adapter,erm,L3_ORACLE_GLOBAL_GEOMETRY_FRESH_HEA
 BNCI2015_001,dgcnn_forward_graph_adapter,graphcmi,L0_STRICT_SOURCE_ORIGINAL_HEAD,specific_erasure_gain(lw_leace - random_k),-0.02500000000000002,-0.046624627525252524,-0.007399002525252563,11,False,False
 BNCI2015_001,dgcnn_forward_graph_adapter,graphcmi,L1_STRICT_SOURCE_FRESH_HEAD,specific_erasure_gain(lw_leace - random_k),-0.017871527777777774,-0.035611423611111075,-0.0028009895833333385,12,False,False
 BNCI2015_001,dgcnn_forward_graph_adapter,graphcmi,L2_TARGET_X_UNLABELED_FRESH_HEAD,specific_erasure_gain(lw_leace - random_k),-0.01728587962962962,-0.041890781249999995,0.004782002314814819,12,False,False
-BNCI2015_001,dgcnn_forward_graph_adapter,graphcmi,L3_ORACLE_GLOBAL_GEOMETRY_FRESH_HEAD,specific_erasure_gain(lw_leace - random_k),-0.037129955441353966,-0.04489272465318087,-0.029887792625477888,12,False,False
+BNCI2015_001,dgcnn_forward_graph_adapter,graphcmi,L3_ORACLE_GLOBAL_GEOMETRY_FRESH_HEAD,specific_erasure_gain(lw_leace - random_k),-0.03713447105605477,-0.04489627432184835,-0.029890249939472868,12,False,False
