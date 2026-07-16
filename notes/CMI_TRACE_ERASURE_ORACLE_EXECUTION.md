@@ -71,3 +71,22 @@ arms {full, exact_head_null, subject, random}; metrics kept-branch CMI + subject
 bAcc). CPU smoke (3+3 ep) already shows informed arms drop kept-branch CMI 0.185→0.14 + subject residual
 0.667→0.55 vs random 0.18/0.66. Success is pre-frozen as kept-CMI down + source retained ≥−0.02 + informed
 beats random, NOT target accuracy alone.
+
+## Version 1 TTE — RESULT (both datasets complete, subject/fold-cluster CI)
+| dataset | arm | Δ target bAcc | Δ kept-branch CMI | Δ source bAcc |
+|---------|-----|---------------|-------------------|---------------|
+| BNCI2014 (9) | exact_head_null | −0.003 [−0.010,+0.005] | **−0.428** [−0.457,−0.400] | +0.000 |
+| BNCI2014 (9) | subject | +0.001 | −0.337 | +0.001 |
+| BNCI2014 (9) | random | −0.000 | −0.027 | +0.001 |
+| BNCI2015 (12) | exact_head_null | +0.004 [−0.001,+0.008] | **−0.481** [−0.498,−0.464] | −0.001 |
+| BNCI2015 (12) | subject | −0.000 | −0.300 | −0.001 |
+| BNCI2015 (12) | random | −0.000 | −0.045 | −0.001 |
+
+**VERDICT: METHOD SUCCESS on the pre-frozen criteria, but NOT a DG gain.** Training THROUGH the erasure
+(exact_head_null) yields a deployed kept-branch with ~43–48% LESS conditional subject leakage (CIs far from 0),
+FULLY retaining source task (Δsource ≈ 0), subject-SPECIFICALLY (informed −0.43/−0.48 vs random −0.03/−0.05,
+~10–16×). This proves the encoder CAN route the task out of the deleted subspace during training — so the
+post-hoc ladder failure was NOT "no safe complement exists". But target bAcc is FLAT (CIs include 0): the
+deployable cleaning does not translate to a DG improvement — consistent with the confirmed measurement→control
+gap. Honest positive: safe removable leakage exists AND can be suppressed during training, task-safely, but
+utility ≠ removability.
