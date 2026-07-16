@@ -74,3 +74,14 @@ together; n_boot 10000. LW-LEACE = LW-whitened LEACE removing the full centered 
   frozen-feature regime is still pending).
 - "oracle-global erasure is source-only DG".
 - "fresh-head improvement proves lower original-head reliance".
+
+## Mechanism (why L2 helps on EEGNet but no regime helps on DGCNN)
+The Stage-4 source-only diagnostics explain the regime difference:
+- **frozen EEGNet**: cross-subject task-direction consistency **0.722** (a strongly SHARED task direction) —
+  precisely FMScope's stated condition for erasure benefit. task–subject subspace overlap 0.086 (low, so
+  removing the subject axis does not destroy the task).
+- **DGCNN graph_z**: task-direction consistency **0.275** (much less shared), overlap 0.047.
+A shared task direction (high on EEGNet, low on DGCNN) is what lets transductive subject-axis removal help:
+when subjects agree on the task axis, removing the subject-identity axis (using the target's unlabeled
+geometry) denoises the readout; when they don't (DGCNN), it does not. This ties the beneficial regime to a
+measurable, source-only representation property rather than to erasure per se.
