@@ -1,0 +1,78 @@
+{
+  "schema_version": "c84s_v4_authorized_execution_blocker_v1",
+  "recorded_at_utc": "2026-07-16T10:47:30Z",
+  "authorization": {
+    "direct_statement": "授权 C84S",
+    "record_commit": "d699919f8d3b96a2f2e42e94a09df076a9af52d4",
+    "record_sha256": "4419303f8282ab132d2f95a5b76993bfb73191b29e7257e8220cefdde408ff5a",
+    "consumed": true,
+    "consumption_sha256": "6dfc058e67ea8fa1ea8ddc0c1d398a4b468c4213a42455b5f864ced800fb0866",
+    "reusable": false
+  },
+  "execution": {
+    "job_id": "898192",
+    "output_root": "/projects/EEG-foundation-model/yinghao/oaci-c84s-analysis-v4",
+    "started_at_utc": "2026-07-16T10:34:34Z",
+    "finished_at_utc": "2026-07-16T10:44:20Z",
+    "analysis_lock_sha256": "582e5074b4b17d62ff1e5fbfd992f037dd3082b7763b22d707630aa19db81c3d",
+    "lifecycle_sha256": "38bf0c660ebe53d9a02248fb297c59cac9686114f54f99272d233e76eda68477",
+    "pre_label_replay_sha256": "decbf3a931d2be84867a23fd2dbdcb50516857ca7839ad17400ba763fa23cd36",
+    "stage_b_attempt_sha256": "d6514649fd0b52f88909c8777700cb62b71bb1b312474b3e493ca0dab1ec64d9",
+    "stage_b_receipt_sha256": "3c29ee165d642f72c6518a8a718fface715da2a6f20700e3dac3641dbfa4e386",
+    "stage_b_stderr_sha256": "796604da8f76e0d5255d6854c5818b1d628cc47650134ac28d45d462d9114068",
+    "stage_b_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "selection_freeze_published": false,
+    "scientific_result_published": false
+  },
+  "passed_replay": {
+    "external_files": 7776,
+    "external_bytes": 48072941176,
+    "stage_a_files": 11,
+    "stage_a_label_loader_calls": 0,
+    "target_label_rows_reloaded": 0,
+    "evaluation_descriptor_released_to_stage_b": false
+  },
+  "primary_blocker": {
+    "type": "registered_secondary_budget_input_unavailable",
+    "exception_type": "C84SContractError",
+    "exception": "Q0 budget 32 is infeasible",
+    "budget_unit": "labels_per_class",
+    "dataset": "Lee2019_MI",
+    "targets": 22,
+    "construction_labels_per_class": 25,
+    "B32_feasible_targets": 0,
+    "construction_table_sha256": "fdf36052d36ad9546cda06cbc567f68cdcced7ad08fd1311ab949471218b3134"
+  },
+  "secondary_failure": {
+    "type": "atomic_staging_cleanup_masked_primary_exception",
+    "exception_type": "OSError",
+    "errno": 39,
+    "residual_staging_directory": "/projects/EEG-foundation-model/yinghao/oaci-c84s-analysis-v4/.stage_b_selection_freeze.staging-7p__5fnp",
+    "residual_directory_empty_at_audit": true
+  },
+  "protected_counters": {
+    "construction_label_access": 1,
+    "evaluation_label_access": 0,
+    "selector_score_contexts": 0,
+    "scientific_result_rows": 0,
+    "training": 0,
+    "forward": 0,
+    "GPU": 0,
+    "same_label_oracle": 0
+  },
+  "budget_availability": {
+    "primary_grid_unchanged": [1, 2, 4, 8, "FULL"],
+    "Lee2019_MI_secondary_feasible": [16],
+    "Lee2019_MI_secondary_unavailable": [32],
+    "Cho2017_secondary_feasible": [16, 32],
+    "scientific_outcomes_used": false
+  },
+  "disposition": {
+    "gate": "C84S_REAL_EXECUTION_SELECTION_AGGREGATION_RESOURCE_OR_PROVENANCE_RECONCILIATION_REQUIRED",
+    "C84S_result_exists": false,
+    "V4_preserved": true,
+    "automatic_retry": false,
+    "additive_protocol_and_lock_required": true,
+    "fresh_PI_authorization_required": true
+  }
+}
