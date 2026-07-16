@@ -68,6 +68,7 @@ def test_historical_canary_lock_is_preserved_before_unexecuted_field_lock():
         "C84S_ANALYSIS_EXECUTION_LOCK.json",
         "C84S_ANALYSIS_EXECUTION_LOCK_V2.json",
         "C84S_ANALYSIS_EXECUTION_LOCK_V3.json",
+        "C84S_ANALYSIS_EXECUTION_LOCK_V4.json",
     }
     science_lock = json.loads(
         (runtime.REPORT_DIR / "C84S_ANALYSIS_EXECUTION_LOCK_V2.json").read_text()

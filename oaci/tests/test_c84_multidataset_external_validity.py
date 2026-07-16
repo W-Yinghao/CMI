@@ -283,6 +283,7 @@ def test_C84P_historical_commit_had_no_lock_and_current_field_lock_is_unexecuted
         "C84S_ANALYSIS_EXECUTION_LOCK.json",
         "C84S_ANALYSIS_EXECUTION_LOCK_V2.json",
         "C84S_ANALYSIS_EXECUTION_LOCK_V3.json",
+        "C84S_ANALYSIS_EXECUTION_LOCK_V4.json",
     }
     science_lock = json.loads(
         (protocol.REPORT_DIR / "C84S_ANALYSIS_EXECUTION_LOCK_V2.json").read_text()

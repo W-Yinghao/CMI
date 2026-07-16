@@ -203,6 +203,7 @@ def test_execution_lock_v2_preserves_authorization_lifecycle_before_unexecuted_f
         "C84S_ANALYSIS_EXECUTION_LOCK.json",
         "C84S_ANALYSIS_EXECUTION_LOCK_V2.json",
         "C84S_ANALYSIS_EXECUTION_LOCK_V3.json",
+        "C84S_ANALYSIS_EXECUTION_LOCK_V4.json",
     }
     science_lock = json.loads(
         (runtime.REPORT_DIR / "C84S_ANALYSIS_EXECUTION_LOCK_V2.json").read_text()

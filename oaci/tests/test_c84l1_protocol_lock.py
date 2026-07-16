@@ -115,6 +115,7 @@ def test_C84L1P_historical_commit_only_created_canary_lock():
         "C84S_ANALYSIS_EXECUTION_LOCK.json",
         "C84S_ANALYSIS_EXECUTION_LOCK_V2.json",
         "C84S_ANALYSIS_EXECUTION_LOCK_V3.json",
+        "C84S_ANALYSIS_EXECUTION_LOCK_V4.json",
     }
     science_lock = json.loads((REPORTS / "C84S_ANALYSIS_EXECUTION_LOCK_V2.json").read_text())
     assert science_lock["status"] == "LOCKED_READY_FOR_DIRECT_PI_AUTHORIZATION_NOT_AUTHORIZED"
