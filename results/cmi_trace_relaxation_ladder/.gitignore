@@ -1,0 +1,4 @@
+# Per-tag raw run artifacts are large/partial/regenerable; commit only aggregated summaries at the results
+# root + manifest + verdict.json. Regenerate per-cell rows from the runners (see the execution note).
+*/raw_rows.jsonl
+smoke_*/
