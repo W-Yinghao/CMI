@@ -1,8 +1,11 @@
 from pathlib import Path
 
-from oaci.multidataset.c84sr2_common import AUTHORIZATION_PATH, PROTOCOL_SHA_PATH
+from oaci.multidataset.c84sr2_common import (
+    AUTHORIZATION_PATH, LOCK_READY_STATUS, PROTOCOL_SHA_PATH,
+)
 from oaci.multidataset.c84sr2_runtime_guard import (
-    static_process_isolation_audit, verify_protocol_inputs,
+    static_process_isolation_audit, verify_bound_repository_objects,
+    verify_lock_bound_readiness, verify_lock_self, verify_protocol_inputs,
 )
 
 
@@ -27,3 +30,22 @@ def test_v4_coordinator_does_not_import_label_provisioner():
     source = Path("oaci/multidataset/c84sr2_execute.py").read_text(encoding="utf-8")
     assert "c84sr1_stage_a_labels" not in source
     assert "c84sr2_stage_a_replay" in source
+
+
+def test_v4_lock_replays_current_runtime_and_readiness_evidence():
+    lock, digest = verify_lock_self()
+    assert digest == "582e5074b4b17d62ff1e5fbfd992f037dd3082b7763b22d707630aa19db81c3d"
+    assert lock["status"] == LOCK_READY_STATUS
+    assert lock["chronology"]["historical_V3_authorization_consumed"] is True
+    assert lock["chronology"]["historical_V3_authorization_reusable"] is False
+    assert lock["field_descriptor_compatibility"] == {
+        "units": 1944,
+        "native_sidecars": 1701,
+        "historical_C84C_omissions": 243,
+        "contexts": 944,
+        "table_sha256": lock["field_descriptor_compatibility"]["table_sha256"],
+    }
+    verify_bound_repository_objects(lock)
+    replay = verify_lock_bound_readiness(lock)
+    assert replay["tables"] >= 10
+    assert replay["synthetic"] == "7b88c30f0f623894a33cfcfa6aea56149500a8df7a1f5cb202d765e169384749"

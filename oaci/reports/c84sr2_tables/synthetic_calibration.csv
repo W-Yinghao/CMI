@@ -1,0 +1,5 @@
+check,expected,observed,pass
+full_contexts,944,944,1
+Q0_records,9110448,9110448,1
+method_context_rows,18608,18608,1
+precomputed_rows_injected,0,0,1
