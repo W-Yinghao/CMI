@@ -1,0 +1,12 @@
+object,Lee2019_MI,Cho2017,PhysionetMI,total
+contexts,176,160,608,944
+candidate_score_rows,99792,90720,344736,535248
+candidate_rank_rows,99792,90720,344736,535248
+fixed_default_rows,880,800,3040,4720
+q0_shards,176,160,608,944
+q0_records,1802416,1966240,4981344,8750000
+q0_sample_digest_rows,225302,245780,622668,1093750
+q0_regime_distribution_rows,3168,3360,9120,15648
+q0_coverage_rows,1056,1120,3040,5216
+methods_per_context,20,21,19,NA
+method_context_rows,3520,3360,11552,18432
