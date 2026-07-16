@@ -1,0 +1,8 @@
+theorem_id,mandatory_audit,load_bearing_check,C85TL_verdict
+T1,composition_and_infimum,garbling kernel preserves statewise risk,NOT_RUN
+T2,finite_counterexample_replay,S1 and S10 exact reversal values,NOT_RUN
+T3,kernel_equality,statewise almost-sure equality not one coupled draw,NOT_RUN
+T4,testing_reduction,decoder and TV constant one half,NOT_RUN
+T5,Fano_conditions,finite packing information identity and constants,NOT_RUN
+T6,piecewise_CVaR,13/20 crossing and open endpoints,NOT_RUN
+T7,event_inclusion_and_Chernoff,Delta_i exponent and no independence,NOT_RUN

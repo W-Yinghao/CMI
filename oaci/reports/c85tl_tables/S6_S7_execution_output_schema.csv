@@ -1,0 +1,17 @@
+field,dtype_or_type,source,required,authoritative_status
+epsilon_near_optimal_set,uint16_array,exact_geometry,1,AUTHORITATIVE
+near_optimal_count,uint16,exact_geometry,1,AUTHORITATIVE
+Hill_2_effective_size,float64,exact_geometry,1,AUTHORITATIVE
+entropy_effective_size,float64,exact_geometry,1,AUTHORITATIVE
+T7_primary_bound,float64,exact_geometry,1,PROOF_TARGET_NOT_SIMULATION_PROOF
+historical_looser_diagnostic,float64,exact_geometry,1,DIAGNOSTIC_ONLY
+selected_action_counts,uint64_by_action,Monte_Carlo,1,SYNTHETIC_ESTIMATE
+top_1_probability,float64,Monte_Carlo,1,SYNTHETIC_ESTIMATE
+top_1_monte_carlo_se,float64,Monte_Carlo,1,NUMERICAL_DIAGNOSTIC
+outside_A_epsilon_probability,float64,Monte_Carlo,1,SYNTHETIC_ESTIMATE
+outside_A_epsilon_monte_carlo_se,float64,Monte_Carlo,1,NUMERICAL_DIAGNOSTIC
+mean_regret,float64,Monte_Carlo,1,SYNTHETIC_ESTIMATE
+mean_regret_monte_carlo_se,float64,Monte_Carlo,1,NUMERICAL_DIAGNOSTIC
+95pct_mc_intervals,float64_pair,Monte_Carlo,1,DESCRIPTIVE_ONLY
+raw_output_sha256,sha256,Monte_Carlo,1,REPRODUCIBILITY_RECEIPT
+simulation_proves_T7,bool,false,1,CLAIM_BOUNDARY

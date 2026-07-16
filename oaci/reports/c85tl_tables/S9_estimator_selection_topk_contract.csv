@@ -1,0 +1,16 @@
+component,definition,authoritative_status
+query_independence,conditionally iid Rademacher queries within each fixed stratum,LOCKED
+stratum_design,fixed allocation with no random stratum draw,LOCKED
+action_estimator,mu_hat_a=(4/5)mean_L(loss_a)+(1/5)mean_H(loss_a),LOCKED
+selection,argmin over all four action estimators,LOCKED
+tie_rule,first canonical action index,LOCKED
+population_means,3/10|7/20|13/20|17/20,LOCKED
+true_best,action 0,LOCKED
+correct_best,selected action equals population best,LOCKED
+top2,true best belongs to stable estimated top-2,LOCKED
+selection_regret,population mean selected loss minus population best loss,LOCKED
+D_hat,mu_hat_1-mu_hat_0,LOCKED
+passive_allocation,51 L and 13 H,LOCKED
+neyman_allocation,18 L and 46 H,LOCKED
+analytic_variance,sum_h p_h^2 sigma_h^2/n_h,AUTHORITATIVE
+claim_boundary,simulation is not universal active superiority evidence,LOCKED

@@ -73,9 +73,8 @@ def test_all_s0_s10_seed_identities_remain_historical() -> None:
         assert row["seed_rule_changed"] == row["scientific_draw_generated"] == "0"
 
 
-def test_no_c85t_result_or_execution_lock_exists() -> None:
+def test_no_c85t_result_or_authorized_execution_exists() -> None:
     forbidden = [
-        "C85T_EXECUTION_LOCK.json",
         "C85T_RESULT.json",
         "C85_SYNTHETIC_SCIENTIFIC_RESULT.json",
         "C85E_EXECUTION_LOCK.json",
@@ -83,6 +82,11 @@ def test_no_c85t_result_or_execution_lock_exists() -> None:
         "C85_REAL_DATA_AUTHORIZATION.json",
     ]
     assert not any((REPORTS / name).exists() for name in forbidden)
+    theory_lock = REPORTS / "C85T_EXECUTION_LOCK.json"
+    if theory_lock.exists():
+        value = json.loads(theory_lock.read_text())
+        assert value["status"] == "LOCKED_READY_FOR_DIRECT_PI_AUTHORIZATION_NOT_AUTHORIZED"
+        assert value["authorized"] is False
 
 
 def test_no_active_acquisition_is_authorized() -> None:
@@ -129,4 +133,3 @@ def test_c85r_tests_are_in_focused_and_cumulative_suites() -> None:
     for suite in ("focused", "c65", "c23"):
         assert names <= {path.name for path in suites.suite_files(suite)}
     assert suites.suite_files("full") == [suites.TEST_DIR]
-

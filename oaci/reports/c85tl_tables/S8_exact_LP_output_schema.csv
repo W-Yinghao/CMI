@@ -1,0 +1,9 @@
+field,representation,required,validation
+identified_set_infinity_norm_diameter,rational,1,max pairwise coordinate distance
+optimal_randomized_action_distribution,rational_vector,1,nonnegative and sums to one
+minimax_regret_value,rational,1,minimum enumerated feasible vertex objective
+extreme_point_constraint_slacks,rational_vector,1,all nonnegative
+active_constraints,string_vector,1,canonical lexical vertex certificate
+pure_action_minimax_regret,rational,1,minimum pure worst-case regret
+randomization_gain,rational,1,pure value minus randomized value
+tie_degeneracy_rule,string,1,lexicographically first q then active constraints

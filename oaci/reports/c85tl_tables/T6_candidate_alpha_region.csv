@@ -1,0 +1,2 @@
+theorem_id,scenario,candidate_region,left_endpoint,right_endpoint,endpoint_policy,status,verified_in_C85TL
+T6,S5,"(13/20,1)",13/20,1,both_open,CANDIDATE_PROOF_TARGET,0

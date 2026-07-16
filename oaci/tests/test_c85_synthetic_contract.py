@@ -135,12 +135,15 @@ def test_contract_cli_reports_validation_only() -> None:
     assert value["status"] == "LOCKED_PROTOCOL_ONLY_NOT_EXECUTED"
 
 
-def test_no_c85_execution_or_real_data_lock_exists() -> None:
+def test_no_c85_real_data_or_active_execution_lock_exists() -> None:
     forbidden = [
-        "C85T_EXECUTION_LOCK.json",
         "C85E_EXECUTION_LOCK.json",
         "C85_REAL_DATA_AUTHORIZATION.json",
         "C85_ACTIVE_ACQUISITION_LOCK.json",
     ]
     assert not any((REPORTS / name).exists() for name in forbidden)
-
+    theory_lock = REPORTS / "C85T_EXECUTION_LOCK.json"
+    if theory_lock.exists():
+        value = json.loads(theory_lock.read_text())
+        assert value["status"] == "LOCKED_READY_FOR_DIRECT_PI_AUTHORIZATION_NOT_AUTHORIZED"
+        assert value["authorized"] is False

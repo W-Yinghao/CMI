@@ -1,0 +1,12 @@
+scenario_id,execution_mode,authoritative_object,monte_carlo_replicates,executed_in_C85TL
+S0,EXACT_ENUMERATION,exact_risk,0,0
+S1,EXACT_ENUMERATION,exact_registered_and_unrestricted_risks,0,0
+S2,EXACT_ENUMERATION,exact_policy_collapse,0,0
+S3,EXACT_RANK_REGRET,exact_rank_and_regret,0,0
+S4,EXACT_TOPK_REGRET,exact_topk_and_regret,0,0
+S5,EXACT_FINITE_DISTRIBUTION,mean_worst_and_piecewise_CVaR,0,0
+S6,EXACT_GEOMETRY_PLUS_MONTE_CARLO,exact_geometry,4096,0
+S7,EXACT_GEOMETRY_PLUS_MONTE_CARLO,exact_geometry,4096,0
+S8,EXACT_RATIONAL_LP,rational_vertex_certificate,0,0
+S9,EXACT_LAW_VARIANCE_PLUS_MONTE_CARLO,analytic_D_hat_variance,4096,0
+S10,EXACT_FINITE_ENUMERATION,exact_risk_and_garbling,0,0

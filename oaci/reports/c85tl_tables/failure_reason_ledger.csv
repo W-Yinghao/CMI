@@ -1,0 +1,9 @@
+failure_code,stage,condition,disposition,automatic_retry
+C85TL_PROTOCOL_IDENTITY_DRIFT,preflight,C85P C85R or V2 hash mismatch,stop before any execution,0
+C85TL_ENVIRONMENT_DRIFT,preflight,Python NumPy metadata or binary identity mismatch,stop before any execution,0
+C85TL_RNG_CONTRACT_DRIFT,shadow_validation,seed raw draw order or dtype mismatch,readiness failure,0
+C85TL_ESTIMAND_INCOMPLETE,shadow_validation,S9 or S6 S7 output field missing,readiness failure,0
+C85TL_PROOF_SCHEMA_INVALID,shadow_validation,proof section or transition gate incomplete,readiness failure,0
+C85TL_ATOMIC_PUBLICATION_INVALID,shadow_validation,partial final root visible after failure,readiness failure,0
+C85T_AUTHORIZATION_ABSENT,future_preflight,fresh direct authorization not bound,stop before registered execution,0
+C85T_EXECUTION_FAILURE,future_execution,exact MC proof or publication failure,preserve consumed authorization and failed staging root,0
