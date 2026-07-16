@@ -300,4 +300,7 @@ def feat_from_tos_dump(path):
                 feature_object="frozen_z", training_method=str(d["method"]),
                 outer_fold=-1, heldout_subject=str(int(np.asarray(d["target_subject"]))),
                 seed=int(np.asarray(d["seed"])), head_W=None, head_b=None)
+    for k in ("session_source", "session_target"):                # optional session metadata (target-X audit)
+        if k in d:
+            feat[k] = np.asarray(d[k])
     return feat
