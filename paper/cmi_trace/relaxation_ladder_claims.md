@@ -16,9 +16,22 @@ results were known). It does not overturn or weaken the confirmed P0/P1 result; 
 | BNCI2015_001 | DGCNN graph_z | ERM | NO_POSITIVE_REGIME |
 | BNCI2015_001 | DGCNN graph_z | encoder-CMI | INCONCLUSIVE |
 | **BNCI2014_001** | **frozen EEGNet** | **ERM** | **TRANSDUCTIVE_POSITIVE** |
+| BNCI2015_001 | frozen EEGNet | ERM | **NO_POSITIVE_REGIME** (does NOT replicate) |
 
-### HEADLINE — frozen EEGNet reconciles the FMScope result with our strict result (representation- AND regime-dependent)
-On the **frozen EEGNet** representation (the FMScope-style regime), LW-LEACE subject-axis erasure:
+### CRITICAL SCOPE — the transductive benefit is SINGLE-DATASET and does NOT replicate
+The L2 transductive benefit appears ONLY on **BNCI2014_001 (4-class)** frozen EEGNet. On **BNCI2015_001
+(2-class)** frozen EEGNet it does NOT replicate — erasure is strongly HARMFUL at every level (L1 LEACE
+−0.063, L2 −0.072, L3 −0.160; LW-LEACE WORSE than same-rank random, specific gains −0.06 to −0.12). A
+plausible contributor: LW-LEACE removes the full subject span (rank = n_subjects−1 = 11) out of only 16
+EEGNet dims, leaving 5 dims — on a 2-class task this over-removes and destroys the task signal, whereas on
+BNCI2014 (8 subjects → rank 8 of 16, 4-class) the removal is less aggressive AND the task direction is more
+shared (consistency 0.722). So the beneficial regime is NARROW: frozen encoder + transductive + a
+task/dimensionality structure where removing the subject span does not also erase the task. **This is a
+fragile, single-dataset positive, NOT a general property of frozen features.**
+
+### HEADLINE — frozen EEGNet (BNCI2014 only) reconciles the FMScope result with our strict result
+On the **frozen EEGNet** representation of **BNCI2014_001** (the FMScope-style regime), LW-LEACE subject-axis
+erasure:
 - **L1 strict source-only DG**: Δ −0.010 [−0.019,−0.001], no better than same-rank random (specific gain
   −0.000 [−0.009,+0.009], beats_random=**False**) → erasure does NOT help under strict source-only DG.
 - **L2 target-X-unlabeled (transductive)**: Δ **+0.019 [+0.005,+0.035]** (helps), same-rank random **−0.015**
@@ -27,10 +40,13 @@ On the **frozen EEGNet** representation (the FMScope-style regime), LW-LEACE sub
 - **L3 oracle** (cohort-conditioned, subject-grouped CV): LEACE hurts the grouped-CV readout but still beats
   random (specific gain +0.016) — a within-cohort diagnostic, not source→unseen-subject transfer.
 
-**Reconciliation**: FMScope's positive and our strict-DG null can BOTH be correct. Subject-axis erasure
-becomes beneficial only when (a) the representation is a frozen non-graph encoder (EEGNet) AND (b) the eraser
-sees the new subject's UNLABELED geometry (transductive L2). It does NOT hold under strict source-only DG on
-any representation examined, and it is NOT present on the task-trained DGCNN graph representation at all.
+**Reconciliation (appropriately bounded)**: FMScope's positive and our strict-DG null can BOTH be correct.
+A transductive, subject-specific erasure benefit is POSSIBLE (BNCI2014 frozen EEGNet, L2) — needing (a) a
+frozen non-graph encoder, (b) the unseen subject's UNLABELED geometry, and (c) a task/dimensionality
+structure that survives removing the subject span. But it is FRAGILE: it does NOT replicate on BNCI2015
+(same encoder, 2-class), NEVER holds under strict source-only DG (L1) on any representation, and is ABSENT on
+the task-trained DGCNN graph representation. So subject-axis erasure is not a reliable DG tool; where it
+helps, it is a narrow transductive effect tied to representation + task structure.
 
 The DGCNN family (below) shows NO beneficial regime; the frozen-EEGNet family shows a TRANSDUCTIVE-only,
 subject-specific benefit. This does not weaken the confirmed P0/P1 strict result (L1 is null everywhere).
@@ -54,18 +70,20 @@ together; n_boot 10000. LW-LEACE = LW-whitened LEACE removing the full centered 
 - **Gates (H5)**: no source-only gate policy beat its identity fallback; the gate is a guarded harm-reducer
   (it correctly refuses erasure where it would hurt), not a positive method.
 
-## Manuscript-safe wording — L2-only positive (the frozen-EEGNet finding)
-> Access to the new subject's unlabeled geometry can make subject-axis erasure beneficial on a frozen
-> encoder representation (transductive L2: LW-LEACE +0.019 target bAcc, beating same-rank random by +0.034),
-> but the effect does not hold under strict source-only DG (L1 null), and it is absent on the task-trained
-> graph representation. The benefit is subject-SPECIFIC (LW-LEACE beats matched-rank random and whitening-only
-> controls), not generic dimensionality reduction or conditioning.
+## Manuscript-safe wording — L2-only positive, SINGLE-DATASET (the frozen-EEGNet finding)
+> On one dataset (BNCI2014_001, 4-class), access to the new subject's unlabeled geometry made subject-axis
+> erasure beneficial on a frozen encoder representation (transductive L2: LW-LEACE +0.019 target bAcc,
+> beating same-rank random by +0.034; subject-specific, not dimensionality/conditioning). This did NOT
+> replicate on a second dataset (BNCI2015_001, 2-class, same encoder), where erasure was harmful at every
+> level, and it never held under strict source-only DG or on the task-trained graph representation. We
+> therefore report it as a fragile, regime- and task-structure-dependent effect, not a reliable method.
 
 ## STILL PENDING (honest)
 - **TSMNet** frozen-feature ladder: dumps env-blocked (spdnets absent in `icml`; torchaudio ABI break in
   `eeg2025`). EEGNet covers the primary frozen-encoder regime; TSMNet would be a second frozen backbone.
-- **BNCI2015_001 × EEGNet** ladder: EEGNet dumps regenerated for BNCI2014_001 only so far; BNCI2015_001
-  EEGNet dumps would test whether the transductive benefit replicates on the 2-class dataset.
+- **Rank sensitivity of LW-LEACE on low-dim / many-subject cells**: the BNCI2015 EEGNet harm is partly a
+  rank artifact (removing 11 of 16 dims). A truncated-rank LEACE sweep would separate the identity effect
+  from over-removal; the config declares `lw_leace_truncated` as an optional eraser for this.
 
 ## FORBIDDEN wording (always)
 - "CMI erasure solves EEG DG" / "TOS improves domain generalization".

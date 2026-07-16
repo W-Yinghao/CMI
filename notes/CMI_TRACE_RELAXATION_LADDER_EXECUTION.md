@@ -82,8 +82,13 @@ On frozen EEGNet features (BNCI2014_001 ERM), LW-LEACE subject-axis erasure verd
 - Erasure is beneficial ONLY transductively (L2, using the unseen subject's UNLABELED geometry; target Y
   never used) and is subject-SPECIFIC (beats matched-rank random + whitening-only). It is NULL under strict
   source-only DG (L1) — consistent with the confirmed P0/P1 strict result — and ABSENT on the task-trained
-  DGCNN graph representation. FMScope's positive + our strict null can both be correct: the benefit needs a
-  frozen encoder AND target-geometry access.
+  DGCNN graph representation.
+- **DOES NOT REPLICATE**: on BNCI2015_001 (2-class) frozen EEGNet the verdict is **NO_POSITIVE_REGIME** —
+  erasure is HARMFUL at every level (L1 −0.063, L2 −0.072, L3 −0.160; LW-LEACE worse than random). Partly a
+  rank artifact (LW-LEACE removes 11 of 16 dims → destroys the 2-class task). So the L2 benefit is a FRAGILE,
+  SINGLE-DATASET (BNCI2014 4-class) effect, not a general frozen-feature property. FMScope's positive + our
+  strict null can both be correct, but the beneficial regime is narrow (frozen encoder + transductive +
+  task/dimensionality structure that survives subject-span removal).
 
 ### Environment blocker (Stage 7) — HONEST
 - TOS frozen-dump regeneration hit env rot in `eeg2025`: moabb 1.5.0 renamed `BNCI2014001`→`BNCI2014_001`
@@ -125,7 +130,7 @@ On frozen EEGNet features (BNCI2014_001 ERM), LW-LEACE subject-axis erasure verd
    where erasure would hurt). NO policy beats identity (all H5 CIs negative or straddle 0) — a guarded
    harm-reducer, not a positive method.
 12. **Deterministic verdicts**: DGCNN {INCONCLUSIVE, GENERIC_DIMENSIONALITY_EFFECT, NO_POSITIVE_REGIME,
-   INCONCLUSIVE}; frozen-EEGNet BNCI2014 ERM = **TRANSDUCTIVE_POSITIVE**.
+   INCONCLUSIVE}; frozen-EEGNet BNCI2014 ERM = **TRANSDUCTIVE_POSITIVE** but BNCI2015 EEGNet = **NO_POSITIVE_REGIME** (does NOT replicate; single-dataset).
 13. **Claims**: CONFIRMED — DGCNN has no beneficial erasure regime; frozen-EEGNet erasure is transductively
    (L2) beneficial + subject-specific but NULL under strict DG (L1). P0/P1 strict result UNCHANGED (L1 null
    everywhere). WEAKENED/OVERTURNED — none. PENDING — BNCI2015×EEGNet transductive replication (dumps
