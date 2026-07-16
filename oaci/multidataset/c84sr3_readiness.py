@@ -131,6 +131,12 @@ def _write_tables(*, verify_external_bytes: bool) -> dict[str, Any]:
             "gate_if_open": FAILURE_GATE,
         },
         {
+            "failure_id": "C84SR3_READINESS_ATTEMPT_1",
+            "stage": "pre_lock_implementation_commit_binding", "blocking": 0,
+            "reason": "operator_supplied_incorrect_full_commit_argument_lock_not_written",
+            "gate_if_open": FAILURE_GATE,
+        },
+        {
             "failure_id": "NONE_OPEN", "stage": "C84SR3_readiness",
             "blocking": 0, "reason": "no_open_failure_after_V5_repair",
             "gate_if_open": FAILURE_GATE,
