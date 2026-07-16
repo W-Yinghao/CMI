@@ -146,9 +146,12 @@ def test_C84R2_preserves_V1_and_V2_while_current_field_lock_is_unexecuted():
     assert field_lock["status"] == "LOCKED_READY_FOR_DIRECT_PI_AUTHORIZATION_NOT_AUTHORIZED"
     assert field_lock["scope"]["real_execution_at_lock"] is False
     science_locks = {name for name in names if name.startswith("C84S_")}
-    assert science_locks == {"C84S_ANALYSIS_EXECUTION_LOCK.json"}
+    assert science_locks == {
+        "C84S_ANALYSIS_EXECUTION_LOCK.json",
+        "C84S_ANALYSIS_EXECUTION_LOCK_V2.json",
+    }
     science_lock = json.loads(
-        (canary.REPORT_DIR / "C84S_ANALYSIS_EXECUTION_LOCK.json").read_text()
+        (canary.REPORT_DIR / "C84S_ANALYSIS_EXECUTION_LOCK_V2.json").read_text()
     )
     assert science_lock["status"] == "LOCKED_READY_FOR_DIRECT_PI_AUTHORIZATION_NOT_AUTHORIZED"
     assert science_lock["authorization"]["record_present_at_lock"] is False

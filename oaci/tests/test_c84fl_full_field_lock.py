@@ -83,8 +83,11 @@ def test_historical_C84FL_failure_had_no_lock_and_current_field_lock_is_unexecut
     assert lock["status"] == "LOCKED_READY_FOR_DIRECT_PI_AUTHORIZATION_NOT_AUTHORIZED"
     assert lock["scope"]["real_execution_at_lock"] is False
     science_locks = {path.name for path in REPORTS.glob("C84S*EXECUTION_LOCK*.json")}
-    assert science_locks == {"C84S_ANALYSIS_EXECUTION_LOCK.json"}
-    science_lock = json.loads((REPORTS / "C84S_ANALYSIS_EXECUTION_LOCK.json").read_text())
+    assert science_locks == {
+        "C84S_ANALYSIS_EXECUTION_LOCK.json",
+        "C84S_ANALYSIS_EXECUTION_LOCK_V2.json",
+    }
+    science_lock = json.loads((REPORTS / "C84S_ANALYSIS_EXECUTION_LOCK_V2.json").read_text())
     assert science_lock["status"] == "LOCKED_READY_FOR_DIRECT_PI_AUTHORIZATION_NOT_AUTHORIZED"
     assert science_lock["authorization"]["record_present_at_lock"] is False
     assert not (REPORTS / "C84S_PI_AUTHORIZATION_RECORD.json").exists()

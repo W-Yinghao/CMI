@@ -10,6 +10,7 @@ import subprocess
 import sys
 from typing import Any, Iterable, Mapping, Sequence
 
+from . import c84s_analysis as analysis
 from .c84s_common import (
     C84SContractError, canonical_sha256, read_csv, read_json, require,
     sha256_file, write_json,
@@ -21,6 +22,10 @@ REPORT_DIR = REPO_ROOT / "oaci/reports"
 TABLE_DIR = REPORT_DIR / "c84sl_tables"
 PROTOCOL_PATH = REPORT_DIR / "C84S_ANALYSIS_OPERATIONALIZATION_PROTOCOL.json"
 PROTOCOL_SHA_PATH = REPORT_DIR / "C84S_ANALYSIS_OPERATIONALIZATION_PROTOCOL.sha256"
+REPAIR_PROTOCOL_PATH = REPORT_DIR / "C84SL_END_TO_END_RESULT_FREEZE_REPAIR_PROTOCOL.json"
+REPAIR_PROTOCOL_SHA_PATH = REPORT_DIR / "C84SL_END_TO_END_RESULT_FREEZE_REPAIR_PROTOCOL.sha256"
+FRONTIER_CLARIFICATION_PATH = REPORT_DIR / "C84SL_LABEL_FRONTIER_STABILITY_CLARIFICATION.json"
+FRONTIER_CLARIFICATION_SHA_PATH = REPORT_DIR / "C84SL_LABEL_FRONTIER_STABILITY_CLARIFICATION.sha256"
 SCIENCE_V3_PATH = REPORT_DIR / "C84_SCIENTIFIC_ANALYSIS_PROTOCOL_V3.json"
 METHOD_REGISTRY_PATH = REPORT_DIR / "C81_BASELINE_METHOD_REGISTRY.json"
 SELECTOR_REPLAY_PATH = REPORT_DIR / "c84p_tables/selector_registry_replay.csv"
@@ -28,12 +33,17 @@ COMPLETE_FIELD_MANIFEST_PATH = Path(
     "/projects/EEG-foundation-model/yinghao/oaci-c84-full-field-target-replay-v2/"
     "lock_f0c369ee273352b47e36/C84F_COMPLETE_FIELD_MANIFEST.json"
 )
-LOCK_PATH = REPORT_DIR / "C84S_ANALYSIS_EXECUTION_LOCK.json"
-LOCK_SHA_PATH = REPORT_DIR / "C84S_ANALYSIS_EXECUTION_LOCK.sha256"
+HISTORICAL_LOCK_PATH = REPORT_DIR / "C84S_ANALYSIS_EXECUTION_LOCK.json"
+HISTORICAL_LOCK_SHA_PATH = REPORT_DIR / "C84S_ANALYSIS_EXECUTION_LOCK.sha256"
+LOCK_PATH = REPORT_DIR / "C84S_ANALYSIS_EXECUTION_LOCK_V2.json"
+LOCK_SHA_PATH = REPORT_DIR / "C84S_ANALYSIS_EXECUTION_LOCK_V2.sha256"
 AUTHORIZATION_PATH = REPORT_DIR / "C84S_PI_AUTHORIZATION_RECORD.json"
 LOCK_READY_STATUS = "LOCKED_READY_FOR_DIRECT_PI_AUTHORIZATION_NOT_AUTHORIZED"
 EXPECTED = {
     "operationalization": "abf56676901bd7e5f484ffe4f4bb49de625d5c7b87cc34c0e3ab2bdb39361c5e",
+    "end_to_end_repair": "b2d52a3bfdcb89b8a8db5d1a5501fb7b24a22ad860dbe1d6da2c5e6d77ca189c",
+    "frontier_stability": "020251ded9dbe4688ef08e9854875fc06b789120f4697c661b94f96eeef66fca",
+    "historical_lock": "e17e4da14b60ac77ca0ec8bec80a2ca249cda014baf5460cfd64627294f2047b",
     "science_v3": "bf6c7f718413b4b2ac2ad9786aa2e47dc045a536e7237d5d8c0464b6598130b8",
     "method_registry": "ef48ecf7fcc55188b78b0878d86f07f6239fe4f6c88bbc854829b3a1c7a1a120",
     "selector_replay": "d589437e40812350eec44bdfbf1b75c52f10ef41e0e3ca5868e07844b0228e68",
@@ -63,6 +73,8 @@ IMPLEMENTATION_PATHS = (
     "oaci/multidataset/c84s_evaluation.py",
     "oaci/multidataset/c84s_inference.py",
     "oaci/multidataset/c84s_taxonomy.py",
+    "oaci/multidataset/c84s_analysis.py",
+    "oaci/multidataset/c84s_synthetic_end_to_end.py",
     "oaci/multidataset/c84s_runtime_guard.py",
     "oaci/multidataset/c84sl_readiness.py",
 )
@@ -78,8 +90,17 @@ def _git(*args: str) -> str:
 def verify_protocol_inputs() -> dict[str, Any]:
     sidecar = PROTOCOL_SHA_PATH.read_text(encoding="ascii").split()[0]
     require(sidecar == EXPECTED["operationalization"], "operative C84S protocol sidecar drift")
+    repair_sidecar = REPAIR_PROTOCOL_SHA_PATH.read_text(encoding="ascii").split()[0]
+    require(repair_sidecar == EXPECTED["end_to_end_repair"], "C84SL repair protocol sidecar drift")
+    frontier_sidecar = FRONTIER_CLARIFICATION_SHA_PATH.read_text(encoding="ascii").split()[0]
+    require(frontier_sidecar == EXPECTED["frontier_stability"], "C84SL frontier clarification sidecar drift")
+    historical_sidecar = HISTORICAL_LOCK_SHA_PATH.read_text(encoding="ascii").split()[0]
+    require(historical_sidecar == EXPECTED["historical_lock"], "historical C84S lock sidecar drift")
     paths = {
         "operationalization": PROTOCOL_PATH,
+        "end_to_end_repair": REPAIR_PROTOCOL_PATH,
+        "frontier_stability": FRONTIER_CLARIFICATION_PATH,
+        "historical_lock": HISTORICAL_LOCK_PATH,
         "science_v3": SCIENCE_V3_PATH,
         "method_registry": METHOD_REGISTRY_PATH,
         "selector_replay": SELECTOR_REPLAY_PATH,
@@ -163,10 +184,18 @@ def static_isolation_audit() -> list[dict[str, Any]]:
     evaluation_source = (REPO_ROOT / "oaci/multidataset/c84s_evaluation.py").read_text(encoding="utf-8")
     require("c84s_selectors" not in evaluation_source and "freeze_selection(" not in evaluation_source,
             "evaluation process can modify selection")
+    analysis_source = (REPO_ROOT / "oaci/multidataset/c84s_analysis.py").read_text(encoding="utf-8")
+    require(
+        "c84s_selectors" not in analysis_source
+        and "c84s_label_views" not in analysis_source
+        and "freeze_selection(" not in analysis_source,
+        "Stage-C analysis can alter selection or provision labels",
+    )
     checks.extend([
         {"path": "c84s_label_views.py", "check": "no_candidate_artifact_import", "pass": 1},
         {"path": "c84s_selectors.py", "check": "no_target_label_view_import", "pass": 1},
         {"path": "c84s_evaluation.py", "check": "no_selection_mutation_callable", "pass": 1},
+        {"path": "c84s_analysis.py", "check": "immutable_selection_and_no_label_provisioning", "pass": 1},
     ])
     return checks
 
@@ -248,6 +277,8 @@ def verify_authorization_record(lock: Mapping[str, Any], lock_sha: str, path: Pa
         "authorized_stage": "C84S",
         "analysis_lock_sha256": lock_sha,
         "operationalization_protocol_sha256": EXPECTED["operationalization"],
+        "end_to_end_repair_protocol_sha256": EXPECTED["end_to_end_repair"],
+        "frontier_stability_protocol_sha256": EXPECTED["frontier_stability"],
         "complete_field_manifest_sha256": EXPECTED["complete_field"],
         "same_label_oracle": False,
         "training": False,
@@ -310,11 +341,13 @@ def build_execution_lock(*, implementation_commit: str) -> dict[str, Any]:
         for path in sorted(TABLE_DIR.glob("*.csv"))
     }
     lock = {
-        "schema_version": "c84s_analysis_execution_lock_v1",
+        "schema_version": "c84s_analysis_execution_lock_v2",
         "milestone": "C84SL",
         "status": LOCK_READY_STATUS,
         "chronology": {
             "operationalization_protocol_commit": _git("log", "-1", "--format=%H", "--", str(PROTOCOL_PATH.relative_to(REPO_ROOT))),
+            "end_to_end_repair_protocol_commit": _git("log", "-1", "--format=%H", "--", str(REPAIR_PROTOCOL_PATH.relative_to(REPO_ROOT))),
+            "frontier_stability_protocol_commit": _git("log", "-1", "--format=%H", "--", str(FRONTIER_CLARIFICATION_PATH.relative_to(REPO_ROOT))),
             "implementation_commit": implementation_commit,
             "protocol_precedes_implementation": True,
             "real_label_access_at_lock": 0,
@@ -323,6 +356,8 @@ def build_execution_lock(*, implementation_commit: str) -> dict[str, Any]:
         },
         "protocols": {
             "operationalization": EXPECTED["operationalization"],
+            "end_to_end_repair": EXPECTED["end_to_end_repair"],
+            "frontier_stability": EXPECTED["frontier_stability"],
             "scientific_v3": EXPECTED["science_v3"],
             "method_registry": EXPECTED["method_registry"],
             "selector_replay": EXPECTED["selector_replay"],
@@ -354,6 +389,7 @@ def build_execution_lock(*, implementation_commit: str) -> dict[str, Any]:
             "selection_freeze_before_evaluation": True,
             "Q0_chains": 2048,
             "Q0_RNG": "PCG64_SHA256_low64",
+            "Q0_FULL_deterministic_across_chains": True,
             "maxT_draws": 65536,
             "principal_cluster": "target_subject",
             "same_method_across_datasets": True,
@@ -361,12 +397,23 @@ def build_execution_lock(*, implementation_commit: str) -> dict[str, Any]:
             "LOTO_thresholds": {"Lee2019_MI": 17, "Cho2017": 15, "PhysionetMI": 57},
             "taxonomy": ["C84-E", "C84-D", "C84-A", "C84-B", "C84-C"],
             "label_frontier": ["C84-L1", "C84-L2", "C84-L3", "C84-L4"],
+            "method_context_rows": 18608,
+            "Stage_C_table_schemas": len(analysis.RESULT_TABLE_FIELDS),
+            "atomic_result_freeze": True,
+            "synthetic_uses_production_entrypoint": True,
         },
         "authorization": {
             "record_path": str(AUTHORIZATION_PATH.relative_to(REPO_ROOT)),
             "record_present_at_lock": False,
             "fresh_direct_statement": "授权 C84S",
             "authorization_inherited": False,
+        },
+        "historical_lock_supersession": {
+            "path": str(HISTORICAL_LOCK_PATH.relative_to(REPO_ROOT)),
+            "sha256": EXPECTED["historical_lock"],
+            "preserved": True,
+            "operative_for_future_C84S": False,
+            "authorization_consumed": False,
         },
         "forbidden": {
             "training": True, "forward": True, "GPU": True,

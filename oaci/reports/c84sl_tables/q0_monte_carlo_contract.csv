@@ -1,2 +1,2 @@
-RNG,seed,chains,primary_budgets,nested,paired_across_panel_seed_level_candidates,chain_is_N,synthetic_B1_expected_inclusion,synthetic_B1_max_abs_frequency_deviation,synthetic_precision_pass
-PCG64,digest_final8_big_endian,2048,1|2|4|8|FULL,1,1,0,0.05,0.008593749999999997,1
+RNG,seed,chains,primary_budgets,nested,paired_across_panel_seed_level_candidates,chain_is_N,FULL_deterministic_across_chains,synthetic_B1_expected_inclusion,synthetic_B1_max_abs_frequency_deviation,synthetic_precision_pass
+PCG64,digest_final8_big_endian,2048,1|2|4|8|FULL,1,1,0,1,0.05,0.008593749999999997,1

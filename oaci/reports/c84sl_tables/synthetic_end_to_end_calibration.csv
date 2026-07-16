@@ -1,22 +1,22 @@
 scenario,expected,observed,pass,detail,real_label_access,real_selector_score
-S0,C84-C_no_registered_zero_label_selector_materially_improves_source_in_any_external_dataset,C84-C_no_registered_zero_label_selector_materially_improves_source_in_any_external_dataset,1,all zero-label methods null,0,0
-S1,C84-D_external_dataset_source_panel_seed_level_or_target_heterogeneous,C84-D_external_dataset_source_panel_seed_level_or_target_heterogeneous,1,one-dataset-only Q1,0,0
-S2,C84-B_same_zero_label_selector_improves_source_across_all_external_datasets_but_not_B1,C84-B_same_zero_label_selector_improves_source_across_all_external_datasets_but_not_B1,1,same method Q1 across datasets,0,0
-S3,C84-A_same_zero_label_selector_matches_B1_across_all_external_datasets,C84-A_same_zero_label_selector_matches_B1_across_all_external_datasets,1,same method Q1 and Q2 across datasets,0,0
-S4,C84-D_external_dataset_source_panel_seed_level_or_target_heterogeneous,C84-D_external_dataset_source_panel_seed_level_or_target_heterogeneous,1,different methods by dataset,0,0
-S5,C84-D_external_dataset_source_panel_seed_level_or_target_heterogeneous,C84-D_external_dataset_source_panel_seed_level_or_target_heterogeneous,1,level disagreement,0,0
-S6,C84-D_external_dataset_source_panel_seed_level_or_target_heterogeneous,C84-D_external_dataset_source_panel_seed_level_or_target_heterogeneous,1,panel/seed instability,0,0
-S7,C84-D_external_dataset_source_panel_seed_level_or_target_heterogeneous,C84-D_external_dataset_source_panel_seed_level_or_target_heterogeneous,1,LOTO failure,0,0
-S8,C84-L1,C84-L1,1,stable small-budget frontier,0,0
-S9,C84-L2,C84-L2,1,stable large-budget frontier,0,0
-S10,C84-L3,C84-L3,1,heterogeneous frontier,0,0
-S11,C84-L4,C84-L4,1,absent frontier,0,0
-S12,NO_Q1_SUBSTITUTION,NO_Q1_SUBSTITUTION,1,rank association cannot replace regret,0,0
-S13,NO_Q1_SUBSTITUTION,NO_Q1_SUBSTITUTION,1,top-k cannot replace regret,0,0
-S14,REJECTED,REJECTED,1,target-row pseudoreplication,0,0
-S15,REJECTED,REJECTED,1,Monte Carlo chains are numerical integration,0,0
-S16,REJECTED,REJECTED,1,evaluation path before freeze,0,0
+S0,C84-C_no_registered_zero_label_selector_materially_improves_source_in_any_external_dataset,C84-C_no_registered_zero_label_selector_materially_improves_source_in_any_external_dataset,1,production Stage-C gate,0,0
+S1,C84-D_external_dataset_source_panel_seed_level_or_target_heterogeneous,C84-D_external_dataset_source_panel_seed_level_or_target_heterogeneous,1,production Stage-C gate,0,0
+S2,C84-B_same_zero_label_selector_improves_source_across_all_external_datasets_but_not_B1,C84-B_same_zero_label_selector_improves_source_across_all_external_datasets_but_not_B1,1,production Stage-C gate,0,0
+S3,C84-A_same_zero_label_selector_matches_B1_across_all_external_datasets,C84-A_same_zero_label_selector_matches_B1_across_all_external_datasets,1,production Stage-C gate,0,0
+S4,C84-D_external_dataset_source_panel_seed_level_or_target_heterogeneous,C84-D_external_dataset_source_panel_seed_level_or_target_heterogeneous,1,production Stage-C gate,0,0
+S5,C84-D_external_dataset_source_panel_seed_level_or_target_heterogeneous,C84-D_external_dataset_source_panel_seed_level_or_target_heterogeneous,1,production Stage-C gate,0,0
+S6,C84-D_external_dataset_source_panel_seed_level_or_target_heterogeneous,C84-D_external_dataset_source_panel_seed_level_or_target_heterogeneous,1,production Stage-C gate,0,0
+S7,C84-D_external_dataset_source_panel_seed_level_or_target_heterogeneous,C84-D_external_dataset_source_panel_seed_level_or_target_heterogeneous,1,same-method LOTO below 17/22,0,0
+S8,C84-L1,C84-L1,1,production label-frontier result,0,0
+S9,C84-L2,C84-L2,1,production label-frontier result,0,0
+S10,C84-L3,C84-L3,1,production label-frontier result,0,0
+S11,C84-L4,C84-L4,1,production label-frontier result,0,0
+S12,NO_Q1_SUBSTITUTION,NO_Q1_SUBSTITUTION,1,strong association remains measurement-only,0,0
+S13,NO_Q1_SUBSTITUTION,NO_Q1_SUBSTITUTION,1,high top-k remains secondary,0,0
+S14,REJECTED,REJECTED,1,duplicate target-context row,0,0
+S15,REJECTED,REJECTED,1,Monte Carlo chain cannot enter target-cluster table,0,0
+S16,REJECTED,REJECTED,1,evaluation descriptor before selection freeze,0,0
 S17,REJECTED,REJECTED,1,construction/evaluation overlap,0,0
-S18,REJECTED,REJECTED,1,label row identity drift,0,0
-S19,PASS_9621,PASS_9621,1,exact synthetic frozen-registry alignment,0,0
-S20,NO_FINAL_ROOT,NO_FINAL_ROOT,1,atomic partial-publication failure,0,0
+S18,REJECTED,REJECTED,1,label row-order/identity drift,0,0
+S19,PASS_9621,PASS_9621,1,exact synthetic label alignment,0,0
+S20,NO_FINAL_ROOT,NO_FINAL_ROOT,1,atomic Stage-C publication failure,0,0

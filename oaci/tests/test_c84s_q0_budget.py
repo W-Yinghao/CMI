@@ -29,6 +29,18 @@ def test_nested_samples_pair_budgets_and_cover_full() -> None:
         assert set(samples[left]) <= set(samples[right])
 
 
+def test_full_sample_order_and_digest_are_chain_independent() -> None:
+    ids, labels = construction_fixture()
+    left = q0.nested_trial_samples(
+        ids, labels, dataset="D", target_subject=1, chain=2,
+    )["FULL"]
+    right = q0.nested_trial_samples(
+        ids, labels, dataset="D", target_subject=1, chain=999,
+    )["FULL"]
+    np.testing.assert_array_equal(left, right)
+    assert q0.sample_digest(left) == q0.sample_digest(right)
+
+
 def test_extended_grid_is_supported_without_changing_primary() -> None:
     ids, labels = construction_fixture()
     grid = (1, 2, 4, 8, 16, 32, "FULL")
@@ -64,8 +76,24 @@ def test_select_chain_freezes_scores_without_evaluation_input() -> None:
     assert all(len(row["candidate_score_vector_sha256"]) == 64 for row in rows)
 
 
+def test_select_chain_full_result_is_identical_across_chains() -> None:
+    ids, labels = construction_fixture(per_class=12)
+    logits = np.random.default_rng(8).normal(size=(81, len(ids), 2))
+    left = q0.select_chain(
+        logits, ids, labels, dataset="D", target_subject=1, chain=0,
+    )[-1]
+    right = q0.select_chain(
+        logits, ids, labels, dataset="D", target_subject=1, chain=2047,
+    )[-1]
+    for field in (
+        "sample_trial_id_sha256", "selected_candidate_index",
+        "top5_candidate_indices", "top10_candidate_indices",
+        "candidate_score_vector_sha256", "construction_metrics_sha256",
+    ):
+        assert left[field] == right[field]
+
+
 def test_infeasible_budget_fails_closed() -> None:
     ids, labels = construction_fixture(per_class=7)
     with pytest.raises(C84SContractError, match="infeasible"):
         q0.nested_trial_samples(ids, labels, dataset="D", target_subject=1, chain=0)
-

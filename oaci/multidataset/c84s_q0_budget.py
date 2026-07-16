@@ -39,11 +39,13 @@ def nested_trial_samples(
     finite = [int(value) for value in requested if value != "FULL"]
     require(finite == sorted(set(finite)), "Q0 finite budgets are not strictly increasing")
     rng = np.random.Generator(np.random.PCG64(stream_seed(dataset, target_subject, chain)))
-    orders = {class_id: rng.permutation(np.where(labels == class_id)[0]) for class_id in (0, 1)}
+    canonical = {class_id: np.where(labels == class_id)[0] for class_id in (0, 1)}
+    orders = {class_id: rng.permutation(canonical[class_id]) for class_id in (0, 1)}
     output: dict[int | str, np.ndarray] = {}
     for budget in requested:
         if budget == "FULL":
-            selected = np.concatenate([orders[0], orders[1]])
+            # FULL is a deterministic construction-view object, not an MC draw.
+            selected = np.concatenate([canonical[0], canonical[1]])
         else:
             count = int(budget)
             require(all(len(orders[c]) >= count for c in (0, 1)), f"Q0 budget {count} is infeasible")
@@ -131,16 +133,10 @@ def select_chain(
         chain=chain, budgets=budgets,
     )
     rows: list[dict[str, Any]] = []
-    full_cache: tuple[np.ndarray, np.ndarray] | None = None
     for budget in budgets:
         selected_ids = samples[budget]
         selected_index = np.asarray([index[value] for value in selected_ids], dtype=int)
-        if budget == "FULL" and full_cache is not None:
-            scores, metrics = full_cache
-        else:
-            scores, metrics = candidate_scores(logits[:, selected_index], labels[selected_index])
-            if budget == "FULL":
-                full_cache = scores, metrics
+        scores, metrics = candidate_scores(logits[:, selected_index], labels[selected_index])
         order = descending_order(scores)
         rows.append({
             "dataset": dataset,
@@ -157,4 +153,3 @@ def select_chain(
             "construction_metrics_sha256": hashlib.sha256(np.asarray(metrics, dtype="<f8").tobytes()).hexdigest(),
         })
     return rows
-

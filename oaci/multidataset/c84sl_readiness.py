@@ -14,6 +14,7 @@ from . import c84s_label_views as labels
 from . import c84s_q0_budget as q0
 from . import c84s_runtime_guard as runtime
 from . import c84s_selection_freeze as freeze
+from . import c84s_synthetic_end_to_end as synthetic_e2e
 from . import c84s_taxonomy as taxonomy
 from .c84s_common import (
     C84SContractError, canonical_sha256, read_csv, read_json, require,
@@ -63,7 +64,7 @@ def _dataset_decisions(method: str | None, *, q2: bool = False, stable: bool = T
     }
 
 
-def synthetic_calibration_rows() -> list[dict[str, Any]]:
+def _legacy_component_calibration_rows() -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
     def record(scenario: str, expected: str, observed: str, detail: str) -> None:
         rows.append({
@@ -199,6 +200,11 @@ def synthetic_calibration_rows() -> list[dict[str, Any]]:
     return rows
 
 
+def synthetic_calibration_rows() -> list[dict[str, Any]]:
+    """Run S0-S20 through production paths; never access the real field."""
+    return [dict(row) for row in synthetic_e2e.synthetic_calibration_rows()]
+
+
 def _contract_rows() -> dict[str, list[dict[str, Any]]]:
     ids = np.asarray([f"synthetic-trial-{index:02d}" for index in range(40)])
     synthetic_labels = np.repeat([0, 1], 20)
@@ -217,6 +223,13 @@ def _contract_rows() -> dict[str, list[dict[str, Any]]]:
                 inclusion[str(trial_id)] += 1
     observed_frequency = np.asarray(list(inclusion.values()), dtype=float) / 2048.0
     q0_max_deviation = float(np.max(np.abs(observed_frequency - 1.0 / 20.0)))
+    full_left = q0.nested_trial_samples(
+        ids, synthetic_labels, dataset="SyntheticMI", target_subject="T0", chain=0,
+    )["FULL"]
+    full_right = q0.nested_trial_samples(
+        ids, synthetic_labels, dataset="SyntheticMI", target_subject="T0", chain=2047,
+    )["FULL"]
+    full_deterministic = bool(np.array_equal(full_left, full_right))
     maxT_rows = []
     for dataset, count in (("Lee2019_MI", 22), ("Cho2017", 20), ("PhysionetMI", 76)):
         null = inference.rademacher_maxT(
@@ -246,6 +259,7 @@ def _contract_rows() -> dict[str, list[dict[str, Any]]]:
             "RNG": "PCG64", "seed": "digest_final8_big_endian", "chains": 2048,
             "primary_budgets": "1|2|4|8|FULL", "nested": int(nested_pass),
             "paired_across_panel_seed_level_candidates": 1, "chain_is_N": 0,
+            "FULL_deterministic_across_chains": int(full_deterministic),
             "synthetic_B1_expected_inclusion": 0.05,
             "synthetic_B1_max_abs_frequency_deviation": q0_max_deviation,
             "synthetic_precision_pass": int(q0_max_deviation <= 0.025),
@@ -298,7 +312,15 @@ def _contract_rows() -> dict[str, list[dict[str, Any]]]:
             for row in synthetic_calibration_rows()[8:12]
         ],
         "result_table_registry.csv": [
-            {"table": name, "stage": stage, "required": 1, "claim_role": role}
+            {
+                "table": name, "stage": stage, "required": 1,
+                "claim_role": role,
+                "production_writer": (
+                    "c84s_label_views" if stage == "label_provisioning"
+                    else "c84s_selection_freeze" if stage == "selection"
+                    else "c84s_analysis"
+                ),
+            }
             for name, stage, role in (
                 ("target_construction_label_view/manifest.json", "label_provisioning", "view_identity"),
                 ("target_evaluation_label_view/manifest.json", "label_provisioning", "view_identity"),
@@ -309,6 +331,7 @@ def _contract_rows() -> dict[str, list[dict[str, Any]]]:
                 ("C84S_SELECTION_FREEZE_MANIFEST.json", "selection", "barrier"),
                 ("method_context_decisions.csv", "evaluation", "decision"),
                 ("target_level_method_effects.csv", "evaluation", "cluster_effect"),
+                ("target_level_catastrophic_failures.csv", "evaluation", "catastrophic_failure"),
                 ("dataset_Q1_Q2.csv", "inference", "primary"),
                 ("level_specific_Q1_Q2.csv", "inference", "heterogeneity"),
                 ("panel_seed_stability.csv", "inference", "heterogeneity"),
@@ -317,6 +340,8 @@ def _contract_rows() -> dict[str, list[dict[str, Any]]]:
                 ("label_budget_context.csv", "inference", "primary_context"),
                 ("topk_decision_summary.csv", "evaluation", "secondary_decision"),
                 ("selected_utility_summary.csv", "evaluation", "secondary_decision"),
+                ("coverage_summary.csv", "evaluation", "coverage"),
+                ("selected_regime_distribution.csv", "evaluation", "selected_regime"),
                 ("source_relative_regret_gain.csv", "evaluation", "secondary_decision"),
                 ("measurement_vs_decision.csv", "evaluation", "secondary"),
                 ("cross_dataset_method_intersection.csv", "inference", "taxonomy"),
@@ -338,6 +363,8 @@ def risk_rows() -> list[dict[str, Any]]:
         "training_forward_or_GPU_called", "target4_or_BNCI2014_004_consumed",
         "C84S_authorization_inherited", "raw_EEG_or_label_arrays_in_Git",
         "external_validity_overclaim", "binary_task_called_exact_four_class_replication",
+        "chain_dependent_FULL_digest", "registered_table_without_production_writer",
+        "declarative_synthetic_row_called_end_to_end",
     )
     return [{
         "risk_id": risk, "blocking": 1, "status": "CLOSED_AT_C84SL",
@@ -391,8 +418,10 @@ def generate_tables(*, verify_external_bytes: bool) -> dict[str, Any]:
         "synthetic_end_to_end_calibration.csv": synthetic_calibration_rows(),
         "risk_register.csv": risk_rows(),
         "failure_reason_ledger.csv": [{
-            "failure_id": "NONE", "stage": "C84SL_readiness",
-            "blocking": 0, "reason": "protocol_implementation_and_synthetic_reconciliation_passed",
+            "failure_id": "C84SL_INITIAL_LOCK_GAP_REPAIRED",
+            "stage": "pre_readiness_end_to_end_audit",
+            "blocking": 0,
+            "reason": "initial_unexecuted_lock_superseded_by_production_result_freeze_and_executable_S0_S20_repair",
             "real_label_access": 0, "real_selector_scores": 0,
             "scientific_statistics": 0,
         }],
