@@ -1,0 +1,175 @@
+{
+  "schema_version": "c85r_synthetic_contract_semantic_repair_protocol_v1",
+  "milestone": "C85R",
+  "created_at_utc": "2026-07-16T17:58:45Z",
+  "status": "PROTOCOL_LOCKED_BEFORE_V2_IMPLEMENTATION_OR_SEMANTIC_VALIDATION",
+  "starting_identity": {
+    "head": "00146d25fc15c56c771c87062bb1f2d2f262f59a",
+    "origin_oaci": "00146d25fc15c56c771c87062bb1f2d2f262f59a",
+    "c85p_protocol_commit": "2449be1c24e313922688b5e957ce6d19cb75d9d6",
+    "c85p_implementation_commit": "73844601d82037cfe9b8f31cb21bc53bd9b5f334",
+    "c85p_protocol_sha256": "af4c2cb35a6b6555d6c9ded3105eb7ad4f061ba237d3e8cc3ed6f5a18aede006",
+    "historical_generator_contract_sha256": "c87fec6a6572291fad8849f6c08bea2cb3f49467e243ded1d44c1f38e3d0b297"
+  },
+  "historical_object_preservation": {
+    "C85_TPAMI_DECISION_THEORY_PROTOCOL.json": "IMMUTABLE",
+    "c85p_tables/synthetic_generator_contract.json": "IMMUTABLE_SCHEMA_VALID_SEMANTICALLY_BLOCKED",
+    "c85p_registries": "IMMUTABLE",
+    "C85P_readiness_redteam_regression_reports": "IMMUTABLE",
+    "in_place_edit": false,
+    "additive_supersession_ledger_required": true
+  },
+  "root_cause": {
+    "S10": "Historical rich always-action-1 registered policy has exact risk 11/40, equal to the coarse Bayes risk 11/40, contradicting the required strict registered-policy reversal.",
+    "S9": "Historical metadata specifies strata and pairwise standard deviations but not a joint full-information loss-vector law or population-optimal action.",
+    "S6_S7": "Historical geometry metadata specifies pairwise_sigma but not a stochastic action-error law or dependence structure.",
+    "classification": "SYNTHETIC_CONTRACT_SEMANTIC_SATISFIABILITY_BLOCKER",
+    "scientific_outcome_informed": false
+  },
+  "S10_historical_exact_audit": {
+    "prior": ["1/4", "1/2", "1/4"],
+    "utilities": [
+      ["1", "2/5", "0"],
+      ["3/10", "1", "1/5"],
+      ["0", "1/2", "1"]
+    ],
+    "coarse_channel": [
+      ["1", "0"],
+      ["1/2", "1/2"],
+      ["0", "1"]
+    ],
+    "rich_channel": "STATE_REVEALED_EXACTLY",
+    "coarse_registered_policy": "BAYES_OPTIMAL_WITHIN_COARSE_ACTION_1_AT_Y0_AND_Y1",
+    "rich_historical_registered_policy": "ALWAYS_ACTION_1",
+    "coarse_registered_risk": "11/40",
+    "rich_historical_registered_risk": "11/40",
+    "historical_strict_reversal_satisfied": false
+  },
+  "S10_v2_repair": {
+    "only_changed_object": "rich_registered_policy",
+    "rich_registered_policy": "ALWAYS_ACTION_0",
+    "utility_table_changed": false,
+    "prior_changed": false,
+    "experiments_changed": false,
+    "garbling_changed": false,
+    "coarse_unrestricted_risk": "11/40",
+    "coarse_registered_risk": "11/40",
+    "rich_unrestricted_risk": "0",
+    "rich_registered_risk": "3/5",
+    "rich_policy_approximation_gap": "3/5",
+    "registered_policy_reversal": "13/40",
+    "semantic_criterion": [
+      "rich Blackwell-dominates coarse through the fixed garbling",
+      "rich unrestricted risk is strictly below coarse unrestricted risk",
+      "rich V2 registered risk is strictly above coarse registered risk",
+      "the reversal is attributed only to non-nested or restricted policy classes"
+    ]
+  },
+  "S9_v2_full_information_law": {
+    "strata": ["L", "H"],
+    "stratum_masses": {"L": "4/5", "H": "1/5"},
+    "rademacher_support": ["-1", "+1"],
+    "rademacher_probabilities": ["1/2", "1/2"],
+    "one_query_reveals": "COMPLETE_FOUR_ACTION_LOSS_VECTOR",
+    "loss_vector": {
+      "action_0": "3/10",
+      "action_1": "3/10 + 1/20 + sigma_h*R",
+      "action_2": "13/20",
+      "action_3": "17/20"
+    },
+    "sigma": {"L": "1/50", "H": "1/5"},
+    "support_constraint": "ALL_LOSSES_IN_[0,1]",
+    "population_means": ["3/10", "7/20", "13/20", "17/20"],
+    "unique_population_optimal_action": 0,
+    "pairwise_difference": "loss(action_1)-loss(action_0)=1/20+sigma_h*R",
+    "pairwise_mean": "1/20",
+    "pairwise_sd": {"L": "1/50", "H": "1/5"},
+    "budget": 64,
+    "rounding_rule": "DETERMINISTIC_LARGEST_REMAINDER_TIES_BY_CANONICAL_STRATUM_ORDER",
+    "passive_allocation": {"L": 51, "H": 13},
+    "neyman_allocation": {"L": 18, "H": 46},
+    "estimator": "D_hat=(4/5)*mean_L(loss1-loss0)+(1/5)*mean_H(loss1-loss0)",
+    "analytic_variance": "sum_h p_h^2*sigma_h^2/n_h",
+    "universal_active_superiority_claim_allowed": false
+  },
+  "S6_S7_v2_error_law": {
+    "estimated_utility": "u_hat_a=u_a+xi_a",
+    "action_errors": "xi_a iid Normal(0,pairwise_sigma^2/2)",
+    "selection": "argmax_a u_hat_a",
+    "tie_rule": "FIRST_CANONICAL_ACTION_INDEX",
+    "pairwise_error": "xi_i-xi_star is Normal(0,pairwise_sigma^2)",
+    "dependence": "pairwise differences share xi_star and are not independent",
+    "replicates": 4096,
+    "seed_rule": "low64(SHA256(C85_SYNTHETIC_V1|scenario_id|replicate_id))",
+    "required_future_outputs": [
+      "epsilon_near_optimal_set",
+      "Hill_2_effective_size",
+      "entropy_effective_size",
+      "top_1_probability",
+      "probability_selected_outside_A_epsilon",
+      "mean_regret",
+      "registered_T7_probability_bound",
+      "Monte_Carlo_standard_error"
+    ]
+  },
+  "T7_bound_repair": {
+    "sub_gaussian_convention": "E exp(lambda*(xi_i-xi_star)) <= exp(lambda^2*sigma_i^2/2)",
+    "selection_event_inclusion": "selecting i implies xi_i-xi_star >= Delta_i",
+    "primary_target": "min(1,sum_{i:Delta_i>epsilon} exp(-Delta_i^2/(2*sigma_i^2)))",
+    "historical_looser_diagnostic": "min(1,sum_{i:Delta_i>epsilon} exp(-(Delta_i-epsilon)^2/(2*sigma_i^2)))",
+    "independence_assumed": false,
+    "proof_status": "OPEN",
+    "C85T_obligation": "prove event inclusion and constants"
+  },
+  "proof_obligation_precision": {
+    "T3": "For randomized rules, equality means equality of action kernels for P_theta^E-almost every observation under every state or prior in the claimed comparison; equality of one coupled draw is insufficient.",
+    "T4": "Require unique different optimal actions or disjoint optimal-action sets with an explicit decoder, every nonoptimal action in state j has regret at least Delta, equal prior, common observation space, randomized rules allowed, and fixed TV convention.",
+    "T6": "Derive the exact S5 CVaR alpha region only in C85T; alpha remains in the open interval (0,1).",
+    "theorem_status_change": false
+  },
+  "v2_preservation": {
+    "S0_through_S8_unaffected_objects_preserved_except_S6_S7_added_error_law": true,
+    "S9_historical_metadata_preserved_and_completed": true,
+    "S10_objects_preserved_except_rich_registered_policy": true,
+    "T1_through_T7_status": "OPEN",
+    "empirical_threshold_changed": false,
+    "C84_or_C85_empirical_gate_changed": false
+  },
+  "semantic_preflight_scope": {
+    "allowed": [
+      "S10_exact_fraction_risk_enumeration",
+      "S9_exact_support_moment_allocation_and_variance_identity",
+      "S6_S7_covariance_and_pairwise_scale_identity",
+      "scenario_schema_validation",
+      "deterministic_seed_replay",
+      "theorem_OPEN_status_replay"
+    ],
+    "forbidden": [
+      "4096_replicate_S0_S10_scientific_simulations",
+      "proof_completion",
+      "theorem_status_transition",
+      "scientific_synthetic_result_table",
+      "EEG_or_label_access",
+      "candidate_arrays",
+      "selector_or_empirical_inference",
+      "training_or_forward",
+      "GPU",
+      "active_acquisition_execution",
+      "C85T_execution",
+      "C85E",
+      "manuscript_work"
+    ],
+    "required_status": "SEMANTICALLY_VALIDATED_NOT_SCIENTIFICALLY_EXECUTED"
+  },
+  "authorization_boundary": {
+    "C85T_authorized": false,
+    "C85E_authorized": false,
+    "active_acquisition_authorized": false,
+    "new_data_or_model_zoo_authorized": false,
+    "manuscript_work_authorized": false
+  },
+  "final_gates": {
+    "success": "C85_SYNTHETIC_CONTRACT_V2_SEMANTICALLY_REPAIRED_READY_FOR_C85T_PM_REVIEW",
+    "failure": "C85_SYNTHETIC_SCENARIO_GENERATIVE_SEMANTICS_OR_PROOF_OBLIGATION_RECONCILIATION_REQUIRED"
+  }
+}
