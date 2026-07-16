@@ -1,0 +1,50 @@
+# Frozen configuration for the target-X observability audit (F2.1b). The SHA-256 of THIS file is stamped into
+# every action row + fold summary. Changing any value = a new config hash = a new (re-reviewable) run.
+rule:
+  version: g1_safe_specific_v1
+  observable: G1_whitened_mean_discrepancy_reduction
+  metric: source_ledoitwolf_whitened
+  primary_basis: cond_contested_rowspace_Wc     # task-USED directions only (not head-null / free)
+  task_safety_max_drop: 0.02                     # source-LOSO bAcc drop ceiling for an eligible deletion
+  specificity_quantile: 0.95                     # G1 must exceed this quantile of same-rank ambient random
+  max_rank: 3
+  identity_fallback: true
+
+metric:
+  whitening: source_ledoit_wolf                  # A_s = Sigma_s^{-1/2}, source-only
+  random_controls: ambient_whitened_same_rank    # NOT candidate-basis coordinate subsets
+  n_random_per_rank: 50
+  contested_head: source_fresh_logistic          # EEGNet; DGCNN uses stored head transformed by A_s^{-1}
+
+session_policy:
+  primary: session_aware                         # first session -> T_cal ; later session(s) -> T_query
+  bnci2015_query: session_macro                  # mean over query sessions ; pooled = sensitivity
+  fallback: temporal_block                       # only if a subject has a single session
+
+oracle:
+  hindsight_constrained: greedy_contested_rank_le3_source_safe   # Gate 3 denominator
+  hindsight_unconstrained: greedy_full_cond                      # ceiling, not a gate
+  recovery_fraction: 0.25
+
+gates:
+  gate1_observability: LCB95(median rank-stratified Spearman(G1, U)) > 0
+  gate2_actionability: LCB95(dtx) > 0 AND paired > {random_selected_rank, source_greedy, whitening, mean_centering}
+  gate3_recovery: LCB95(hindsight_constrained) > 0 AND LCB95(dtx - 0.25*hindsight_constrained) >= 0
+  gate4_safety: no dataset with LCB95(dtx) > 0 while another has UCB95(dtx) < -0.005
+  gate5_specificity: rule-level cross-fit dI_specific LCB95 > 0
+
+gate5_cmi:
+  critics: [linear, mlp_small_32, mlp_large_128]
+  null: retrained_within_label_permutation_TRAINING_ONLY   # posterior-eval support fixed
+  posterior_kl: full_distribution                          # sum_d q log(q/p_hat), not just the true class
+  random: exact_selected_rank_ambient_whitened
+
+bootstrap:
+  n: 10000
+  cluster_unit: target_subject
+  seeds_within_subject: pooled_after_per_seed_rank_spearman
+
+scope:
+  phase_full_run: primary_G1_only                # secondaries (Holm) deferred to F2.2
+  synthetic_or_smoke: engineering_only           # no method GO/NO-GO
+  backbones: [EEGNet, DGCNN]                      # no TSMNet / foundation / new

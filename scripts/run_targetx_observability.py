@@ -25,9 +25,13 @@ def _cells(ds, backbone, seeds):
             if any(p.endswith(f"_seed{s}.npz") for s in seeds)]
 
 
+def _sha256_file(p):
+    return hashlib.sha256(Path(p).read_bytes()).hexdigest()[:16]
+
+
 def manifest(backbone="EEGNet", seeds=("0",)):
     OUT.mkdir(parents=True, exist_ok=True)
-    rows = []
+    rows, feat_manifest = [], []
     for ds in DATASETS:
         for cp in _cells(ds, backbone, seeds):
             f = feat_from_tos_dump(cp)
@@ -44,6 +48,14 @@ def manifest(backbone="EEGNet", seeds=("0",)):
                              class_counts_cal=dict(Counter(yt[cal].tolist())),
                              class_counts_query=dict(Counter(yt[qry].tolist())),
                              fallback_used=info["fallback_used"], exclusion_reason=excl))
+            feat_manifest.append(dict(dataset=ds, subject=f["heldout_subject"], seed=int(f["seed"]),
+                                      npz_path=str(Path(cp).relative_to(REPO)), npz_sha256=_sha256_file(cp),
+                                      latent_dim=int(np.asarray(f["Z_source"]).shape[1]),
+                                      n_source=int(len(f["y_source"])), n_cal=info["n_cal"], n_query=info["n_query"],
+                                      sessions="|".join(map(str, sorted(set(map(str, np.asarray(f["session_target"]).tolist())))))))
+    with open(OUT / "feature_dump_manifest.csv", "w", newline="") as fh:
+        keys = ["dataset", "subject", "seed", "npz_path", "npz_sha256", "latent_dim", "n_source", "n_cal", "n_query", "sessions"]
+        w = csv.DictWriter(fh, fieldnames=keys); w.writeheader(); [w.writerow(r) for r in feat_manifest]
     fp = OUT / "session_split_manifest.csv"
     keys = ["dataset", "subject", "cal_sessions", "query_sessions", "n_cal", "n_query",
             "class_counts_cal", "class_counts_query", "fallback_used", "exclusion_reason"]
@@ -71,7 +83,8 @@ def main():
         return
     smoke = not a.full
     tag = "smoke" if smoke else "full"
-    cfg_hash = hashlib.sha1(f"{a.phase}|{a.seeds}|{a.backbone}|cond|maxrank3".encode()).hexdigest()[:12]
+    cfg_file = REPO / "configs" / "cmi_trace_targetx_observability.yaml"
+    cfg_hash = hashlib.sha256(cfg_file.read_bytes()).hexdigest()[:16] if cfg_file.exists() else "no_config"
     try:
         sha = subprocess.check_output(["git", "-C", str(REPO), "rev-parse", "--short", "HEAD"]).decode().strip()
     except Exception:
@@ -93,16 +106,18 @@ def main():
                 continue
             fold = res["fold"]; fold_rows.append(fold)
             for rw in res["rows"]:                               # PRESERVE all per-action rows + audit trail
-                action_rows.append({**{k: rw[k] for k in ("action", "kind", "rank", "eligible", "basis_family",
-                    "basis_rank", "basis_hash", "projector_hash", "basis_indices", "G1", "source_task_drop",
+                action_rows.append({**{k: rw[k] for k in ("action", "kind", "rank", "eligible", "basis_label",
+                    "basis_family", "basis_hash", "projector_hash", "basis_indices", "G1", "source_task_drop",
                     "random_q95_same_rank", "safe_gate_pass", "specificity_gate_pass", "utility_macro",
-                    "utility_pooled", "config_hash", "git_sha")},
+                    "utility_pooled", "config_hash", "git_sha", "rule_hash")},
                     "dataset": ds, "subject": fold["heldout_subject"], "seed": fold["seed"]})
             print(f"  {ds} sub{fold['heldout_subject']} s{fold['seed']}: informed={fold['n_informed']} "
                   f"random={fold['n_random']} sel={fold['selected_action']}(r{fold['selected_rank']}) "
-                  f"Δtx={fold['delta_tx']:+.3f} Δrand={fold['delta_random_same_rank']:+.3f} "
+                  f"[contested={fold['firewall']['contested_rank']}/free={fold['firewall']['free_rank']}/"
+                  f"full={fold['firewall']['full_cond_rank']}] Δtx={fold['delta_tx']:+.3f} "
+                  f"Δrand(selk)={fold['delta_random_selected_rank']:+.3f} Δsrcgreedy={fold['delta_source_greedy']:+.3f} "
                   f"Δwhite={fold['delta_whitening']:+.3f} Δcenter={fold['delta_mean_centering']:+.3f} "
-                  f"Δhind={fold['delta_target_hindsight']:+.3f} recov={fold['oracle_recovery_ratio']}")
+                  f"Δhind_c={fold['delta_hindsight_constrained']:+.3f} Δhind_u={fold['delta_hindsight_unconstrained']:+.3f}")
     OUT.mkdir(parents=True, exist_ok=True)
     with open(OUT / f"targetx_action_rows_{tag}.jsonl", "w") as fh:
         [fh.write(json.dumps(r, default=_def) + "\n") for r in action_rows]
