@@ -1,0 +1,329 @@
+{
+  "schema_version": "c85tr2_authorization_certificate_atomic_transaction_and_result_replay_protocol_v1",
+  "milestone": "C85TR2",
+  "created_at_utc": "2026-07-16T22:37:25Z",
+  "status": "PROTOCOL_LOCKED_BEFORE_V3_IMPLEMENTATION_OR_REGISTERED_EXECUTION",
+  "starting_identity": {
+    "head": "dd75d52be4414cc893c5a2fddf0374e01e13137a",
+    "origin_oaci": "dd75d52be4414cc893c5a2fddf0374e01e13137a",
+    "branch": "oaci",
+    "c85tr1_repair_protocol_commit": "46442b281d61d00a575fae17685648b749659263",
+    "c85tr1_repair_protocol_sha256": "9c0a7084a7ddd83ef96b8d7f95faf89138829729c0acc5c3d6baeb0ef87ab13d",
+    "c85tr1_implementation_commit": "f17e25d0d8dc117f7973f90743e07139eeb0c1e1",
+    "historical_v2_lock_commit": "920c5540a6ae157b77f2acb36f227bfdc172110b",
+    "historical_v2_lock_sha256": "0f6907f9b997634b48062e97e789d50ae189dcc3c01f03cb5cee8b105c379719",
+    "c85tr1_overall_markdown_sha256": "aabea2d94f728ad8d3c3df7db6c0c57a7baa900fc879575d23848265c3dd8e09",
+    "c85tr1_overall_json_sha256": "d6f80ce28cf5839637b7cdceaa57af4d851cadb0c9ac860af6842b734b7dc7bd"
+  },
+  "chronology": {
+    "registered_S0_S10_draws_before_repair": 0,
+    "canonical_proof_candidates_before_repair": 0,
+    "theorem_status_transitions_before_repair": 0,
+    "C85T_authorization_before_repair": "ABSENT",
+    "C85T_authorization_consumption_before_repair": 0,
+    "repair_outcome_informed": false,
+    "protocol_precedes_V3_implementation": true,
+    "protocol_precedes_V3_execution_lock": true,
+    "protocol_precedes_registered_seed_open": true
+  },
+  "historical_preservation": {
+    "C85TR1_repair_protocol": "IMMUTABLE",
+    "C85T_EXECUTION_LOCK_V2.json": "IMMUTABLE_SUPERSEDED_BEFORE_AUTHORIZATION_OR_REGISTERED_EXECUTION",
+    "C85T_EXECUTION_LOCK_V2.sha256": "IMMUTABLE",
+    "C85TR1_reports_tables_tests_and_regressions": "IMMUTABLE",
+    "C85TL_lock_and_reports": "IMMUTABLE",
+    "C85P_C85R_contracts": "IMMUTABLE",
+    "in_place_V2_rewrite": false,
+    "additive_V2_supersession_ledger_required": true
+  },
+  "root_cause": {
+    "authorization_certificate": "V2 exposes importable minting helpers and a generic consumption function that accepts a pre-parsed mapping and caller-supplied identities without inseparable committed-lock and committed-authorization replay.",
+    "atomic_transaction": "V2 renames staging to final before a load-bearing lifecycle callback; later replay or completion writes can fail after publication.",
+    "exception_precedence": "V2 can attempt FAILED after a terminal success event and mask the primary post-publish exception.",
+    "semantic_replay": "V2 returns some hard-coded counts and does not fully replay exact scenario keys, action ranges, S9 digest semantics, proof-file hashes, statement hashes, or authorization/result identity.",
+    "classification": "C85T_EXECUTION_CONTEXT_ATOMIC_PUBLICATION_AND_RESULT_SEMANTIC_REPLAY_BLOCKER"
+  },
+  "authorization_record_v3": {
+    "schema_version": "c85t_direct_pi_authorization_record_v3",
+    "direct_statement_exact": "授权 C85T",
+    "authorization_id": "UUID_OR_256_BIT_RANDOM_NONCE_CREATED_ONLY_AFTER_FUTURE_DIRECT_PI_AUTHORIZATION",
+    "execution_lock_sha256": "EXACT_FUTURE_V3_LOCK_SHA256",
+    "execution_lock_commit": "EXACT_FUTURE_V3_LOCK_COMMIT",
+    "output_root": "EXACT_ABSOLUTE_CONTENT_ADDRESSED_V3_BUNDLE_ROOT",
+    "consumption_ledger_path": "EXACT_ABSOLUTE_PATH_DERIVED_FROM_NORMALIZED_AUTHORIZATION_BINDING_SHA256",
+    "required_committed_path": "oaci/reports/C85T_V3_PI_AUTHORIZATION_RECORD.json",
+    "protected_false_fields": [
+      "C85V",
+      "C85E",
+      "active_acquisition",
+      "real_data",
+      "new_data_or_model_zoo",
+      "manuscript"
+    ],
+    "pre_V3_statement_reusable": false
+  },
+  "validated_execution_context_v3": {
+    "class": "ValidatedC85TExecutionContext",
+    "security_claim": "OFFICIAL_RESULT_GOVERNANCE_CERTIFICATE_NOT_OS_LEVEL_OR_ADVERSARIAL_PYTHON_SECURITY",
+    "only_factory": "create_validated_c85t_execution_context",
+    "factory_inputs": [
+      "committed V3 execution-lock path",
+      "committed V3 authorization-record path",
+      "exact CLI output root"
+    ],
+    "factory_forbidden_inputs": [
+      "pre-parsed authorization mapping as sufficient authority",
+      "caller-supplied lock SHA as sufficient authority",
+      "caller-supplied receipt path as sufficient authority",
+      "caller-supplied attempt identity"
+    ],
+    "inseparable_factory_steps": [
+      "replay lock self-hash, schema and status",
+      "replay every bound byte and Git blob",
+      "replay branch, clean HEAD, origin and lock ancestry",
+      "validate the committed authorization record and its Git identity",
+      "validate exact output-root and consumption-root policies",
+      "derive a candidate attempt nonce that becomes authoritative only if receipt creation succeeds",
+      "atomically create the external O_EXCL receipt",
+      "fsync the receipt and its containing directory",
+      "append AUTHORIZATION_CONSUMED to the staging lifecycle for the same identity",
+      "return the validated context"
+    ],
+    "bound_fields": [
+      "authorization_binding_sha256",
+      "authorization_file_sha256",
+      "authorization_id",
+      "execution_lock_sha256",
+      "execution_lock_commit",
+      "external_consumption_receipt_path",
+      "external_consumption_receipt_sha256",
+      "attempt_id",
+      "output_root",
+      "staging_bundle_root",
+      "lifecycle_path",
+      "HEAD"
+    ],
+    "copy_pickle_policy": "FAIL_CLOSED",
+    "constructor_claim": "No private-name or sentinel is treated as an authorization boundary.",
+    "registered_dispatch_revalidation": [
+      "exact context type",
+      "external receipt exists and hashes exactly",
+      "external receipt fields match context authorization, lock, attempt and root",
+      "open certificate descriptor still names the same receipt inode",
+      "lifecycle contains AUTHORIZATION_CONSUMED for the same identity",
+      "lifecycle is not FAILED"
+    ]
+  },
+  "external_consumption_receipt_v3": {
+    "schema_version": "c85t_authorization_consumption_receipt_v3",
+    "operation": "O_WRONLY|O_CREAT|O_EXCL",
+    "file_fsync": true,
+    "containing_directory_fsync": true,
+    "fields": [
+      "authorization_binding_sha256",
+      "authorization_file_sha256",
+      "authorization_id",
+      "execution_lock_sha256",
+      "execution_lock_commit",
+      "output_root",
+      "attempt_id",
+      "timestamp_utc",
+      "HEAD"
+    ],
+    "existing_receipt": "FAIL_CLOSED_REGARDLESS_OF_PROPOSED_ROOT",
+    "consumed_after_success_or_failure": true
+  },
+  "atomic_execution_bundle_v3": {
+    "schema_version": "c85t_atomic_execution_bundle_v3",
+    "staging_contains": [
+      "scientific and synthetic result artifacts",
+      "seven proof candidates",
+      "result artifact manifest",
+      "authoritative lifecycle JSONL",
+      "completion receipt",
+      "copied authorization-consumption receipt"
+    ],
+    "authoritative_lifecycle_events": [
+      "PREFLIGHT_STARTED",
+      "PREFLIGHT_COMPLETED",
+      "AUTHORIZATION_CONSUMED",
+      "EXACT_SCENARIOS_STARTED",
+      "EXACT_SCENARIOS_COMPLETED",
+      "MONTE_CARLO_STARTED",
+      "MONTE_CARLO_COMPLETED",
+      "PROOF_CANDIDATES_STARTED",
+      "PROOF_CANDIDATES_COMPLETED",
+      "MANIFEST_STARTED",
+      "MANIFEST_COMPLETED",
+      "ATOMIC_PUBLISH_COMMIT_READY"
+    ],
+    "commit_chain": {
+      "manifest_scope": "all immutable result, proof and copied-authorization artifacts; excludes itself, lifecycle and completion to avoid circular hashes",
+      "MANIFEST_COMPLETED": "binds result manifest SHA-256",
+      "completion_receipt": "binds result manifest SHA-256 and lifecycle prefix SHA-256 through MANIFEST_COMPLETED",
+      "ATOMIC_PUBLISH_COMMIT_READY": "binds completion-receipt SHA-256",
+      "bundle_validator": "replays the manifest plus the lifecycle/completion hash chain and exact required-file coverage"
+    },
+    "pre_rename_requirements": [
+      "all result and proof files written",
+      "all result-semantic validations passed",
+      "manifest written and replayed",
+      "MANIFEST_COMPLETED appended",
+      "completion receipt written",
+      "ATOMIC_PUBLISH_COMMIT_READY appended",
+      "final staging bundle semantic replay passed",
+      "all files fsynced",
+      "staging directory fsynced"
+    ],
+    "commit_operation": "exactly one os.replace(staging_bundle, final_bundle)",
+    "post_rename_required_operations": [],
+    "success_definition": [
+      "final bundle exists",
+      "staging bundle is absent",
+      "manifest and semantic links replay",
+      "terminal ATOMIC_PUBLISH_COMMIT_READY event is present"
+    ],
+    "crash_after_rename": "A later recovery process validates the final bundle and classifies a valid bundle as recovered success without writing a contradictory failure receipt.",
+    "rename_not_completed": "No final root exists; staging is retained or quarantined as failed evidence."
+  },
+  "failure_exception_precedence_v3": {
+    "primary_exception_never_replaced": true,
+    "nonterminal_lifecycle": "append FAILED exactly once and write a failure receipt if possible",
+    "terminal_lifecycle_and_valid_final_bundle": "classify RECOVERED_SUCCESS",
+    "terminal_lifecycle_and_final_absent": "emit a separate reconciliation blocker without altering the terminal lifecycle",
+    "secondary_errors": "record in a secondary_errors list and attach as non-replacing diagnostics",
+    "automatic_retry": false
+  },
+  "result_semantic_replay_v3": {
+    "counts_derived_from_artifacts": true,
+    "exact_scenarios": {
+      "keys": ["S0", "S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9", "S10"],
+      "missing_or_extra": "FAIL_CLOSED",
+      "scenario_specific_required_fields": true,
+      "exact_rational_format_validation": true,
+      "S10_exact_values": ["11/40", "0", "3/5", "13/40"],
+      "S8_LP_certificate_fields_replayed": true
+    },
+    "S6_S7": {
+      "replicate_ids_per_scenario": 4096,
+      "selected_action_range_derived_from_exact_geometry": true,
+      "binary_indicators": true,
+      "finite_nonnegative_regret": true,
+      "aggregate_exact_reload_replay": true
+    },
+    "S9": {
+      "replicate_ids_per_design": 4096,
+      "selected_action_set": [0, 1, 2, 3],
+      "binary_indicators": true,
+      "finite_nonnegative_regret": true,
+      "raw_digest_rows": 4096,
+      "unique_ordered_replicate_ids": true,
+      "dtype": "<i8",
+      "L_count": 51,
+      "H_count": 46,
+      "sha_format": "lowercase_64_hex",
+      "digest_replay": "rerun the registered int64 RNG under the same validated context and verify L, H and combined digests without increasing scientific replicate count",
+      "aggregate_exact_reload_replay": true
+    },
+    "proof_candidates": {
+      "theorem_ids": ["T1", "T2", "T3", "T4", "T5", "T6", "T7"],
+      "one_file_and_disposition_per_theorem": true,
+      "candidate_file_SHA_matches_CSV": true,
+      "allowed_candidate_disposition": true,
+      "check_class": "PROOF_CANDIDATE_SCHEMA_AND_INTERNAL_CONSISTENCY",
+      "formal_status": "OPEN",
+      "statement_SHA_matches_bound_statement": true
+    },
+    "authorization_result_identity": {
+      "copied_receipt_matches_external_receipt": true,
+      "result_fields_match_validated_context": [
+        "execution_lock_sha256",
+        "authorization_binding_sha256",
+        "authorization_file_sha256",
+        "attempt_id",
+        "output_root"
+      ],
+      "protected_counters_zero": true
+    }
+  },
+  "result_bundle_required_files": [
+    "C85T_RESULT.json",
+    "C85T_RESULT_ARTIFACT_MANIFEST.json",
+    "C85T_V3_LIFECYCLE.jsonl",
+    "C85T_V3_COMPLETION_RECEIPT.json",
+    "authorization_consumed.json",
+    "exact_scenario_results.json",
+    "monte_carlo_summary.json",
+    "S6_replicates.npz",
+    "S7_replicates.npz",
+    "S9_replicates.npz",
+    "S9_raw_draw_digest_registry.csv",
+    "seven c85t_proof_candidates Markdown files",
+    "proof_candidate_dispositions.csv"
+  ],
+  "C85T_C85V_separation": {
+    "C85T_allowed": [
+      "execute exact and Monte Carlo scenarios after future V3 authorization",
+      "freeze proof candidates",
+      "freeze candidate dispositions",
+      "keep every formal theorem status OPEN"
+    ],
+    "C85T_forbidden": [
+      "claim independent proof review",
+      "transition theorem status",
+      "authorize C85V"
+    ],
+    "C85T_success_gate": "C85T_SYNTHETIC_VALIDATION_AND_PROOF_CANDIDATES_FROZEN_C85V_REVIEW_REQUIRED",
+    "C85V": "separate future PM-approved read-only proof review"
+  },
+  "implementation_and_lock": {
+    "historical_V2_operational": false,
+    "new_lock_path": "oaci/reports/C85T_EXECUTION_LOCK_V3.json",
+    "new_lock_sidecar_path": "oaci/reports/C85T_EXECUTION_LOCK_V3.sha256",
+    "new_lock_status": "LOCKED_READY_FOR_DIRECT_PI_AUTHORIZATION_NOT_AUTHORIZED",
+    "bound_objects": [
+      "C85P protocol",
+      "C85R repair and V2 generator",
+      "C85TL operationalization",
+      "C85TR1 repair and preserved V2 lock",
+      "C85TR2 repair protocol",
+      "validated execution-context implementation",
+      "transaction-bundle implementation",
+      "semantic manifest replay implementation",
+      "proof-stage separation",
+      "exact environment and RNG",
+      "all implementation bytes and Git blobs",
+      "external consumption root",
+      "output-root policy",
+      "failure and recovery policy"
+    ]
+  },
+  "C85TR2_execution_boundary": {
+    "allowed": [
+      "protocol and implementation work",
+      "static import and adversarial API audits",
+      "shadow transaction fixtures",
+      "temporary committed authorization repositories",
+      "shadow semantic replay and failure injection",
+      "focused and cumulative regression tests"
+    ],
+    "forbidden": [
+      "registered S0-S10 draw",
+      "canonical proof candidate",
+      "theorem status transition",
+      "real project data",
+      "active acquisition",
+      "C85V authorization",
+      "C85E",
+      "new data or model zoo execution",
+      "manuscript work"
+    ],
+    "C85T_authorized": false,
+    "C85V_authorized": false,
+    "C85E_authorized": false
+  },
+  "final_gates": {
+    "success": "C85T_AUTHORIZATION_CERTIFICATE_ATOMIC_TRANSACTION_AND_RESULT_REPLAY_REPAIRED_V3_LOCK_READY_FOR_PI_AUTHORIZATION",
+    "failure": "C85T_EXECUTION_CONTEXT_ATOMIC_PUBLICATION_OR_RESULT_SEMANTIC_REPLAY_RECONCILIATION_REQUIRED"
+  }
+}
