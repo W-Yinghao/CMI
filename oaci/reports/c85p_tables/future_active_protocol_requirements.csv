@@ -1,0 +1,9 @@
+requirement_id,requirement,reason,satisfied_in_C85P,blocks_execution_now
+FA1,untouched target population,avoid outcome-informed acquisition design,0,1
+FA2,fixed candidate zoo,query value must not alter training or retention,0,1
+FA3,query-cost unit,one label reveals all candidate losses,0,1
+FA4,acquisition information set,no held-evaluation leakage,0,1
+FA5,importance/design weighting,unbiased or explicitly targeted estimand,0,1
+FA6,stopping rule,prospectively bounded error/cost,0,1
+FA7,passive comparator,"same labels, population and endpoint",0,1
+FA8,authorization,"separate protocol, lock and direct PI statement",0,1

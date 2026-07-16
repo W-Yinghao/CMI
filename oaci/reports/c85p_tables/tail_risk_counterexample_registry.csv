@@ -1,0 +1,2 @@
+counterexample_id,scenario_id,groups,favorable_groups,reference_losses,policy_losses,alpha_policy,expected_relation,status
+TAIL_T6,S5,10,9,0.5 repeated 10,0.3 repeated 9|1.0,locked intervals; no C84 alpha,mean improves; worst worsens; upper-tail relation audited in C85T,OPEN

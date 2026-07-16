@@ -1,0 +1,12 @@
+scenario_id,name,state_or_group_count,action_count,sample_size,risk_functionals,theorem_targets,success_criterion,seed0,status
+S0,no_information,2,2,4096,mean,T1|T4,optimal mean regret equals 0.5,10534783801861274119,LOCKED_NOT_EXECUTED
+S1,richer_experiment_worse_restricted_policy,2,2,0,mean,T1|T2,E2 Blackwell-dominates E1; unrestricted E2 risk is no larger; registered E2 risk is strictly larger,16541921652654564549,LOCKED_NOT_EXECUTED
+S2,exact_policy_collapse,3,3,4096,mean|worst_group,T3,action divergence is zero and fixed-policy risks are exactly equal,6488576217514980525,LOCKED_NOT_EXECUTED
+S3,weak_global_rank_low_regret,1,6,0,mean,T7,selected action is epsilon-near-optimal while absolute Spearman is below 0.4,13383678613400837401,LOCKED_NOT_EXECUTED
+S4,high_topk_poor_regret,1,5,0,mean,T7,top4 localization is one while selected regret is at least 0.75,5974320881283067291,LOCKED_NOT_EXECUTED
+S5,positive_mean_adverse_tail,10,1,0,mean|worst_group|upper_tail_CVaR,T6,policy improves mean and 9/10 groups but has worse worst-group risk and worse CVaR for a protocol-derived alpha interval,9731287647397682260,LOCKED_NOT_EXECUTED
+S6,dense_near_tie_action_set,1,8,4096,mean,T7,near-optimal count is 5 and both effective-size summaries exceed 3,13359223879910084082,LOCKED_NOT_EXECUTED
+S7,sparse_large_gap_action_set,1,5,4096,mean,T7,near-optimal count is 1 and both effective-size summaries are below 1.01,7679562534335744875,LOCKED_NOT_EXECUTED
+S8,partial_identification_minimax_regret,0,3,0,minimax_regret,,identified-set diameter is positive and the finite LP returns a feasible minimax rule,6285172276355049627,LOCKED_NOT_EXECUTED
+S9,passive_vs_active_full_information_labels,0,4,4096,selection_regret|top_k,,report design-weighted estimands and distinguish full-information queries from one-arm pulls; no universal active advantage required,15058761008664911896,LOCKED_NOT_EXECUTED
+S10,information_dominance_policy_approximation_reversal,3,3,0,mean,T1|T2,"rich Blackwell-dominates coarse, rich unrestricted risk is lower, and rich registered-policy risk exceeds coarse registered-policy risk with positive approximation gap",17687316942244131165,LOCKED_NOT_EXECUTED

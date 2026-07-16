@@ -1,0 +1,4 @@
+summary_id,name,formula,origin,parameter,status
+EM1,near_optimal_count,|A_epsilon|,near-optimal action set,epsilon>0,LOCKED
+EM2,Hill_2_effective_size,1/sum_a w_a(tau)^2,Hill number order 2,tau>0,LOCKED
+EM3,entropy_effective_size,exp(-sum_a w_a(tau)log w_a(tau)),Hill number order 1,tau>0,LOCKED

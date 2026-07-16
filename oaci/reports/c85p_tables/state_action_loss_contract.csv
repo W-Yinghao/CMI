@@ -1,0 +1,11 @@
+contract_id,object,symbol,definition,status
+SA1,state,theta in Theta,latent environment determining observation law and utilities,LOCKED
+SA2,action,"a in {1,...,M}",one frozen candidate choice,LOCKED
+SA3,utility,"u_theta(a) in [0,1]",common bounded action utility,LOCKED
+SA4,optimal_action,argmax_a u_theta(a),ties retained as a set,LOCKED
+SA5,selection_loss,max_j u_theta(j)-u_theta(a),nonnegative regret loss,LOCKED
+SA6,experiment,"E=(Z,{P_theta^E})",state-indexed observation law,LOCKED
+SA7,decision_rule,delta:Z->P(A),randomization allowed,LOCKED
+SA8,dataset,d,highest empirical cohort grouping,LOCKED
+SA9,target_group,g,robust-risk group,LOCKED
+SA10,environment_distribution,Pi,state/group population law,LOCKED

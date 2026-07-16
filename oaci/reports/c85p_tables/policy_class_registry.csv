@@ -1,0 +1,6 @@
+class_id,definition,nested_requirement,optimization_status,empirical_equivalent
+D_ALL,all measurable randomized rules under E,unrestricted,population infimum,NONE
+DELTA_REGISTERED,prospectively registered rule class,not assumed across experiments,may be restricted or imperfect,frozen method family analogy only
+DELTA_FIXED,one fixed action rule,singleton,no optimization,B1-like reference
+DELTA_PURE,deterministic measurable rules,subset of randomized rules,finite extreme points,NONE
+DELTA_RANDOMIZED,Markov kernels from observation to action,contains pure rules,simplex optimization,NONE

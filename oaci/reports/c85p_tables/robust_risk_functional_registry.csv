@@ -1,0 +1,5 @@
+risk_id,name,definition,parameter,orientation,c84_threshold_reused
+R_MEAN,mean_risk,E_Pi[L],Pi,lower_is_better,0
+R_WORST,worst_group_risk,sup_g E[L|g],registered group set G,lower_is_better,0
+R_CVAR,upper_tail_CVaR,inf_eta eta+E[(L-eta)_+]/(1-alpha),"symbolic alpha in (0,1)",lower_is_better,0
+R_DRO,distributionally_robust_risk,sup_{Q in registered ambiguity set} E_Q[L],prospectively registered ambiguity set,lower_is_better,0

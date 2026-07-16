@@ -1,0 +1,6 @@
+contract_id,component,definition,condition,empirical_instantiation
+PI1,identified_set,U(z)={u compatible with observation and assumptions},"closed nonempty subset of [0,1]^M",NONE
+PI2,compatibility,"observation-law, moment, support and structural restrictions named in assumption lattice",no hidden C84 utility intervals,NONE
+PI3,point_identification,U(z) is a singleton,diameter zero,NONE
+PI4,partial_identification,U(z) contains multiple utility vectors,positive infinity-norm diameter,NONE
+PI5,randomization,q in action simplex allowed,pure restriction reported separately,NONE

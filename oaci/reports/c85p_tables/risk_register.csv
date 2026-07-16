@@ -1,0 +1,16 @@
+risk_id,risk,mitigation,blocking_if_open,status
+R01,classical theorem attribution exceeds verified conditions,require source and project proof separation,1,CLOSED_AT_READINESS
+R02,OPEN proof called proved,status validator rejects PROVED during C85P,1,CLOSED_AT_READINESS
+R03,C84 outcome selects theory parameter,outcome-informed design guard,1,CLOSED_AT_READINESS
+R04,restricted-policy reversal called information reversal,claim and terminology registry,1,CLOSED_AT_READINESS
+R05,policy collapse called no-information theorem,T3 non-implication contract,1,CLOSED_AT_READINESS
+R06,CVaR tail convention ambiguous,upper-loss variational definition,1,CLOSED_AT_READINESS
+R07,worst target substituted for CVaR,separate risk functional registry,1,CLOSED_AT_READINESS
+R08,raw candidate count called effective multiplicity,gap-weighted registry,1,CLOSED_AT_READINESS
+R09,Le Cam proxy treated as TV,T4 requires probability laws and exact TV,1,CLOSED_AT_READINESS
+R10,Fano sketch called theorem,T5 may remain OPEN,1,CLOSED_AT_READINESS
+R11,full-information label query treated as bandit pull,costly-label distinction,1,CLOSED_AT_READINESS
+R12,active method silently authorized,all active rows authorized=0,1,CLOSED_AT_READINESS
+R13,real project arrays imported,static import and path audit,1,CLOSED_AT_READINESS
+R14,synthetic contract executed during C85P,validation status contract-only,1,CLOSED_AT_READINESS
+R15,manuscript prose modified,artifact scope and Git audit,1,CLOSED_AT_READINESS

@@ -1,0 +1,6 @@
+experiment_id,standard_class,observation,comparison_role,real_data_instantiated
+E0,NO_INFORMATION,constant sigma-field,baseline,0
+EU,TARGET_UNLABELED,registered unlabeled target summary,algorithmic input class,0
+EL_B,PASSIVE_FULL_INFORMATION_LABEL_QUERY,B queried trial loss vectors,costly-label experiment,0
+EFULL,FULL_INFORMATION,registered complete information idealization,theory reference only,0
+EGARBLED,MARKOV_GARBLING,randomized transform of a richer experiment,Blackwell witness,0

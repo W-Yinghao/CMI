@@ -1,0 +1,2 @@
+theorem_id,premise,conclusion,does_not_imply,randomization_obligation,status
+T3,delta_E(Z_E)=delta_0 almost surely under the evaluation law,fixed policies have identical action loss and risk; incremental realized action value is zero,"experiment equivalence, absence of information, or inability of another rule to use E",state coupling convention explicitly,OPEN

@@ -1,0 +1,5 @@
+geometry_id,object,definition,parameter_status,raw_M_substitute_allowed
+NG1,gap,Delta_a=u_star-u_a,state dependent,0
+NG2,epsilon_near_optimal_set,{a:Delta_a<=epsilon},epsilon symbolic in theory,0
+NG3,soft_gap_weights,exp(-Delta_a/tau)/normalizer,tau symbolic in theory,0
+NG4,outside_set_error,P[selected action not in A_epsilon],bound target T7,0

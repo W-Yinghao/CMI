@@ -1,0 +1,5 @@
+objective_id,name,formula,prospective_use,replaces_C84_Q1_floor,execution_authorized
+RO1,mean_regret,E[L],baseline,0,0
+RO2,worst_group_regret,sup_g E[L|g],tail-robust policy class,0,0
+RO3,CVaR_regret,CVaR_alpha(L),upper-tail policy class,0,0
+RO4,DRO_regret,sup_Q E_Q[L],distributional ambiguity,0,0

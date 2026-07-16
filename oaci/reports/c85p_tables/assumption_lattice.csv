@@ -1,0 +1,10 @@
+assumption_id,parent,statement,used_by,empirically_verified
+A0,NONE,finite nonempty action set and bounded utilities,T1|T2|T3|T4|T5|T6|T7,0
+A1,A0,common state/action/loss spaces across compared experiments,T1|T2,0
+A2,A1,coarser experiment is an observation-only Markov garbling,T1|T2,0
+A3,A0,equal prior on two states with distinct optimal actions and wrong-action loss at least Delta,T4,0
+A4,A0,finite separated multi-state packing and bounded information,T5,0
+A5,A0,registered groups and population masses,T6,0
+A6,A0,pairwise utility-estimation errors obey explicit sub-Gaussian tail bounds,T7,0
+A7,A6,dependence handled by valid union bound; independence not silently assumed,T7,0
+A8,A0,identified set is nonempty and represented by registered extreme points for finite LP,MMR2,0

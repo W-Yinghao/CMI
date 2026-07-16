@@ -1,0 +1,3 @@
+theorem_id,method,candidate_statement,required_constant_audit,status,may_remain_open_after_C85T
+T4,two_state_Le_Cam,"equal-prior average regret >= (Delta/2)(1-TV(P0,P1))",derive testing reduction and randomization convention,OPEN,0
+T5,finite_Fano_packing,packing error lower bound times registered regret separation,"define packing, mutual information bound and log-cardinality convention",OPEN,1
