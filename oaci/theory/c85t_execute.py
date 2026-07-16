@@ -112,7 +112,7 @@ def replay_bound_repository_objects(lock: Mapping[str, Any]) -> dict[str, int]:
     return {"object_count": len(rows), "bytes_replayed": bytes_replayed}
 
 
-def replay_repository_state(lock: Mapping[str, Any]) -> dict[str, str]:
+def replay_repository_state(lock: Mapping[str, Any], lock_path: Path) -> dict[str, str]:
     if _run_git("branch", "--show-current") != "oaci":
         raise DecisionContractError("C85T requires branch oaci")
     if _run_git("status", "--porcelain"):
@@ -121,7 +121,11 @@ def replay_repository_state(lock: Mapping[str, Any]) -> dict[str, str]:
     origin = _run_git("rev-parse", "origin/oaci")
     if head != origin:
         raise DecisionContractError("C85T requires HEAD == origin/oaci")
-    lock_commit = lock["execution_lock_commit"]
+    lock_commit = _run_git(
+        "log", "-1", "--format=%H", "--", str(lock_path.resolve().relative_to(REPO_ROOT))
+    )
+    if not lock_commit:
+        raise DecisionContractError("C85T execution lock is not committed")
     ancestry = subprocess.run(
         ["git", "merge-base", "--is-ancestor", lock_commit, head],
         cwd=REPO_ROOT,
@@ -129,11 +133,28 @@ def replay_repository_state(lock: Mapping[str, Any]) -> dict[str, str]:
     )
     if ancestry.returncode != 0:
         raise DecisionContractError("C85T execution-lock commit is not an ancestor")
-    return {"branch": "oaci", "HEAD": head, "origin_oaci": origin}
+    implementation_commit = lock["implementation_commit"]
+    implementation_ancestry = subprocess.run(
+        ["git", "merge-base", "--is-ancestor", implementation_commit, lock_commit],
+        cwd=REPO_ROOT,
+        check=False,
+    )
+    if implementation_ancestry.returncode != 0:
+        raise DecisionContractError("C85T implementation does not precede the lock")
+    return {
+        "branch": "oaci",
+        "HEAD": head,
+        "origin_oaci": origin,
+        "execution_lock_commit": lock_commit,
+        "implementation_commit": implementation_commit,
+    }
 
 
 def replay_authorization(
-    authorization_path: Path, lock: Mapping[str, Any], lock_sha: str
+    authorization_path: Path,
+    lock: Mapping[str, Any],
+    lock_sha: str,
+    lock_commit: str,
 ) -> tuple[dict[str, Any], str]:
     expected = (REPO_ROOT / lock["authorization_record_path"]).resolve()
     if authorization_path.resolve() != expected:
@@ -147,7 +168,7 @@ def replay_authorization(
         "direct_statement_exact": "授权 C85T",
         "authorized_stage": "C85T",
         "execution_lock_sha256": lock_sha,
-        "execution_lock_commit": lock["execution_lock_commit"],
+        "execution_lock_commit": lock_commit,
         "C85E": False,
         "active_acquisition": False,
         "real_data": False,
@@ -169,10 +190,13 @@ def preflight(
     locked = validate_locked_contracts()
     lock, lock_sha = replay_execution_lock(lock_path)
     bound = replay_bound_repository_objects(lock)
-    repository = replay_repository_state(lock)
+    repository = replay_repository_state(lock, lock_path)
     environment = validate_environment(strict_prefix=True)
     authorization, authorization_sha = replay_authorization(
-        authorization_path, lock, lock_sha
+        authorization_path,
+        lock,
+        lock_sha,
+        repository["execution_lock_commit"],
     )
     if locked["v2_sha256"] != lock["v2_generator_sha256"]:
         raise DecisionContractError("C85T semantic-contract replay drifted")
