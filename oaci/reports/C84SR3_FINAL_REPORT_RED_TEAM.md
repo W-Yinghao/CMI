@@ -1,6 +1,6 @@
 # C84SR3 Final Report Red Team
 
-Result: **46 / 46 PASS**
+Result: **51 / 51 PASS**
 
 - PASS: `repair_protocol_precedes_implementation`
 - PASS: `V4_lock_preserved`
@@ -48,3 +48,8 @@ Result: **46 / 46 PASS**
 - PASS: `Git_payload_hygiene`
 - PASS: `real_scores_zero`
 - PASS: `real_science_zero`
+- PASS: `focused_regression_367`
+- PASS: `C65_regression_853_1_3`
+- PASS: `C23_regression_1264_1_3`
+- PASS: `full_regression_2188_1_3`
+- PASS: `all_accepted_regression_stderr_empty`

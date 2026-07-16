@@ -1,0 +1,80 @@
+{
+  "schema_version": "c84sr3_overall_report_v1",
+  "milestone": "C84SR3",
+  "gate": "C84S_SECONDARY_Q0_AVAILABILITY_AND_ATOMIC_FAILURE_REPAIRED_V5_LOCK_READY_FOR_FRESH_PI_AUTHORIZATION",
+  "chronology": {
+    "protocol_commit": "91f984503fa84b53fae32948d0cf49e7ede12b8f",
+    "protocol_sha256": "5c783db9113697b2c710af4c1f1bafd66a3096be7a1b5cbac8aa03ca2a9c3080",
+    "implementation_commit": "15dec7d02226738a4147df0034767626c375fdf6",
+    "lock_bound_implementation_commit": "815d0ccd3f2ef245ea66c734165905d3a08ac105",
+    "analysis_lock_commit": "2d03eb05e0cec352d08cdb6f48170be56876e77b",
+    "analysis_lock_sha256": "030be9c9ebac401ca9e7ae5e51bb1ce99b592faceac00fac8781070420b0b846",
+    "accepted_regression_commit": "4cbe49d68b280d90c3b49ec82cbbbf9e8df95ed9"
+  },
+  "historical_v4_attempt": {
+    "job": 898192,
+    "authorization_consumed": true,
+    "authorization_reusable": false,
+    "construction_label_access": 1,
+    "evaluation_label_access": 0,
+    "selector_contexts": 0,
+    "scientific_rows": 0,
+    "selection_freeze_published": false,
+    "evaluation_descriptor_sealed": true
+  },
+  "budget_contract": {
+    "primary": [1, 2, 4, 8, "FULL"],
+    "secondary": {
+      "Lee2019_MI": [16],
+      "Cho2017": [16, 32],
+      "PhysionetMI": []
+    },
+    "Lee_B32_status": "INPUT_UNAVAILABLE_NO_SELECTION_OR_RESULT_ROW",
+    "primary_contract_changed": false
+  },
+  "arithmetic": {
+    "contexts": 944,
+    "candidate_score_rows": 535248,
+    "candidate_rank_rows": 535248,
+    "fixed_default_rows": 4720,
+    "q0_shards": 944,
+    "q0_records": 8750000,
+    "q0_sample_digest_rows": 1093750,
+    "method_context_rows": 18432
+  },
+  "synthetic": {
+    "status": "PASS",
+    "summary_sha256": "b041fa8f2fd7ffba911adce6995d5171995e2bf946dba1913e8bf4443d4fb0c8",
+    "all_primary_taxonomy_branches": true,
+    "all_label_frontier_branches": true
+  },
+  "external_replay": {
+    "field_descriptors": 1944,
+    "files": 7776,
+    "bytes": 48072941176
+  },
+  "regression": {
+    "focused": {"job": 898423, "passed": 367, "stderr_bytes": 0},
+    "C65": {"job": 898425, "passed": 853, "skipped": 1, "deselected": 3, "stderr_bytes": 0},
+    "C23": {"job": 898426, "passed": 1264, "skipped": 1, "deselected": 3, "stderr_bytes": 0},
+    "full": {"job": 898427, "passed": 2188, "skipped": 1, "deselected": 3, "stderr_bytes": 0},
+    "squeue_used": true,
+    "sacct_used": false
+  },
+  "protected_state": {
+    "target_label_reload": 0,
+    "evaluation_label_access": 0,
+    "real_selector_scores": 0,
+    "real_scientific_statistics": 0,
+    "training": 0,
+    "forward": 0,
+    "GPU": 0,
+    "same_label_oracle": 0,
+    "C85_authorized": false
+  },
+  "authorization": {
+    "V5_record_present": false,
+    "fresh_direct_authorization_required": true,
+    "shortest_statement": "授权 C84S"
+  }
+}

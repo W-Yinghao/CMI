@@ -15,48 +15,47 @@ and collaboration sections before acting.
 
 ## 0. Current continuation state (2026-07-16)
 
-C84SR2 completed the additive Stage-B field-descriptor compatibility repair and
-stopped at:
+C84SR3 completed the additive Q0 secondary-budget availability and atomic
+failure repair and stopped at:
 
 ```text
-C84S_STAGE_B_FIELD_DESCRIPTOR_COMPATIBILITY_REPAIRED_AND_V4_LOCK_READY_FOR_FRESH_PI_AUTHORIZATION
+C84S_SECONDARY_Q0_AVAILABILITY_AND_ATOMIC_FAILURE_REPAIRED_V5_LOCK_READY_FOR_FRESH_PI_AUTHORIZATION
 ```
 
 Authoritative current identities:
 
 ```text
-C84SR2 repair protocol commit:  5fa4366f57087f07cf6e290a84f37abbb1ef97c8
-C84SR2 repair protocol SHA-256: 6d7853cd60a85c9f3516cb21fda1c75909f0963e96ad2ac0292647bdc93f1aef
-lock-bound implementation:      a737e2b91578aa7e85aab948ca4b0e64929c3073
-C84S V4 lock commit:            8528bd142bbf6c4cca047bdcc558133eebf5e757
-C84S V4 lock SHA-256:           582e5074b4b17d62ff1e5fbfd992f037dd3082b7763b22d707630aa19db81c3d
-accepted regression commit:     b08538d3f399c77bb188246d23472cb5fd39ded5
+C84SR3 repair protocol commit:  91f984503fa84b53fae32948d0cf49e7ede12b8f
+C84SR3 repair protocol SHA-256: 5c783db9113697b2c710af4c1f1bafd66a3096be7a1b5cbac8aa03ca2a9c3080
+lock-bound implementation:      815d0ccd3f2ef245ea66c734165905d3a08ac105
+C84S V5 lock commit:            2d03eb05e0cec352d08cdb6f48170be56876e77b
+C84S V5 lock SHA-256:           030be9c9ebac401ca9e7ae5e51bb1ce99b592faceac00fac8781070420b0b846
+accepted regression commit:     4cbe49d68b280d90c3b49ec82cbbbf9e8df95ed9
 ```
 
-Authorized V3 job `897843` consumed its authorization and completed Stage A,
-then failed before the first selector score because 243 historical reused C84C
-training sidecars omitted the later `level_intervention_id` field. Evaluation
-access, selector contexts and scientific rows remained 0. The V3 authorization
-is consumed and non-reusable.
+Authorized V4 job `898192` consumed its authorization, replayed immutable Stage
+A and entered Stage B, then stopped before one complete selector context because
+Lee has 25 construction labels/class and secondary Q0 B32 requires 32/class.
+Evaluation access, selector contexts and scientific rows remained 0. NFS cleanup
+then masked the primary error; both errors and the hidden residual staging path
+remain preserved. The V4 authorization is consumed and non-reusable.
 
-The complete field descriptor contains the authoritative intervention identity
-for all 1,944 units. Exactly 1,701 sidecars carry and match it. The 243 omissions
-are exactly C84C panel-A/seed-5/level-0 units and resolve to
-`C84_LEVEL0_FULL_SOURCE_PANEL_V1`; every other omission or mismatch fails
-closed. No candidate, method, score, threshold, budget or inference rule
-changed.
+V5 leaves the common primary grid `[1,2,4,8,FULL]` unchanged. Lee operates
+secondary B16 and records B32 as input-unavailable with no selection/result row;
+Cho retains B16/B32. No replacement sampling, FULL substitution, method,
+threshold or inference change occurred. Atomic Stage-B cleanup now preserves the
+primary exception, and V5 has a receipt-specific immutable Stage-A replay path.
 
-V4 reuses the immutable V3 Stage-A views without a new label-loader call. The
-construction handoff and evaluation seal replay exactly, and evaluation remains
-unavailable to Stage B until selection freeze. A full synthetic run passed 944
-contexts, 2,048 Q0 chains, 9,110,448 Q0 records and 18,608 method-context rows.
-Regressions passed with 242 focused, 843 C65, 1,254 C23 and 2,178 full tests;
-accepted stderr is empty.
+The exact synthetic production path passed 944 contexts, 2,048 Q0 chains,
+8,750,000 Q0 records and 18,432 method-context rows, including all primary and
+label-frontier taxonomy branches. Readiness byte-hashed 7,776 frozen external
+files (48,072,941,176 bytes). Regressions passed with 367 focused, 853 C65,
+1,264 C23 and 2,188 full tests; all accepted stderr is empty.
 
-The complete report is `oaci/reports/C84SR2_OVERALL_REPORT.md`. C84SR2 is
-readiness only: no V4 authorization record, real evaluation access, real
-selector score or real scientific statistic exists. The next valid action is a
-fresh direct `授权 C84S` statement bound to the V4 lock. It does not authorize
+The complete report is `oaci/reports/C84SR3_OVERALL_REPORT.md`. C84SR3 is
+readiness only: no V5 authorization record, new label reload, evaluation access,
+real selector score or scientific statistic exists. The next valid action is a
+fresh direct `授权 C84S` statement bound to the V5 lock. It does not authorize
 C85.
 
 ### Frozen C84F field base
