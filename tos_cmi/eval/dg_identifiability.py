@@ -391,6 +391,82 @@ def apply_rule_to_target_full(Zs, ys, ds, Zt, yt, family, contested, k_star, see
             "delta_query_random": float(np.nanmean(dqr))}
 
 
+# ============================================================ GREEDY source-only identifiability audit
+# (the adversarial-verification gate: the nested prefix selector cannot express an arbitrary-coordinate ticket,
+#  so it never tested whether the GREEDY target ticket is source-observable. This does — greedy-vs-greedy.)
+def _source_loso_gain(Zs, ys, ds, B, S, seed=0):
+    """Mean over source subjects of the paired held-out gain of deleting the arbitrary-coordinate set S: for
+    each source subject v, fit a fresh head on source-minus-v (S-erased) and score v (S-erased), minus the
+    identity baseline. SOURCE-ONLY (no target). This is the source analog of the target oracle's utility."""
+    subs = np.unique(ds); gains = []
+    BS = B[list(S)] if S else None
+    for v in subs:
+        tr = ds != v; te = ds == v
+        if len(np.unique(ys[tr])) < 2 or te.sum() == 0:
+            continue
+        base = _bacc(Zs[tr], ys[tr], Zs[te], ys[te], seed)
+        if BS is None:
+            got = base
+        else:
+            got = _bacc(Zs[tr] - (Zs[tr] @ BS.T) @ BS, ys[tr], Zs[te] - (Zs[te] @ BS.T) @ BS, ys[te], seed)
+        gains.append(got - base)
+    return float(np.mean(gains)) if gains else float("nan")
+
+
+def source_greedy_select(Zs, ys, ds, B, seed=0, max_k=None, tol=1e-4):
+    """Greedy forward selection of an ARBITRARY-coordinate deletion set maximizing source-LOSO held-out bAcc
+    (source-only; mechanism-matched to the greedy target oracle and to a differentiable supermask). Returns
+    the selected index list (refittable rule = 'greedily delete directions that improve source-heldout risk')."""
+    r = B.shape[0]; max_k = r if max_k is None else min(max_k, r)
+    S, cur = [], 0.0
+    for _ in range(max_k):
+        cand = [(_source_loso_gain(Zs, ys, ds, B, S + [j], seed), j) for j in range(r) if j not in S]
+        if not cand:
+            break
+        bm, bj = max(cand, key=lambda x: (x[0] if np.isfinite(x[0]) else -1))
+        if not np.isfinite(bm) or bm <= cur + tol:
+            break
+        S.append(bj); cur = bm
+    return S
+
+
+def subspace_alignment(B, Sa, Sb):
+    """Mean cos(principal angle) between span(B[Sa]) and span(B[Sb]) in [0,1]; nan if either set is empty."""
+    if not Sa or not Sb:
+        return float("nan")
+    s = np.linalg.svd(B[list(Sa)] @ B[list(Sb)].T, compute_uv=False)
+    return float(np.mean(s))
+
+
+def source_greedy_audit(Zs, ys, ds, Zt, yt, B, seed=0, max_k=None):
+    """Decisive identifiability audit for the GREEDY ticket. (1) source-greedy set S_src (source-only);
+    (2) target-greedy ticket S_tgt on the FULL target (hindsight reference direction); (3) apply S_src to the
+    TRUE target (fresh head on all-source-erased, score all-target-erased) vs identity -> delta_src (source
+    selection uses NO target labels, so no cross-fit needed); (4) matched-rank random on target; (5) subspace
+    alignment(S_src, S_tgt). Source is identifiable iff delta_src>0, beats random, and aligns with S_tgt."""
+    r = B.shape[0]; max_k = r if max_k is None else min(max_k, r)
+    if r == 0:
+        return {"delta_src": 0.0, "delta_src_random": 0.0, "alignment": float("nan"),
+                "k_src": 0, "k_tgt": 0, "rank": 0}
+    S_src = source_greedy_select(Zs, ys, ds, B, seed=seed, max_k=max_k)
+    S_tgt = _select_subset(Zs, ys, Zt, yt, B, "greedy", max_k, seed)     # hindsight ticket on full target
+    ident = _bacc(Zs, ys, Zt, yt, seed)
+    BS = B[S_src] if S_src else None
+    got = ident if BS is None else _bacc(Zs - (Zs @ BS.T) @ BS, ys, Zt - (Zt @ BS.T) @ BS, yt, seed)
+    if S_src:
+        rr = []
+        for t in range(15):
+            g = np.random.default_rng(3300 + seed + t)
+            Br = B[g.choice(r, min(len(S_src), r), replace=False)]
+            rr.append(_bacc(Zs - (Zs @ Br.T) @ Br, ys, Zt - (Zt @ Br.T) @ Br, yt, seed))
+        d_rand = float(np.mean(rr)) - ident
+    else:
+        d_rand = 0.0
+    return {"delta_src": float(got - ident), "delta_src_random": float(d_rand),
+            "alignment": subspace_alignment(B, S_src, S_tgt), "k_src": len(S_src), "k_tgt": len(S_tgt),
+            "identity_target_bacc": float(ident), "rank": int(r)}
+
+
 # ============================================================ 0.4 verdict
 def recovery_verdict(oracle_delta, oracle_lcb, meta_delta, meta_lcb, meta_random_delta,
                      recovery_min=0.25, practical_min=0.005):
