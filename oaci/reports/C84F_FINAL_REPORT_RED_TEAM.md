@@ -2,6 +2,16 @@
 
 Result: **68 / 68 PASS**.
 
+Post-closeout overall-report reconciliation: **30 / 30 PASS**. This additive
+documentation audit does not replace the 68 execution/report checks. It
+replayed both overall-report hashes, the final gate, protocol/lock/
+authorization identities, model and target manifests, all field arithmetic,
+strict numerical maxima, protected counters, historical failure identities,
+regression counts, active-job state, C84S closure and Git payload hygiene.
+An additional **11 / 11 PASS** exact-table replay checked every per-dataset
+subject/trial/raw-file total, model-unit total, stage-time sum, storage sum, log
+hash, warning classification and independent replay-ledger hash.
+
 | Category | Checks | Result |
 |---|---:|---|
 | authorization, protocol and execution-lock identity | 10 | PASS |
@@ -42,3 +52,12 @@ scan.
 The conclusion is field-generation-only. It does not establish target accuracy,
 selector performance, Q1/Q2, a label-budget frontier, level effects,
 cross-dataset recurrence or external validity.
+
+The complete lifecycle report identities are:
+
+```text
+C84F_OVERALL_REPORT.md:
+  f80089fa03a64da5b2137e005d86eec2b282b4ab5ea33206f2f2a96ac321fe0c
+C84F_OVERALL_REPORT.json:
+  edb6ffb73e2f65ce56102f75abbe6ee447ca9dbf1cdddb7631f0ecbfa0b30f47
+```

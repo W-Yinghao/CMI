@@ -1,5 +1,11 @@
 # C84F Multi-Dataset Dual-Level Field
 
+This file is the concise execution summary. The authoritative standalone
+lifecycle report is `C84F_OVERALL_REPORT.md` with SHA-256
+`f80089fa03a64da5b2137e005d86eec2b282b4ab5ea33206f2f2a96ac321fe0c`;
+its machine-readable companion is `C84F_OVERALL_REPORT.json` with SHA-256
+`edb6ffb73e2f65ce56102f75abbe6ee447ca9dbf1cdddb7631f0ecbfa0b30f47`.
+
 ## Final Gate
 
 `C84_MULTI_DATASET_DUAL_LEVEL_FIXED_ZOO_FIELD_EXECUTED_AND_MANIFESTED_ANALYSIS_NOT_STARTED`
@@ -84,10 +90,11 @@ remain outside Git.
 
 ## Verification
 
-Final report red-team passed 68/68. Post-execution regressions passed 30
-focused, 758 C65, 1,169 C23 and 2,093 full-OACI tests. The cumulative suites
-retain one explained finalized-C78F skip and three established C79
-authorization-state deselections. Every regression stderr file is empty.
+Final report red-team passed 68/68 and overall-report reconciliation passed
+30/30. Post-execution regressions passed 30 focused, 758 C65, 1,169 C23 and
+2,093 full-OACI tests. The cumulative suites retain one explained
+finalized-C78F skip and three established C79 authorization-state deselections.
+Every regression stderr file is empty.
 
 ## Protected Boundary
 

@@ -67,6 +67,12 @@ Complete-manifest SHA-256:
 A separate post-execution replay verified every NPZ and sidecar hash, exact
 directory membership and all registered counts.
 
+The authoritative complete lifecycle report is
+`oaci/reports/C84F_OVERALL_REPORT.md` (SHA-256
+`f80089fa03a64da5b2137e005d86eec2b282b4ab5ea33206f2f2a96ac321fe0c`)
+with machine JSON SHA-256
+`edb6ffb73e2f65ce56102f75abbe6ee447ca9dbf1cdddb7631f0ecbfa0b30f47`.
+
 Same-GPU/PyTorch direct classifier, saved Wz/logits, repeat logits and repeat z
 all had maximum error zero. Saved softmax replay was
 `1.1920928955078125e-07`, below `1e-6`. Finite CPU/NumPy differences are
@@ -81,7 +87,8 @@ has no execution lock.
 
 ## Verification
 
-The final report red-team passed 68/68. Post-execution regression results were:
+The final report red-team passed 68/68, and the additive overall-report
+reconciliation passed 30/30. Post-execution regression results were:
 
 ```text
 focused:       30 passed

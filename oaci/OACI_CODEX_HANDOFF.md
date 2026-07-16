@@ -22,6 +22,12 @@ field and stopped at:
 C84_MULTI_DATASET_DUAL_LEVEL_FIXED_ZOO_FIELD_EXECUTED_AND_MANIFESTED_ANALYSIS_NOT_STARTED
 ```
 
+The authoritative standalone lifecycle report is
+`oaci/reports/C84F_OVERALL_REPORT.md` (SHA-256
+`f80089fa03a64da5b2137e005d86eec2b282b4ab5ea33206f2f2a96ac321fe0c`)
+with machine JSON SHA-256
+`edb6ffb73e2f65ce56102f75abbe6ee447ca9dbf1cdddb7631f0ecbfa0b30f47`.
+
 Operative identities:
 
 ```text
@@ -55,10 +61,11 @@ scientific statistics and target scientific metrics are all zero. Historical
 jobs `896185` and `896550`, their consumed authorizations and all partial target
 objects remain immutable failed-attempt evidence and were not reused.
 
-Final report red-team passed 68/68. Post-execution regressions passed with 30
-focused, 758 C65, 1,169 C23 and 2,093 full-OACI tests. Cumulative suites retain
-one explained finalized-C78F skip and three established C79 authorization-state
-deselections; all regression stderr files are empty.
+Final report red-team passed 68/68 and overall-report reconciliation passed
+30/30. Post-execution regressions passed with 30 focused, 758 C65, 1,169 C23
+and 2,093 full-OACI tests. Cumulative suites retain one explained
+finalized-C78F skip and three established C79 authorization-state deselections;
+all regression stderr files are empty.
 
 C84F has produced engineering field evidence only. It does not establish target
 accuracy, selector performance, Q1/Q2, a label-budget frontier, level effects,

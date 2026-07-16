@@ -2,6 +2,8 @@
   "schema_version": "c84fr2_execution_result_identity_v1",
   "job_id": 897048,
   "gate": "C84_MULTI_DATASET_DUAL_LEVEL_FIXED_ZOO_FIELD_EXECUTED_AND_MANIFESTED_ANALYSIS_NOT_STARTED",
+  "overall_report_markdown_sha256": "f80089fa03a64da5b2137e005d86eec2b282b4ab5ea33206f2f2a96ac321fe0c",
+  "overall_report_json_sha256": "edb6ffb73e2f65ce56102f75abbe6ee447ca9dbf1cdddb7631f0ecbfa0b30f47",
   "authorization_commit": "fc40914d104bde8522c82106b615f2e29ad38e9c",
   "authorization_record_sha256": "b05ba5dd5c6a6393038d491a5b1407c7a973b0c20494963e44b91311b482a05b",
   "repair_protocol_sha256": "4480530f05f0814b712edf23a51f08e64820ddea220d6b26f4dc7bb0f2a541bf",
@@ -24,6 +26,8 @@
   "canary_witnesses": 486,
   "protected_counters_all_zero": true,
   "final_report_red_team_passed": 68,
+  "overall_report_reconciliation_passed": 30,
+  "overall_report_supplemental_exact_replay_passed": 11,
   "regression_passed": {
     "focused": 30,
     "C65": 758,

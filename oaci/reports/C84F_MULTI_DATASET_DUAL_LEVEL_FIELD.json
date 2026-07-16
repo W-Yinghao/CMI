@@ -2,6 +2,12 @@
   "schema_version": "c84fr2_complete_field_execution_report_v1",
   "milestone": "C84F_TARGET_STAGE_NUMERICAL_REPLAY_REPAIR",
   "gate": "C84_MULTI_DATASET_DUAL_LEVEL_FIXED_ZOO_FIELD_EXECUTED_AND_MANIFESTED_ANALYSIS_NOT_STARTED",
+  "overall_report": {
+    "markdown_path": "oaci/reports/C84F_OVERALL_REPORT.md",
+    "markdown_sha256": "f80089fa03a64da5b2137e005d86eec2b282b4ab5ea33206f2f2a96ac321fe0c",
+    "json_path": "oaci/reports/C84F_OVERALL_REPORT.json",
+    "json_sha256": "edb6ffb73e2f65ce56102f75abbe6ee447ca9dbf1cdddb7631f0ecbfa0b30f47"
+  },
   "execution": {
     "job_id": 897048,
     "partition": "V100",
@@ -94,6 +100,12 @@
     "final_report_red_team": {
       "passed": 68,
       "total": 68
+    },
+    "overall_report_reconciliation": {
+      "passed": 30,
+      "total": 30,
+      "supplemental_exact_table_replay_passed": 11,
+      "supplemental_exact_table_replay_total": 11
     },
     "regression": {
       "focused_passed": 30,
