@@ -58,8 +58,12 @@ def _route(amp_bc_lcbs, ba_lam1_lcb, dU_spec1_lcbs, worst_src_drop):
         return dict(verdict="GLOBAL_MCC_MECHANISM_SPECIFIC_BUT_DG_INERT",
                     next="risk_weighted_MCC (weight consistency by source-only predictive instability: LOSO risk / class-margin / subject-head residual)")
     if not geom_amplified:
-        return dict(verdict="MINIBATCH_MCC_DOES_NOT_CONTROL_POPULATION_GEOMETRY_AT_USEFUL_SCALE",
-                    next="change consistency ESTIMATOR: source-only EMA / memory-bank subject-class prototypes (cross-epoch-stable contrasts), NOT more lambda")
+        # amp_BC=NS rules OUT "lambda amplifies geometry" (kills GLOBAL) but does NOT positively establish an
+        # estimator cause -- the noise-domination premise for EMA is unmeasured (first-batch-only grad log) and
+        # grad_cos>0 in all bundles argues against it; geometry is also decoupled from DG (corr~0). So report the
+        # descriptive label + an explicit FORK gated behind a cheap discriminator, NOT a committed EMA round.
+        return dict(verdict="SPECIFIC_BUT_LAMBDA_INERT_estimator_UNDIAGNOSED",
+                    next="present FORK (EMA/prototype estimator vs risk-weighted MCC vs drop-the-geometry-axis); gate behind ONE cheap discriminator first: full-batch/large-batch low-variance MCC + batch-to-batch variance logging; EMA earns a full round only if the low-variance limit BOTH scales B-C AND that geometry then tracks DG")
     if geom_amplified and damaged:
         return dict(verdict="D_geometry_up_but_damaged", next="C_d=C_shared+R_d, constrain only residual cross-subject variance")
     return dict(verdict="INCONCLUSIVE", next="inspect per-subject sign + seed variance")

@@ -36,8 +36,8 @@
     }
   ],
   "routing": {
-    "verdict": "MINIBATCH_MCC_DOES_NOT_CONTROL_POPULATION_GEOMETRY_AT_USEFUL_SCALE",
-    "next": "change consistency ESTIMATOR: source-only EMA / memory-bank subject-class prototypes (cross-epoch-stable contrasts), NOT more lambda"
+    "verdict": "SPECIFIC_BUT_LAMBDA_INERT_estimator_UNDIAGNOSED",
+    "next": "present FORK (EMA/prototype estimator vs risk-weighted MCC vs drop-the-geometry-axis); gate behind ONE cheap discriminator first: full-batch/large-batch low-variance MCC + batch-to-batch variance logging; EMA earns a full round only if the low-variance limit BOTH scales B-C AND that geometry then tracks DG"
   },
   "n_paired": 63,
   "warmup_hash_mismatched": [],
