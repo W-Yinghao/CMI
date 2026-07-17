@@ -1,0 +1,354 @@
+{
+  "schema_version": "c85ur1_u1_u2_isolation_protected_replay_acceptance_protocol_v1",
+  "milestone": "C85UR1",
+  "created_at_utc": "2026-07-17T15:19:02Z",
+  "status": "PROTOCOL_LOCKED_BEFORE_V2_IMPLEMENTATION_OR_REAL_PROTECTED_ACCESS",
+  "starting_identity": {
+    "head": "c110f15b054ae7a9aee7cd5cea4d7f78f6891a95",
+    "origin_oaci": "c110f15b054ae7a9aee7cd5cea4d7f78f6891a95",
+    "branch": "oaci",
+    "c85u_protocol_commit": "ebe158c9e929f67423a9ebdc3cea7c6ea5c16c9a",
+    "c85u_protocol_sha256": "c9ed7081cf8cb1a6c8a05181d1660da2015b4e1716a05c8916f7fe5b09efc160",
+    "c85u_implementation_commit": "df100e2e77c5749030e2931bb7752973258823bd",
+    "historical_v1_lock_commit": "3b4fa48ee2d4f75ff8ba2191dc7d8593237dc82f",
+    "historical_v1_lock_sha256": "923c6bee2171f0bedcc3f883058759d368bdb49eb272cbbfa80974e98b632fe1",
+    "c85urp_overall_markdown_sha256": "961aeb1dbb452fb28ad86dcb00190cfedf5ccf33ea3d3df21abcfd84ec8f92a3",
+    "c85urp_overall_json_sha256": "9b1126d7bc9b4612e555024cbf656bc42478cb94fcdfc0133900c530e0e314e3"
+  },
+  "chronology": {
+    "real_evaluation_label_rows_opened_before_repair": 0,
+    "real_target_or_logit_payloads_opened_before_repair": 0,
+    "real_Q0_shards_or_direct_C84S_tables_opened_before_repair": 0,
+    "real_candidate_utilities_computed_before_repair": 0,
+    "C85U_authorization_before_repair": "ABSENT",
+    "C85U_authorization_consumption_before_repair": 0,
+    "repair_outcome_informed": false,
+    "protocol_precedes_V2_implementation": true,
+    "protocol_precedes_V2_execution_lock": true,
+    "protocol_precedes_real_protected_read": true
+  },
+  "historical_preservation": {
+    "C85U_CANDIDATE_UTILITY_RECONSTRUCTION_PROTOCOL.json": "IMMUTABLE",
+    "C85U_EXECUTION_LOCK.json": "IMMUTABLE_SUPERSEDED_BEFORE_AUTHORIZATION_OR_REAL_PROTECTED_ACCESS",
+    "C85U_EXECUTION_LOCK.sha256": "IMMUTABLE",
+    "C85URP_reports_tables_tests_and_regressions": "IMMUTABLE",
+    "C85EP_availability_blocker": "IMMUTABLE",
+    "C84_and_C85_frozen_scientific_and_theorem_results": "IMMUTABLE",
+    "in_place_V1_rewrite": false,
+    "additive_supersession_ledger": "oaci/reports/c85ur1_tables/historical_v1_lock_supersession.csv"
+  },
+  "root_cause": {
+    "U1_runtime_input_boundary": "The V1 U1 entrypoint calls a broad readiness registry that reads the C84S Stage-B selection manifest, scientific-result JSON and result manifest before utility construction.",
+    "U2_attempt_binding": "The V1 U2 public entrypoint has no authorization or attempt context and accepts utility/output roots while internally selecting protected Stage-B and Stage-C paths.",
+    "protected_replay_semantics": "The V1 U1 handoff verifies a serialized protected-replay object by path and file hash but does not semantically replay its schema or authorization, lock, attempt, root, evaluation-view and 1,944-artifact identities.",
+    "acceptance_transaction": "V1 publishes U1 and U2 child roots but writes the overall result and later lifecycle state outside one atomic acceptance transaction, allowing contradictory success-looking and failure evidence.",
+    "classification": "C85U_STAGE_ISOLATION_ATTEMPT_BINDING_AND_ATOMIC_ACCEPTANCE_BLOCKER"
+  },
+  "immutable_scientific_scope": {
+    "utility_formula_changed": false,
+    "candidate_universe_changed": false,
+    "target_labels_or_contexts_changed": false,
+    "Q0_actions_changed": false,
+    "historical_result_rows_changed": false,
+    "C84_primary": "C84-D_external_dataset_source_panel_seed_level_or_target_heterogeneous",
+    "C84_frontier": "C84-L4",
+    "C85_theorem_statuses": {
+      "T1": "PROVED",
+      "T2": "COUNTEREXAMPLE",
+      "T3": "PROVED",
+      "T4": "PROVED",
+      "T5": "OPEN",
+      "T6": "COUNTEREXAMPLE",
+      "T7": "PROVED"
+    }
+  },
+  "U1_runtime_registry_v2": {
+    "recommended_builder": "build_u1_runtime_registry",
+    "module_scope": "U1_ONLY_NO_FORBIDDEN_PATH_DEFINITIONS",
+    "allowed_objects": [
+      "C84F complete-field manifest",
+      "C84F target trial registry",
+      "operative candidate registry",
+      "historical Stage-A evaluation seal",
+      "evaluation-view manifest",
+      "evaluation label-table identity",
+      "1,944 target-artifact identities",
+      "1,944 target-sidecar identities",
+      "944 context descriptors",
+      "81-candidate canonical order per context"
+    ],
+    "forbidden_definitions_imports_paths_or_reads": [
+      "C84S Stage-B selection manifest",
+      "candidate scores or ranks",
+      "fixed selections",
+      "Q0 index or shards",
+      "C84S scientific-result JSON",
+      "C84S result manifest",
+      "method_context_decisions",
+      "Q1 or Q2",
+      "LOTO",
+      "label frontier",
+      "taxonomy"
+    ],
+    "dynamic_open_policy": "FAIL_CLOSED_ON_ANY_STAGE_B_OR_SCIENTIFIC_RESULT_PATH",
+    "broad_readiness_registry_callable_from_U1": false
+  },
+  "U2_runtime_registry_v2": {
+    "recommended_builder": "build_u2_runtime_registry",
+    "release_requires_accepted_U1_freeze": true,
+    "allowed_objects": [
+      "accepted U1 manifest and handoff",
+      "candidate ranks",
+      "fixed actions",
+      "Q0 shard index and immutable shards",
+      "historical method_context_decisions and its parent result manifest"
+    ],
+    "forbidden_definitions_imports_paths_or_reads": [
+      "evaluation label root",
+      "evaluation label table",
+      "evaluation-view seal",
+      "target artifact root",
+      "target NPZ",
+      "target logits",
+      "construction labels"
+    ],
+    "dynamic_open_policy": "FAIL_CLOSED_ON_ANY_LABEL_OR_TARGET_ARTIFACT_PATH"
+  },
+  "protected_input_replay_receipt_v2": {
+    "schema_version": "c85u_protected_input_replay_receipt_v2",
+    "required_fields": [
+      "authorization_file_sha256",
+      "authorization_binding_sha256",
+      "authorization_id",
+      "execution_lock_sha256",
+      "execution_lock_commit",
+      "attempt_id",
+      "output_root",
+      "evaluation_label_table_sha256",
+      "evaluation_label_table_rows",
+      "evaluation_view_manifest_sha256",
+      "target_artifact_rows",
+      "target_artifact_total_bytes",
+      "target_artifact_registry_sha256",
+      "target_sidecar_rows",
+      "target_sidecar_registry_sha256",
+      "replay_completed_at_utc"
+    ],
+    "evaluation_label_table_rows": 4848,
+    "target_artifact_rows": 1944,
+    "target_sidecar_rows": 1944,
+    "expected_target_artifact_bytes": 48018748054,
+    "total_bytes_policy": "EXACT_REGISTRY_DERIVED_TOTAL_MUST_EQUAL_EXPECTED",
+    "U1_handoff_required_fields": [
+      "receipt_path",
+      "receipt_sha256",
+      "authorization_file_sha256",
+      "authorization_binding_sha256",
+      "authorization_id",
+      "execution_lock_sha256",
+      "execution_lock_commit",
+      "attempt_id",
+      "parent_output_root",
+      "U1_output_root",
+      "U1_stage_receipt_path",
+      "evaluation_label_table_sha256",
+      "evaluation_label_table_rows",
+      "evaluation_view_manifest_sha256",
+      "target_artifact_rows",
+      "target_artifact_total_bytes",
+      "target_artifact_registry_sha256",
+      "target_sidecar_registry_sha256"
+    ],
+    "validation": "PARSE_SCHEMA_AND_REPLAY_EVERY_BOUND_IDENTITY_BEFORE_LABEL_OR_TARGET_NPZ_OPEN",
+    "path_or_hash_only_validation": false,
+    "cross_authorization_attempt_or_root_reuse": "FAIL_CLOSED"
+  },
+  "stage_attempt_binding_v2": {
+    "shared_identity": [
+      "authorization file SHA",
+      "authorization binding SHA",
+      "authorization ID",
+      "execution-lock SHA and commit",
+      "attempt ID",
+      "exact parent output root",
+      "external authorization-consumption receipt"
+    ],
+    "U1_preprotected_access_order": [
+      "validate committed V2 lock",
+      "validate external authorization-consumption receipt",
+      "parse and validate protected-input replay receipt V2",
+      "validate lifecycle identity",
+      "atomically create U1 O_EXCL stage receipt",
+      "only then open evaluation table or target NPZ"
+    ],
+    "U2_public_required_arguments": [
+      "--execution-context",
+      "--u1-handoff",
+      "--utility-root",
+      "--output-root"
+    ],
+    "U2_preprotected_access_order": [
+      "validate same authorization, lock, attempt and parent output root",
+      "validate external authorization-consumption receipt",
+      "validate U1 stage receipt",
+      "validate complete U1 manifest and handoff SHA",
+      "validate U1 protected-input replay SHA",
+      "validate lifecycle contains U1_COMPLETED",
+      "atomically create U2 O_EXCL stage receipt",
+      "only then open Stage-B, Q0 or direct result objects"
+    ],
+    "stage_receipt_consumed_after_success_or_failure": true,
+    "unguarded_real_U2_path": false,
+    "shadow_entrypoints": "SEPARATE_AND_UNABLE_TO_OPEN_REAL_C84_PATHS"
+  },
+  "U1_manifest_and_handoff_v2": {
+    "manifest_schema": "c85u_complete_utility_manifest_v2",
+    "manifest_path": "C85U_CANDIDATE_UTILITY_MANIFEST_V2.json",
+    "manifest_sidecar_path": "C85U_CANDIDATE_UTILITY_MANIFEST_V2.sha256",
+    "handoff_path": "C85U_STAGE_U1_HANDOFF.json",
+    "handoff_sidecar_path": "C85U_STAGE_U1_HANDOFF.sha256",
+    "contexts": 944,
+    "candidate_rows": 76464,
+    "added_bindings": [
+      "execution-lock SHA",
+      "authorization binding SHA",
+      "attempt ID",
+      "protected-replay SHA",
+      "U1 stage-receipt SHA",
+      "allowed-access counters",
+      "forbidden-access counters",
+      "actual target artifact bytes"
+    ],
+    "provisional_after_U2_failure": true,
+    "accepted_for_C85E_without_final_transaction": false
+  },
+  "U2_result_and_handoff_v2": {
+    "result_schema": "c85u_historical_decision_replay_v2",
+    "result_path": "C85U_HISTORICAL_DECISION_REPLAY_V2.json",
+    "result_sidecar_path": "C85U_HISTORICAL_DECISION_REPLAY_V2.sha256",
+    "handoff_path": "C85U_STAGE_U2_HANDOFF.json",
+    "handoff_sidecar_path": "C85U_STAGE_U2_HANDOFF.sha256",
+    "method_context_rows": 18432,
+    "finite_Q0_action_records": 8749056,
+    "required_bindings": [
+      "U1 manifest and handoff SHA",
+      "same authorization, lock and attempt",
+      "U2 stage-receipt SHA",
+      "Stage-B and result input hashes",
+      "maximum selected utility, regret and top-k replay errors",
+      "zero label, logit and inference access"
+    ]
+  },
+  "atomic_acceptance_transaction_v2": {
+    "schema_version": "c85u_atomic_acceptance_bundle_v2",
+    "staging_contains": [
+      "C85U_EXECUTION_RESULT.json",
+      "C85U_RESULT_ARTIFACT_MANIFEST.json",
+      "C85U_COMPLETION_RECEIPT.json",
+      "C85U_LIFECYCLE.jsonl",
+      "authorization_consumed.json",
+      "protected-input replay receipt copy",
+      "U1 handoff and manifest identities",
+      "U2 handoff and result identities"
+    ],
+    "authoritative_lifecycle": [
+      "PREFLIGHT_STARTED",
+      "PREFLIGHT_COMPLETED",
+      "AUTHORIZATION_CONSUMED",
+      "PROTECTED_INPUT_REPLAY_STARTED",
+      "PROTECTED_INPUT_REPLAY_COMPLETED",
+      "STAGE_U1_STARTED",
+      "STAGE_U1_COMPLETED",
+      "STAGE_U2_STARTED",
+      "STAGE_U2_COMPLETED",
+      "ACCEPTANCE_MANIFEST_STARTED",
+      "ACCEPTANCE_MANIFEST_COMPLETED",
+      "ATOMIC_ACCEPTANCE_COMMIT_READY"
+    ],
+    "pre_rename_requirements": [
+      "all required acceptance files written",
+      "U1 and U2 identities and semantic replays pass",
+      "acceptance manifest written and replayed",
+      "completion receipt written",
+      "ATOMIC_ACCEPTANCE_COMMIT_READY appended",
+      "all files fsynced",
+      "staging directory fsynced"
+    ],
+    "commit_operation": "EXACTLY_ONE_os.replace_STAGING_ACCEPTANCE_TO_FINAL_ACCEPTANCE",
+    "post_rename_required_operations": [],
+    "success_gate_location": "FINAL_ACCEPTANCE_BUNDLE_ONLY",
+    "success_gate": "C85U_COMPLETE_CANDIDATE_UTILITY_FIELD_FROZEN_C85E_REVIEW_REQUIRED",
+    "post_rename_valid_bundle": "SUCCESS_OR_RECOVERED_SUCCESS",
+    "U2_failure": "U1_MAY_REMAIN_PROVISIONAL_NO_FINAL_ACCEPTANCE_BUNDLE_C85E_ACCEPTANCE_FALSE"
+  },
+  "failure_exception_precedence_v2": {
+    "primary_exception_never_replaced": true,
+    "nonterminal_lifecycle": "APPEND_FAILED_ONCE_IF_POSSIBLE",
+    "valid_final_acceptance_bundle": "SUCCESS_OR_RECOVERED_SUCCESS_NO_FAILED_APPEND",
+    "terminal_staging_without_final_rename": "SEPARATE_RECONCILIATION_BLOCKER",
+    "secondary_errors": "RETAIN_AS_NON_REPLACING_DIAGNOSTICS",
+    "automatic_retry": false
+  },
+  "resource_enforcement": {
+    "partition": "cpu-high",
+    "CPU": 48,
+    "RAM_GiB": 128,
+    "GPU": 0,
+    "wall_hours": 2,
+    "U1_context_artifacts_and_index_max_bytes": 2147483648,
+    "contexts": 944,
+    "candidate_rows": 76464,
+    "target_artifacts": 1944,
+    "target_artifact_read_policy": "EXACTLY_ONCE_PER_LOCKED_ZOO_LOADING_PLAN",
+    "scope_reduction": false,
+    "recorded_actuals": [
+      "evaluation-label rows read",
+      "target files opened",
+      "target bytes read and hashed",
+      "U2 action and result files opened",
+      "wall time",
+      "peak RSS when available",
+      "allowed-access counters",
+      "forbidden-access counters"
+    ]
+  },
+  "readiness_validation": {
+    "real_labels_target_NPZ_Q0_or_direct_C84S_tables": 0,
+    "shadow_or_adversarial_only": true,
+    "required_categories": [
+      "U1 module has no forbidden path definitions or opens",
+      "dynamic U1 open trap",
+      "protected replay schema and cross-attempt rejection",
+      "U2 preprotected-access guard",
+      "duplicate stage-receipt rejection",
+      "U1 manifest authorization and attempt binding",
+      "U1-success U2-failure no-acceptance behavior",
+      "no required operation after acceptance rename",
+      "post-rename success recovery",
+      "primary exception precedence",
+      "2 GiB output envelope",
+      "18,432 endpoint and 8,749,056 finite-Q0 production-equivalent arithmetic",
+      "C84 and C85 result immutability"
+    ],
+    "regressions": ["focused C85UR1", "C65 cumulative", "C23 cumulative", "full OACI"],
+    "accepted_stderr": "EMPTY"
+  },
+  "V2_execution_lock": {
+    "path": "oaci/reports/C85U_EXECUTION_LOCK_V2.json",
+    "sidecar_path": "oaci/reports/C85U_EXECUTION_LOCK_V2.sha256",
+    "status": "LOCKED_READY_FOR_DIRECT_PI_AUTHORIZATION_NOT_AUTHORIZED",
+    "future_direct_statement": "授权 C85U",
+    "pre_V2_authorization_reusable": false
+  },
+  "readiness_success_gate": "C85U_PROCESS_ISOLATION_PROTECTED_REPLAY_AND_ACCEPTANCE_TRANSACTION_REPAIRED_V2_LOCK_READY_FOR_PI_AUTHORIZATION",
+  "readiness_failure_gate": "C85U_STAGE_ISOLATION_ATTEMPT_BINDING_ATOMIC_ACCEPTANCE_OR_PROVENANCE_RECONCILIATION_REQUIRED",
+  "future_completion_gate": "C85U_COMPLETE_CANDIDATE_UTILITY_FIELD_FROZEN_C85E_REVIEW_REQUIRED",
+  "unauthorized_stages": [
+    "C85U real reconstruction",
+    "C85E",
+    "C86",
+    "active acquisition",
+    "new data or model zoo",
+    "manuscript work"
+  ]
+}
