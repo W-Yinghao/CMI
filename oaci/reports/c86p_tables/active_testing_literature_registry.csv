@@ -1,0 +1,8 @@
+source_id,title,year,primary_url,role,verified,fidelity_limit
+Kossen2021,Active Testing: Sample-Efficient Model Evaluation,2021,https://proceedings.mlr.press/v139/kossen21a.html,active_testing_and_surrogate_acquisition,1,C86_A1_is_a_multicandidate_adaptation
+Farquhar2021,On Statistical Bias in Active Learning: How and When to Fix It,2021,https://openreview.net/forum?id=JiYq3eqTKY,LURE_weights_and_bias_correction,1,unbiasedness_applies_to_linear_LURE_moments
+Hara2024,Active model selection: A variance minimization approach,2024,https://link.springer.com/article/10.1007/s10994-024-06603-1,pairwise_loss_difference_variance_acquisition,1,C86_A2_extends_the_pairwise_object_to_81_candidates
+Karimi2021,Online Active Model Selection for Pre-trained Classifiers,2021,https://proceedings.mlr.press/v130/reza-karimi21a.html,disagreement_selective_sampling,1,C86_is_finite_pool_fixed_budget_not_the_original_streaming_setting
+Sawade2010,Active Risk Estimation,2010,https://icml.cc/Conferences/2010/papers/285.pdf,active_evaluation_precedent,1,background_not_a_claimed_byte_exact_method
+Katariya2012,Active Evaluation of Classifiers on Large Datasets,2012,https://www.microsoft.com/en-us/research/publication/active-evaluation-classifiers-large-datasets/,stratified_active_evaluation_precedent,1,background_only
+Hansen2011,The Model Confidence Set,2011,https://onlinelibrary.wiley.com/doi/abs/10.3982/ECTA5771,plausible_best_set_terminology,1,A4_is_project_specific_and_not_an_MCS_replication

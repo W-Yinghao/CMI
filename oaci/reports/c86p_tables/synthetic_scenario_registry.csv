@@ -1,0 +1,12 @@
+scenario_id,scenario,production_entrypoint_required_before_real_execution,C86P_mode,real_data
+C86S00,dense_near_ties,1,SHADOW_SCHEMA_ONLY,0
+C86S01,sparse_large_gaps,1,SHADOW_SCHEMA_ONLY,0
+C86S02,high_pairwise_variance_strata,1,SHADOW_SCHEMA_ONLY,0
+C86S03,low_pairwise_variance_strata,1,SHADOW_SCHEMA_ONLY,0
+C86S04,policy_collapse,1,SHADOW_SCHEMA_ONLY,0
+C86S05,mean_improvement_with_adverse_target_tail,1,SHADOW_SCHEMA_ONLY,0
+C86S06,class_imbalance,1,SHADOW_SCHEMA_ONLY,0
+C86S07,importance_weight_instability,1,SHADOW_SCHEMA_ONLY,0
+C86S08,sampling_probability_floor_failure,1,SHADOW_SCHEMA_ONLY,0
+C86S09,stopping_rule_failure,1,SHADOW_SCHEMA_ONLY,0
+C86S10,dataset_heterogeneity,1,SHADOW_SCHEMA_ONLY,0

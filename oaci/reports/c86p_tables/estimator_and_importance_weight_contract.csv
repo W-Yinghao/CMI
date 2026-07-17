@@ -1,0 +1,6 @@
+object,primary,formula,unbiased_claim,clipping,failure
+LURE_weight,1,1+(N-M)/(N-m)*(1/((N-m+1)*q_m)-1),LINEAR_FINITE_POOL_MEAN,NONE,q_m<=0_or_nonfinite
+balanced_accuracy,1,0.5*sum_y((N*LURE_correct_y+0.5)/(N*LURE_class_y+1)),NONE_JEFFREYS_SMOOTHED_PLUGIN,NONE,nonfinite
+NLL,1,"LURE_mean(-log(clip(p_y,1e-12,1)))",LINEAR_CLIPPED_NLL_MEAN,PROBABILITY_ONLY,nonfinite
+ECE,1,sum_15_bins(abs(LURE_mean(I_bin*(correct-confidence)))),SIGNED_BIN_MOMENTS_ONLY,NONE,nonfinite
+composite_utility,1,mean_of_three_oriented_81_candidate_midranks,NONE_NONLINEAR_PLUGIN,NONE,component_incomplete

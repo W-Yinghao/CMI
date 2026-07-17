@@ -1,0 +1,4 @@
+regime,candidate_count,canonical_indices,architecture_changed,retention_from_C84_outcomes,separate_training_lock_required
+ERM,1,0,0,0,1
+OACI,40,1..40,0,0,1
+SRC,40,41..80,0,0,1

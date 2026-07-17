@@ -1,0 +1,12 @@
+method_id,unlabeled_predictions,queried_labels_only,unqueried_labels,held_evaluation_labels_before_freeze,class_allocation_before_query,information_class
+P0,0,1,0,0,0,PASSIVE_PRIMARY
+P1,0,0,1,0,1,PASSIVE_CLASS_AWARE
+A1,1,1,0,0,0,ACTIVE_TESTING
+A2,1,1,0,0,0,PAIRWISE_VARIANCE
+A3,1,1,0,0,0,DISAGREEMENT
+A4,1,1,0,0,0,PLAUSIBLE_BEST
+C0,0,0,0,0,0,FIXED
+C1,0,0,0,0,0,SOURCE
+C2_U11,1,0,0,0,0,ZERO_LABEL
+C2_U13,1,0,0,0,0,ZERO_LABEL
+O1,0,0,1,0,0,ORACLE

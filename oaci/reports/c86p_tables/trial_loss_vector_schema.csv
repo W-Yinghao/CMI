@@ -1,0 +1,10 @@
+field,dtype,required,contains_in_C86P,semantic_role
+trial_id,UTF8,1,0,IDENTITY
+context_id,UTF8,1,0,IDENTITY
+candidate_ids,UTF8[81],1,0,ACTION_IDENTITY
+candidate_probabilities,"float64[81,2]",1,0,UNLABELED_PREDICTIONS
+true_label,uint8,1,0,QUERIED_LABEL
+NLL_contributions,float64[81],1,0,LINEAR_LOSS_VECTOR
+correctness,uint8[81],1,0,BACC_ECE_COMPONENT
+confidence_bins,uint8[81],1,0,ECE_COMPONENT
+pairwise_NLL_differences,"float64[81,81]",1,0,PAIRWISE_DESIGN
