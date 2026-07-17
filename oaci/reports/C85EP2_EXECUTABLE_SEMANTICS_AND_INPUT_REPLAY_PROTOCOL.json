@@ -1,0 +1,225 @@
+{
+  "authorization_contract": {
+    "C85E_authorized": false,
+    "future_direct_statement_exact": "授权 C85E",
+    "single_use_authorization_required": true
+  },
+  "candidate_geometry_contract": {
+    "epsilon_grid": [
+      0.005,
+      0.01,
+      0.02,
+      0.05
+    ],
+    "gap_scale": "raw_composite_utility_gap",
+    "near_optimal_rule": "max_j(u_c(j))-u_c(a)<=epsilon",
+    "soft_weight_formula": "exp(-raw_utility_gap/tau)/sum_j(exp(-raw_utility_gap_j/tau))",
+    "soft_weight_implementation": "stable_log_sum_exp_equivalent",
+    "tau_grid": [
+      0.005,
+      0.01,
+      0.02,
+      0.05,
+      0.1
+    ]
+  },
+  "chronology": {
+    "C84_and_C85_aggregate_outcomes_known": true,
+    "C85E_analysis_results_computed_before_protocol_commit": false,
+    "C85U_acceptance_identities_known": true,
+    "C85U_full_candidate_utility_values_opened_before_protocol_commit": false,
+    "C85U_utility_distributions_or_geometry_inspected_before_protocol_commit": false,
+    "analysis_metrics_grids_references_and_claims_fixed_before_full_utility_access": true,
+    "milestone_is_post_outcome_exploratory": true
+  },
+  "claim_and_status_contract": {
+    "C84_D_immutable": true,
+    "C84_L4_immutable": true,
+    "C85_theorem_statuses": {
+      "T1": "PROVED",
+      "T2": "COUNTEREXAMPLE",
+      "T3": "PROVED",
+      "T4": "PROVED",
+      "T5": "OPEN",
+      "T6": "COUNTEREXAMPLE",
+      "T7": "PROVED"
+    },
+    "C85_theorem_statuses_immutable": true,
+    "new_pvalues": false,
+    "required_result_tag": "POST_C84S_EXPLORATORY",
+    "selection_time_mechanism_claim": false
+  },
+  "collapse_scope_contract": {
+    "action_identity": "canonical_candidate_index_0_through_80_within_exact_context_zoo",
+    "exact_collapse_requires_every_context_equal": true,
+    "near_collapse_invokes_T3": false,
+    "scopes": [
+      "dataset_x_level",
+      "dataset_full_panel",
+      "global_three_dataset_field"
+    ],
+    "string_candidate_ID_equality_across_different_zoos_defines_same_action": false,
+    "T3_invocation_requires_exact_collapse_in_declared_scope": true
+  },
+  "empirical_CVaR_contract": {
+    "alpha_grid": [
+      0.5,
+      0.75,
+      0.9
+    ],
+    "dataset_pooling": false,
+    "loss_scale": "historical_C84_standardized_regret",
+    "principal_group": "target_subject",
+    "quantile_convention": "left_continuous_empirical_upper_loss_quantile",
+    "rule": "integral_of_empirical_upper_quantile_over_[alpha,1]_including_exact_fractional_boundary_mass",
+    "target_equal_weight": true
+  },
+  "failure_gate": "C85E_INPUT_GEOMETRY_RISK_FUNCTIONAL_OR_PROVENANCE_RECONCILIATION_REQUIRED",
+  "forbidden_actions": {
+    "C86": true,
+    "EEG_or_direct_label_access": true,
+    "GPU": true,
+    "active_acquisition": true,
+    "inference_or_new_pvalue": true,
+    "manuscript_work": true,
+    "Q0_builder_or_resampling": true,
+    "selector_execution": true,
+    "target_logits_or_source_arrays": true,
+    "theorem_status_transition": true,
+    "training_or_forward": true
+  },
+  "frozen_C85U_acceptance": {
+    "acceptance_manifest_sha256": "dfcf84569beb1b34b786cbe72233a22fd3928a4475b7e345f23b40cdb6671620",
+    "authorization_file_sha256": "024d95b6364651d6faa7b7cbeb5e0a1d896fe56e122d3b4ad2d6ba284ac1b6db",
+    "candidate_utility_index_sha256": "83bddf56290c4e06a306d64dadfc9611115a177f479d433fe0e4485b0c181509",
+    "completion_receipt_sha256": "5d8bdc9888106f6382531f52150613744cce3e15fbc73e0b557b3eaa89e7a129",
+    "consumption_receipt_sha256": "f2ae41730a005d5622280ad7617efcd198ab308805604894cddb25d8eb5726b9",
+    "execution_HEAD": "f4b05c3dbed962348efe9cab56374854120a3667",
+    "external_attempt_root": "/projects/EEG-foundation-model/yinghao/oaci-c85u-candidate-utility-v2/c85u-v2-77382c16a593f7c2-91a428488a634268",
+    "final_result_sha256": "d19b11c24a811c1e8677cc0681d3d57bcb437a1d43702a5df8b2e1c92d43f83c",
+    "lifecycle_sha256": "c7ade7f29723fdcaa4f4472e2b431a1ec3c581e07f157f1c4d1d49d60125b2b7",
+    "lock_commit": "672670d05e9d7adfbe12673d4a64bfd499413162",
+    "lock_sha256": "77382c16a593f7c2bdeb4dcacdfa21df11dcfd59982e9bfb982d6b88f5f04d1d",
+    "protected_replay_sha256": "9013c5223bf271edcefe477443add3c1404381d5bf9c884b8d283ac3bc94651e",
+    "readiness_HEAD": "be2fad4868407b1aa8f7adf6a59d151efb68e02b",
+    "repository_acceptance_HEAD": "a6714579ade3cdff7bae06bdae34f61a5d1d54b6",
+    "U1_handoff_sha256": "2fad474bff7d80c55243a825ae3c15fa0afab45e8c841343d2a0aa20cefe1975",
+    "U1_manifest_sha256": "95bdbc04f05103a090d46dd4419dc12c766ab45f807c8466ebf883a1171b05c6",
+    "U2_handoff_sha256": "bb0b7bbad5b198eefdfc4a38f1bf353b96b60cecdcbf47815f2ff8ccbda789dc",
+    "U2_result_sha256": "84177e80c9883611ef0bc0e9d27a4c38867a45db9b0458d7b090c422b23c39be"
+  },
+  "historical_preservation": {
+    "C85EP_availability_gate": "C85E_FROZEN_CANDIDATE_UTILITY_OR_SELECTION_INPUT_UNAVAILABLE",
+    "C85EP_blocker_remains_correct": true,
+    "C85EP_retroactively_successful": false,
+    "C85E_protocol_commit": "0af9f286c31e70beded08ae6143a01e2dd2430ee",
+    "C85E_protocol_sha256": "a42cc71498971ee6eeb75ef53e62744e73e91b92e444ef78c9e4c856d61ac052",
+    "C85U_role": "prospective_production_of_previously_missing_post_C84S_derived_input"
+  },
+  "independent_replay_contract": {
+    "analysis_implementation_separate": true,
+    "public_certificate_forbidden_outputs": [
+      "candidate_utility_values",
+      "candidate_utility_distributions",
+      "candidate_gaps",
+      "method_comparisons",
+      "policy_use_results",
+      "robust_risk_results",
+      "theorem_applicability_results"
+    ],
+    "public_certificate_permitted_outputs": [
+      "paths",
+      "sizes",
+      "sha256",
+      "counts",
+      "maximum_replay_errors",
+      "pass_fail_status"
+    ],
+    "required_candidate_rows": 76464,
+    "required_context_artifacts": 944,
+    "required_contexts": 944,
+    "required_finite_Q0_action_records": 8749056,
+    "required_historical_method_context_rows": 18432,
+    "required_lifecycle_events": 12,
+    "required_Q0_shards": 944,
+    "verifier_separate_from_C85U_writer": true
+  },
+  "input_registry_contract": {
+    "allowed_runtime_roles": [
+      "C85U_candidate_utility_context_artifact",
+      "C85U_candidate_utility_index",
+      "C85U_U1_U2_and_acceptance_identity",
+      "C84S_frozen_action_and_Q0_records",
+      "C84S_compact_method_and_target_result_tables",
+      "C84A_compact_post_scientific_tables",
+      "C85T_synthetic_result",
+      "C85V_theorem_status_result",
+      "C85E_protocol_and_C85EP2_semantics"
+    ],
+    "forbidden_runtime_roles": [
+      "evaluation_label_view",
+      "construction_label_view",
+      "target_logits",
+      "EEG",
+      "source_arrays"
+    ],
+    "identity_binding": "absolute_path_size_sha256_semantic_role"
+  },
+  "milestone": "C85EP2",
+  "policy_risk_contract": {
+    "decision_risk_scale": "historical_C84_standardized_regret",
+    "raw_gap_formula": "max_j(u_c(j))-u_c(a)",
+    "standardized_regret_formula": "raw_gap/(max_j(u_c(j))-min_j(u_c(j)))",
+    "zero_spread_threshold": 1e-15,
+    "zero_spread_value": 0.0
+  },
+  "resource_envelope": {
+    "CPU": 32,
+    "GPU": 0,
+    "RAM_GiB": 128,
+    "output_limit_GiB": 2,
+    "partition": "cpu-high",
+    "wall_hours": 2
+  },
+  "result_contract": {
+    "atomic_publication": true,
+    "final_gate": "C85E_FROZEN_FIELD_DECISION_THEORY_BRIDGE_COMPLETE_C86_PROTOCOL_REVIEW_REQUIRED",
+    "readiness_executes_real_C85E": false,
+    "registered_tables": [
+      "realized_action_divergence.csv",
+      "exact_policy_equivalence_classes.csv",
+      "action_entropy_and_regime_distribution.csv",
+      "divergent_context_risk_contribution.csv",
+      "q0_action_distribution_use.csv",
+      "candidate_gap_geometry.csv",
+      "near_optimal_set_grid.csv",
+      "effective_multiplicity_grid.csv",
+      "geometry_by_dataset_level.csv",
+      "rank_topk_regret_geometry_separation.csv",
+      "geometry_regret_descriptive_association.csv",
+      "leave_target_geometry_stability.csv",
+      "target_robust_risk_profile.csv",
+      "cvar_grid.csv",
+      "cott_mean_tail_profile.csv",
+      "mano_policy_collapse_risk_profile.csv",
+      "level_robust_risk_interaction.csv",
+      "dataset_level_geometry_matrix.csv",
+      "panel_seed_geometry_stability.csv",
+      "support_level_policy_use_profile.csv",
+      "heterogeneity_explanation_limits.csv",
+      "theorem_empirical_applicability_matrix.csv",
+      "assumption_identification_ledger.csv",
+      "forbidden_theorem_transfer_claims.csv",
+      "future_active_acquisition_requirements.csv",
+      "untouched_population_options.csv"
+    ]
+  },
+  "robust_risk_unit_contract": {
+    "context_candidate_trial_or_chain_as_scientific_sample": false,
+    "full_panel_target_regret": "equal_weight_mean_over_2_panels_x_2_seeds_x_2_levels",
+    "level_specific_target_regret": "equal_weight_mean_over_2_panels_x_2_seeds",
+    "principal_group": "target_subject"
+  },
+  "schema_version": "c85ep2_executable_semantics_and_input_replay_protocol_v1",
+  "success_gate": "C85E_FROZEN_FIELD_POLICY_USE_GEOMETRY_AND_ROBUST_RISK_PROTOCOL_LOCKED_READY_FOR_PI_AUTHORIZATION"
+}
