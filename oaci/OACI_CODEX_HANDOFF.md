@@ -13,7 +13,100 @@ and collaboration sections before acting.
 
 ---
 
-## 0. Current continuation state through C85T (2026-07-17)
+## 0. Current continuation state through C85V (2026-07-17)
+
+C85V consumed one fresh direct authorization and completed the independent,
+read-only review of the seven frozen C85T proof candidates. It stopped at:
+
+```text
+C85V_INDEPENDENT_PROOF_VERDICTS_AND_THEOREM_STATUSES_FROZEN_C85E_PROTOCOL_REVIEW_REQUIRED
+```
+
+Authoritative C85V identities:
+
+```text
+authorization/execution commit:
+  c5a818021a9c5d9ecc4cd661be84eb4e9efacbf1
+
+C85V lock commit:
+  3c732489407ebca7603e5fb65d03c1ae25d046b6
+
+C85V lock SHA-256:
+  35cd029ba9cf68599a53d3f23db7a7c0a721440d9fb79be88a084548e452b20f
+
+authorization file SHA-256:
+  bb5c11b00c9b3073e45110845eb84f2c777f4d8976eef5f68acf3d6126b794b2
+
+result SHA-256:
+  49e148f9c9c8e43dc137a896fd0333b79c3496e06a4e41ef572e9b50d2b06b8e
+
+manifest SHA-256:
+  952579daf0cd2840bad4eea98a1537c1a25458da96d96a4de89fe205e121ac9c
+
+completion receipt SHA-256:
+  60ae19b5a4e7ad04b02e392c35077e00adbf7aee66dc54d85c50fa47f7ce0d18
+```
+
+External bundle:
+
+```text
+/projects/EEG-foundation-model/yinghao/oaci-c85v-proof-review-v1/
+  c85v-35cd029ba9cf6859-c83191ae05834c5d
+
+files / bytes:
+  42 / 59,451
+
+attempt ID:
+  3caa11bb444f40ac9f591f40399da1eb
+```
+
+Frozen formal statuses:
+
+```text
+T1  PROVED
+T2  COUNTEREXAMPLE
+T3  PROVED
+T4  PROVED
+T5  OPEN
+T6  COUNTEREXAMPLE
+T7  PROVED
+```
+
+Stage A froze seven candidate-blind derivations. Stage B then froze seven
+candidate comparisons and seven adversarial audits. The adjudicator retained
+all reviewer artifacts and used no majority vote. T5 remains open because its
+frozen statement lacks a derivable decoder or complete finite Fano conditions;
+the review did not repair the statement.
+
+Accepted post-execution regressions:
+
+```text
+focused: 394 passed, 1 deselected
+C65:   1,039 passed, 1 skipped, 5 deselected
+C23:   1,450 passed, 1 skipped, 5 deselected
+full:  2,374 passed, 1 skipped, 5 deselected
+```
+
+All accepted stderr files are empty. C85V reran no Monte Carlo, accessed no
+real data, performed no active acquisition, and overwrote no proof candidate.
+
+Authoritative C85V reports:
+
+```text
+oaci/reports/C85V_OVERALL_REPORT.md
+oaci/reports/C85V_OVERALL_REPORT.json
+oaci/reports/C85V_OVERALL_REPORT.sha256
+oaci/reports/C85V_RESULT_IDENTITY.json
+oaci/reports/C85V_FINAL_REPORT_RED_TEAM.md
+oaci/reports/C85V_REGRESSION_VERIFICATION.md
+oaci/reports/OACI_EEG_DG_PROJECT_MEMORY_THROUGH_C85V.md
+```
+
+C85E, real data, active acquisition, new data/model zoos, and manuscript work
+remain unauthorized. C85V completion requires C85E protocol review; it is not
+C85E authorization.
+
+### Prior continuation state through C85T
 
 C85T V3 consumed one fresh authorization, executed the locked synthetic
 benchmark, froze seven proof candidates, and atomically published the complete
