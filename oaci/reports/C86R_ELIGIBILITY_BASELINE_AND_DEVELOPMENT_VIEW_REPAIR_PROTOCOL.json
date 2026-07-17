@@ -1,0 +1,243 @@
+{
+  "schema_version": "c86r_eligibility_baseline_development_view_repair_protocol_v1",
+  "milestone": "C86R",
+  "created_at_utc": "2026-07-17T22:42:57Z",
+  "status": "PROTOCOL_LOCKED_BEFORE_ADDITIONAL_PUBLIC_METADATA_INSPECTION_OR_IMPLEMENTATION_CHANGE",
+  "starting_identity": {
+    "head": "a42ff7ab18b6d9585b44c3b950e5ded250fa8ffa",
+    "origin_oaci": "a42ff7ab18b6d9585b44c3b950e5ded250fa8ffa",
+    "branch": "oaci",
+    "c86p_gate": "C86_ACTIVE_TESTING_DEVELOPMENT_CONFIRMATION_AND_UNTOUCHED_POPULATION_PROTOCOL_LOCKED_READY_FOR_PI_REVIEW",
+    "main_protocol_commit": "430b7b59",
+    "main_protocol_sha256": "d4feac535f8c1144a55d77cd7f322ae961d5c7d5a899dfd15c371484d88fbb7a",
+    "active_estimator_protocol_commit": "a1a1e736",
+    "active_estimator_protocol_sha256": "0cdb05c113a1c681584dec907a002af809aa019c933e042f15065a4f30c1f1dd",
+    "yang_variant_correction_commit": "d89ec8d1",
+    "yang_variant_correction_sha256": "5948b76a2d08c45c88e157aace1cc421a8c551b1c763a265376ad25921103c0d",
+    "historical_access_correction_commit": "7e19c99f",
+    "historical_access_correction_sha256": "fd7e214c6c6675b2a9b071b2bf278e2c4393495b2f4cbe03f82528c3098e7064",
+    "synthetic_operationalization_commit": "0217485f",
+    "synthetic_operationalization_sha256": "a80e8cca75eaa4d22b374794c06a9304ef9bb21605ec75f5d6aa53509f86b54b"
+  },
+  "chronology": {
+    "new_EEG_downloads_or_opens_before_repair": 0,
+    "new_target_label_reads_before_repair": 0,
+    "registered_active_policy_runs_before_repair": 0,
+    "new_candidate_training_or_forward_before_repair": 0,
+    "registered_synthetic_results_before_repair": 0,
+    "repair_outcome_informed": false,
+    "additional_public_participant_metadata_inspected_before_protocol_commit": false,
+    "new_primary_literature_fidelity_audit_started_before_protocol_commit": false,
+    "implementation_changed_before_protocol_commit": false
+  },
+  "historical_preservation": {
+    "C86_ACTIVE_TESTING_PROGRAM_PROTOCOL.json": "IMMUTABLE",
+    "C86P_ACTIVE_ESTIMATOR_OPERATIONALIZATION_PROTOCOL.json": "IMMUTABLE",
+    "C86P_UNTOUCHED_COHORT_VARIANT_ELIGIBILITY_CORRECTION_PROTOCOL.json": "IMMUTABLE",
+    "C86P_HISTORICAL_ACCESS_ELIGIBILITY_CORRECTION_PROTOCOL.json": "IMMUTABLE",
+    "C86P_SYNTHETIC_CALIBRATION_OPERATIONALIZATION_PROTOCOL.json": "IMMUTABLE",
+    "all_C86P_registries_tests_reports_and_correction_ledgers": "IMMUTABLE",
+    "C84_C85_science_and_theorem_statuses": "IMMUTABLE",
+    "historical_Yang_and_Dreyer_states_rewritten": false,
+    "supersession_ledger": "oaci/reports/c86r_tables/c86p_protocol_stack_supersession_ledger.csv"
+  },
+  "immutable_scope": {
+    "candidate_universe": "81 candidates per exact zoo: 1 ERM, 40 OACI, 40 SRC",
+    "total_query_grid": [4, 8, 16, 32, "FULL"],
+    "C84_or_C85_outcomes_changed": false,
+    "theorem_statuses_changed": false,
+    "C86_real_execution_authorized": false,
+    "C87_authorized": false,
+    "manuscript_work_authorized": false
+  },
+  "repair_blockers": [
+    {
+      "id": "R1_ADULT_ELIGIBILITY",
+      "problem": "Yang2025_2C has a public cohort age range including 17 and no current proof that all 51 two-class participants are adults under the locked rule.",
+      "repair": "Inspect only public non-EEG participant metadata and apply the unchanged healthy_adults_only rule fail closed to Yang2025_2C, Brandl2020 and Kumar2024."
+    },
+    {
+      "id": "R2_EFFECTIVE_MANIFEST",
+      "problem": "The operative cohort, method and estimator semantics are distributed across a stale parent protocol and additive corrections.",
+      "repair": "Publish one additive effective program manifest with explicit precedence and one authoritative downstream value for each program object."
+    },
+    {
+      "id": "R3_BASELINE_FIDELITY",
+      "problem": "The current A2 maximum-pair heuristic is not the published general-K Hara sum-over-pairs query score and important contemporary baselines require explicit disposition.",
+      "repair": "Register A2H as the faithful sum-over-pairs Hara baseline, rename the current rule A2M_project_max_pair_heuristic, and audit LURE, ASE/XWED, Online Active Model Selection, MODEL SELECTOR, CODA and emerging prediction-powered active testing from primary sources."
+    },
+    {
+      "id": "R4_DEVELOPMENT_VIEW_COLLISION",
+      "problem": "Using C84 held-evaluation labels for acquisition would collide with the accepted C85U held outcome.",
+      "repair": "Use immutable C84 construction-label trial IDs and matching frozen predictions as the preferred C86L acquisition pool while retaining C85U held-evaluation utility as the physically disjoint outcome."
+    },
+    {
+      "id": "R5_CONFIRMATION_FIELD_FEASIBILITY",
+      "problem": "Common montage, event interface, subject allocation, target-cluster resolution, licensing and resource arithmetic are not yet established for the final untouched set.",
+      "repair": "Audit public metadata and loader source only; require one common prospective interface supporting at least two adult-eligible untouched cohorts or stop at the registered field blocker."
+    },
+    {
+      "id": "R6_INFORMATION_OBJECT",
+      "problem": "A queried label reveals additive trial contributions but not an additive realization of the historical nonlinear composite utility.",
+      "repair": "Separate linear NLL, correctness, class and bin contributions from balanced-accuracy ratios, ECE absolute values, midranks, composite utility and selected action; claim linear unbiasedness only where proved by the registered estimator."
+    }
+  ],
+  "effective_program_manifest": {
+    "path": "oaci/reports/C86_ACTIVE_TESTING_EFFECTIVE_PROGRAM_MANIFEST_V2.json",
+    "sidecar": "oaci/reports/C86_ACTIVE_TESTING_EFFECTIVE_PROGRAM_MANIFEST_V2.sha256",
+    "precedence_low_to_high": [
+      "C86_ACTIVE_TESTING_PROGRAM_PROTOCOL.json",
+      "C86P_ACTIVE_ESTIMATOR_OPERATIONALIZATION_PROTOCOL.json",
+      "C86P_UNTOUCHED_COHORT_VARIANT_ELIGIBILITY_CORRECTION_PROTOCOL.json",
+      "C86P_HISTORICAL_ACCESS_ELIGIBILITY_CORRECTION_PROTOCOL.json",
+      "C86P_SYNTHETIC_CALIBRATION_OPERATIONALIZATION_PROTOCOL.json",
+      "C86R_ELIGIBILITY_BASELINE_AND_DEVELOPMENT_VIEW_REPAIR_PROTOCOL.json",
+      "C86P_SYNTHETIC_CALIBRATION_OPERATIONALIZATION_PROTOCOL_V2.json"
+    ],
+    "authoritative_objects": [
+      "eligible confirmation interfaces",
+      "development-only and stress cohorts",
+      "query grid",
+      "method registry",
+      "estimator semantics",
+      "physical label and development views",
+      "synthetic contract",
+      "taxonomy",
+      "stage sequence"
+    ],
+    "stale_parent_only_downstream_consumption": "FORBIDDEN"
+  },
+  "adult_eligibility_audit": {
+    "locked_rule": "healthy_adults_only",
+    "allowed_evidence": "public non-EEG subject-level participant metadata or an explicit cohort-wide inclusion statement proving every included participant is at least 18",
+    "cohorts_to_replay": ["Yang2025_2C", "Brandl2020", "Kumar2024"],
+    "Yang2025_2C_rule": {
+      "if_all_51_proven_at_least_18": "RETAIN_PRIMARY_UNTOUCHED_CONFIRMATION",
+      "otherwise": "AGE_ELIGIBILITY_NOT_PROVEN_FAIL_CLOSED",
+      "optional_role_after_failure": "AGE_MIXED_STRESS_TRACK_ONLY",
+      "adult_rule_relaxation": false
+    },
+    "minimum_primary_cohorts": 2,
+    "fewer_than_two_action": "C86_UNTOUCHED_COHORT_AGE_ACCESS_OR_INTERFACE_ELIGIBILITY_RECONCILIATION_REQUIRED"
+  },
+  "active_method_fidelity_repair": {
+    "literature_cutoff": "2026-07-18",
+    "primary_source_only": true,
+    "required_families": [
+      "Active Testing and LURE",
+      "Active Surrogate Estimators and XWED",
+      "Hara general-K variance-minimizing active model selection",
+      "Online Active Model Selection",
+      "MODEL SELECTOR",
+      "CODA",
+      "prediction-powered active-testing literature"
+    ],
+    "A2H": "faithful Hara general-K sum over all pairwise absolute expected loss differences",
+    "A2M": "project maximum-pair heuristic formerly called A2",
+    "A2M_claimed_as_published_Hara": false,
+    "allowed_dispositions": [
+      "PRIMARY_BASELINE",
+      "SECONDARY_BASELINE",
+      "DEVELOPMENT_ONLY",
+      "UNAVAILABLE_WITH_EXACT_REASON"
+    ],
+    "confirmation_registry_freeze": "BEFORE_ANY_C86H_EEG_OR_LABEL_ACCESS"
+  },
+  "queried_information_boundary": {
+    "one_binary_label_reveals_for_every_frozen_candidate": [
+      "linear per-trial NLL loss",
+      "correctness indicator",
+      "class indicator",
+      "confidence-bin contribution terms",
+      "other pre-registered linear metric-contribution terms"
+    ],
+    "nonlinear_plugin_objects": [
+      "balanced-accuracy ratios",
+      "ECE absolute values",
+      "midranks",
+      "composite utility",
+      "selected action"
+    ],
+    "linear_LURE_unbiasedness_scope": "REGISTERED_LINEAR_MOMENTS_ONLY",
+    "nonlinear_plugin_unbiasedness_claim": "NONE",
+    "per_trial_additive_historical_composite_claim": false
+  },
+  "C86L_development_view_v2": {
+    "preferred_acquisition_pool": "immutable C84 construction-label trial IDs plus matching frozen target predictions and probabilities",
+    "held_development_outcome": "accepted C85U held-evaluation candidate-utility field",
+    "direct_evaluation_label_access_in_C86L_or_C86D": false,
+    "acquisition_and_held_outcome_overlap": 0,
+    "budgets": [4, 8, 16, 32, "FULL"],
+    "unsupported_budget_status": "INPUT_UNAVAILABLE",
+    "replacement_sampling": false,
+    "budget_substitution": false,
+    "outcome_driven_target_deletion": false,
+    "scientific_gate_from_C86L": false
+  },
+  "confirmation_field_feasibility": {
+    "evidence_boundary": "PUBLIC_METADATA_AND_LOADER_SOURCE_ONLY_NO_EEG_DOWNLOAD_OR_OPEN",
+    "required_dimensions": [
+      "exact channel names and common montage",
+      "event and epoch compatibility",
+      "resampling and filtering interface",
+      "session and run identities",
+      "subject counts",
+      "source-training, source-audit and target allocation",
+      "minimum target-cluster count",
+      "max-T and randomization resolution",
+      "candidate units and training phases",
+      "storage and GPU envelope",
+      "license and derived-artifact restrictions"
+    ],
+    "no_target_in_own_candidate_training": true,
+    "scientific_cluster": "target_subject",
+    "same_architecture_and_interface_across_confirmation_cohorts": true,
+    "post_performance_cohort_removal": false,
+    "engineering_failure_action": "BLOCK_NOT_SUBSTITUTE",
+    "fewer_than_two_common_interfaces_action": "C86_CONFIRMATION_FIELD_INTERFACE_OR_TARGET_CLUSTER_INPUT_BLOCKER"
+  },
+  "synthetic_contract_v2": {
+    "required_if_method_registry_changes": true,
+    "path": "oaci/reports/C86P_SYNTHETIC_CALIBRATION_OPERATIONALIZATION_PROTOCOL_V2.json",
+    "sidecar": "oaci/reports/C86P_SYNTHETIC_CALIBRATION_OPERATIONALIZATION_PROTOCOL_V2.sha256",
+    "every_primary_C86H_method_uses_future_production_dispatcher": true,
+    "registered_synthetic_execution_in_C86R": false
+  },
+  "validation_boundary": {
+    "allowed": [
+      "repository and protocol identity replay",
+      "public participant metadata inspection after protocol commit",
+      "primary literature review after protocol commit",
+      "loader-source metadata parsing",
+      "compact manifest and schema metadata replay",
+      "shadow arithmetic and static tests"
+    ],
+    "forbidden": [
+      "new EEG download or open",
+      "new target-label read",
+      "registered active-policy execution",
+      "registered synthetic benchmark execution",
+      "candidate training or forward",
+      "GPU use",
+      "C86L C86D C86C/F or C86H execution lock",
+      "C87",
+      "manuscript work"
+    ]
+  },
+  "final_gates": {
+    "success": "C86_ACTIVE_TESTING_ELIGIBILITY_BASELINE_DEVELOPMENT_VIEW_AND_FIELD_FEASIBILITY_REPAIRED_READY_FOR_C86L_PROTOCOL_REVIEW",
+    "eligibility_blocker": "C86_UNTOUCHED_COHORT_AGE_ACCESS_OR_INTERFACE_ELIGIBILITY_RECONCILIATION_REQUIRED",
+    "field_blocker": "C86_CONFIRMATION_FIELD_INTERFACE_OR_TARGET_CLUSTER_INPUT_BLOCKER",
+    "baseline_or_protocol_blocker": "C86_ACTIVE_BASELINE_FIDELITY_DEVELOPMENT_VIEW_OR_EFFECTIVE_PROTOCOL_RECONCILIATION_REQUIRED"
+  },
+  "authorization": {
+    "C86L": false,
+    "C86D": false,
+    "C86C_F": false,
+    "C86H": false,
+    "new_EEG_or_label_access": false,
+    "active_acquisition": false,
+    "C87": false,
+    "manuscript": false
+  }
+}
