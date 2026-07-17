@@ -1,0 +1,28 @@
+semantic_role,allowed,mode,notes
+C84A_COMPACT_REPORT,1,READ_ONLY,Exact registry-bound frozen or compact object; no recomputation callable
+C84A_POST_SCIENTIFIC_COMPACT_TABLE,1,READ_ONLY,Exact registry-bound frozen or compact object; no recomputation callable
+C84S_FROZEN_COMPACT_RESULT,1,READ_ONLY,Exact registry-bound frozen or compact object; no recomputation callable
+C84S_FROZEN_FIXED_ACTIONS,1,READ_ONLY,Exact registry-bound frozen or compact object; no recomputation callable
+C84S_FROZEN_Q0_ACTION_SHARD,1,READ_ONLY,Exact registry-bound frozen or compact object; no recomputation callable
+C84S_FROZEN_Q0_SHARD_INDEX,1,READ_ONLY,Exact registry-bound frozen or compact object; no recomputation callable
+C84S_FROZEN_SCORE_METHOD_ACTIONS,1,READ_ONLY,Exact registry-bound frozen or compact object; no recomputation callable
+C84S_SELECTION_MANIFEST,1,READ_ONLY,Exact registry-bound frozen or compact object; no recomputation callable
+C85EP2_EXECUTABLE_SEMANTICS,1,READ_ONLY,Exact registry-bound frozen or compact object; no recomputation callable
+C85EP2_INPUT_ACCEPTANCE,1,READ_ONLY,Exact registry-bound frozen or compact object; no recomputation callable
+C85E_ANALYSIS_PROTOCOL,1,READ_ONLY,Exact registry-bound frozen or compact object; no recomputation callable
+C85T_FROZEN_SYNTHETIC_RESULT,1,READ_ONLY,Exact registry-bound frozen or compact object; no recomputation callable
+C85U_CANDIDATE_UTILITY_INDEX,1,READ_ONLY,Exact registry-bound frozen or compact object; no recomputation callable
+C85U_FINAL_ACCEPTANCE_CONTROL,1,READ_ONLY,Exact registry-bound frozen or compact object; no recomputation callable
+C85U_HELD_EVALUATION_UTILITY_CONTEXT,1,READ_ONLY,Exact registry-bound frozen or compact object; no recomputation callable
+C85U_U1_ACCEPTED_MANIFEST,1,READ_ONLY,Exact registry-bound frozen or compact object; no recomputation callable
+C85U_U1_COMPATIBILITY_MANIFEST,1,READ_ONLY,Exact registry-bound frozen or compact object; no recomputation callable
+C85U_U1_HANDOFF,1,READ_ONLY,Exact registry-bound frozen or compact object; no recomputation callable
+C85U_U2_ENDPOINT_REPLAY,1,READ_ONLY,Exact registry-bound frozen or compact object; no recomputation callable
+C85U_U2_HANDOFF,1,READ_ONLY,Exact registry-bound frozen or compact object; no recomputation callable
+C85V_FROZEN_THEOREM_STATUS_RESULT,1,READ_ONLY,Exact registry-bound frozen or compact object; no recomputation callable
+DIRECT_EVALUATION_LABEL_VIEW,0,FORBIDDEN,No runtime path may be registered
+DIRECT_CONSTRUCTION_LABEL_VIEW,0,FORBIDDEN,No runtime path may be registered
+TARGET_LOGITS,0,FORBIDDEN,No runtime path may be registered
+EEG,0,FORBIDDEN,No runtime path may be registered
+SOURCE_ARRAYS,0,FORBIDDEN,No runtime path may be registered
+MODEL_CHECKPOINT,0,FORBIDDEN,No runtime path may be registered
