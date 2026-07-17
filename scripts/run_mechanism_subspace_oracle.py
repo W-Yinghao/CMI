@@ -25,8 +25,15 @@ def _cells(ds, bb, seeds):
     if bb == "EEGNet":
         return [(p, "tos") for p in sorted(glob.glob(str(REPO / "tos_cmi/results/tos_cmi_eeg_frozen" /
                 f"{ds}_EEGNet_LOSO" / "sub*_erm_lam0_seed*.npz"))) if any(p.endswith(f"_seed{s}.npz") for s in seeds)]
-    return [(p, "audit") for p in sorted(glob.glob(str(REPO / "results/cmi_trace_relaxation_ladder" /
-            f"dgcnn_graph_z_{ds}" / "*.npz"))) if any(f"seed{s}" in Path(p).name for s in seeds)]
+    # DGCNN graph-z is persisted as an AUDIT npz under objective_comparison (the dgcnn_graph_z_* dir now holds only
+    # a metrics-ledger raw_rows.jsonl, no Z); mirror run_trackb_geometry's two-pattern search so the DGCNN secondary
+    # cells are actually FOUND (not silently absent).
+    pats = [str(REPO / "results/cmi_trace_relaxation_ladder" / f"dgcnn_graph_z_{ds}" / "*.npz"),
+            str(REPO / "results/cmi_trace_p0p1/objective_comparison" / ds / "audit" / "*erm*seed*.audit.npz")]
+    out = []
+    for pat in pats:
+        out += [(p, "audit") for p in sorted(glob.glob(pat)) if any(f"seed{s}" in Path(p).name for s in seeds)]
+    return out
 
 
 def _build_family(fam, Zs_w, ys, dsc, max_rank):
@@ -80,6 +87,13 @@ def main():
                 Zs = np.asarray(f["Z_source"], float); ys = np.asarray(f["y_source"]).astype(int); dsc = _dense(f["subj_source"])
                 Zt = np.asarray(f["Z_target"], float); yt = np.asarray(f["y_target"]).astype(int)
                 if "session_target" not in f:
+                    # reason-code the loss (do NOT silently drop the cell): the mechanism oracle's evaluation is a
+                    # session-macro T_query split, and the DGCNN forward-graph dumps carry no session axis -> the
+                    # SECONDARY DGCNN path cannot be evaluated from existing artifacts (needs re-inference with
+                    # session metadata, or a PM-approved session-free split). Primary confirmatory (EEGNet) unaffected.
+                    rows.append(dict(dataset=ds, backbone=bb, subject=str(f.get("heldout_subject")),
+                                     seed=int(f.get("seed", -1)), family="ALL", status="skipped",
+                                     reason="NO_SESSION_AXIS_FOR_QUERY_SPLIT", feature_object=str(f.get("backbone"))))
                     continue
                 W = TM.source_whitener(Zs); Zs_w = TM.to_whitened(Zs, W); D = Zs.shape[1]
                 cal, qry, _ = session_split(f["session_target"], yt, int(f["seed"]))
@@ -104,17 +118,26 @@ def main():
                         return MS.score_on_target_query(Zs_w, ys, TM._orthonormal(Q[Sr]) if Sr else np.zeros((0, D)), Xq_w, yq, sq)
                     amb = [_rand_score(Q) for blk in range(a.blocks)
                            for Q in MS.build_ambient_random_dictionaries(D, B.shape[0], a.n_random, blk)]
-                    match = None
+                    # PRIMARY specificity control (P0.5): score the shared-overlap-MATCHED dictionaries through the
+                    # SAME select-on-cal / score-on-query. Persist the FULL dU vectors (ambient + matched) so the
+                    # aggregator can compute cluster CIs + q95-exceedance; NEVER collapse to a scalar mean only, and
+                    # NEVER silently substitute ambient for a failed match (fail-closed keeps matched=None + reason).
+                    match, matched_scores = None, None
                     if "G_shared" in meta:
                         mm = MS.build_shared_profile_matched_dictionaries(B, meta["G_shared"], D, B.shape[0], a.n_random, 0, n_pool=a.pool)
                         match = dict(rmse=mm["matching_rmse"], gap=mm["total_overlap_gap"], verdict=mm["verdict"])
+                        if mm["verdict"] == "OK":
+                            matched_scores = [_rand_score(Q) for Q in mm["dictionaries"]]
                     fw = dict(source_only_construction=True, Ycal_used_for_selection=True, Yquery_used_for_selection=False,
                               Xquery_used_for_selection=False, Yquery_used_for_outcome=True)
                     rows.append(dict(dataset=ds, backbone=bb, subject=str(f["heldout_subject"]), seed=int(f["seed"]),
                                      family=fam, status="ok", numerical_rank=int(B.shape[0]), n_actions=len(acts),
                                      selected_rank_unconstrained=len(S_unc), selected_rank_safe=len(S_safe),
                                      dU_unconstrained=dU_unc, dU_source_safe=dU_safe,
+                                     dU_random_ambient=[float(x) for x in amb],
                                      dU_random_ambient_mean=float(np.mean(amb)) if amb else float("nan"),
+                                     dU_random_matched=[float(x) for x in matched_scores] if matched_scores is not None else None,
+                                     dU_random_matched_mean=(float(np.mean(matched_scores)) if matched_scores else None),
                                      n_ambient=len(amb), shared_overlap_match=match,
                                      projector_hash_unc=TM._hash(U_unc) if U_unc.shape[0] else "identity",
                                      firewall=fw, config_hash=cfg_hash, git_sha=sha,

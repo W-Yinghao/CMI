@@ -1,0 +1,262 @@
+{
+  "provenance": {
+    "rows_file": "results/cmi_trace_mechanism_subspace/mechanism_oracle_rows_smoke.jsonl",
+    "rows_sha256": "f7291d27bbf48385",
+    "n_rows": 20,
+    "git_sha": "b47579ea",
+    "config_hash": "9318ab5fe6abebf0"
+  },
+  "confirmatory": {
+    "family": "contrast_disagreement/EEGNet",
+    "datasets_present": [
+      "BNCI2014_001",
+      "BNCI2015_001"
+    ],
+    "route_A_datasets": [],
+    "decision": "INCONCLUSIVE",
+    "note": "secondary hits (DGCNN/rule/grad) do NOT unlock M2 without an independent confirmatory rerun (P0.6)"
+  },
+  "per_cell": [
+    {
+      "backbone": "EEGNet",
+      "family": "B_cond_negative_ref",
+      "dataset": "BNCI2014_001",
+      "n_subjects": 2,
+      "dU_specific_mean": 0.01714409722222225,
+      "dU_specific_lcb": 0.004123263888888919,
+      "dU_specific_ucb": 0.030164930555555587,
+      "holm_p": 9.999000099990002e-05,
+      "one_sided_p": 9.999000099990002e-05,
+      "other_dataset_ucb": 0.006406250000000013,
+      "q95_exceedance_rate": 0.0,
+      "q95_null_rate": 0.05,
+      "specificity_control": [
+        "AMBIENT_ONLY"
+      ],
+      "verdict": "INCONCLUSIVE",
+      "next_step": "increase_power_or_random_draws",
+      "significance_state": "SIGNIFICANT_ENRICHMENT",
+      "interval_state": "EXCLUDES_ZERO_POSITIVE",
+      "practical_state": "PRACTICAL_ENRICHMENT_NOT_RULED_OUT",
+      "failure_layer": "INCONCLUSIVE",
+      "learned_lesson": "mechanism dictionary not enriched over matched random under current estimator/budget",
+      "next_hypothesis": "revise mechanism object or shape mechanism at training time",
+      "next_experiment": "increase_power_or_random_draws"
+    },
+    {
+      "backbone": "EEGNet",
+      "family": "B_cond_negative_ref",
+      "dataset": "BNCI2015_001",
+      "n_subjects": 2,
+      "dU_specific_mean": 0.0035156250000000066,
+      "dU_specific_lcb": 0.0006250000000000006,
+      "dU_specific_ucb": 0.006406250000000013,
+      "holm_p": 9.999000099990002e-05,
+      "one_sided_p": 9.999000099990002e-05,
+      "other_dataset_ucb": 0.030164930555555587,
+      "q95_exceedance_rate": 0.0,
+      "q95_null_rate": 0.05,
+      "specificity_control": [
+        "AMBIENT_ONLY"
+      ],
+      "verdict": "INCONCLUSIVE",
+      "next_step": "increase_power_or_random_draws",
+      "significance_state": "SIGNIFICANT_ENRICHMENT",
+      "interval_state": "EXCLUDES_ZERO_POSITIVE",
+      "practical_state": "NO_PRACTICAL_ENRICHMENT",
+      "failure_layer": "INCONCLUSIVE",
+      "learned_lesson": "mechanism dictionary not enriched over matched random under current estimator/budget",
+      "next_hypothesis": "revise mechanism object or shape mechanism at training time",
+      "next_experiment": "increase_power_or_random_draws"
+    },
+    {
+      "backbone": "EEGNet",
+      "family": "contrast_disagreement",
+      "dataset": "BNCI2014_001",
+      "n_subjects": 2,
+      "dU_specific_mean": 0.003255208333333358,
+      "dU_specific_lcb": -0.0010850694444444128,
+      "dU_specific_ucb": 0.007595486111111129,
+      "holm_p": 0.48795120487951205,
+      "one_sided_p": 0.24527547245275472,
+      "other_dataset_ucb": 0.006406250000000013,
+      "q95_exceedance_rate": 0.0,
+      "q95_null_rate": 0.05,
+      "specificity_control": [
+        "AMBIENT_ONLY"
+      ],
+      "verdict": "INCONCLUSIVE",
+      "next_step": "increase_power_or_random_draws",
+      "significance_state": "INCONCLUSIVE",
+      "interval_state": "STRADDLES_ZERO",
+      "practical_state": "NO_PRACTICAL_ENRICHMENT",
+      "failure_layer": "INCONCLUSIVE",
+      "learned_lesson": "mechanism dictionary not enriched over matched random under current estimator/budget",
+      "next_hypothesis": "revise mechanism object or shape mechanism at training time",
+      "next_experiment": "increase_power_or_random_draws"
+    },
+    {
+      "backbone": "EEGNet",
+      "family": "contrast_disagreement",
+      "dataset": "BNCI2015_001",
+      "n_subjects": 2,
+      "dU_specific_mean": 0.0010156250000000044,
+      "dU_specific_lcb": -0.004375000000000004,
+      "dU_specific_ucb": 0.006406250000000013,
+      "holm_p": 0.48795120487951205,
+      "one_sided_p": 0.24397560243975602,
+      "other_dataset_ucb": 0.007595486111111129,
+      "q95_exceedance_rate": 0.0,
+      "q95_null_rate": 0.05,
+      "specificity_control": [
+        "AMBIENT_ONLY"
+      ],
+      "verdict": "INCONCLUSIVE",
+      "next_step": "increase_power_or_random_draws",
+      "significance_state": "INCONCLUSIVE",
+      "interval_state": "STRADDLES_ZERO",
+      "practical_state": "NO_PRACTICAL_ENRICHMENT",
+      "failure_layer": "INCONCLUSIVE",
+      "learned_lesson": "mechanism dictionary not enriched over matched random under current estimator/budget",
+      "next_hypothesis": "revise mechanism object or shape mechanism at training time",
+      "next_experiment": "increase_power_or_random_draws"
+    },
+    {
+      "backbone": "EEGNet",
+      "family": "gradient_disagreement",
+      "dataset": "BNCI2014_001",
+      "n_subjects": 2,
+      "dU_specific_mean": -0.006727430555555537,
+      "dU_specific_lcb": -0.007161458333333308,
+      "dU_specific_ucb": -0.006293402777777766,
+      "holm_p": 1.0,
+      "one_sided_p": 1.0,
+      "other_dataset_ucb": -0.0012500000000000011,
+      "q95_exceedance_rate": 0.0,
+      "q95_null_rate": 0.05,
+      "specificity_control": [
+        "AMBIENT_ONLY"
+      ],
+      "verdict": "NO_DETECTED_MECHANISM_ENRICHMENT",
+      "next_step": "training_time_shaping",
+      "significance_state": "NO_DETECTED_ENRICHMENT",
+      "interval_state": "EXCLUDES_POSITIVE",
+      "practical_state": "NO_PRACTICAL_ENRICHMENT",
+      "failure_layer": "NO_DETECTED_MECHANISM_ENRICHMENT",
+      "learned_lesson": "mechanism dictionary not enriched over matched random under current estimator/budget",
+      "next_hypothesis": "revise mechanism object or shape mechanism at training time",
+      "next_experiment": "training_time_shaping"
+    },
+    {
+      "backbone": "EEGNet",
+      "family": "gradient_disagreement",
+      "dataset": "BNCI2015_001",
+      "n_subjects": 2,
+      "dU_specific_mean": -0.0039062499999999965,
+      "dU_specific_lcb": -0.006562499999999992,
+      "dU_specific_ucb": -0.0012500000000000011,
+      "holm_p": 1.0,
+      "one_sided_p": 1.0,
+      "other_dataset_ucb": -0.006293402777777766,
+      "q95_exceedance_rate": 0.0,
+      "q95_null_rate": 0.05,
+      "specificity_control": [
+        "AMBIENT_ONLY"
+      ],
+      "verdict": "NO_DETECTED_MECHANISM_ENRICHMENT",
+      "next_step": "training_time_shaping",
+      "significance_state": "NO_DETECTED_ENRICHMENT",
+      "interval_state": "EXCLUDES_POSITIVE",
+      "practical_state": "NO_PRACTICAL_ENRICHMENT",
+      "failure_layer": "NO_DETECTED_MECHANISM_ENRICHMENT",
+      "learned_lesson": "mechanism dictionary not enriched over matched random under current estimator/budget",
+      "next_hypothesis": "revise mechanism object or shape mechanism at training time",
+      "next_experiment": "training_time_shaping"
+    },
+    {
+      "backbone": "EEGNet",
+      "family": "rule_disagreement",
+      "dataset": "BNCI2014_001",
+      "n_subjects": 2,
+      "dU_specific_mean": -0.010633680555555509,
+      "dU_specific_lcb": -0.014973958333333252,
+      "dU_specific_ucb": -0.006293402777777766,
+      "holm_p": 1.0,
+      "one_sided_p": 1.0,
+      "other_dataset_ucb": 0.03140624999999998,
+      "q95_exceedance_rate": 0.0,
+      "q95_null_rate": 0.05,
+      "specificity_control": [
+        "AMBIENT_ONLY"
+      ],
+      "verdict": "NO_DETECTED_MECHANISM_ENRICHMENT",
+      "next_step": "training_time_shaping",
+      "significance_state": "NO_DETECTED_ENRICHMENT",
+      "interval_state": "EXCLUDES_POSITIVE",
+      "practical_state": "NO_PRACTICAL_ENRICHMENT",
+      "failure_layer": "NO_DETECTED_MECHANISM_ENRICHMENT",
+      "learned_lesson": "mechanism dictionary not enriched over matched random under current estimator/budget",
+      "next_hypothesis": "revise mechanism object or shape mechanism at training time",
+      "next_experiment": "training_time_shaping"
+    },
+    {
+      "backbone": "EEGNet",
+      "family": "rule_disagreement",
+      "dataset": "BNCI2015_001",
+      "n_subjects": 2,
+      "dU_specific_mean": 0.01476562499999999,
+      "dU_specific_lcb": -0.0018750000000000017,
+      "dU_specific_ucb": 0.03140624999999998,
+      "holm_p": 0.24397560243975602,
+      "one_sided_p": 0.24397560243975602,
+      "other_dataset_ucb": -0.006293402777777766,
+      "q95_exceedance_rate": 0.5,
+      "q95_null_rate": 0.05,
+      "specificity_control": [
+        "AMBIENT_ONLY"
+      ],
+      "verdict": "INCONCLUSIVE",
+      "next_step": "increase_power_or_random_draws",
+      "significance_state": "INCONCLUSIVE",
+      "interval_state": "STRADDLES_ZERO",
+      "practical_state": "PRACTICAL_ENRICHMENT_NOT_RULED_OUT",
+      "failure_layer": "INCONCLUSIVE",
+      "learned_lesson": "mechanism dictionary not enriched over matched random under current estimator/budget",
+      "next_hypothesis": "revise mechanism object or shape mechanism at training time",
+      "next_experiment": "increase_power_or_random_draws"
+    }
+  ],
+  "skipped": [
+    {
+      "dataset": "BNCI2014_001",
+      "backbone": "DGCNN",
+      "subject": "1",
+      "family": "ALL",
+      "reason": "NO_SESSION_AXIS_FOR_QUERY_SPLIT"
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "backbone": "DGCNN",
+      "subject": "2",
+      "family": "ALL",
+      "reason": "NO_SESSION_AXIS_FOR_QUERY_SPLIT"
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "backbone": "DGCNN",
+      "subject": "1",
+      "family": "ALL",
+      "reason": "NO_SESSION_AXIS_FOR_QUERY_SPLIT"
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "backbone": "DGCNN",
+      "subject": "11",
+      "family": "ALL",
+      "reason": "NO_SESSION_AXIS_FOR_QUERY_SPLIT"
+    }
+  ],
+  "n_boot": 10000,
+  "scope": "engineering_smoke_no_scientific_weight",
+  "discipline": "no CLOSED; graded verdicts; only the project owner stops a scientific line; manuscript FROZEN"
+}
