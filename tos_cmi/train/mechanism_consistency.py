@@ -26,8 +26,9 @@ def _shuffle_subjects_within_class(y, d, generator):
     d_new = d.clone()
     for c in torch.unique(y):
         idx = torch.where(y == c)[0]
-        perm = idx[torch.randperm(idx.numel(), generator=generator, device=idx.device)]
-        d_new[idx] = d[perm]
+        # randperm on CPU (generator is CPU) then move to idx's device -> works on both CPU and CUDA tensors
+        rp = torch.randperm(idx.numel(), generator=generator).to(idx.device)
+        d_new[idx] = d[idx[rp]]
     return d_new
 
 
