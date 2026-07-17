@@ -1,0 +1,47 @@
+# FROZEN config = MCC estimator audit (two-pass exact population-gradient discriminator). SPEC; NOT an amendment.
+# No model training. Manuscript FROZEN. Only the project owner may stop a scientific line.
+purpose: "separate K=4 episodic-estimator variance/bias from a wrong global-consistency TARGET; frozen diagnostic
+          tests ONLY estimator quality, NOT geometry->DG (that waits for a training experiment)."
+
+exact_population_gradient:            # two-pass, BN-frozen (eval); no giant batch, no full source graph
+  pass1: "forward all source micro-batches (eval) -> per (d,c) prototype mu_{d,c} as leaf -> L_MCC^all -> g_mu"
+  pass2: "re-forward micro-batches (eval, grad) -> z.backward(upstream = g_mu[cell(i)]/n_cell(i)) accumulate -> g_theta_full"
+  batchnorm: frozen_running_stats_eval_mode      # REQUIRED + asserted (train-mode BN couples samples -> non-exact)
+
+estimators:
+  full: exact_population_two_pass
+  K4: {K: 4, R_draws: 64}
+  K16: {K: 16, R_draws: 64, short_cell: use_max_feasible_and_reason_code}
+  shuffle: within_class_subject_permutation_at_[K4, K16, population]
+
+diagnostics:
+  A_K: "cos(mean_r g_K^r, g_full)"                 # gradient alignment (theta-level)
+  B_K: "||mean_r g_K^r - g_full|| / (||g_full|| + eps)"   # relative bias
+  SNR_K: "||mean g_K||^2 / (mean_r ||g_K^r - mean||^2 + eps)"
+  normalized_one_step_prototype_WSCI: "M' = M - alpha * g_mu/||g_mu||; measure dWSCI for full/K4/K16 (scale vs direction)"
+  true_vs_shuffle: "||g_true - g_shuffle||, cos(g_true, g_shuffle) at full theta-level (confirm shuffle != no-op)"
+  alpha: 0.1
+
+matrix:
+  cells: 63                            # (9+12) subjects x 3 seeds x 2 datasets, full LOSO
+  checkpoint: erm_warmup_per_bundle    # where continuation starts
+  secondary: reuse_lambda025_and_lambda1_feature_dumps_no_retraining
+  device: GPU                          # forward+backward through EEGNet (neural)
+  no_training: true
+  no_189_arm_fleet: true
+
+routing:
+  E1_estimator_variance_limited:       # ALL required
+    - both_dataset_median_A4_lt_0.5
+    - A16_minus_A4_gt_0.25
+    - full_normalized_WSCI_movement_ge_2x_K4
+    - not_driven_by_1_or_2_subjects
+    label: EPISODIC_MCC_ESTIMATOR_VARIANCE_LIMITED
+    next: one_source_only_EMA_or_memorybank_prototype_MCC_round_then_full_ABC_matrix
+  E2_K4_estimates_full_well: {when: "A4>=0.8 and K16/full no sig normalized-movement gain", next: risk_weighted_MCC}
+  E3_full_gradient_weak_or_near_shuffle: {next: risk_weighted_MCC}
+  mixed_datasets_disagree: {action: add_episode_draws_only, else_default: risk_weighted_MCC}
+
+held: [EMA_prototype_training, risk_weighted_training, new_189_arm_fleet, M2_selector, learned_projector, TTE, CMI,
+       manuscript_edit, new_amendment]
+scope: {stage: estimator_audit, no_training: true, manuscript: frozen}
