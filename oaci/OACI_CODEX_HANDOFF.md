@@ -13,7 +13,95 @@ and collaboration sections before acting.
 
 ---
 
-## 0. Current continuation state through C85V (2026-07-17)
+## 0. Current continuation state through C85EP (2026-07-17)
+
+C85EP committed the theorem-scope addendum and the prospective frozen-field
+empirical bridge protocol, then stopped at the protocol's mandatory input
+availability gate:
+
+```text
+C85E_FROZEN_CANDIDATE_UTILITY_OR_SELECTION_INPUT_UNAVAILABLE
+```
+
+This is a fail-closed readiness disposition. It is not a C85E empirical result,
+and no C85E execution lock or authorization record exists.
+
+Authoritative C85EP chronology:
+
+```text
+C85V accepted HEAD:
+  187327a26f78f7178711dda35a52db862237bd95
+
+theorem-scope addendum commit:
+  400c4e3e13ada9b1c070f72ab3c3429418b11516
+
+C85E protocol commit:
+  0af9f286c31e70beded08ae6143a01e2dd2430ee
+
+C85E protocol SHA-256:
+  a42cc71498971ee6eeb75ef53e62744e73e91b92e444ef78c9e4c856d61ac052
+
+availability implementation commit:
+  f1574aec0738841ba3f52bbd7f6fc93204403e45
+
+blocker JSON SHA-256:
+  a740af59a9d966fef68ab3aeeba26ad815a178b5297414edfacc0385e23a1698
+```
+
+Manifest-only replay found candidate identity/order metadata, fixed and Q0
+selection actions, context identities, and frozen target inference tables. It
+did not find the required complete held-evaluation utility vector:
+
+```text
+required:
+  944 contexts x 81 candidates = 76,464 utilities
+
+explicit utility artifacts:
+  0
+
+76,464-row utility artifacts:
+  0
+
+method-context utility-vector fields:
+  0
+```
+
+`method_context_decisions.csv` retains 18,432 selected-method rows, not all 81
+candidate utilities. C85EP did not open candidate-level objects, Q0 shards,
+direct result tables, labels, EEG, logits, or source arrays, and did not rerun
+Stage C. Large identity-only objects are labelled
+`BOUND_IDENTITY_ONLY_NOT_REHASHED`.
+
+Accepted validation:
+
+```text
+focused: 384 passed
+C65:   1,048 passed, 1 skipped, 5 deselected
+C23:   1,459 passed, 1 skipped, 5 deselected
+full:  2,383 passed, 1 skipped, 5 deselected
+```
+
+All accepted stderr files are empty.
+
+Authoritative C85EP reports:
+
+```text
+oaci/reports/C85EP_INPUT_AVAILABILITY_BLOCKER.md
+oaci/reports/C85EP_INPUT_AVAILABILITY_BLOCKER.json
+oaci/reports/C85EP_INPUT_AVAILABILITY_BLOCKER.sha256
+oaci/reports/C85EP_PROTOCOL_READINESS.md
+oaci/reports/C85EP_FINAL_REPORT_RED_TEAM.md
+oaci/reports/C85EP_REGRESSION_VERIFICATION.md
+oaci/reports/OACI_EEG_DG_PROJECT_MEMORY_THROUGH_C85EP.md
+```
+
+Any future creation of the missing utility vectors requires a separately
+reviewed additive protocol and protected execution boundary. C85EP cannot use
+direct labels, target logits, or a Stage-C rerun to reconstruct them. C85E,
+C86, active acquisition, new data/model zoos, and manuscript work remain
+unauthorized.
+
+### Prior continuation state through C85V
 
 C85V consumed one fresh direct authorization and completed the independent,
 read-only review of the seven frozen C85T proof candidates. It stopped at:
@@ -1750,10 +1838,14 @@ overstatements. Expect to be wrong on the first read; the controls exist to catc
 
 - **Repo:** `git@github.com:W-Yinghao/CMI.git`  ·  **Branch:** `oaci` (fully pushed).
 - **Worktree on the lab machine:** `/home/infres/yinwang/CMI_AAAI_oaci`.
-- **C85VP protocol = `436d6ff6`**, implementation = `a0beda65`, C85V lock =
-  `3c732489`, lock SHA =
-  `35cd029ba9cf68599a53d3f23db7a7c0a721440d9fb79be88a084548e452b20f`.
-  C85V is locked but not authorized; T1-T7 remain `OPEN`.
+- **C85EP addendum = `400c4e3e`**, protocol = `0af9f286`, protocol SHA =
+  `a42cc71498971ee6eeb75ef53e62744e73e91b92e444ef78c9e4c856d61ac052`,
+  availability implementation = `f1574aec`. C85EP stopped at the missing
+  candidate-utility gate; no C85E lock exists.
+- **C85V accepted result HEAD = `187327a2`**; result SHA =
+  `49e148f9c9c8e43dc137a896fd0333b79c3496e06a4e41ef572e9b50d2b06b8e`.
+  Frozen statuses are T1/T3/T4/T7 `PROVED`, T2/T6 `COUNTEREXAMPLE`, and T5
+  `OPEN`.
 - **C85T V3 result/closeout HEAD = `ae79e8c`**; result SHA =
   `ecaff65e942dbb81d93a3bdb61589fa9f1f6590f7188947688e6b30617140cec`.
   Its authorization is consumed and its external bundle is immutable.
@@ -1822,29 +1914,25 @@ Run a rung's report: `python -m oaci.<subpackage>.report --out-dir oaci/reports`
 
 ---
 
-## 7. How to continue (C85V direct authorization required)
+## 7. How to continue (C85EP reconciliation required)
 
 - Preserve C84S gates C84-D/C84-L4, all C84A exploratory tags, the C85P theory
-  protocol, the C85R V2 scenario law, and the complete C85T V3 bundle.
+  protocol, the C85R V2 scenario law, the complete C85T V3 bundle, and the
+  accepted C85V theorem statuses.
 - Do not rerun C85T. Its authorization is consumed and its atomic bundle is
   immutable.
-- C85VP has completed the additive read-only proof-review protocol and unique
-  C85V execution lock. Preserve protocol commit `436d6ff6`, implementation
-  commit `a0beda65`, lock commit `3c732489`, and lock SHA
-  `35cd029ba9cf68599a53d3f23db7a7c0a721440d9fb79be88a084548e452b20f`.
-- C85V is **not authorized**. Only a new standalone `授权 C85V` may bind the
-  current lock. No earlier authorization carries forward.
-- After authorization, Stage A must freeze all seven candidate-blind
-  derivations before Stage B can access proof-candidate text. Stage B must
-  replay all candidate hashes and exact finite objects without importing or
-  rerunning C85T Monte Carlo. The adjudicator must retain incomplete and
-  dissenting artifacts; T5 remains `OPEN` if its frozen decoder/Fano
-  assumptions are insufficient.
-- A successful C85V may transition theorem statuses only through the locked
-  verdict contract and must stop at
-  `C85V_INDEPENDENT_PROOF_VERDICTS_AND_THEOREM_STATUSES_FROZEN_C85E_PROTOCOL_REVIEW_REQUIRED`.
-- Do not access real project data or start C85E, active acquisition, new data/
-  model execution, selector retuning, or manuscript changes.
+- C85V has completed. Preserve T1/T3/T4/T7 `PROVED`, T2/T6
+  `COUNTEREXAMPLE`, and T5 `OPEN`.
+- C85EP committed the empirical bridge protocol but found no frozen complete
+  81-candidate held-evaluation utility vectors. Preserve blocker gate
+  `C85E_FROZEN_CANDIDATE_UTILITY_OR_SELECTION_INPUT_UNAVAILABLE`.
+- Do not create or authorize C85E from the current state. There is no C85E
+  execution lock.
+- Do not reconstruct candidate utilities from direct label views, target
+  logits, or a Stage-C rerun. Any such production requires a new additive
+  protocol, PM review, protected execution lock, and fresh authorization.
+- Do not start C86, active acquisition, new data/model execution, selector
+  retuning, or manuscript changes.
 
 ---
 

@@ -1,0 +1,73 @@
+{
+  "schema_version": "c85ep_frozen_input_availability_blocker_v1",
+  "milestone": "C85EP",
+  "disposition": "BLOCKED_FAIL_CLOSED",
+  "gate": "C85E_FROZEN_CANDIDATE_UTILITY_OR_SELECTION_INPUT_UNAVAILABLE",
+  "protocol": {
+    "commit": "0af9f286c31e70beded08ae6143a01e2dd2430ee",
+    "sha256": "a42cc71498971ee6eeb75ef53e62744e73e91b92e444ef78c9e4c856d61ac052",
+    "committed_before_candidate_or_chain_object_access": true
+  },
+  "theorem_scope_addendum": {
+    "commit": "400c4e3e13ada9b1c070f72ab3c3429418b11516",
+    "json_sha256": "845973a493696ad092b4db3c25d1ce0f3530e2d8dfe418c64674a6d1f198b819"
+  },
+  "availability_audit_implementation_commit": "f1574aec0738841ba3f52bbd7f6fc93204403e45",
+  "frozen_manifest_replay": {
+    "selection_freeze_sha256": "30ad539c8758a15701a582f0391671682107beb694860c9c531856425f2c7df4",
+    "selection_manifest_artifacts": 10,
+    "result_manifest_sha256": "516ae135125d66233c9ee87aa71e5b40941fcb9140a63c036f58b40fce11a2b5",
+    "result_manifest_artifacts": 18,
+    "method_context_schema_sha256": "f3d2ae5907f18cc4c4e672aa1f95aa1f7688fc283f55d08cffb830ad1ae50961"
+  },
+  "required_candidate_utility": {
+    "contexts": 944,
+    "candidates_per_context": 81,
+    "values_or_equivalent_rows": 76464,
+    "explicit_manifest_artifacts_found": [],
+    "manifest_artifacts_with_76464_rows": [],
+    "method_context_vector_fields_found": [],
+    "available": false
+  },
+  "other_frozen_inputs": {
+    "candidate_identity_and_order_metadata": "PASS_BY_MANIFEST_AND_FROZEN_SCHEMA",
+    "immutable_deterministic_and_q0_actions": "PASS_BY_MANIFEST",
+    "context_identity": "PASS_BY_MANIFEST",
+    "target_inference_components": "PASS_BY_MANIFEST"
+  },
+  "access_counters": {
+    "candidate_level_objects_opened": 0,
+    "chain_level_objects_opened": 0,
+    "direct_result_tables_opened": 0,
+    "direct_label_or_field_arrays_opened": 0,
+    "EEG_or_label_roots_opened": 0,
+    "target_logits_or_source_arrays_opened": 0,
+    "selector_or_q0_builder_calls": 0,
+    "stage_c_reruns": 0,
+    "training_forward_gpu_calls": 0
+  },
+  "fail_closed_actions": {
+    "candidate_utility_reconstructed": false,
+    "C85E_analysis_implementation_created": false,
+    "C85E_execution_lock_created": false,
+    "C85E_authorization_record_created": false,
+    "C85E_executed": false,
+    "C86_created_or_authorized": false,
+    "active_acquisition_executed": false,
+    "manuscript_modified": false
+  },
+  "immutable_results": {
+    "C84_primary_gate": "C84-D_external_dataset_source_panel_seed_level_or_target_heterogeneous",
+    "C84_label_frontier": "C84-L4",
+    "C85_theorem_statuses": {
+      "T1": "PROVED",
+      "T2": "COUNTEREXAMPLE",
+      "T3": "PROVED",
+      "T4": "PROVED",
+      "T5": "OPEN",
+      "T6": "COUNTEREXAMPLE",
+      "T7": "PROVED"
+    }
+  },
+  "reconciliation_requirement": "Any future production of complete candidate-utility vectors would require a separately reviewed additive protocol and authorization; C85EP may not reconstruct them from labels, logits, or a Stage-C rerun."
+}
