@@ -1,0 +1,55 @@
+# FROZEN config for the Mechanism-Subspace Oracle (M0.1). SPEC ONLY — M1 HOLD until PM review. SHA-256 of this
+# file stamped into every M1 row. Manuscript FROZEN. No CLOSED/closeout wording (graded stage verdicts only).
+objective:
+  target: delete_cross_subject_task_mechanism_disagreement_preserve_shared   # NOT min I(Z;D|Y)
+  cmi_role: post_hoc_measurement_only
+  optimize: utility_first_Delta_query                                          # CMI never the selection target
+
+metric: {whitening: source_ledoit_wolf, numerical_rank_tau: 1.0e-7}
+
+primary_object:
+  name: class_contrast_disagreement
+  contrast: mu_{d,a} - mu_{d,b}          # 4-class = all 6 unordered pairs; binary = single contrast
+  G_shared: sum_{a<b} cbar cbar^T
+  G_dis: sum_{d,a<b} (c_d - cbar)(c_d - cbar)^T
+  basis: generalized_eig  G_dis v = rho (G_shared + eta I) v ; top-rho, numerical-rank thresholded
+  eta: shrinkage_small
+
+secondary_objects:
+  rule_disagreement: multi_task_ridge  W_d = W_0 + dW_d , penalty lambda*||dW_d||_F^2 ; subspace of {dW_d}
+  gradient_disagreement: g_d - gbar , numerical-rank thresholded (<= C-1), per-subject/class normalized
+  union: B_rule_union_B_grad_SECONDARY_only
+  negative_reference: B_cond            # the failed family
+
+candidate_families: [contrast_disagreement, rule_disagreement, gradient_disagreement, B_cond_negative_ref]
+rank_budget: [1, 2, 3]
+selection: {select_on: T_cal_labels, score_on: T_query_session_macro, oracles: [source_safe, unconstrained]}
+
+random_controls:
+  ambient: {n: 100, match: [dictionary_rank, candidate_count, greedy_budget, rank_budget, calibration_labels]}
+  task_overlap_matched: {n: 100, additionally_match: tr(P_B P_shared)}
+  monte_carlo_blocks: 2                  # two independent 100-draw blocks for stability
+primary_stat: dU_mechanism_specific = U_mechanism_oracle - E_R[U_matched_random_oracle]
+
+result_routing:                          # graded; NO closeout
+  A_enriched: source_identifiability -> target_x_observability -> learned_oblique -> tte
+  B_no_enrichment: revise_candidate_geometry
+  C_no_posthoc_gain: pivot_to_training_time_mechanism_shaping   # L = L_task + lambda * sum(1 - cos(c_d, cbar))
+  D_single_backbone: analyze_capacity_consistency_rank_headgeom_then_confirm
+
+gates:
+  M1_existence: LCB95(dU_mechanism_specific) > 0 on >=1 family, no clear harm on other dataset
+  M2_source_identifiability: LCB95(dU_source_meta) > 0 AND recovery >= 0.25 of M1 gain
+  M3_learned_oblique: P=UU^T, U subset span(B_contrast,B_rule,B_grad), rank<=3, frozen encoder + fresh head
+  M4_tte: only after a STATIC learned subspace gives specific full-EEG target gain
+
+matrix:
+  backbones: [EEGNet, DGCNN]             # EEGNet primary, DGCNN secondary; no TSMNet/foundation/new
+  datasets: [BNCI2014_001, BNCI2015_001]
+  subjects: all_LOSO
+  seeds: [0, 1, 2]
+  M1_cells: 126
+  compute: {M1: cpu_high_memory_array, GPU_from: M3}
+
+bootstrap: {n: 10000, cluster_unit: target_subject, seeds_within_subject: pooled}
+scope: {synthetic_or_smoke: engineering_only, manuscript: frozen, current_stage: M0_1_spec_only, M1_run: HOLD}
