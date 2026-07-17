@@ -1,0 +1,2 @@
+failure_gate,trigger,automatic_retry,scientific_result_publication
+C85E_INPUT_GEOMETRY_RISK_FUNCTIONAL_OR_PROVENANCE_RECONCILIATION_REQUIRED,"input identity, geometry scale, target-risk, theorem guard, or provenance mismatch",0,0
