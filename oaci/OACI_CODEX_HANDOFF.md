@@ -13,7 +13,71 @@ and collaboration sections before acting.
 
 ---
 
-## 0. Current continuation state through C85UR1 (2026-07-17)
+## 0. Current continuation state through C85U (2026-07-17)
+
+C85U consumed one fresh V2 authorization and stopped at:
+
+```text
+C85U_COMPLETE_CANDIDATE_UTILITY_FIELD_FROZEN_C85E_REVIEW_REQUIRED
+```
+
+Authoritative identities:
+
+```text
+authorization/execution HEAD:
+  f4b05c3dbed962348efe9cab56374854120a3667
+
+C85U V2 lock SHA-256:
+  77382c16a593f7c2bdeb4dcacdfa21df11dcfd59982e9bfb982d6b88f5f04d1d
+
+authorization SHA-256:
+  024d95b6364651d6faa7b7cbeb5e0a1d896fe56e122d3b4ad2d6ba284ac1b6db
+
+attempt ID:
+  147245c8846d40e5a6059e353fce5b8b
+
+U1 manifest SHA-256:
+  95bdbc04f05103a090d46dd4419dc12c766ab45f807c8466ebf883a1171b05c6
+
+U2 result SHA-256:
+  84177e80c9883611ef0bc0e9d27a4c38867a45db9b0458d7b090c422b23c39be
+
+acceptance manifest SHA-256:
+  dfcf84569beb1b34b786cbe72233a22fd3928a4475b7e345f23b40cdb6671620
+```
+
+The frozen field contains 944 context artifacts and 76,464 candidate utility
+rows. U2 replayed 18,432 historical method-context rows and 8,749,056 finite Q0
+actions with zero endpoint or regime mismatch. The final acceptance bundle was
+published atomically after all twelve lifecycle events.
+
+```text
+focused: 395 passed, 1 deselected
+C65: 1,087 passed, 1 skipped, 6 deselected
+C23: 1,498 passed, 1 skipped, 6 deselected
+full: 2,422 passed, 1 skipped, 6 deselected
+red team: 64 / 64 PASS
+accepted stderr: empty
+```
+
+C85U reran no selector, Q0 chain, scientific inference, or theorem review. C84
+remains C84-D/C84-L4 and all C85 theorem statuses are unchanged. C85E is not
+authorized; the next possible milestone is C85EP2 independent replay and lock
+readiness.
+
+Authoritative C85U reports:
+
+```text
+oaci/reports/C85U_OVERALL_REPORT.md
+oaci/reports/C85U_OVERALL_REPORT.json
+oaci/reports/C85U_OVERALL_REPORT.sha256
+oaci/reports/C85U_RESULT_IDENTITY.json
+oaci/reports/C85U_FINAL_REPORT_RED_TEAM.md
+oaci/reports/C85U_REGRESSION_VERIFICATION.md
+oaci/reports/OACI_EEG_DG_PROJECT_MEMORY_THROUGH_C85U.md
+```
+
+### Prior continuation state through C85UR1
 
 C85UR1 repaired the non-operative C85U V1 execution boundary and stopped at:
 
