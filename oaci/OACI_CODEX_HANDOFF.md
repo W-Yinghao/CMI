@@ -13,7 +13,71 @@ and collaboration sections before acting.
 
 ---
 
-## 0. Current continuation state through C85EP (2026-07-17)
+## 0. Current continuation state through C85URP (2026-07-17)
+
+C85URP prospectively locked the protected production path for the missing
+944 x 81 held-evaluation candidate-utility field. It stopped at:
+
+```text
+C85U_HELD_EVALUATION_CANDIDATE_UTILITY_RECONSTRUCTION_LOCKED_READY_FOR_PI_AUTHORIZATION
+```
+
+Authoritative C85URP identities:
+
+```text
+C85U protocol commit:
+  ebe158c9e929f67423a9ebdc3cea7c6ea5c16c9a
+
+C85U protocol SHA-256:
+  c9ed7081cf8cb1a6c8a05181d1660da2015b4e1716a05c8916f7fe5b09efc160
+
+C85U implementation commit:
+  df100e2e77c5749030e2931bb7752973258823bd
+
+C85U execution-lock commit:
+  3b4fa48ee2d4f75ff8ba2191dc7d8593237dc82f
+
+C85U execution-lock SHA-256:
+  923c6bee2171f0bedcc3f883058759d368bdb49eb272cbbfa80974e98b632fe1
+```
+
+U1 is a selection-isolated subprocess that will use the immutable evaluation
+view and persisted target logits to freeze 944 context artifacts and 76,464
+utility rows under the historical bAcc/NLL/ECE midrank formula. U2 is a
+separate label/logit-isolated subprocess that will replay 18,432 historical
+decision rows from U1 and frozen Stage-B actions, including existing 2,048-chain
+Q0 action records without resampling.
+
+C85URP opened zero evaluation-label rows, target NPZ payloads, Q0 shards, and
+direct C84S tables. It computed zero real utilities. The lock is not authorized;
+future execution requires a new standalone `授权 C85U`. C85U completion would
+still require C85EP2 review before any C85E lock.
+
+Accepted validation:
+
+```text
+focused: 394 passed
+C65:   1,067 passed, 1 skipped, 5 deselected
+C23:   1,478 passed, 1 skipped, 5 deselected
+full:  2,402 passed, 1 skipped, 5 deselected
+red team: 60 / 60 PASS
+```
+
+All accepted stderr files are empty.
+
+Authoritative C85URP reports:
+
+```text
+oaci/reports/C85URP_OVERALL_REPORT.md
+oaci/reports/C85URP_OVERALL_REPORT.json
+oaci/reports/C85URP_OVERALL_REPORT.sha256
+oaci/reports/C85URP_PROTOCOL_READINESS.md
+oaci/reports/C85URP_FINAL_REPORT_RED_TEAM.md
+oaci/reports/C85URP_REGRESSION_VERIFICATION.md
+oaci/reports/OACI_EEG_DG_PROJECT_MEMORY_THROUGH_C85URP.md
+```
+
+### Prior continuation state through C85EP
 
 C85EP committed the theorem-scope addendum and the prospective frozen-field
 empirical bridge protocol, then stopped at the protocol's mandatory input
@@ -95,11 +159,10 @@ oaci/reports/C85EP_REGRESSION_VERIFICATION.md
 oaci/reports/OACI_EEG_DG_PROJECT_MEMORY_THROUGH_C85EP.md
 ```
 
-Any future creation of the missing utility vectors requires a separately
-reviewed additive protocol and protected execution boundary. C85EP cannot use
-direct labels, target logits, or a Stage-C rerun to reconstruct them. C85E,
-C86, active acquisition, new data/model zoos, and manuscript work remain
-unauthorized.
+At C85EP, any future creation of the missing utility vectors required a
+separately reviewed additive protocol and protected execution boundary. C85URP
+has now created that still-unauthorized C85U boundary. C85E, C86, active
+acquisition, new data/model zoos, and manuscript work remain unauthorized.
 
 ### Prior continuation state through C85V
 
@@ -1838,6 +1901,11 @@ overstatements. Expect to be wrong on the first read; the controls exist to catc
 
 - **Repo:** `git@github.com:W-Yinghao/CMI.git`  ·  **Branch:** `oaci` (fully pushed).
 - **Worktree on the lab machine:** `/home/infres/yinwang/CMI_AAAI_oaci`.
+- **C85URP protocol = `ebe158c9`**, protocol SHA =
+  `c9ed7081cf8cb1a6c8a05181d1660da2015b4e1716a05c8916f7fe5b09efc160`,
+  implementation = `df100e2e`, execution lock = `3b4fa48e`, and lock SHA =
+  `923c6bee2171f0bedcc3f883058759d368bdb49eb272cbbfa80974e98b632fe1`.
+  C85U is ready for fresh authorization but has not run.
 - **C85EP addendum = `400c4e3e`**, protocol = `0af9f286`, protocol SHA =
   `a42cc71498971ee6eeb75ef53e62744e73e91b92e444ef78c9e4c856d61ac052`,
   availability implementation = `f1574aec`. C85EP stopped at the missing
@@ -1914,7 +1982,7 @@ Run a rung's report: `python -m oaci.<subpackage>.report --out-dir oaci/reports`
 
 ---
 
-## 7. How to continue (C85EP reconciliation required)
+## 7. How to continue (C85U authorization review required)
 
 - Preserve C84S gates C84-D/C84-L4, all C84A exploratory tags, the C85P theory
   protocol, the C85R V2 scenario law, the complete C85T V3 bundle, and the
@@ -1926,11 +1994,17 @@ Run a rung's report: `python -m oaci.<subpackage>.report --out-dir oaci/reports`
 - C85EP committed the empirical bridge protocol but found no frozen complete
   81-candidate held-evaluation utility vectors. Preserve blocker gate
   `C85E_FROZEN_CANDIDATE_UTILITY_OR_SELECTION_INPUT_UNAVAILABLE`.
-- Do not create or authorize C85E from the current state. There is no C85E
-  execution lock.
-- Do not reconstruct candidate utilities from direct label views, target
-  logits, or a Stage-C rerun. Any such production requires a new additive
-  protocol, PM review, protected execution lock, and fresh authorization.
+- C85URP has now locked a distinct protected C85U reconstruction stage. It is
+  not authorized. The only shortest future authorization is `授权 C85U`, bound
+  to lock SHA
+  `923c6bee2171f0bedcc3f883058759d368bdb49eb272cbbfa80974e98b632fe1`.
+- Under future authorization, run only the locked U1-to-U2 coordinator. U1
+  freezes 76,464 utilities; U2 must replay all 18,432 historical decision rows.
+  Do not rerun Stage C, selectors, Q0 sampling, or scientific inference.
+- Successful C85U stops at
+  `C85U_COMPLETE_CANDIDATE_UTILITY_FIELD_FROZEN_C85E_REVIEW_REQUIRED`.
+  It does not authorize C85E. C85EP2 must replay U1/U2 and create a separate
+  C85E lock.
 - Do not start C86, active acquisition, new data/model execution, selector
   retuning, or manuscript changes.
 

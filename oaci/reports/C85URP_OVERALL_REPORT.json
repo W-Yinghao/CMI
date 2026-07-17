@@ -1,0 +1,93 @@
+{
+  "schema_version": "c85urp_overall_report_v1",
+  "milestone": "C85URP",
+  "gate": "C85U_HELD_EVALUATION_CANDIDATE_UTILITY_RECONSTRUCTION_LOCKED_READY_FOR_PI_AUTHORIZATION",
+  "authorized": false,
+  "real_execution": false,
+  "chronology": {
+    "C85EP_blocker_HEAD": "c470084d94910bfe7290a8565db30d058d5b3de6",
+    "protocol_commit": "ebe158c9e929f67423a9ebdc3cea7c6ea5c16c9a",
+    "protocol_sha256": "c9ed7081cf8cb1a6c8a05181d1660da2015b4e1716a05c8916f7fe5b09efc160",
+    "implementation_commit": "df100e2e77c5749030e2931bb7752973258823bd",
+    "execution_lock_commit": "3b4fa48ee2d4f75ff8ba2191dc7d8593237dc82f",
+    "execution_lock_sha256": "923c6bee2171f0bedcc3f883058759d368bdb49eb272cbbfa80974e98b632fe1"
+  },
+  "frozen_scope": {
+    "datasets": 3,
+    "field_descriptors": 1944,
+    "target_artifacts": 1944,
+    "target_artifact_bytes": 48018748054,
+    "contexts": 944,
+    "candidates_per_context": 81,
+    "future_candidate_utility_rows": 76464,
+    "historical_method_context_rows": 18432,
+    "Q0_chains_per_finite_budget": 2048
+  },
+  "implementation": {
+    "runtime_bound_repository_objects": 45,
+    "U1_subprocess_isolated": true,
+    "U1_selection_inputs": 0,
+    "U1_atomic_complete_field": true,
+    "U2_subprocess_isolated": true,
+    "U2_label_or_logit_inputs": 0,
+    "U2_scientific_inference": 0,
+    "Q0_resampling": 0
+  },
+  "numerical_contract": {
+    "float_dtype": "<f8",
+    "metric_and_utility_max_abs": 1e-12,
+    "identity_dtype_shape_digest_order_midrank": "EXACT",
+    "runtime_widening": false
+  },
+  "protected_access_counters": {
+    "evaluation_label_rows_opened": 0,
+    "target_artifact_payloads_opened": 0,
+    "target_sidecar_payloads_opened": 0,
+    "Q0_shards_opened": 0,
+    "direct_C84S_tables_opened": 0,
+    "real_candidate_utilities_computed": 0,
+    "real_historical_decisions_replayed": 0
+  },
+  "authorization": {
+    "record_created": false,
+    "schema_version": "c85u_direct_pi_authorization_record_v1",
+    "future_direct_statement_exact": "授权 C85U",
+    "single_use_O_EXCL": true,
+    "C85E": false,
+    "C86": false,
+    "active_acquisition": false,
+    "manuscript": false
+  },
+  "resources": {
+    "partition": "cpu-high",
+    "CPU": 48,
+    "RAM_GiB": 128,
+    "GPU": 0,
+    "wall_hours": 2,
+    "output_GiB_max": 2
+  },
+  "validation": {
+    "C85URP_tests_passed": 19,
+    "red_team_passed": 60,
+    "red_team_total": 60,
+    "focused": "394 passed",
+    "C65": "1067 passed, 1 skipped, 5 deselected",
+    "C23": "1478 passed, 1 skipped, 5 deselected",
+    "full": "2402 passed, 1 skipped, 5 deselected",
+    "accepted_stderr_bytes": 0
+  },
+  "immutable_results": {
+    "C84_primary": "C84-D_external_dataset_source_panel_seed_level_or_target_heterogeneous",
+    "C84_frontier": "C84-L4",
+    "C85_theorem_statuses": {
+      "T1": "PROVED",
+      "T2": "COUNTEREXAMPLE",
+      "T3": "PROVED",
+      "T4": "PROVED",
+      "T5": "OPEN",
+      "T6": "COUNTEREXAMPLE",
+      "T7": "PROVED"
+    }
+  },
+  "future_completion_gate": "C85U_COMPLETE_CANDIDATE_UTILITY_FIELD_FROZEN_C85E_REVIEW_REQUIRED"
+}
