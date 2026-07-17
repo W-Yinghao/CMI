@@ -1,0 +1,25 @@
+{
+  "per_dataset": {
+    "BNCI2014_001": {
+      "stage_verdict": "B_COND_NO_DETECTED_ENRICHMENT",
+      "dU_specific_lcb": -0.005401298868312773,
+      "dU_specific_ucb": 0.01126414609053498,
+      "not_ruled_out_enrichment_ucb": 0.01126414609053498,
+      "q95_exceedance_rate": 0.0,
+      "q95_null_rate": 0.05
+    },
+    "BNCI2015_001": {
+      "stage_verdict": "B_COND_NO_DETECTED_ENRICHMENT",
+      "dU_specific_lcb": -0.011456996527777758,
+      "dU_specific_ucb": 0.01994585069444445,
+      "not_ruled_out_enrichment_ucb": 0.01994585069444445,
+      "q95_exceedance_rate": 0.05555555555555555,
+      "q95_null_rate": 0.05
+    }
+  },
+  "overall_stage_verdict": "CURRENT_BCOND_DICTIONARY_NOT_ENRICHED_OVER_RANDOM",
+  "n_random": 100,
+  "completeness_ok": true,
+  "control": "greedy_select_on_Tcal_score_on_Tquery_equal_budget",
+  "note": "STAGE EVIDENCE: no DETECTED B_cond utility enrichment over equal-budget random (UCB still allows ~+1-2pp); NOT equivalence, NOT a closure (PM declares stops)"
+}
