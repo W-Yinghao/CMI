@@ -1,0 +1,218 @@
+{
+  "aggregation_contract": {
+    "candidate_or_chain_as_scientific_sample": false,
+    "context_repeats_per_target": 8,
+    "dataset_pooling": false,
+    "principal_group": "target_subject",
+    "target_equal_weight": true,
+    "trial_row_pseudoreplication": false
+  },
+  "authorization": {
+    "C85E_authorized": false,
+    "future_direct_statement_exact": "授权 C85E",
+    "record_path": "oaci/reports/C85E_PI_AUTHORIZATION_RECORD.json"
+  },
+  "availability_gate": {
+    "candidate_order_required": true,
+    "candidate_utility_contexts": 944,
+    "candidate_utility_rows_or_equivalent": 76464,
+    "candidate_utility_vector_length": 81,
+    "complete_held_evaluation_utility_vector_required": true,
+    "direct_label_reconstruction_forbidden": true,
+    "failure_gate": "C85E_FROZEN_CANDIDATE_UTILITY_OR_SELECTION_INPUT_UNAVAILABLE",
+    "frozen_Q0_chain_action_records_required": true,
+    "immutable_deterministic_selections_required": true,
+    "lock_creation_requires_pass": true,
+    "rerun_Stage_C_forbidden": true,
+    "target_logit_reconstruction_forbidden": true
+  },
+  "chronology": {
+    "C84_aggregate_outcomes_known": true,
+    "C85E_post_outcome_exploratory": true,
+    "candidate_level_empirical_objects_opened_before_protocol": false,
+    "chain_level_empirical_objects_opened_before_protocol": false,
+    "direct_C84_result_tables_opened_before_protocol": false,
+    "manifest_metadata_inspected_before_protocol": true,
+    "metrics_grids_references_and_claims_fixed_before_full_empirical_access": true
+  },
+  "claim_contract": {
+    "C84_D_changed": false,
+    "C84_L4_changed": false,
+    "C85_theorem_status_changed": false,
+    "active_policy_executed": false,
+    "candidate_geometry_is_selection_time_control": false,
+    "COTT_or_MaNo_minimax_optimal": false,
+    "C84_proves_Blackwell_dominance": false,
+    "C85E_information_theoretic_lower_bound": false,
+    "empirical_field_satisfies_T4_or_T7": false,
+    "Q0_estimates_unrestricted_label_value": false,
+    "status": "POST_C84S_EXPLORATORY_EMPIRICAL_BRIDGE"
+  },
+  "effect_modification_contract": {
+    "causal_mediation_claims": false,
+    "datasets": [
+      "Lee2019_MI",
+      "Cho2017",
+      "PhysionetMI"
+    ],
+    "factors": {
+      "levels": [0, 1],
+      "panels": ["A", "B"],
+      "training_seeds": [5, 6]
+    },
+    "objects": [
+      "candidate_gaps",
+      "effective_multiplicity",
+      "policy_collapse_rates",
+      "COTT_robust_risk",
+      "Q0_action_entropy",
+      "label_frontier_components"
+    ]
+  },
+  "forbidden_runtime": {
+    "C86_lock_or_execution": true,
+    "EEG_loader": true,
+    "GPU": true,
+    "active_acquisition": true,
+    "direct_label_root": true,
+    "inference_or_maxT_callable": true,
+    "manuscript_writer": true,
+    "new_data_or_model_zoo": true,
+    "Q0_builder": true,
+    "selector_callable": true,
+    "target_logit_or_source_array_loader": true,
+    "theorem_status_writer": true,
+    "training_or_forward": true
+  },
+  "frozen_inputs": {
+    "C84A_final_HEAD": "218d19e2ef1b4b5e7517008cbcb60d4b6bbc3e42",
+    "C84F_complete_field_manifest_sha256": "cfffcac1a55148941b809b69bed2c9a8957a94729ed7f2c2c29ed8d48c0134d8",
+    "C84S_result_manifest_sha256": "516ae135125d66233c9ee87aa71e5b40941fcb9140a63c036f58b40fce11a2b5",
+    "C84S_scientific_result_sha256": "5590f85c3552ec0176a015e34296059a950dd2c5853a51aa140657cf53d79ee7",
+    "C84S_selection_freeze_sha256": "30ad539c8758a15701a582f0391671682107beb694860c9c531856425f2c7df4",
+    "C85T_result_sha256": "ecaff65e942dbb81d93a3bdb61589fa9f1f6590f7188947688e6b30617140cec",
+    "C85V_completion_receipt_sha256": "60ae19b5a4e7ad04b02e392c35077e00adbf7aee66dc54d85c50fa47f7ce0d18",
+    "C85V_result_manifest_sha256": "952579daf0cd2840bad4eea98a1537c1a25458da96d96a4de89fe205e121ac9c",
+    "C85V_result_sha256": "49e148f9c9c8e43dc137a896fd0333b79c3496e06a4e41ef572e9b50d2b06b8e"
+  },
+  "future_active_acquisition_bridge": {
+    "C84_development_only": true,
+    "design_requirements_only": true,
+    "execution_authorized": false,
+    "new_dataset_selection_after_outcome": false,
+    "required_objects": [
+      "trial_level_loss_vector_variances",
+      "untouched_target_population",
+      "prospective_primary_endpoints",
+      "observation_and_stopping_contract",
+      "importance_weighting_contract"
+    ]
+  },
+  "geometry_contract": {
+    "canonical_first_argmax": true,
+    "epsilon_grid": [0.005, 0.01, 0.02, 0.05],
+    "exact_summaries": [
+      "best_second_gap",
+      "best_fifth_gap",
+      "best_tenth_gap",
+      "utility_range",
+      "exact_comaximizer_count"
+    ],
+    "soft_weight_formula": "w_a(tau)=exp(-regret_a/tau)/sum_j exp(-regret_j/tau)",
+    "summary_grids_may_not_be_selected_post_outcome": true,
+    "tau_grid": [0.005, 0.01, 0.02, 0.05, 0.1]
+  },
+  "milestone": "C85EP",
+  "population": {
+    "candidate_context_slices": 76464,
+    "candidates_per_context": 81,
+    "contexts": 944,
+    "datasets": 3,
+    "method_context_rows": 18432,
+    "target_subjects": 118
+  },
+  "policy_use_contract": {
+    "deterministic_methods": [
+      "B1",
+      "B2",
+      "B3",
+      "B4O",
+      "B4S",
+      "S1",
+      "U5",
+      "U7",
+      "U11",
+      "U13",
+      "U14",
+      "U15",
+      "Q0_FULL"
+    ],
+    "exact_collapse_requires_all_registered_contexts_equal": true,
+    "metrics": [
+      "selected_action_divergence_rate",
+      "exact_action_equivalence_contexts",
+      "action_entropy",
+      "selected_regime_distribution",
+      "mean_regret_difference",
+      "divergent_context_risk_difference",
+      "target_level_action_divergence_rate"
+    ],
+    "near_collapse_invokes_T3": false,
+    "primary_references": ["B1", "S1"],
+    "stochastic_Q0_collapsed_to_nominal_action": false,
+    "stochastic_Q0_uses_frozen_chain_actions": true
+  },
+  "rank_topk_regret_contract": {
+    "leave_one_target_descriptive_only": true,
+    "new_pvalues": false,
+    "outputs": [
+      "Spearman",
+      "Kendall",
+      "pairwise_ordering",
+      "top1",
+      "top5",
+      "top10",
+      "selected_regret",
+      "selected_utility",
+      "action_divergence"
+    ],
+    "selection_mechanism_claim": false
+  },
+  "robust_risk_contract": {
+    "CVaR_alpha_grid": [0.5, 0.75, 0.9],
+    "CVaR_convention": "equal_target_weight_integral_of_left_continuous_empirical_upper_loss_quantile_over_[alpha,1]_with_fractional_boundary_mass",
+    "C84_Q1_floor_replaced": false,
+    "dataset_pooling": false,
+    "primary_profiles": ["U13", "U11", "S1", "B1", "Q0_B1", "Q0_FULL"],
+    "summaries": ["mean", "median", "worst_target", "upper_empirical_quantiles", "upper_loss_CVaR"]
+  },
+  "schema_version": "c85e_frozen_field_decision_theory_bridge_protocol_v1",
+  "success_gate": "C85E_FROZEN_FIELD_POLICY_USE_GEOMETRY_AND_ROBUST_RISK_PROTOCOL_LOCKED_READY_FOR_PI_AUTHORIZATION",
+  "theorem_applicability_contract": {
+    "allowed_labels": [
+      "EXACTLY_APPLICABLE",
+      "DESCRIPTIVE_ANALOGUE_ONLY",
+      "ASSUMPTIONS_NOT_IDENTIFIED",
+      "NOT_APPLICABLE",
+      "OPEN_THEOREM"
+    ],
+    "minimum_classification": {
+      "T1": "ASSUMPTIONS_NOT_IDENTIFIED",
+      "T2": "DESCRIPTIVE_ANALOGUE_ONLY",
+      "T3": "EXACTLY_APPLICABLE",
+      "T4": "ASSUMPTIONS_NOT_IDENTIFIED",
+      "T5": "OPEN_THEOREM",
+      "T6": "DESCRIPTIVE_ANALOGUE_ONLY",
+      "T7": "ASSUMPTIONS_NOT_IDENTIFIED"
+    },
+    "T3_exact_applicability_condition": "selected action identical in every registered context",
+    "theorem_status_transitions": false
+  },
+  "utility_action_contract": {
+    "optimal_action": "first canonical argmax of frozen held-evaluation composite utility",
+    "regret": "max_a u_c(a)-u_c(a)",
+    "tie_rule": "first canonical candidate index",
+    "utility": "frozen C84 held-evaluation composite utility",
+    "utility_redefinition": false
+  }
+}
