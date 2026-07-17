@@ -1,0 +1,18 @@
+{
+  "C85E": false,
+  "active_acquisition": false,
+  "authorization_id": "c83191ae-0583-4c5d-8ae7-d58483644a0d",
+  "authorized_stage": "C85V",
+  "c85t_result_manifest_sha256": "a727beebcb45598ea0f92f37bed8ef32369b1c793ecad9efc2f5d9941bd5bb0e",
+  "c85t_result_sha256": "ecaff65e942dbb81d93a3bdb61589fa9f1f6590f7188947688e6b30617140cec",
+  "direct_explicit_PI_authorization": true,
+  "direct_statement_exact": "授权 C85V",
+  "execution_lock_commit": "3c732489407ebca7603e5fb65d03c1ae25d046b6",
+  "execution_lock_sha256": "35cd029ba9cf68599a53d3f23db7a7c0a721440d9fb79be88a084548e452b20f",
+  "manuscript": false,
+  "new_data_or_model_zoo": false,
+  "output_root": "/projects/EEG-foundation-model/yinghao/oaci-c85v-proof-review-v1/c85v-35cd029ba9cf6859-c83191ae05834c5d",
+  "pi_statement_received_at": "2026-07-17T13:42:16+02:00",
+  "real_data": false,
+  "schema_version": "c85v_direct_pi_authorization_record_v1"
+}
