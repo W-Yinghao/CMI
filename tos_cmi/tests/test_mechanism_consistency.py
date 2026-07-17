@@ -99,6 +99,45 @@ def test_9_collapse_guards_detect_shrink():
     assert effective_rank(Z + 1e3 * torch.tensor(np.eye(1, Z.shape[1], 0), dtype=torch.float32)) < effective_rank(Z) + 1.0
 
 
+def test_8_three_arms_fork_from_same_warmup_hash():
+    rma = pytest.importorskip("tos_cmi.train.run_mcc_arms")   # needs braindecode env; skips under c84c
+    import copy
+    sd = {"a": torch.randn(4, 3), "b": torch.randn(5)}
+    h1 = rma._state_hash(sd); h2 = rma._state_hash(copy.deepcopy(sd))
+    assert h1 == h2                                            # forking from a deep-copied warm-up preserves the hash
+    sd2 = dict(sd); sd2["a"] = sd2["a"] + 1.0
+    assert rma._state_hash(sd2) != h1                         # a real weight change changes the hash
+    bundles = rma.enumerate_bundles()
+    assert len(bundles) == 63 and len(set(bundles)) == 63     # 2 x (9+12) x 3, all unique
+    assert set(rma.ARMS) == {"A_erm_continue", "B_mcc_true", "C_mcc_shuffle"}
+
+
+def test_10_dump_blob_recoverable_by_oracle_reader():
+    rma = pytest.importorskip("tos_cmi.train.run_mcc_arms")
+    from tos_cmi.eeg.relaxation_ladder import feat_from_tos_dump
+    import tempfile
+
+    class _FakeBB:                                            # duck-typed backbone: bb(x) -> (logits, z)
+        def eval(self): return self
+        def __call__(self, xb):
+            n = xb.shape[0]; return torch.zeros(n, 4), torch.randn(n, 16)
+    N = 40
+    Xtr = np.zeros((N, 3, 8), np.float32); ytr = np.tile([0, 1, 2, 3], N // 4)
+    Xte = np.zeros((12, 3, 8), np.float32); yte = np.tile([0, 1, 2, 3], 3)
+    meta_arr = dict(subject_source=np.zeros(N, np.int64), subject_target=np.ones(12, np.int64),
+                    session_source=np.array(["0train"] * N), session_target=np.array(["1test"] * 12),
+                    domain_source=np.zeros(N, np.int64), n_dom=8)
+    diag = dict(selected_epoch=3, source_val_bacc=0.5, effective_rank=9.0, contrast_norm=0.5, mean_mcc_loss=0.4, mean_ce_loss=1.0)
+    with tempfile.TemporaryDirectory() as td:
+        p = rma._dump_arm(_FakeBB(), "B_mcc_true", "BNCI2014_001", 1, 0, meta_arr, Xtr, ytr, Xte, yte,
+                          [0, 1, 2, 3], "cpu", "deadbeef", 0.25, diag, td)
+        f = feat_from_tos_dump(p)
+        # exact keys the oracle reader (feat_from_tos_dump) exposes (it renames subject_* -> subj_*)
+        for k in ("Z_source", "Z_target", "y_source", "y_target", "subj_source", "subj_target", "session_target", "dataset", "backbone"):
+            assert k in f, f"oracle reader needs {k}"
+        assert f["Z_source"].shape == (N, 16)                              # session preserved -> oracle can split
+
+
 def test_sampler_balanced_and_deterministic():
     Z, y, d, _ = _emb()
     s1 = BalancedSubjectClassSampler(d, y, K=4, n_batches=2, seed=0)
