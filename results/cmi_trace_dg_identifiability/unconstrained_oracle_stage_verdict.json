@@ -1,25 +1,33 @@
 {
   "per_dataset": {
     "BNCI2014_001": {
-      "stage_verdict": "B_COND_NO_DETECTED_ENRICHMENT",
+      "significance_state": "NO_DETECTED_ENRICHMENT",
+      "interval_state": "INCONCLUSIVE",
+      "practical_state": "PRACTICAL_ENRICHMENT_NOT_RULED_OUT",
+      "dU_specific_mean": 0.0027854938271604885,
       "dU_specific_lcb": -0.005401298868312773,
       "dU_specific_ucb": 0.01126414609053498,
-      "not_ruled_out_enrichment_ucb": 0.01126414609053498,
       "q95_exceedance_rate": 0.0,
       "q95_null_rate": 0.05
     },
     "BNCI2015_001": {
-      "stage_verdict": "B_COND_NO_DETECTED_ENRICHMENT",
+      "significance_state": "NO_DETECTED_ENRICHMENT",
+      "interval_state": "INCONCLUSIVE",
+      "practical_state": "PRACTICAL_ENRICHMENT_NOT_RULED_OUT",
+      "dU_specific_mean": 0.004125000000000006,
       "dU_specific_lcb": -0.011456996527777758,
       "dU_specific_ucb": 0.01994585069444445,
-      "not_ruled_out_enrichment_ucb": 0.01994585069444445,
       "q95_exceedance_rate": 0.05555555555555555,
       "q95_null_rate": 0.05
     }
   },
   "overall_stage_verdict": "CURRENT_BCOND_DICTIONARY_NOT_ENRICHED_OVER_RANDOM",
-  "n_random": 100,
-  "completeness_ok": true,
-  "control": "greedy_select_on_Tcal_score_on_Tquery_equal_budget",
-  "note": "STAGE EVIDENCE: no DETECTED B_cond utility enrichment over equal-budget random (UCB still allows ~+1-2pp); NOT equivalence, NOT a closure (PM declares stops)"
+  "provenance": {
+    "aggregator_git_sha": "6e6633fb",
+    "aggregator_sha256": "40114a47a3f10c9d",
+    "runner_sha256": "40114a47a3f10c9d",
+    "config_sha256": "ecae277baa88bae4",
+    "input_rows_sha256": "9f1d6c81649b9e20"
+  },
+  "note": "tri-state: significance(no DETECTED enrichment)/interval(INCONCLUSIVE, CI spans 0)/practical(enrichment NOT ruled out). NOT equivalence, NOT a closure -- only the project owner stops a line."
 }

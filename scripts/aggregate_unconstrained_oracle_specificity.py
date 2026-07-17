@@ -51,12 +51,68 @@ def _oracle(Zs_w, ys, B_dict, Xcal_w, ycal, Xq_w, yq, sq, max_k, seed):
     return _query_macro_gain(Zs_w, ys, Xq_w, yq, sq, U, seed), list(S), float(cal_gain)
 
 
+def _sha256(p):
+    import hashlib as _h
+    return _h.sha256(Path(p).read_bytes()).hexdigest()[:16] if Path(p).exists() else "missing"
+
+
+def _reaggregate_existing():
+    """PM patch: re-derive unified TRI-STATE labels + provenance from the SAVED subject rows (no 63-cell rerun).
+    significance_state (NO_DETECTED vs DETECTED via LCB>0) + interval_state (INCONCLUSIVE if CI spans 0) +
+    practical_state (PRACTICAL_ENRICHMENT_NOT_RULED_OUT via UCB). Writes both JSON and CSV with the SAME labels."""
+    import hashlib as _h
+    rows = list(csv.DictReader(open(OUT / "unconstrained_oracle_subject_rows.csv")))
+    try:
+        agg_sha = subprocess.check_output(["git", "-C", str(REPO), "rev-parse", "--short", "HEAD"]).decode().strip()
+    except Exception:
+        agg_sha = "unknown"
+    prov = dict(aggregator_git_sha=agg_sha, aggregator_sha256=_sha256(__file__),
+                runner_sha256=_sha256(__file__), config_sha256=_sha256(REPO / "configs/cmi_trace_targetx_observability.yaml"),
+                input_rows_sha256=_sha256(OUT / "unconstrained_oracle_subject_rows.csv"))
+    verdict, summ = {}, []
+    for ds in DATASETS:
+        by, win = defaultdict(list), defaultdict(list)
+        for r in rows:
+            if r["dataset"] == ds:
+                by[r["subject"]].append(float(r["dU_specific"])); win[r["subject"]].append(1.0 if r["informed_beats_q95"] == "True" else 0.0)
+        if not by:
+            continue
+        rng = np.random.default_rng(7); vals = np.array([np.mean(v) for v in by.values()])
+        boots = [vals[rng.integers(0, vals.size, vals.size)].mean() for _ in range(10000)]
+        lo, hi, mean = float(np.percentile(boots, 2.5)), float(np.percentile(boots, 97.5)), float(vals.mean())
+        wr = float(np.mean([np.mean(v) for v in win.values()]))
+        significance = "DETECTED_ENRICHMENT" if lo > 0 else "NO_DETECTED_ENRICHMENT"
+        interval = "INCONCLUSIVE" if (lo <= 0 < hi) else ("POSITIVE" if lo > 0 else "NEGATIVE")
+        practical = "PRACTICAL_ENRICHMENT_NOT_RULED_OUT" if hi > 0 else "PRACTICAL_ENRICHMENT_RULED_OUT"
+        verdict[ds] = dict(significance_state=significance, interval_state=interval, practical_state=practical,
+                           dU_specific_mean=mean, dU_specific_lcb=lo, dU_specific_ucb=hi,
+                           q95_exceedance_rate=wr, q95_null_rate=Q95_NULL_RATE)
+        summ.append(dict(dataset=ds, significance_state=significance, interval_state=interval, practical_state=practical,
+                         dU_specific_mean=mean, dU_specific_lo=lo, dU_specific_hi=hi, q95_exceedance_rate=wr,
+                         q95_null_rate=Q95_NULL_RATE, n_subjects=int(vals.size)))
+    overall = ("CURRENT_BCOND_DICTIONARY_NOT_ENRICHED_OVER_RANDOM"
+               if all(v["significance_state"] == "NO_DETECTED_ENRICHMENT" for v in verdict.values()) else "DETECTED_ON_SOME_DATASET")
+    with open(OUT / "unconstrained_oracle_specificity_full.csv", "w", newline="") as fh:
+        w = csv.DictWriter(fh, fieldnames=list(summ[0].keys())); w.writeheader(); [w.writerow(r) for r in summ]
+    json.dump({"per_dataset": verdict, "overall_stage_verdict": overall, "provenance": prov,
+               "note": "tri-state: significance(no DETECTED enrichment)/interval(INCONCLUSIVE, CI spans 0)/practical"
+                       "(enrichment NOT ruled out). NOT equivalence, NOT a closure -- only the project owner stops a line."},
+              open(OUT / "unconstrained_oracle_stage_verdict.json", "w"), indent=2, default=float)
+    print(f"[reaggregate] unified labels -> {overall}")
+    for ds, v in verdict.items():
+        print(f"  {ds}: sig={v['significance_state']} interval={v['interval_state']} practical={v['practical_state']} "
+              f"dU[{v['dU_specific_lcb']:+.4f},{v['dU_specific_ucb']:+.4f}]")
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--seeds", nargs="+", default=["0", "1", "2"]); ap.add_argument("--backbone", default="EEGNet")
     ap.add_argument("--n_random", type=int, default=100); ap.add_argument("--max_rank", type=int, default=10)
     ap.add_argument("--limit", type=int, default=0)
+    ap.add_argument("--reaggregate-existing", action="store_true", help="re-derive unified labels from saved rows (no rerun)")
     a = ap.parse_args()
+    if a.reaggregate_existing:
+        return _reaggregate_existing()
     cfg = REPO / "configs" / "cmi_trace_targetx_observability.yaml"
     cfg_hash = hashlib.sha256(cfg.read_bytes()).hexdigest()[:16] if cfg.exists() else "no_config"
     try:

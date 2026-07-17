@@ -72,7 +72,11 @@ def main():
             cr = _ci(_subject_means(R, "cond_contested_rank"))
             summ.append(dict(backbone=bb, dataset=ds, n_cells=len(R),
                              cond_head_overlap=next(h["head_overlap_mean"] for h in ho_rows if h["backbone"] == bb and h["dataset"] == ds and h["basis"] == "cond"),
-                             cond_contested_rank_mean=cr["mean"], note="effective_rank fields EXCLUDED (orthonormalized-basis artifact); B1b cross-fold stability STOPPED"))
+                             cond_contested_rank_mean=cr["mean"],
+                             note=("cond head-overlap ACCEPTED; B_grad numerical-rank FIXED (algebraic sanity: grad in "
+                                   "row(Wc), rank<=C-1) but the class-CONDITIONAL g_{d,y} estimator is NOT YET "
+                                   "implemented; B_rule is PROVISIONAL (free per-subject head, NOT the shared+residual "
+                                   "ridge W_d=W_0+dW_d of M0.2); effective_rank fields excluded; B1b stability not run")))
 
     def _w(fp, r, keys):
         with open(fp, "w", newline="") as fh:
