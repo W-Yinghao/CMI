@@ -1,0 +1,35 @@
+{
+  "dataset": "BNCI2014_001",
+  "subject": "4",
+  "seed": 2,
+  "warmup_hash": "2ec1eb62c5c21c8a",
+  "arms": {
+    "A_erm_continue": {
+      "dump": "BNCI2014_001_sub4_seed2_A_erm_continue.npz",
+      "target_bacc": 0.3350694444444445,
+      "selected_epoch": 4,
+      "source_val_bacc": 0.7596982758620691,
+      "eff_rank": 11.64956283569336,
+      "contrast_norm": 0.35907433144748213,
+      "mean_mcc_loss": 0.0
+    },
+    "B_mcc_true": {
+      "dump": "BNCI2014_001_sub4_seed2_B_mcc_true.npz",
+      "target_bacc": 0.3350694444444444,
+      "selected_epoch": 1,
+      "source_val_bacc": 0.7575431034482759,
+      "eff_rank": 11.63016128540039,
+      "contrast_norm": 0.3587833972026904,
+      "mean_mcc_loss": 0.4459929233150823
+    },
+    "C_mcc_shuffle": {
+      "dump": "BNCI2014_001_sub4_seed2_C_mcc_shuffle.npz",
+      "target_bacc": 0.3298611111111111,
+      "selected_epoch": 4,
+      "source_val_bacc": 0.759698275862069,
+      "eff_rank": 11.653587341308594,
+      "contrast_norm": 0.3599618423730135,
+      "mean_mcc_loss": 0.40371983642024656
+    }
+  }
+}
