@@ -1,0 +1,12 @@
+resource,estimate,unit,envelope,basis,locked_for_execution
+unique_candidate_units,648,models,648,2_panels*2_seeds*2_levels*81_shared_zoo,0
+training_phases,24,phases,24,2*2*2*3_regimes,0
+three_cohort_target_contexts,680,contexts,680,(16+18+51)*8,0
+three_cohort_candidate_context_slices,55080,slices,55080,680*81,0
+unit_cohort_target_artifacts,1944,artifacts,1944,648*3,0
+raw_download_storage,128,GiB,128,Yang_public_63.4GB_plus_Kumar_1.2GB_plus_Brandl_and_overhead,0
+candidate_checkpoint_optimizer_storage,128,GiB,128,648_units_conservative,0
+target_prediction_field_storage,64,GiB,64,55080_slices_scaled_from_C84,0
+total_scratch_storage,512,GiB,512,raw_models_outputs_staging_and_replay,0
+GPU_time,20,GPU_hours_scaled,96,24_vs_C84_72_phases;future_canary_required,0
+RAM,128,GiB,128,future_field_generation,0

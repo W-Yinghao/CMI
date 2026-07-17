@@ -1,0 +1,9 @@
+source_id,year,method,primary_url,audited_through,C86_relevance,fidelity_limit
+Kossen2021,2021,Active_Testing,https://proceedings.mlr.press/v139/kossen21a.html,2026-07-18,active_test_point_acquisition,A1_is_multicandidate_adaptation
+Farquhar2021,2021,LURE,https://openreview.net/forum?id=JiYq3eqTKY,2026-07-18,leveled_unbiased_linear_risk_estimation,unbiasedness_only_for_registered_linear_moments
+Kossen2022,2022,ASE_XWED,https://papers.neurips.cc/paper_files/paper/2022/file/9b9cfd5428153ccfbd4ba34b7e007305-Paper-Conference.pdf,2026-07-18,surrogate_interpolation_and_weighted_disagreement,single_model_risk_surrogate_not_81_action_plugin
+Hara2024,2024,general_K_VMA,https://link.springer.com/article/10.1007/s10994-024-06603-1,2026-07-18,sum_over_all_pairwise_expected_absolute_loss_differences,linear_loss_objective_only
+Karimi2021,2021,Online_Active_Model_Selection,https://proceedings.mlr.press/v130/reza-karimi21a.html,2026-07-18,streaming_selective_model_selection,streaming_setting_differs_from_fixed_finite_pool
+Okanovic2025,2025,MODEL_SELECTOR,https://proceedings.mlr.press/v258/okanovic25a.html,2026-07-18,pool_based_many_classifier_best_model_identification,published_accuracy_objective_differs_from_historical_composite
+Kay2025,2025,CODA,https://openaccess.thecvf.com/content/ICCV2025/html/Kay_Consensus-Driven_Active_Model_Selection_ICCV_2025_paper.html,2026-07-18,consensus_Bayesian_active_model_selection,published_accuracy_objective_differs_from_historical_composite
+Ashouritaklimi2026,2026,PPAT,https://openreview.net/forum?id=V6wIXluLmp,2026-07-18,prediction_powered_control_variate_for_active_testing,emerging_workshop_single_risk_object_no_frozen_81_action_dispatcher

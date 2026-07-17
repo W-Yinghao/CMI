@@ -1,0 +1,4 @@
+stage,view,identity,labels_visible,direct_C84_evaluation_labels,development_only,overlap_with_held_outcome
+C86L,acquisition_pool,C84_immutable_construction_trial_IDs_and_matching_frozen_probabilities,LABEL_SERVER_QUERIED_ROWS_ONLY,0,1,0
+C86D,held_development_outcome,accepted_C85U_held_evaluation_candidate_utility_field,0,0,1,SELF
+C86L_C86D,same_label_oracle,FORBIDDEN,0,0,1,0

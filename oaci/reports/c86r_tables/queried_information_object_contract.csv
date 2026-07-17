@@ -1,0 +1,11 @@
+object,per_trial_revealed,linear_additive_moment,plugin_nonlinear,unbiased_LURE_claim
+clipped_binary_NLL,1,1,0,REGISTERED_LINEAR_MEAN
+correctness_indicator,1,1,0,REGISTERED_LINEAR_MEAN
+class_indicator,1,1,0,REGISTERED_LINEAR_MEAN
+confidence_bin_signed_contribution,1,1,0,SIGNED_BIN_MOMENT_ONLY
+pairwise_NLL_difference,1,1,0,REGISTERED_LINEAR_DIFFERENCE
+balanced_accuracy,0,0,1,NONE_RATIO_PLUGIN
+ECE,0,0,1,NONE_ABSOLUTE_VALUE_PLUGIN
+candidate_midranks,0,0,1,NONE_CROSS_CANDIDATE_PLUGIN
+historical_composite_utility,0,0,1,NONE
+selected_action,0,0,1,NONE_ARGMAX_PLUGIN
