@@ -1,0 +1,71 @@
+# FROZEN config = Mechanism-Contrast Consistency (MCC) bounded viability study. SPEC; NOT an amendment.
+# Manuscript FROZEN. One lambda, no sweep. Only the project owner may stop a scientific line.
+objective:
+  name: MCC                                   # Mechanism-Contrast Consistency (internal name, not a paper title)
+  form: direction_normalized_cosine_consensus # NOT raw Frobenius (which mixes direction+magnitude+scale)
+  contrast: "c_d^{a,b} = mu_{d,a} - mu_{d,b}"  # class-mean contrast in the EEGNet 16-d bottleneck
+  unit: "u_d^{a,b} = c / (||c||_2 + eps)"
+  consensus: "ubar_{-d} = norm(sum_{d'!=d} u_{d'})   # LEAVE-ONE-SUBJECT-OUT, excludes d"
+  loss: "L_MCC = mean_d mean_{a<b} [ 1 - <u_d, stopgrad(ubar_{-d})> ]"
+  total: "L = L_task + lambda_MCC * L_MCC"
+  pairs: {four_class: all_6_unordered, binary: single_contrast}
+  eps: 1.0e-6
+
+sampler:                                       # balanced episodic batch (stable per-subject class contrasts)
+  kind: subject_x_class_x_K
+  K: 4
+  batch_examples: {BNCI2014_001: 128, BNCI2015_001: 88}   # (m_source x C x K): 8x4x4 / 11x2x4
+  short_cell_policy: source_side_replacement_sampling      # never skip hard subjects
+  target_trials_in_training: FORBIDDEN
+
+arms:                                          # all forked from the SAME ERM warm-up checkpoint
+  A_erm_continue: {loss: task_only}                        # controls extra epochs / LR continuation / ckpt select
+  B_mcc_true: {grouping: real_source_subject}
+  C_mcc_shuffle: {grouping: per_batch_within_class_subject_permutation}   # matched control (breaks real contrasts)
+  no_ccoral_irm_pcgrad_this_round: true
+
+training:                                      # FIXED settings, no hyperparameter engineering
+  backbone: EEGNet
+  latent_dim: 16
+  warmup: existing_ERM_exactly
+  continuation_epochs: 20
+  lambda_MCC: 0.25
+  lambda_ramp: {epochs: 5, from: 0.0, to: 0.25, schedule: linear}
+  optimizer: inherit_ERM
+  continuation_lr: 0.1x_warmup_initial_lr
+  checkpoint_selection: source_only_validation
+  target_XY: evaluation_only
+  warmup_policy: one_warmup_per_cell_then_fork_3_arms      # retrain+cache ONCE if no ckpt; never per-arm warmup
+
+matrix:                                        # real EEG GPU tranche
+  datasets: [BNCI2014_001, BNCI2015_001]
+  subjects: all_LOSO                           # 9 + 12
+  seeds: [0, 1, 2]
+  arms: 3
+  total_cells: 189                             # 2 x 21 x 3 x 3
+  bundles: 63                                  # dataset x target_subject x seed -> 1 warmup -> 3 arms
+  require: all_189_arms_complete
+  device: GPU                                  # encoder retraining
+
+metrics:
+  objective_movement: [delta_WSCI_source, "delta tr(G_dis)/tr(G_shared)", delta_target_to_source_alignment_At]
+  At: "A_t = mean_{a<b} cos(c_t^{a,b}, cbar_s^{a,b})   # target labels EVAL-only"
+  collapse_damage: [source_task_bacc, source_heldout_bacc, feature_norm, effective_rank, class_contrast_norm, task_margin, selected_epoch]
+  dg_utility:
+    primary: "dU_MCC-ERM = bAcc_MCC - bAcc_ERM_continue"
+    mechanism_control: "dU_MCC-shuffle = bAcc_MCC - bAcc_MCC_shuffle"
+    inference_unit: outer_target_subject
+    bootstrap: subject_cluster_with_3_seeds
+  m1p_reaudit: rerun_same_frozen_oracle_on_[erm_continue, mcc_true, mcc_shuffle]   # diagnostic, not a success gate
+  cmi: NOT_RUN_THIS_ROUND                       # posterior ruler only, later, iff DG utility appears
+
+routing:                                        # PM A-E
+  A: geometry_and_DG_up_beats_shuffle -> seeds_3_4 + ccoral_same_protocol + dgcnn_replication
+  B: geometry_up_DG_flat -> analyze_target_signal_covariance_alignment   # do NOT just raise lambda
+  C: geometry_flat -> one_bounded_fix_lambda_1.0_OR_unfreeze   # one, not both
+  D: geometry_up_source_target_damaged -> C_d=C_shared+R_d_penalize_residual_variance
+  E: mcc_equals_shuffle -> generic_regularization_analysis      # true/shuffle grad cosine, margin, eff rank
+
+held_forbidden: [M2_selector, learned_oblique_projector, TTE, CMI_loss, PCGrad, dynamic_projector, new_backbone,
+                 new_amendment, manuscript_edit, posthoc_secondary_families]
+scope: {stage: MCC_viability, manuscript: frozen, lambda_sweep: false}
