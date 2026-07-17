@@ -1,0 +1,100 @@
+# FROZEN config v4 = AMENDMENT 03 (SHARED-NULL CONDITIONAL ESTIMAND). SPEC; M1 HOLD. SHA-256 stamped per row.
+# Supersedes v3's shared-overlap rejection-sampling control. Only the project owner may stop a scientific line.
+# Manuscript FROZEN. Every negative routes graded (no closeout word).
+estimand:                              # A03 restated
+  question: "within the space that does NOT delete the shared class-contrast mechanism, are directions most aligned
+             with cross-subject mechanism DISAGREEMENT more enriched for future-session-harmful deletable mechanism
+             than RANDOM directions in the SAME shared-null space?"
+  test_type: conditional_randomization        # hold shared_overlap=0 fixed; vary alignment-to-G_dis
+
+contrast_basis:                        # A03.1 explicit null projection (PRIMARY)
+  shared_span: row(Cbar)                       # rank(G_shared) <= C-1
+  shared_null: "N = null(Cbar), SVD tau = 1e-7"
+  Gdis_null: "N.T @ G_dis @ N"
+  B_contrast: "N @ TopEig_r(Gdis_null)"
+  dictionary_rank: "r = min(8, numrank_1e-7(Gdis_null))"
+  non_degeneracy_gate: "require null_dim(q) > dictionary_rank(r) AND numrank(Gdis_null) > 0"
+  low_dof_flag: SHARED_NULL_CONTROL_LOW_DOF     # if q <= r
+  below_resolution_flag: TASK_MECHANISM_BELOW_RESOLUTION
+  generalized_eig_basis: sensitivity_only       # amendment 02 basis demoted
+
+specificity_control:                   # A03.2
+  primary: SHARED_NULL_HAAR                      # Haar( Gr(r, S_perp) ) = N @ Haar(Gr(r,q))
+  blocks: 2
+  dicts_per_block: 100
+  matched_on: shared_overlap_equals_zero        # same shared-null feasible space
+  differs_only_in: alignment_to_G_dis
+  same_as_informed: [rank, exhaustive_action_family, Ycal_access, source_safety_filter]
+  secondary: AMBIENT_HAAR                        # generic low-rank control, whole R^p
+  rejected: total_task_energy_matching           # wrong invariant (27-48% shared) + degenerate at p=16
+  degeneracy_check: report_informed_vs_random_subspace_overlap_and_Gdis_capture   # flag LOW_DOF, never silently accept
+  note: "shared-null guarantees zero AVERAGE class-contrast mechanism, NOT task-safety -> P0.4 safety runs independently"
+
+families:                              # A03.3 one fold-level G_shared shared by all
+  common_G_shared: computed_once_per_fold_from_contrast
+  primary: [contrast_disagreement]
+  null_projected_secondary:
+    B_rule_N: "N @ Eig_r(N.T @ G_rule @ N)"
+    B_grad_N: "N @ Eig_r(N.T @ G_grad @ N)"
+  sensitivity: [rule_full_unprojected, grad_full_unprojected]
+  negative_reference: B_cond
+
+safety:                                # P0.1 symmetric
+  gate: mean_d(bAcc_full_sourceLOSO - bAcc_P_sourceLOSO) <= 0.02
+  symmetric: true                               # informed AND random both filtered the same way
+  report_contrasts: [dU_safe_specific, dU_unc_specific]     # safe-vs-safe AND unc-vs-unc
+  forbidden: safe_informed_vs_unconstrained_random
+  confirmatory_uses: dU_safe_specific
+
+estimators:                            # P0.2 / P0.3 exact
+  B_rule:
+    objective: "min_{W0,dW_d} sum_d ||Y_d - X_d(W0+dW_d)||^2 + lam0||W0||^2 + lamD sum_d||dW_d||^2"
+    solver: joint_block_normal_equations_or_BCD_to_KKT
+    lambda0: 1
+    lambdaDelta: 10
+    kkt_residual_test: true
+    sensitivity_lambdaDelta: [1, 100]
+  B_grad:
+    head: single_fresh_standardized_logistic_all_source
+    g_dy: "E[grad_z loss | D=d, Y=y]"
+    subject_weighting: "gbar_y = (1/m) sum_d g_dy   (EQUAL subjects, not trial-count pooled)"
+    residual: "r_dy = g_dy - gbar_y ; G_grad = sum r r^T (equal weight)"
+    trial_duplication_invariant: true
+
+random_seeds:                          # P0.4
+  seed: hash(dataset, backbone, heldout_subject, model_seed, basis_family, control_family, block_id, random_id)
+  independent_across_cells: true
+  blocks_per_control: 2
+
+builder_contract:                      # P0.5
+  returns: [raw_matrix, raw_singular_values, numerical_rank, orthonormal_basis, generalized_eigenvalues, config_hash]
+  raw_matrix_persisted_before_orthonormalization: true
+  persist_rows: [informed, random]              # each individually, with selected subset + safety stats
+
+statistics:                            # exact sign-flip confirmatory
+  effect_uncertainty: subject_cluster_bootstrap_10000
+  confirmatory_p: exact_one_sided_sign_flip_over_subjects   # BNCI2014 <=2^9=512, BNCI2015 <=2^12=4096
+  multiplicity: holm_over_two_confirmatory_datasets
+  bootstrap_p: sensitivity_only
+  route_A: [contrast_EEGNet, LCB95_dU_safe_specific_gt_0, holm_signflip_p_lt_0.05_ge1_dataset,
+            other_dataset_UCB95_gt_-0.01, specificity_control_eq_SHARED_NULL_HAAR]
+
+dgcnn_session:                         # Blocker 1
+  estimand: same_calibration_to_future_session_macro_split_as_EEGNet
+  repair_priority: [strict_metadata_backfill, frozen_re_inference]
+  backfill_requires: [elementwise_y_target_agreement, deterministic_trial_order_key]   # count-match INSUFFICIENT
+  re_inference_persists: [trial_id, session_source, session_target, run_id, event_id, y_source, y_target,
+                          subj_source, feature_hash, checkpoint_hash]
+  parity_audit: [max_abs_Z_diff, label_identity, logits_identity, order_identity]
+  session_free_split: NOT_APPROVED
+
+diagnostics: [shared_null_dim, dictionary_rank, selected_indices, selected_rank, Gdis_capture_fraction,
+              shared_overlap, source_safety_mean, source_safety_median, source_safety_worst,
+              calibration_utility, query_utility, projector_hash, dictionary_hash, random_block, random_id,
+              config_hash, git_sha, feature_hash]
+report_also: ["tr(P_B G_dis)/tr(P_N G_dis)", informed_random_subspace_overlap_distribution]
+
+pipeline: {construction: source_only, selection: non_deployable_Ycal_exhaustive_le3, evaluation: T_query_session_macro}
+matrix: {cells: 126, backbones: [EEGNet, DGCNN], seeds: [0,1,2]}   # (9+12) subj x 2 backbones x 3 seeds
+full_m1: {execution: fail_resumable_array_126_tasks, aggregate_only_after_all_complete: true, no_threshold_edit_on_partial: true}
+scope: {synthetic_or_smoke: engineering_only, manuscript: frozen, stage: amendment03_D1_contract, M1_run: HOLD}
