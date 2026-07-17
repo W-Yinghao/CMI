@@ -102,10 +102,15 @@ def _continue(warm_sd, Xtr, ytr, dtr, n_cls, X_shape, arm, device, cont_epochs, 
                                        n_batches=max(1, len(tr_idx) // (len(np.unique(dtr)) * n_cls * K)), seed=seed)
     opt = torch.optim.AdamW(bb.parameters(), lr=lr)
     gen = torch.Generator(device="cpu").manual_seed(seed + 777)
-    best = dict(val=-1.0, sd=None, ep=-1); diag = dict(mcc_loss=[], ce_loss=[], grad_ratio=[])
+    # DIAGNOSTIC 1: full-encoder-trainable assertion (unfreeze is a no-op -- the whole backbone is already trainable)
+    params = list(bb.parameters()); total_p = int(sum(p.numel() for p in params))
+    train_p = int(sum(p.numel() for p in params if p.requires_grad))
+    assert train_p == total_p, f"expected FULL encoder trainable, got {train_p}/{total_p} (frozen params present)"
+    names_hash = hashlib.sha256("|".join(sorted(n for n, p in bb.named_parameters() if p.requires_grad)).encode()).hexdigest()[:16]
+    best = dict(val=-1.0, sd=None, ep=-1); diag = dict(mcc_loss=[], ce_loss=[], grad_ratio=[], grad_cos=[])
     for ep in range(cont_epochs):
         lam_t = 0.0 if arm == "A_erm_continue" else lam_mcc * min(1.0, (ep + 1) / max(1, ramp))
-        bb.train()
+        bb.train(); first = True
         for local in samp:
             gi = tr_idx[local]
             xb = torch.tensor(Xtr[gi], dtype=torch.float32).to(device)
@@ -116,8 +121,16 @@ def _continue(warm_sd, Xtr, ytr, dtr, n_cls, X_shape, arm, device, cont_epochs, 
             else:
                 mcc, _ = mcc_loss(z, yb, db, shuffle_subjects=(arm == "C_mcc_shuffle"), generator=gen)
                 loss = ce + lam_t * mcc; mcc_v = float(mcc.detach())
+                # DIAGNOSTIC 2 (read-only, first batch/epoch): is lambda*||grad L_MCC|| non-trivial vs ||grad L_task||?
+                if first and lam_t > 0:
+                    gt = torch.autograd.grad(ce, params, retain_graph=True, allow_unused=True)
+                    gm = torch.autograd.grad(mcc, params, retain_graph=True, allow_unused=True)
+                    ft = torch.cat([(g if g is not None else torch.zeros_like(p)).flatten() for g, p in zip(gt, params)])
+                    fm = torch.cat([(g if g is not None else torch.zeros_like(p)).flatten() for g, p in zip(gm, params)])
+                    nt = float(ft.norm()); nm = float(fm.norm())
+                    diag["grad_ratio"].append(lam_t * nm / (nt + 1e-9)); diag["grad_cos"].append(float((ft @ fm) / (nt * nm + 1e-9)))
             opt.zero_grad(); loss.backward(); opt.step()
-            diag["mcc_loss"].append(mcc_v); diag["ce_loss"].append(float(ce.detach()))
+            diag["mcc_loss"].append(mcc_v); diag["ce_loss"].append(float(ce.detach())); first = False
         val = _bacc(bb, Xtr[va_idx], ytr[va_idx], device)
         if val > best["val"]:
             best = dict(val=val, sd=copy.deepcopy(bb.state_dict()), ep=ep)
@@ -129,7 +142,11 @@ def _continue(warm_sd, Xtr, ytr, dtr, n_cls, X_shape, arm, device, cont_epochs, 
                 feature_norm=float(Zc.norm(dim=1).mean()), effective_rank=effective_rank(Zc),
                 contrast_norm=contrast_norm(Zc, ytr[tr_idx][:2048], dtr[tr_idx][:2048]),
                 mean_mcc_loss=float(np.mean(diag["mcc_loss"])) if diag["mcc_loss"] else 0.0,
-                mean_ce_loss=float(np.mean(diag["ce_loss"])))
+                mean_ce_loss=float(np.mean(diag["ce_loss"])),
+                total_parameter_count=total_p, trainable_parameter_count=train_p,
+                trainable_parameter_names_hash=names_hash, full_encoder_trainable=bool(train_p == total_p),
+                mean_grad_ratio=float(np.mean(diag["grad_ratio"])) if diag["grad_ratio"] else 0.0,
+                mean_grad_cos=float(np.mean(diag["grad_cos"])) if diag["grad_cos"] else float("nan"))
     return bb, diag
 
 
@@ -162,6 +179,7 @@ def main():
     ap.add_argument("--bs", type=int, default=64); ap.add_argument("--K", type=int, default=4)
     ap.add_argument("--lam-mcc", type=float, default=0.25); ap.add_argument("--ramp", type=int, default=5)
     ap.add_argument("--cont-lr", type=float, default=1e-4); ap.add_argument("--smoke", action="store_true")
+    ap.add_argument("--verify-warmup-from", default=None)   # prior-round dir; assert warm-up hash matches per bundle
     a = ap.parse_args()
     bundles = enumerate_bundles()
     if a.list_bundles:
@@ -178,7 +196,14 @@ def main():
         a.dataset, subj, a.seed, a.device, a.warmup_epochs, a.bs, a.cache_dir)
     warm_sd = copy.deepcopy(bb.state_dict())
     print(f"[mcc] warm-up done, hash={warm_hash}", flush=True)
-    manifest = dict(dataset=a.dataset, subject=str(subj), seed=a.seed, warmup_hash=warm_hash, arms={})
+    # reuse warm-ups across rounds ONLY with exact hash match (PM requirement): compare to the prior-round manifest.
+    if a.verify_warmup_from:
+        prev = Path(a.verify_warmup_from) / f"{a.dataset}_sub{subj}_seed{a.seed}.manifest.json"
+        if prev.exists():
+            pw = json.loads(prev.read_text()).get("warmup_hash")
+            assert pw == warm_hash, f"warm-up hash mismatch vs prior round: {warm_hash} != {pw} (stale/retrained warm-up)"
+            print(f"[mcc] warm-up hash verified == prior round ({pw})", flush=True)
+    manifest = dict(dataset=a.dataset, subject=str(subj), seed=a.seed, warmup_hash=warm_hash, lam_mcc=a.lam_mcc, arms={})
     for arm in ARMS:
         b2, diag = _continue(warm_sd, Xtr, ytr, dtr, n_cls, X_shape, arm, a.device,
                              a.cont_epochs, a.cont_lr, a.K, a.lam_mcc, a.ramp, a.seed)
@@ -187,9 +212,15 @@ def main():
         tgt_bacc = _bacc(b2, Xte, yte, a.device)
         manifest["arms"][arm] = dict(dump=Path(p).name, target_bacc=tgt_bacc, selected_epoch=diag["selected_epoch"],
                                      source_val_bacc=diag["source_val_bacc"], eff_rank=diag["effective_rank"],
-                                     contrast_norm=diag["contrast_norm"], mean_mcc_loss=diag["mean_mcc_loss"])
+                                     contrast_norm=diag["contrast_norm"], mean_mcc_loss=diag["mean_mcc_loss"],
+                                     total_parameter_count=diag["total_parameter_count"],
+                                     trainable_parameter_count=diag["trainable_parameter_count"],
+                                     trainable_parameter_names_hash=diag["trainable_parameter_names_hash"],
+                                     full_encoder_trainable=diag["full_encoder_trainable"],
+                                     mean_grad_ratio=diag["mean_grad_ratio"], mean_grad_cos=diag["mean_grad_cos"])
         print(f"  {arm}: target_bAcc={tgt_bacc:.4f} sel_ep={diag['selected_epoch']} effrank={diag['effective_rank']:.2f} "
-              f"cnorm={diag['contrast_norm']:.3f} mcc={diag['mean_mcc_loss']:.4f}", flush=True)
+              f"cnorm={diag['contrast_norm']:.3f} mcc={diag['mean_mcc_loss']:.4f} trainable={diag['trainable_parameter_count']}/{diag['total_parameter_count']} "
+              f"grad_ratio={diag['mean_grad_ratio']:.3f} grad_cos={diag['mean_grad_cos']:+.3f}", flush=True)
     outd = Path(a.out_dir); (outd / f"{a.dataset}_sub{subj}_seed{a.seed}.manifest.json").write_text(json.dumps(manifest, indent=2))
     (outd / f"{a.dataset}_sub{subj}_seed{a.seed}.done").write_text(f"{warm_hash}\t3 arms\n")
     print(f"[mcc] cell done: {a.dataset} sub{subj} seed{a.seed} -> 3 arms + manifest + .done", flush=True)

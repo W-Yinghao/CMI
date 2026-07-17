@@ -39,15 +39,24 @@ Two facts pin it between the PM's C and E:
 - The real C-vs-E discriminator is the **B−C (vs shuffle)** separation above, which the draft table omitted.
 
 ## Disposition + PRE-REGISTERED flip criterion (per PM A–E, no unfalsifiable escape hatch)
-The mechanism is controllable but DG-inert at this update strength → run ONE bounded stronger-update lever (PM's
-choice, not both): **(i) λ_MCC = 1.0, or (ii) unfreeze full-encoder vs top-block**; re-run the SAME 3-arm protocol
-+ M1-P oracle re-audit. **Pre-registered flip rule (decided BEFORE the rerun so "too-weak-update" cannot become a
-permanent PENDING):**
-- **→ Result A / continue** only if the stronger lever (a) AMPLIFIES the true-vs-shuffle geometry separation (B−C),
+The mechanism is controllable but DG-inert at this update strength → run ONE bounded stronger-update lever.
+**CORRECTION (PM 2026-07-18): "unfreeze full-encoder vs top-block" is NOT a valid new lever — the current
+`_continue()` ALREADY trains the whole EEGNet (verified 2228/2228 parameters trainable; no `requires_grad=False`
+anywhere). So the only effective bounded-strength test is λ_MCC = 1.0** (0.25→1.0, ramp 0→1.0 over 5 epochs), all
+other settings fixed. Re-run the SAME 3-arm protocol from the SAME (hash-verified) warm-ups + M1-P oracle re-audit.
+**Pre-registered flip rule (decided BEFORE the rerun so "too-weak-update" cannot become a permanent PENDING):**
+- **→ Result A / continue** only if λ=1.0 (a) AMPLIFIES the true-vs-shuffle geometry separation (B−C),
   **AND** (b) lifts Δdir_consistency B−A above ERM (geometry actually moves vs ERM, not just vs shuffle), **AND**
   (c) yields ΔU_MCC−shuffle > 0 (DG benefit that is mechanism-specific).
-- **→ close as E** (generic-regularization / controllable-but-deployment-useless) if the stronger lever amplifies
-  the geometry separation but STILL leaves ΔU_MCC−shuffle ≈ 0. Do NOT persist as C.
+- **→ GLOBAL_MCC_MECHANISM_SPECIFIC_BUT_DG_INERT** (NOT "E / generic regularization" — strict E is already
+  falsified by the true-vs-shuffle separation) if λ=1.0 amplifies the geometry separation but STILL leaves
+  ΔU_MCC−shuffle ≈ 0. Next round = **risk-weighted MCC** (weight consistency by source-only predictive instability:
+  LOSO risk increase / class-margin disagreement / subject-head residual), NOT more λ.
+- **→ MINIBATCH_MCC_DOES_NOT_CONTROL_POPULATION_GEOMETRY_AT_USEFUL_SCALE** if λ=1.0 STILL does not amplify the
+  geometry effect at all (full encoder, 4× weight, matched control, all datasets/seeds run). Next round = change the
+  consistency ESTIMATOR (source-only EMA / memory-bank subject-class prototypes on cross-epoch-stable contrasts),
+  NOT more λ.
+- **→ D** if geometry rises but source/target is damaged → `C_d = C_shared + R_d`, constrain only residual variance.
 
 HELD: M2 selector, learned projector, TTE, CMI, λ sweep beyond the single lever, secondaries, new amendment,
 manuscript. Scientific line ACTIVE. AWAITING PM choice of the single bounded lever.
