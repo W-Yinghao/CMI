@@ -1,0 +1,17 @@
+{
+  "per_dataset": {
+    "BNCI2014_001": {
+      "dI_specific_ucb": 0.011243827160493833,
+      "subject_win_rate": 0.037037037037037035,
+      "closes": true
+    },
+    "BNCI2015_001": {
+      "dI_specific_ucb": 0.017708159722222214,
+      "subject_win_rate": 0.05555555555555555,
+      "closes": true
+    }
+  },
+  "overall_verdict": "SUBJECT_SUBSPACE_SELECTOR_CLOSED",
+  "n_random": 100,
+  "control": "greedy_select_on_Tcal_score_on_Tquery_equal_budget"
+}

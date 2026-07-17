@@ -42,3 +42,10 @@ with the project arc: leakage measurable, but neither source- nor target-X-obser
 deployable DG-beneficial deletion. Track B geometry stands as the mechanistic characterization (contested span
 tiny; subject/DG geometry mostly head-null; cond head_overlap 0.05-0.23); Track B B2/B3 as a METHOD path are
 correspondingly not warranted unless the PM redefines the objective.
+
+
+## C0 reproducible closeout (fair calibration-selected equal-budget random-basis oracle, 63/63 cells, n_random=100)
+`scripts/aggregate_unconstrained_oracle_specificity.py` -> unconstrained_oracle_closure_verdict.json = SUBJECT_SUBSPACE_SELECTOR_CLOSED.
+Both informed and random oracles select GREEDILY on T_cal labels (equal rank+budget) and score only on T_query.
+dI_specific (informed - mean random): BNCI2014 +0.0028 [-0.0053,+0.0112], BNCI2015 +0.0040 [-0.0094,+0.0177] (CI includes 0).
+Informed beats random Q95 in only 3.7% / 5.6% of subjects (~ the 5% chance rate for a Q95 threshold) -> no subspace-specific utility. Machine-readable: unconstrained_oracle_{specificity_full,subject_rows}.csv.
