@@ -85,6 +85,60 @@ def whitened_cond_basis(Zs_w, ys, ds, max_rank=None):
     return Vt[: (Vt.shape[0] if max_rank is None else min(max_rank, Vt.shape[0]))]
 
 
+def _svd_threshold(M_rows, max_rank=None, tau=1e-7):
+    """SVD of M_rows keeping ONLY directions with singular value > tau*s_max (fixes the numerical-rank defect
+    where zero-singular-value SVD-completion directions were returned). Returns (B [r,D], singular_values, r)."""
+    if np.atleast_2d(M_rows).shape[0] == 0:
+        return np.zeros((0, np.atleast_2d(M_rows).shape[1])), np.array([]), 0
+    U, s, Vt = np.linalg.svd(np.atleast_2d(M_rows), full_matrices=False)
+    r = int((s > tau * (s.max() if s.size else 1.0)).sum())
+    if max_rank:
+        r = min(r, int(max_rank))
+    return Vt[:r], s, r
+
+
+def whitened_rule_basis(Zs_w, ys, ds, max_rank=None, tau=1e-7, seed=0):
+    """Decision-rule DISAGREEMENT in whitened coords, NUMERICAL-RANK thresholded. Returns (B, singular_values,
+    numerical_rank). Per-subject class-centered head; stack (W_d,c - mean_d W_d,c)."""
+    n_cls = len(np.unique(ys)); heads = {}
+    for u in np.unique(ds):
+        m = ds == u
+        if len(np.unique(ys[m])) < n_cls or m.sum() < n_cls + 2:
+            continue
+        clf = LogisticRegression(max_iter=300).fit(Zs_w[m], ys[m])
+        W = np.vstack([-clf.coef_[0], clf.coef_[0]]) if clf.coef_.shape[0] == 1 else clf.coef_
+        if W.shape[0] == n_cls:
+            heads[u] = W - W.mean(0)
+    if len(heads) < 2:
+        return np.zeros((0, Zs_w.shape[1])), np.array([]), 0
+    Wbar = np.mean(list(heads.values()), axis=0)
+    rows = np.vstack([h - Wbar for h in heads.values()])
+    return _svd_threshold(rows, max_rank, tau)
+
+
+def whitened_grad_basis(Zs_w, ys, ds, max_rank=None, tau=1e-7, seed=0):
+    """Task-gradient DISAGREEMENT in whitened coords, NUMERICAL-RANK thresholded (gradients live in row(W) so
+    the true nonzero rank is <= C-1). Returns (B, singular_values, numerical_rank)."""
+    if len(np.unique(ys)) < 2:
+        return np.zeros((0, Zs_w.shape[1])), np.array([]), 0
+    clf = LogisticRegression(max_iter=300).fit(Zs_w, ys)
+    W = np.vstack([-clf.coef_[0], clf.coef_[0]]) if clf.coef_.shape[0] == 1 else clf.coef_
+    P = clf.predict_proba(Zs_w); oh = np.eye(len(clf.classes_))[np.searchsorted(clf.classes_, ys)]
+    Gmat = (P - oh) @ W; gm = Gmat.mean(0)
+    rows = np.vstack([Gmat[ds == u].mean(0) - gm for u in np.unique(ds)])
+    return _svd_threshold(rows, max_rank, tau)
+
+
+def head_overlap_enrichment(B, row_w, d):
+    """Enrichment of a basis's task-head overlap over the isotropic random expectation rank(Wc)/d:
+    [tr(P_B P_row)/rank(B)] / [rank(row)/d]. 1.0 == no enrichment; >1 task-aligned; <1 task-averse."""
+    if B.shape[0] == 0 or row_w.shape[0] == 0:
+        return float("nan")
+    raw = float(np.sum((B @ row_w.T) ** 2) / B.shape[0])
+    iso = row_w.shape[0] / d
+    return float(raw / iso) if iso > 0 else float("nan")
+
+
 def whitened_head_rowspace(Zs_w, ys, seed=0, W_stored=None, A_inv=None):
     """Orthonormal basis of the class-centered task-head ROW space (contested), and its complement (free/null),
     in whitened coordinates. EEGNet: fresh logistic on whitened source. DGCNN: stored head W transformed by

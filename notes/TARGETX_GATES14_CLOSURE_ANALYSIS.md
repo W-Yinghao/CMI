@@ -1,3 +1,14 @@
+# [REVOKED VERDICT WORDING] Full Gates 1-4 (63/63) + adversarial verification
+
+> PM DISCIPLINE UPDATE: `CLOSED`/`closeout` are NOT scientific conclusions. This document's original
+> `STOP_ACTIONABILITY_FAILED` / `SUBJECT_SUBSPACE_SELECTOR_CLOSED` wording is REVOKED and superseded by the
+> graded C0-v2 stage verdict {B_COND_ENRICHED_OVER_RANDOM | B_COND_NO_MEAN_ENRICHMENT |
+> B_COND_ENRICHMENT_INCONCLUSIVE}. Only the PM declares a scientific line stopped. The engineering facts
+> below (contested INTERSECT safety = empty; informed oracle not enriched over equal-budget random) stand;
+> the DECISION to stop does not. Renamed dI->dU (utility, not MI). See unconstrained_oracle_stage_verdict.json.
+
+---
+
 # Full Gates 1-4 (63/63 EEGNet cells) — verdict + adversarial verification (authoritative)
 
 Full real-EEG G1-primary run, phase primary, no favorable-subject filtering. Branch

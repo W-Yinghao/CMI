@@ -14,17 +14,23 @@ import numpy as np
 REPO = Path(__file__).resolve().parents[1]; sys.path.insert(0, str(REPO))
 from tos_cmi.eeg.relaxation_ladder import feat_from_tos_dump, feat_from_audit_npz, _dense
 from tos_cmi.eval import targetx_metric as M
-from tos_cmi.eval.dg_identifiability import basis_rule, basis_grad
 
 OUT = REPO / "results" / "cmi_trace_trackb_geometry"
 DATASETS = ["BNCI2014_001", "BNCI2015_001"]
 
 
-def _eff_rank(B):
-    if B.shape[0] == 0:
-        return 0.0
-    s = np.linalg.svd(B, compute_uv=False); p = s / (s.sum() + 1e-12)
-    return float(np.exp(-(p * np.log(p + 1e-12)).sum()))
+def _spectrum_eff_rank(s):
+    """Entropy effective rank from the PRE-orthogonalization singular spectrum (B0-v2 fix; the old post-orth
+    version was trivially == rank). Also returns 90%/95% energy ranks."""
+    s = np.asarray(s, float)
+    if s.size == 0 or s.sum() <= 0:
+        return dict(effective_rank=0.0, energy_rank_90=0, energy_rank_95=0, condition_number_nonzero=float("nan"))
+    p = (s ** 2) / (s ** 2).sum(); eff = float(np.exp(-(p * np.log(p + 1e-12)).sum()))
+    cum = np.cumsum((s ** 2) / (s ** 2).sum())
+    nz = s[s > 1e-7 * s.max()]
+    return dict(effective_rank=eff, energy_rank_90=int(np.searchsorted(cum, 0.90) + 1),
+                energy_rank_95=int(np.searchsorted(cum, 0.95) + 1),
+                condition_number_nonzero=float(nz.max() / nz.min()) if nz.size else float("nan"))
 
 
 def _overlap_rowspace(B, row):
@@ -70,22 +76,32 @@ def main():
             W = M.source_whitener(Zs); Zs_w = M.to_whitened(Zs, W)
             row_w, null_w = M.whitened_head_rowspace(Zs_w, ys, 0,
                 W_stored=f.get("head_W"), A_inv=W["A_inv"] if f.get("head_W") is not None else None)
-            B = {"cond": M.whitened_cond_basis(Zs_w, ys, ds_, max_rank=a.max_rank),
-                 "rule": basis_rule(Zs_w, ys, ds_, max_rank=a.max_rank, seed=0),
-                 "grad": basis_grad(Zs_w, ys, ds_, max_rank=a.max_rank, seed=0)}
+            cond_B = M.whitened_cond_basis(Zs_w, ys, ds_, max_rank=a.max_rank)
+            cond_s = np.linalg.svd(cond_B, compute_uv=False) if cond_B.shape[0] else np.array([])
+            rule_B, rule_s, rule_r = M.whitened_rule_basis(Zs_w, ys, ds_, max_rank=a.max_rank)   # thresholded
+            grad_B, grad_s, grad_r = M.whitened_grad_basis(Zs_w, ys, ds_, max_rank=a.max_rank)   # thresholded
+            B = {"cond": cond_B, "rule": rule_B, "grad": grad_B}
+            spec = {"cond": cond_s, "rule": rule_s, "grad": grad_s}
             union = M._orthonormal(np.vstack([b for b in B.values() if b.shape[0]]) if any(b.shape[0] for b in B.values()) else np.zeros((1, Zs.shape[1])))
+            d = int(Zs.shape[1])
             row = dict(dataset=ds, backbone=a.backbone, heldout_subject=str(f["heldout_subject"]), seed=int(f.get("seed", 0)),
-                       latent_dim=int(Zs.shape[1]), n_source_subjects=int(len(np.unique(ds_))),
+                       latent_dim=d, n_source_subjects=int(len(np.unique(ds_))),
                        whitening_method="LedoitWolf", cov_condition_number=W["cond"], whitening_hash=W["whitening_hash"],
                        head_rowspace_rank=int(row_w.shape[0]), union_rank=int(union.shape[0]),
-                       union_effective_rank=_eff_rank(union),
                        uses_target_cal_y=False, uses_target_query_y_for_selection=False, oracle_non_deployable=False,
                        firewall="source_only_geometry_no_target_labels", git_sha=sha)
             for name, b in B.items():
                 bc = M.project_basis(b, row_w); bf = M.project_basis(b, null_w)
-                row[f"{name}_rank"] = int(b.shape[0]); row[f"{name}_contested_rank"] = int(bc.shape[0])
-                row[f"{name}_free_rank"] = int(bf.shape[0]); row[f"{name}_eff_rank"] = _eff_rank(b)
+                sp = _spectrum_eff_rank(spec[name])
+                row[f"{name}_rank"] = int(b.shape[0])                            # numerical (thresholded) rank
+                row[f"{name}_numerical_rank"] = int(b.shape[0])
+                row[f"{name}_contested_rank"] = int(bc.shape[0]); row[f"{name}_free_rank"] = int(bf.shape[0])
+                row[f"{name}_raw_singular_values"] = [float(x) for x in spec[name][:12]]
+                row[f"{name}_effective_rank"] = sp["effective_rank"]            # from PRE-orth spectrum
+                row[f"{name}_energy_rank_90"] = sp["energy_rank_90"]; row[f"{name}_energy_rank_95"] = sp["energy_rank_95"]
+                row[f"{name}_condition_number_nonzero"] = sp["condition_number_nonzero"]
                 row[f"{name}_head_overlap"] = _overlap_rowspace(b, row_w)
+                row[f"{name}_head_overlap_enrichment"] = M.head_overlap_enrichment(b, row_w, d)   # vs isotropic rank(Wc)/d
             for x, y in (("cond", "rule"), ("cond", "grad"), ("rule", "grad")):
                 pa = M.principal_angles_cos(B[x][:3], B[y][:3])
                 row[f"angle_{x}_{y}_meancos"] = float(np.mean(pa)) if pa.size else float("nan")
