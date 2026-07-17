@@ -1,0 +1,6 @@
+risk,control,residual,status
+U1 opens selection/scientific path,separate module plus dynamic open policy,OS administrator outside governance,CONTROLLED
+U2 invoked outside attempt,"context, U1 handoff, lifecycle and O_EXCL stage receipt",none within official entrypoint,CONTROLLED
+forged protected replay,schema and every authorization/input identity replay,filesystem administrator outside governance,CONTROLLED
+late success/failure contradiction,single acceptance rename and recovery,filesystem atomic-rename semantics,CONTROLLED
+U1 exceeds storage,2 GiB enforced before U1 rename,staging evidence,CONTROLLED

@@ -1,0 +1,6 @@
+case,expected,observed,pre_payload_failure
+exact receipt,PASS,PASS,0
+valid file hash wrong schema,FAIL,FAIL,1
+wrong authorization,FAIL,FAIL,1
+wrong attempt/root,FAIL,FAIL,1
+registry count/hash drift,FAIL,FAIL,1

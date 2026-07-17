@@ -1,0 +1,6 @@
+stage,reason,final_acceptance,disposition
+PREFLIGHT,lock/auth/repository drift,0,STOP_BEFORE_PROTECTED_REPLAY
+PROTECTED_REPLAY,receipt/input identity drift,0,PRESERVE_CONSUMPTION_NO_RETRY
+U1,utility/persistence/coverage/size,0,PROVISIONAL_OR_FAILED_U1_ONLY
+U2,action/endpoint mismatch,0,U1_PROVISIONAL_NOT_ACCEPTED
+ACCEPTANCE,manifest/lifecycle/rename,0,RECOVER_IF_VALID_ELSE_RECONCILE
