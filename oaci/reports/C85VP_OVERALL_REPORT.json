@@ -1,0 +1,52 @@
+{
+  "schema_version": "c85vp_overall_report_v1",
+  "milestone": "C85VP",
+  "created_at_utc": "2026-07-17T11:29:49Z",
+  "final_gate": "C85V_INDEPENDENT_PROOF_REVIEW_IMPLEMENTED_AND_LOCKED_READY_FOR_PI_AUTHORIZATION",
+  "identities": {
+    "c85t_accepted_head": "ae79e8c51905feba89aed761a37df00e7e6374d0",
+    "protocol_commit": "436d6ff6a3710cd9a3c75cf2f22d0306a10f2d40",
+    "protocol_sha256": "4b622ee1dd2dda6f681a3cf60b16eda0d873dbbe4f1ee996e565bf037423c586",
+    "implementation_commit": "a0beda65ee7db2d0a68f9f04dc01af477c48cefb",
+    "execution_lock_commit": "3c732489407ebca7603e5fb65d03c1ae25d046b6",
+    "execution_lock_sha256": "35cd029ba9cf68599a53d3f23db7a7c0a721440d9fb79be88a084548e452b20f"
+  },
+  "frozen_c85t": {
+    "result_sha256": "ecaff65e942dbb81d93a3bdb61589fa9f1f6590f7188947688e6b30617140cec",
+    "result_manifest_sha256": "a727beebcb45598ea0f92f37bed8ef32369b1c793ecad9efc2f5d9941bd5bb0e",
+    "semantic_replay_sha256": "735edf13a24c074cb3c18e56d168ebd905b3a7bcb29e3c273b3652bb1b7dcc6e",
+    "completion_receipt_sha256": "418f74e4c3cf60847b11bf18a890ffebf870ed8adee1a75d304b01075646e65d",
+    "proof_candidates": 7,
+    "formal_statuses_open": 7
+  },
+  "readiness": {
+    "theorem_statements": 7,
+    "external_bound_objects": 13,
+    "repository_bound_objects": 41,
+    "implementation_modules": 7,
+    "focused_new_tests": 20,
+    "red_team_pass": 56,
+    "red_team_total": 56
+  },
+  "accepted_regressions": {
+    "focused": {"job": 899937, "passed": 395, "stderr_bytes": 0},
+    "c65": {"job": 899949, "passed": 1040, "skipped": 1, "deselected": 4, "stderr_bytes": 0},
+    "c23": {"job": 899950, "passed": 1451, "skipped": 1, "deselected": 4, "stderr_bytes": 0},
+    "full": {"job": 899951, "passed": 2375, "skipped": 1, "deselected": 4, "stderr_bytes": 0}
+  },
+  "protected_counters": {
+    "candidate_text_opened_before_protocol": 0,
+    "registered_c85v_reviews": 0,
+    "monte_carlo_reruns": 0,
+    "formal_status_transitions": 0,
+    "real_data_access": 0,
+    "active_acquisition": 0,
+    "c85e": 0,
+    "manuscript_modifications": 0
+  },
+  "authorization": {
+    "c85v_authorized": false,
+    "authorization_record_exists": false,
+    "future_direct_statement_exact": "授权 C85V"
+  }
+}

@@ -1657,6 +1657,13 @@ overstatements. Expect to be wrong on the first read; the controls exist to catc
 
 - **Repo:** `git@github.com:W-Yinghao/CMI.git`  ·  **Branch:** `oaci` (fully pushed).
 - **Worktree on the lab machine:** `/home/infres/yinwang/CMI_AAAI_oaci`.
+- **C85VP protocol = `436d6ff6`**, implementation = `a0beda65`, C85V lock =
+  `3c732489`, lock SHA =
+  `35cd029ba9cf68599a53d3f23db7a7c0a721440d9fb79be88a084548e452b20f`.
+  C85V is locked but not authorized; T1-T7 remain `OPEN`.
+- **C85T V3 result/closeout HEAD = `ae79e8c`**; result SHA =
+  `ecaff65e942dbb81d93a3bdb61589fa9f1f6590f7188947688e6b30617140cec`.
+  Its authorization is consumed and its external bundle is immutable.
 - **C80P readiness result = `1b02454`**; protocol = `f5d83b3`, protocol SHA = `c6292597f5610cb96e8eaf0313eaa741f8fa9b11dd89ff9e4d84db1fa33add85`, synthetic implementation = `c98e084`, analysis lock = `972f47c`, analysis-lock SHA = `05a99e7ccc357b90b6675756caa680fd16541358bb697fdded89351f1e7ae4a8`.
 - **C79E final HEAD = `dadd166`**; final validation = `a12dc8b`, protocol = `ec4834c`, protocol SHA = `e350b7f0c4ee3dfcf6b4f5651c1c7a0e8beac72e478ffb6c1e98e12df814f587`, field/analysis locks = `35d0c65` / `7cebf2e`, authorization record = `b67ba6c`, scientific red team = `439c8c5`.
 - **C78S implementation = `e561a15`**, scope-specific lock = `ce1fb14`, result = `43a046c`, handoff = `48be5b7`, regression-provenance correction = `dcd4c28`; all are unsquashed.
@@ -1722,16 +1729,27 @@ Run a rung's report: `python -m oaci.<subpackage>.report --out-dir oaci/reports`
 
 ---
 
-## 7. How to continue (C85V protocol review required)
+## 7. How to continue (C85V direct authorization required)
 
 - Preserve C84S gates C84-D/C84-L4, all C84A exploratory tags, the C85P theory
   protocol, the C85R V2 scenario law, and the complete C85T V3 bundle.
 - Do not rerun C85T. Its authorization is consumed and its atomic bundle is
   immutable.
-- C85V may begin only after an additive read-only proof-review protocol and PM
-  approval. C85T itself did not authorize C85V.
-- C85V must replay the seven frozen candidates and exact counterexamples, keep
-  rejected proofs, and must not rerun S6/S7/S9 Monte Carlo.
+- C85VP has completed the additive read-only proof-review protocol and unique
+  C85V execution lock. Preserve protocol commit `436d6ff6`, implementation
+  commit `a0beda65`, lock commit `3c732489`, and lock SHA
+  `35cd029ba9cf68599a53d3f23db7a7c0a721440d9fb79be88a084548e452b20f`.
+- C85V is **not authorized**. Only a new standalone `授权 C85V` may bind the
+  current lock. No earlier authorization carries forward.
+- After authorization, Stage A must freeze all seven candidate-blind
+  derivations before Stage B can access proof-candidate text. Stage B must
+  replay all candidate hashes and exact finite objects without importing or
+  rerunning C85T Monte Carlo. The adjudicator must retain incomplete and
+  dissenting artifacts; T5 remains `OPEN` if its frozen decoder/Fano
+  assumptions are insufficient.
+- A successful C85V may transition theorem statuses only through the locked
+  verdict contract and must stop at
+  `C85V_INDEPENDENT_PROOF_VERDICTS_AND_THEOREM_STATUSES_FROZEN_C85E_PROTOCOL_REVIEW_REQUIRED`.
 - Do not access real project data or start C85E, active acquisition, new data/
   model execution, selector retuning, or manuscript changes.
 
