@@ -13,7 +13,70 @@ and collaboration sections before acting.
 
 ---
 
-## 0. Current continuation state through C85EP2 (2026-07-17)
+## 0. Current continuation state through C85E (2026-07-17)
+
+C85E consumed one fresh authorization and stopped at:
+
+```text
+C85E_FROZEN_FIELD_DECISION_THEORY_BRIDGE_COMPLETE_C86_PROTOCOL_REVIEW_REQUIRED
+```
+
+Authoritative identities:
+
+```text
+authorization/execution HEAD:
+  c65402db892fb8a58a0592ca5e81a0ee871a88ce
+
+C85E lock commit / SHA-256:
+  48e177c9914003202cc75cefb4a98832ea8250c3
+  a59062305b521973476e0d40236069eba7c9e149aeca9d3fe03c08a1ce106176
+
+authorization SHA-256:
+  a67a57266d6454ab9352b9c6db861cd2950f725c4a3c2cf49ffd64ea623a541c
+
+result / manifest SHA-256:
+  f2f09d123dd7767d41e6141ae5fe573bff8c15868aee04ae3be9a3d5c1b8d4db
+  75ffaa7212b01f6dfc4c69f86ddbe9d8f6c911ce7a107917b997a8c9fcf6c55e
+```
+
+The frozen bundle contains 26 registered tables and 21,607 tagged rows. It
+replayed 944 utility contexts, 76,464 candidate rows, 18,432 historical method
+rows, and 8,749,056 finite Q0 actions without opening direct labels, logits,
+EEG, or source arrays.
+
+Exploratory findings include exact U11/B1 collapse across all 160 Cho contexts,
+scope-specific collapse in Lee and Physionet, and no nontrivial global-field
+collapse. COTT and Q0 FULL have lower mean standardized regret than S1 in all
+three datasets, but target-tail behavior remains heterogeneous and neither
+`C84-D` nor `C84-L4` changes. T3 applies only to exact action-map collapse;
+T1/T4/T7 assumptions remain unidentified, T2/T6 are descriptive analogues,
+and T5 remains open.
+
+```text
+focused: 394 passed, 3 deselected
+C65:     1,103 passed, 1 skipped, 12 deselected
+C23:     1,514 passed, 1 skipped, 12 deselected
+full:    2,438 passed, 1 skipped, 12 deselected
+red team: 64 / 64 PASS
+accepted stderr: empty
+```
+
+C86, active acquisition, new data/model zoos, and manuscript changes remain
+unauthorized. The next possible action is C86 protocol review, not execution.
+
+Authoritative C85E reports:
+
+```text
+oaci/reports/C85E_OVERALL_REPORT.md
+oaci/reports/C85E_OVERALL_REPORT.json
+oaci/reports/C85E_OVERALL_REPORT.sha256
+oaci/reports/C85E_RESULT_IDENTITY.json
+oaci/reports/C85E_FINAL_REPORT_RED_TEAM.md
+oaci/reports/C85E_REGRESSION_VERIFICATION.md
+oaci/reports/OACI_EEG_DG_PROJECT_MEMORY_THROUGH_C85E.md
+```
+
+### Prior continuation state through C85EP2
 
 C85EP2 stopped at:
 
