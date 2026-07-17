@@ -1,0 +1,7 @@
+stage,reason,final_utility_manifest,disposition
+PREFLIGHT,input path/hash/lock drift,0,BLOCK_BEFORE_CONSUMPTION
+U1,metric/identity/persistence mismatch,0,PRESERVE_FAILED_ROOT_NO_RETRY
+U1,coverage below 944x81,0,NO_ATOMIC_PUBLICATION
+U2,frozen action coverage mismatch,1,U1_NOT_ACCEPTED_FOR_C85E
+U2,historical endpoint mismatch,1,STOP_PM_REVIEW
+RUNTIME,formula/tolerance/schema pressure,0,NO_RUNTIME_CHANGE
