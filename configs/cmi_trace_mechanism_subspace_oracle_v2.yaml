@@ -1,0 +1,75 @@
+# FROZEN config v2 for the Mechanism-Subspace Oracle (M0.1 amendment 01). SPEC ONLY — M1 HOLD until PM review.
+# SHA-256 stamped into every M1 row. Manuscript FROZEN. No CLOSE/closeout wording (graded result-routing only).
+objective:
+  target: delete_cross_subject_task_mechanism_disagreement_preserve_shared
+  cmi_role: post_hoc_measurement_only
+  optimize: utility_first_dU_query           # effects are query bAcc differences (dU), never MI (dI)
+
+metric: {whitening: source_ledoit_wolf, numerical_rank_tau: 1.0e-7, eta_shrinkage: small_frozen_source_only}
+
+primary_object:                              # class-contrast disagreement (P0.3)
+  name: class_contrast_disagreement
+  contrast: c_d^{ab} = mu_{d,a} - mu_{d,b}    # 4-class = 6 unordered pairs; binary = single contrast
+  shared: cbar^{ab} = sum_d w_d c_d^{ab}
+  residual: r_d^{ab} = c_d^{ab} - cbar^{ab}
+  G_shared: sum_{a<b} cbar cbar^T
+  G_dis: sum_{d,a<b} w r_d r_d^T
+  construction: generalized_eig  G_dis v = rho (G_shared + eta I) v   # top-rho, numerical-rank thresholded
+
+secondary_objects:
+  rule_disagreement:                         # shared-plus-residual SHRINKAGE (P0.4)
+    model: W_d = W_0 + dW_d
+    penalty: lambda0*||W_0||_F^2 + lambdaDelta*sum_d ||dW_d||_F^2
+    hyperparams: source_only_fixed_or_nested_source_CV     # never sees target utility
+    G_rule: sum_d dW_d^T dW_d
+  gradient_disagreement:                     # class-CONDITIONAL (P0.5)
+    g_dy: E[grad_z loss(h(z),y) | D=d, Y=y]
+    r_dy: g_dy - gbar_y
+    G_grad: sum_{d,y} w_{d,y} r_dy r_dy^T
+    balance: [class_balanced, subject_balanced]
+    numerical_rank_threshold: true
+    save: raw_singular_spectrum
+    note: current predictor ERROR geometry, rank <= C-1, not full representation mechanism
+  negative_reference: B_cond
+
+candidate_families: [contrast_disagreement, rule_disagreement, gradient_disagreement, B_cond_negative_ref]
+rank_budget: [1, 2, 3]
+
+pipeline:                                    # 3 separated steps (P0.8)
+  construction: source_only  B_mech = eig(G_dis, G_shared)
+  existence_selection: non_deployable  select subset/rank with Y_cal (hindsight)
+  evaluation: T_query_future_session_macro_only
+
+gates:
+  hard: source_task_drop_le: 0.02            # the ONLY hard gate (P0.6)
+  continuous_diagnostic: shared_overlap  s(P) = tr(P G_shared)/tr(G_shared)   # sensitivity, NOT a hard cut
+  M1_existence: LCB95(dU_mechanism_specific) > 0 on >=1 family, no clear harm on other dataset
+  M2_source_identifiability: LCB95(dU_source_meta) > 0 AND recovery >= 0.25 of M1 gain
+  M3_learned_oblique: P=UU^T, U subset span(B_contrast,B_rule,B_grad), rank<=3, frozen encoder + fresh head
+  M4_tte: only after a STATIC learned subspace gives specific full-EEG target gain
+
+random_controls:                             # two kinds (P0.7)
+  ambient: {n: 100, blocks: 2, match: [dictionary_rank, action_count, greedy_budget, Tcal_access]}
+  shared_overlap_matched: {n: 100, blocks: 2, additionally_match: "s(P) = tr(P_R G_shared)/tr(G_shared)"}
+  primary_specificity_control: shared_overlap_matched
+  generic_control: ambient
+primary_stat: dU_mechanism_specific = U_mechanism - E_R[U_shared_overlap_matched_random]
+
+result_routing:                              # graded; NO closeout; each negative -> next experiment + failure record
+  MECHANISM_ENRICHED_OVER_RANDOM: M2_source_identifiability
+  GENERIC_LOW_RANK_EFFECT: revise_mechanism_dictionary_or_training_regularizer
+  NO_DETECTED_MECHANISM_ENRICHMENT: training_time_shaping  # L = L_task + lambda*sum(1-cos(c_d,cbar))
+  BASIS_UNSTABLE_OR_RANK_DEFECT: fix_estimator_or_rank
+  READOUT_DEPENDENT: vary_readout_capacity
+  BACKBONE_SPECIFIC: analyze_capacity_consistency_rank_headgeom_confirm_new_seed_or_backbone
+  INCONCLUSIVE: increase_power_or_random_draws
+  negative_record_fields: [failure_layer, evidence, learned_lesson, next_hypothesis, next_experiment]
+
+matrix:
+  cells: 126                                 # (9+12) subjects x 2 backbones x 3 seeds  (NOT 2x2x21x3=252) (P0.9)
+  backbones: [EEGNet, DGCNN]                 # EEGNet primary, DGCNN secondary; no TSMNet/foundation/new
+  seeds: [0, 1, 2]
+  compute: {M1: cpu_high_memory_array, GPU_from: M3}
+
+bootstrap: {n: 10000, cluster_unit: target_subject, seeds_within_subject: pooled}
+scope: {synthetic_or_smoke: engineering_only, manuscript: frozen, current_stage: M0_1_amendment_spec_only, M1_run: HOLD}
