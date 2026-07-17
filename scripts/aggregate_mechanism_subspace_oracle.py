@@ -72,19 +72,38 @@ def _cell_specific(row):
     return dict(dU_safe_specific=float(inf_safe - m_safe),
                 dU_unc_specific=(float(inf_unc - m_unc) if inf_unc is not None and np.isfinite(inf_unc) and np.isfinite(m_unc) else float("nan")),
                 beats_q95=bool(inf_safe > q95), control=ctrl,
-                informed_gdis_capture=row.get("informed_gdis_capture"),
-                mean_random_gdis_capture=_mean(recs, "gdis_capture")[0],
+                # DICTIONARY capture = full rank-r basis; SELECTED capture = the <=3 deleted projector (named apart)
+                dictionary_gdis_capture=row.get("dictionary_gdis_capture"),
+                selected_safe_gdis_capture=row.get("selected_safe_gdis_capture"),
+                mean_random_dictionary_gdis_capture=_mean(recs, "dictionary_gdis_capture")[0],
+                mean_random_selected_gdis_capture=_mean(recs, "selected_safe_gdis_capture")[0],
                 mean_subspace_overlap=_mean(recs, "subspace_overlap")[0])
 
 
 def main():
-    ap = argparse.ArgumentParser(); ap.add_argument("--smoke", action="store_true"); a = ap.parse_args()
-    tag = "smoke" if a.smoke else "full"
-    src = OUT / f"mechanism_oracle_rows_{tag}.jsonl"
-    rows = [json.loads(l) for l in open(src)]
-    prov = dict(rows_file=str(src.relative_to(REPO)), rows_sha256=hashlib.sha256(open(src, "rb").read()).hexdigest()[:16],
-                n_rows=len(rows), git_sha=next((r.get("git_sha") for r in rows if r.get("git_sha")), "unknown"),
-                config_hash=next((r.get("config_hash") for r in rows if r.get("config_hash")), "unknown"))
+    ap = argparse.ArgumentParser(); ap.add_argument("--smoke", action="store_true")
+    ap.add_argument("--from-dir", default=None); ap.add_argument("--expect", type=int, default=None)
+    ap.add_argument("--tag", default=None)
+    a = ap.parse_args()
+    if a.from_dir:                                                 # ---- M1-P: aggregate per-cell files, refuse if incomplete ----
+        d = Path(a.from_dir); done = sorted(d.glob("*.done")); cells = sorted(d.glob("cell_*.jsonl"))
+        tag = a.tag or "m1p"
+        if a.expect is not None and len(done) < a.expect:
+            print(f"[mech-agg-{tag}] INCOMPLETE: {len(done)}/{a.expect} cells done -> REFUSING to aggregate (no partial-result threshold edits). "
+                  f"missing {a.expect - len(done)}.")
+            sys.exit(2)
+        rows = [json.loads(l) for c in cells for l in open(c)]
+        prov = dict(from_dir=str(d), n_done=len(done), n_cells=len(cells), n_rows=len(rows),
+                    git_sha=next((r.get("git_sha") for r in rows if r.get("git_sha")), "unknown"),
+                    config_hash=next((r.get("config_hash") for r in rows if r.get("config_hash")), "unknown"),
+                    feature_hashes=sorted({r.get("feature_hash") for r in rows if r.get("feature_hash")}))
+    else:
+        tag = "smoke" if a.smoke else "full"
+        src = OUT / f"mechanism_oracle_rows_{tag}.jsonl"
+        rows = [json.loads(l) for l in open(src)]
+        prov = dict(rows_file=str(src.relative_to(REPO)), rows_sha256=hashlib.sha256(open(src, "rb").read()).hexdigest()[:16],
+                    n_rows=len(rows), git_sha=next((r.get("git_sha") for r in rows if r.get("git_sha")), "unknown"),
+                    config_hash=next((r.get("config_hash") for r in rows if r.get("config_hash")), "unknown"))
     skipped = [dict(dataset=r.get("dataset"), backbone=r.get("backbone"), subject=r.get("subject"),
                     family=r.get("family"), reason=r.get("reason") or r.get("fail")) for r in rows if r.get("status") == "skipped"]
     unexpected = [dict(dataset=r.get("dataset"), backbone=r.get("backbone"), subject=r.get("subject"),
@@ -101,18 +120,20 @@ def main():
         key = (r["backbone"], r["family"], r["dataset"]); s = r["subject"]
         per[key][s].append(cs["dU_safe_specific"]); unc[key][s].append(cs["dU_unc_specific"])
         winr[key][s].append(1.0 if cs["beats_q95"] else 0.0); ctrl_used[key].add(cs["control"])
-        capdiag[key].append((cs["informed_gdis_capture"], cs["mean_random_gdis_capture"], cs["mean_subspace_overlap"]))
+        capdiag[key].append((cs["dictionary_gdis_capture"], cs["mean_random_dictionary_gdis_capture"],
+                             cs["selected_safe_gdis_capture"], cs["mean_random_selected_gdis_capture"], cs["mean_subspace_overlap"]))
 
     cell = {}
     for key, by in per.items():
         spec = _cluster_ci([np.mean(v) for v in by.values()])
         uncc = _cluster_ci([np.mean(v) for v in unc[key].values()])
         wr = _cluster_ci([np.mean(v) for v in winr[key].values()])
-        caps = np.array([[c for c in t if c is not None] for t in capdiag[key] if all(c is not None for c in t)], float)
+        caps = np.array([t for t in capdiag[key] if all(c is not None for c in t)], float)
+        cm = (lambda i: float(caps[:, i].mean()) if caps.size else float("nan"))
         cell[key] = dict(spec=spec, unc=uncc, q95=wr["mean"], control=sorted(ctrl_used[key]),
-                         cap_informed=float(caps[:, 0].mean()) if caps.size else float("nan"),
-                         cap_random=float(caps[:, 1].mean()) if caps.size else float("nan"),
-                         subspace_overlap=float(caps[:, 2].mean()) if caps.size else float("nan"))
+                         cap_dict_informed=cm(0), cap_dict_random=cm(1),          # FULL rank-r dictionary capture
+                         cap_sel_informed=cm(2), cap_sel_random=cm(3),            # SELECTED <=3 projector capture
+                         subspace_overlap=cm(4))
 
     # Holm across the confirmatory family (contrast/EEGNet/both datasets) using the EXACT sign-flip p
     conf_keys = [("EEGNet", "contrast_disagreement", ds) for ds in DATASETS if ("EEGNet", "contrast_disagreement", ds) in cell]
@@ -131,7 +152,8 @@ def main():
                     dU_unc_specific_mean=c["unc"]["mean"], signflip_p=spec["signflip_p"], holm_p=holm_p,
                     boot_p_sensitivity=spec["boot_p"], other_dataset_ucb=other_ucb, q95_exceedance_rate=c["q95"],
                     q95_null_rate=Q95_NULL_RATE, specificity_control="/".join(c["control"]),
-                    gdis_capture_informed=c["cap_informed"], gdis_capture_random=c["cap_random"],
+                    gdis_capture_dict_informed=c["cap_dict_informed"], gdis_capture_dict_random=c["cap_dict_random"],
+                    gdis_capture_sel_informed=c["cap_sel_informed"], gdis_capture_sel_random=c["cap_sel_random"],
                     informed_random_subspace_overlap=c["subspace_overlap"])
         if spec["n"] < 2:
             route = dict(verdict="INSUFFICIENT_CLUSTERS", next="increase_subjects_or_seeds",
@@ -174,7 +196,8 @@ def main():
     for s in summ:
         print(f"  {s['dataset'][:11]}/{s['backbone']:6}/{s['family'][:9]}: dU_safe_spec={s['dU_safe_specific_mean']:+.4f}"
               f"[{s['dU_safe_specific_lcb']:+.4f},{s['dU_safe_specific_ucb']:+.4f}] signflip_p={s['signflip_p']:.3f} holm={s['holm_p']:.3f} "
-              f"cap(inf/rnd)={s['gdis_capture_informed']:.2f}/{s['gdis_capture_random']:.2f} ctrl={s['specificity_control']} -> {s['verdict']}")
+              f"capDict={s['gdis_capture_dict_informed']:.2f}/{s['gdis_capture_dict_random']:.2f} "
+              f"capSel={s['gdis_capture_sel_informed']:.2f}/{s['gdis_capture_sel_random']:.2f} ctrl={s['specificity_control']} -> {s['verdict']}")
     if unexpected:
         print(f"  [UNEXPECTED STATUS] {len(unexpected)}: {sorted({str(u['status']) for u in unexpected})}")
     if skipped:

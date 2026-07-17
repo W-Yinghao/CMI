@@ -27,10 +27,10 @@ def test_cluster_ci_bootstrap_and_exact_signflip():
 def test_cell_specific_safe_vs_safe_and_unc_vs_unc():
     # PRIMARY shared-null-Haar control present -> symmetric contrasts against it (P0.1)
     row = dict(dU_informed_safe=0.03, dU_informed_unc=0.05, primary_control="SHARED_NULL_HAAR",
-               shared_null_haar=[dict(dU_safe=0.01, dU_unc=0.02, gdis_capture=0.1, subspace_overlap=0.5),
-                                 dict(dU_safe=0.00, dU_unc=0.01, gdis_capture=0.2, subspace_overlap=0.5)],
-               ambient=[dict(dU_safe=0.05, dU_unc=0.06, gdis_capture=0.1, subspace_overlap=0.5)],
-               informed_gdis_capture=0.3)
+               shared_null_haar=[dict(dU_safe=0.01, dU_unc=0.02, selected_safe_gdis_capture=0.1, dictionary_gdis_capture=0.4, subspace_overlap=0.5),
+                                 dict(dU_safe=0.00, dU_unc=0.01, selected_safe_gdis_capture=0.2, dictionary_gdis_capture=0.5, subspace_overlap=0.5)],
+               ambient=[dict(dU_safe=0.05, dU_unc=0.06, selected_safe_gdis_capture=0.1, dictionary_gdis_capture=0.4, subspace_overlap=0.5)],
+               selected_safe_gdis_capture=0.3, dictionary_gdis_capture=0.9)
     cs = AGG._cell_specific(row)
     assert cs["control"] == "SHARED_NULL_HAAR"
     assert np.isclose(cs["dU_safe_specific"], 0.03 - np.mean([0.01, 0.0]))     # safe informed vs safe RANDOM
@@ -41,8 +41,8 @@ def test_cell_specific_safe_vs_safe_and_unc_vs_unc():
 def test_cell_specific_falls_back_to_ambient_when_low_dof():
     # shared-null control degenerate/absent -> AMBIENT_ONLY, flagged (never silently called the primary control)
     row = dict(dU_informed_safe=0.03, dU_informed_unc=0.05, primary_control="SHARED_NULL_CONTROL_LOW_DOF",
-               shared_null_haar=None, ambient=[dict(dU_safe=0.01, dU_unc=0.02, gdis_capture=0.1, subspace_overlap=0.5)],
-               informed_gdis_capture=0.3)
+               shared_null_haar=None, ambient=[dict(dU_safe=0.01, dU_unc=0.02, selected_safe_gdis_capture=0.1, dictionary_gdis_capture=0.4, subspace_overlap=0.5)],
+               selected_safe_gdis_capture=0.3, dictionary_gdis_capture=0.9)
     cs = AGG._cell_specific(row)
     assert cs["control"] == "AMBIENT_ONLY"
     # no reference at all -> None (dropped from stats, not fabricated)
