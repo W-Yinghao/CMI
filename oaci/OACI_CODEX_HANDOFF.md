@@ -13,7 +13,70 @@ and collaboration sections before acting.
 
 ---
 
-## 0. Current continuation state through C85U (2026-07-17)
+## 0. Current continuation state through C85EP2 (2026-07-17)
+
+C85EP2 stopped at:
+
+```text
+C85E_FROZEN_FIELD_POLICY_USE_GEOMETRY_AND_ROBUST_RISK_PROTOCOL_LOCKED_READY_FOR_PI_AUTHORIZATION
+```
+
+Authoritative identities:
+
+```text
+executable-semantics protocol commit / SHA-256:
+  29dcf67e9fbac38d8be7a72929a04dc0cdae1b89
+  abbb110de2ad651534f115937198987248f719ba8059d4cc300344db1b784516
+
+independent C85U replay commit:
+  7c6afb0785d04c86d590cdeabc64f823b76b394c
+
+C85E implementation commit:
+  10878daacd50215b8c8931219ef119000e5ab772
+
+C85E lock commit / SHA-256:
+  48e177c9914003202cc75cefb4a98832ea8250c3
+  a59062305b521973476e0d40236069eba7c9e149aeca9d3fe03c08a1ce106176
+```
+
+The independent replay accepted all 944 C85U context artifacts, 76,464 utility
+rows, 18,432 historical decision rows, 8,749,056 finite Q0 actions, and 944 Q0
+shards. Historical endpoint error and regime mismatch are zero. Its public
+certificate contains no scientific summary.
+
+The future C85E runtime is restricted to a 1,955-object read-only registry with
+no direct label, logit, EEG, source-array, or checkpoint path. Geometry uses raw
+composite-utility gaps; policy and target risk use historical standardized
+regret; target subjects are equally weighted; finite Q0 remains stochastic.
+All 26 future output tables must be tagged `POST_C84S_EXPLORATORY`.
+
+```text
+focused: 395 passed, 2 deselected
+C65: 1,104 passed, 1 skipped, 11 deselected
+C23: 1,515 passed, 1 skipped, 11 deselected
+full: 2,439 passed, 1 skipped, 11 deselected
+red team: 64 / 64 PASS
+accepted stderr: empty
+```
+
+C85E is not authorized. The shortest future statement is `授权 C85E`, bound
+only to the lock above. C86, active acquisition, new data/model zoos, and
+manuscript work remain unauthorized.
+
+Authoritative C85EP2 reports:
+
+```text
+oaci/reports/C85EP2_OVERALL_REPORT.md
+oaci/reports/C85EP2_OVERALL_REPORT.json
+oaci/reports/C85EP2_OVERALL_REPORT.sha256
+oaci/reports/C85EP2_C85U_INPUT_ACCEPTANCE_CERTIFICATE.json
+oaci/reports/C85EP2_PROTOCOL_READINESS.md
+oaci/reports/C85EP2_FINAL_REPORT_RED_TEAM.md
+oaci/reports/C85EP2_REGRESSION_VERIFICATION.md
+oaci/reports/OACI_EEG_DG_PROJECT_MEMORY_THROUGH_C85EP2.md
+```
+
+### Prior continuation state through C85U
 
 C85U consumed one fresh V2 authorization and stopped at:
 
@@ -2111,7 +2174,7 @@ Run a rung's report: `python -m oaci.<subpackage>.report --out-dir oaci/reports`
 
 ---
 
-## 7. How to continue (C85U authorization review required)
+## 7. How to continue (C85E authorization review required)
 
 - Preserve C84S gates C84-D/C84-L4, all C84A exploratory tags, the C85P theory
   protocol, the C85R V2 scenario law, the complete C85T V3 bundle, and the
@@ -2120,20 +2183,21 @@ Run a rung's report: `python -m oaci.<subpackage>.report --out-dir oaci/reports`
   immutable.
 - C85V has completed. Preserve T1/T3/T4/T7 `PROVED`, T2/T6
   `COUNTEREXAMPLE`, and T5 `OPEN`.
-- C85EP committed the empirical bridge protocol but found no frozen complete
-  81-candidate held-evaluation utility vectors. Preserve blocker gate
-  `C85E_FROZEN_CANDIDATE_UTILITY_OR_SELECTION_INPUT_UNAVAILABLE`.
-- C85URP has now locked a distinct protected C85U reconstruction stage. It is
-  not authorized. The only shortest future authorization is `授权 C85U`, bound
-  to lock SHA
-  `923c6bee2171f0bedcc3f883058759d368bdb49eb272cbbfa80974e98b632fe1`.
-- Under future authorization, run only the locked U1-to-U2 coordinator. U1
-  freezes 76,464 utilities; U2 must replay all 18,432 historical decision rows.
-  Do not rerun Stage C, selectors, Q0 sampling, or scientific inference.
-- Successful C85U stops at
-  `C85U_COMPLETE_CANDIDATE_UTILITY_FIELD_FROZEN_C85E_REVIEW_REQUIRED`.
-  It does not authorize C85E. C85EP2 must replay U1/U2 and create a separate
-  C85E lock.
+- Preserve the historical C85EP blocker as a correct missing-input stop. C85U
+  prospectively supplied the missing derived utility field; it did not make the
+  historical C85EP attempt retroactively successful.
+- C85U is complete and immutable. Do not reopen its label/logit inputs, rerun
+  U1/U2, resample Q0, or alter its 944 x 81 utility field.
+- C85EP2 independently replayed C85U and created one C85E lock. Its SHA-256 is
+  `a59062305b521973476e0d40236069eba7c9e149aeca9d3fe03c08a1ce106176`.
+- C85E is not authorized. The only shortest future authorization is
+  `授权 C85E`, bound to the unique current lock.
+- Future C85E may read only the 1,955 lock-registered frozen/compact objects and
+  must publish all rows as `POST_C84S_EXPLORATORY`. It may not reopen direct
+  labels, logits, EEG, selectors, Q0 builders, inference, or theorem writers.
+- Successful C85E stops at
+  `C85E_FROZEN_FIELD_DECISION_THEORY_BRIDGE_COMPLETE_C86_PROTOCOL_REVIEW_REQUIRED`.
+  It does not authorize C86.
 - Do not start C86, active acquisition, new data/model execution, selector
   retuning, or manuscript changes.
 

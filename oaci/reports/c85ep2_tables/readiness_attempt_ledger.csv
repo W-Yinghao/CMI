@@ -1,0 +1,8 @@
+attempt,stage,status,observed,disposition,protected_or_real_C85E_access
+1,prelock_focused_shadow,FAIL_EXPECTED_PRELOCK,4 failed and 18 passed,"One static-audit expectation and three not-yet-created lock assertions; corrected before lock",0
+2,prelock_shadow_without_lock_checks,PASS,19 passed and 3 deselected,"Analysis, replay, and atomic shadow path accepted",0
+3,postlock_focused,PASS,395 passed and 2 deselected,"Accepted; stderr empty",0
+4,C65_initial,FAIL_SUPERSEDED_ASSERTIONS,1104 passed and 2 failed and 1 skipped and 9 deselected,"Preserved; two historical pre-C85V absence assertions were superseded by accepted C85V",0
+5,C65_accepted,PASS,1104 passed and 1 skipped and 11 deselected,"Accepted; stderr empty",0
+6,C23_accepted,PASS,1515 passed and 1 skipped and 11 deselected,"Accepted; stderr empty",0
+7,full_OACI_accepted,PASS,2439 passed and 1 skipped and 11 deselected,"Accepted; stderr empty",0

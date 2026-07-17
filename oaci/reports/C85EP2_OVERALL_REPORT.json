@@ -1,0 +1,103 @@
+{
+  "schema_version": "c85ep2_overall_report_v1",
+  "milestone": "C85EP2",
+  "gate": "C85E_FROZEN_FIELD_POLICY_USE_GEOMETRY_AND_ROBUST_RISK_PROTOCOL_LOCKED_READY_FOR_PI_AUTHORIZATION",
+  "authorized": false,
+  "real_C85E_execution": false,
+  "chronology": {
+    "starting_HEAD": "a6714579ade3cdff7bae06bdae34f61a5d1d54b6",
+    "executable_semantics_protocol_commit": "29dcf67e9fbac38d8be7a72929a04dc0cdae1b89",
+    "executable_semantics_protocol_sha256": "abbb110de2ad651534f115937198987248f719ba8059d4cc300344db1b784516",
+    "independent_replay_commit": "7c6afb0785d04c86d590cdeabc64f823b76b394c",
+    "implementation_commit": "10878daacd50215b8c8931219ef119000e5ab772",
+    "execution_lock_commit": "48e177c9914003202cc75cefb4a98832ea8250c3",
+    "execution_lock_sha256": "a59062305b521973476e0d40236069eba7c9e149aeca9d3fe03c08a1ce106176"
+  },
+  "C85U_acceptance_replay": {
+    "certificate_sha256": "5cf4833c8c693023f9c7b126720335dca562716d62854268ced1fcc89186ec41",
+    "contexts": 944,
+    "candidate_rows": 76464,
+    "context_artifacts": 944,
+    "method_context_rows": 18432,
+    "finite_Q0_action_records": 8749056,
+    "Q0_shards": 944,
+    "endpoint_maximum_replay_error": 0.0,
+    "selected_regime_mismatches": 0,
+    "lifecycle_events": 12,
+    "residual_staging_roots": 0,
+    "protected_counters_nonzero": 0
+  },
+  "runtime_input_registry": {
+    "rows": 1955,
+    "registered_input_bytes": 1183872846,
+    "sha256": "8f4632f5dfe93362f9ee134a52a4803905d92705969238e4848e7eab7fd8bd29",
+    "utility_context_objects": 944,
+    "Q0_shard_objects": 944,
+    "direct_label_logit_EEG_paths": 0
+  },
+  "implementation": {
+    "registered_result_tables": 26,
+    "runtime_bound_repository_objects": 34,
+    "runtime_bound_registry_sha256": "5211e26dc927ac6052268c2536d5e9560801ca3be550c28cd4725d6eba62bd2d",
+    "raw_gap_geometry": true,
+    "standardized_regret_policy_and_target_risk": true,
+    "canonical_action_index_range": [0, 80],
+    "finite_Q0_stochastic": true,
+    "target_equal_risk": true,
+    "dataset_pooling": false,
+    "new_pvalues": false,
+    "theorem_status_writer": false,
+    "atomic_final_rename": true,
+    "required_operations_after_rename": 0
+  },
+  "grids": {
+    "epsilon": [0.005, 0.01, 0.02, 0.05],
+    "tau": [0.005, 0.01, 0.02, 0.05, 0.1],
+    "CVaR_alpha": [0.5, 0.75, 0.9]
+  },
+  "resources": {
+    "partition": "cpu-high",
+    "CPU": 32,
+    "RAM_GiB": 128,
+    "GPU": 0,
+    "wall_hours": 2,
+    "result_output_GiB_max": 2
+  },
+  "validation": {
+    "focused": "395 passed, 2 deselected",
+    "C65_initial_preserved": "1104 passed, 2 failed, 1 skipped, 9 deselected",
+    "C65": "1104 passed, 1 skipped, 11 deselected",
+    "C23": "1515 passed, 1 skipped, 11 deselected",
+    "full": "2439 passed, 1 skipped, 11 deselected",
+    "accepted_stderr_bytes": 0,
+    "final_red_team": "64 / 64 PASS",
+    "active_C85_jobs_after_validation": 0
+  },
+  "readiness_counters": {
+    "real_C85E_executions": 0,
+    "authorization_records": 0,
+    "real_geometry_or_risk_results": 0,
+    "direct_label_access": 0,
+    "target_logit_or_EEG_access": 0,
+    "selector_Q0_builder_or_inference_calls": 0,
+    "theorem_status_transitions": 0,
+    "active_acquisition": 0,
+    "C86": 0,
+    "manuscript_writes": 0
+  },
+  "immutable_results": {
+    "C84_primary": "C84-D_external_dataset_source_panel_seed_level_or_target_heterogeneous",
+    "C84_frontier": "C84-L4",
+    "C85_theorem_statuses": {
+      "T1": "PROVED",
+      "T2": "COUNTEREXAMPLE",
+      "T3": "PROVED",
+      "T4": "PROVED",
+      "T5": "OPEN",
+      "T6": "COUNTEREXAMPLE",
+      "T7": "PROVED"
+    }
+  },
+  "future_direct_statement_exact": "授权 C85E",
+  "future_completion_gate": "C85E_FROZEN_FIELD_DECISION_THEORY_BRIDGE_COMPLETE_C86_PROTOCOL_REVIEW_REQUIRED"
+}
