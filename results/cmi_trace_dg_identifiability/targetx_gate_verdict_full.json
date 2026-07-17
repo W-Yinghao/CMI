@@ -1,0 +1,48 @@
+{
+  "per_dataset_gates": {
+    "BNCI2014_001": {
+      "gate1": false,
+      "gate1_applicable": true,
+      "gate2": false,
+      "gate3": false,
+      "gate5": false,
+      "di_specific_lcb": null
+    },
+    "BNCI2015_001": {
+      "gate1": null,
+      "gate1_applicable": false,
+      "gate2": false,
+      "gate3": false,
+      "gate5": false,
+      "di_specific_lcb": null
+    }
+  },
+  "cross_dataset_safety_gate4": true,
+  "verdict": {
+    "OVERALL": {
+      "gates": {
+        "observability": false,
+        "actionability": false,
+        "oracle_recovery": false,
+        "cross_dataset_safety": true,
+        "specificity": false
+      },
+      "outcome": "STOP_ACTIONABILITY_FAILED",
+      "all_pass": false
+    },
+    "BNCI2014_001": {
+      "gate1": false,
+      "gate1_applicable": true,
+      "gate2": false,
+      "gate3": false,
+      "gate5": false
+    },
+    "BNCI2015_001": {
+      "gate1": null,
+      "gate1_applicable": false,
+      "gate2": false,
+      "gate3": false,
+      "gate5": false
+    }
+  }
+}

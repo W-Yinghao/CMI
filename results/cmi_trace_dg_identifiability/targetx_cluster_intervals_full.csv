@@ -1,0 +1,3 @@
+dataset,gate1_applicable,delta_tx_mean,delta_tx_lo,delta_tx_hi,hind_constrained_mean,hind_constrained_lo,g3_paired_lo,rho_median,rho_lo,dtx_minus_delta_random_selected_rank_lo,dtx_minus_delta_source_greedy_lo,dtx_minus_delta_whitening_lo,dtx_minus_delta_mean_centering_lo,gate1,gate2,gate3,gate5,di_specific_lcb,n_folds
+BNCI2014_001,True,0.0,0.0,0.0,0.0,0.0,0.0,0.3333333333333333,-0.25,0.0,0.0,-0.0011574074074074093,-0.05195473251028809,False,False,False,False,,9
+BNCI2015_001,False,0.0,0.0,0.0,0.0,0.0,0.0,nan,nan,0.0,0.0,-0.0006944444444444436,-0.14069444444444443,,False,False,False,,12
