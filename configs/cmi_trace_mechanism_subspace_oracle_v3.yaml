@@ -1,0 +1,52 @@
+# FROZEN config v3 = M0.2 IMPLEMENTATION CONTRACT (amendment 02). SPEC; M1 HOLD. SHA-256 stamped per row.
+# Only the project owner may explicitly stop a scientific line. Manuscript FROZEN.
+contrast:                              # P0.1 Helmert
+  coding: orthonormal_helmert  H(C-1,C)  HH^T=I  H1=0
+  C_d: H @ class_mean_matrix_d          # (C-1) whitened contrast rows
+  G_shared: Cbar^T Cbar / (C-1)
+  G_dis: sum_d (C_d-Cbar)^T (C_d-Cbar) / (m(C-1))
+  weighting: equal_subjects_equal_classes
+  missing_source_class: FAILS_CLOSED    # no silent re-weight
+  pairwise_contrasts: interpretive_artifact_only
+
+shrinkage:                             # P0.2
+  eta: 0.05 * tr(G_shared) / p
+  below_resolution_if: tr(G_shared) < 1e-8 -> TASK_MECHANISM_BELOW_RESOLUTION
+  eta_rel_sensitivity: [0.01, 0.10]
+
+search:                                # P0.3 exhaustive, not greedy
+  dictionary_max_rank: 8
+  selected_rank: [0, 1, 2, 3]
+  actions: exhaustive_all_subsets_rank_le_3   # C(8,1)+C(8,2)+C(8,3) = 92 non-empty + identity
+  random_same_budget: true
+
+readout:                               # P0.4
+  head: source_standardized_L2_logistic  # C=1, solver=lbfgs, balanced accuracy (== _bacc)
+  source_safety: mean_d(bAcc_full_sourceLOSO - bAcc_P_sourceLOSO) <= 0.02
+  save: [mean_drop, median_drop, worst_subject_drop, sign_count]
+  oracles_reported: [unconstrained, source_safe]
+
+random_controls:                       # P0.5
+  ambient: {n: 100, blocks: 2}
+  shared_overlap_matched:
+    profile: q_j = (b_j^T G_shared b_j)/tr(G_shared)  sorted_descending
+    procedure: 5000 Haar dicts per block -> keep 100 min profile-L2 distance (no target outcome)
+    fail_closed: profile_rmse <= 0.02 AND absolute_total_overlap_gap <= 0.01 else SHARED_MATCH_CONTROL_FAILED
+  primary_specificity_control: shared_overlap_matched
+
+gates:                                 # P0.6
+  confirmatory_primary: {basis: contrast_disagreement, backbone: EEGNet, datasets: [BNCI2014_001, BNCI2015_001]}
+  M1_enrichment_route_A: [holm_p_lt_0.05_on_ge1_dataset, same_dataset_LCB95_dU_gt_0, other_dataset_UCB95_dU_gt_-0.01]
+  secondary: {DGCNN_only: BACKBONE_SPECIFIC, rule_grad_only: READOUT_OR_ESTIMATOR_DEPENDENT, Bcond_positive: negative_reference_anomaly}
+  secondary_cannot_unlock_M2_without: [independent_confirmatory_rerun_or_new_seed_block]
+
+estimators:                            # P0.7
+  B_rule: {model: "W_d = W_0 + dW_d (multivariate ridge, class-centered one-hot)", lambda0: 1, lambdaDelta: 10, sensitivity_lambdaDelta: [1, 100]}
+  B_grad: {head: single_fresh_standardized_logistic_all_source, g_dy: "E[grad_z loss | D=d, Y=y]", balance: [class, subject], stored_head: sensitivity_only}
+
+basis_builder_returns: [raw_matrix, raw_singular_values, numerical_rank, orthonormal_basis, generalized_eigenvalues, config_hash]
+candidate_families: [contrast_disagreement, rule_disagreement, gradient_disagreement, B_cond_negative_ref]
+pipeline: {construction: source_only, selection: non_deployable_Ycal_exhaustive_le3, evaluation: T_query_session_macro}
+matrix: {cells: 126, backbones: [EEGNet, DGCNN], seeds: [0,1,2]}   # (9+12) subj x 2 backbones x 3 seeds
+bootstrap: {n: 10000, cluster_unit: target_subject}
+scope: {synthetic_or_smoke: engineering_only, manuscript: frozen, stage: M0_2_contract_stageB_impl, M1_run: HOLD}

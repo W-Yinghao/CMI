@@ -1,7 +1,7 @@
 # Mechanism-Subspace Oracle — PRE-REG AMENDMENT 01 (M0.1 revision). SPEC ONLY — M1 HOLD until PM review.
 
 Amends `MECHANISM_SUBSPACE_ORACLE_PREREG.md` per PM review. Scientific exploration is ACTIVE; a negative
-terminates only the current hypothesis/objective/implementation, never a direction — only the PM stops a line.
+terminates only the current hypothesis/objective/implementation, never a direction — only the project owner may explicitly stop a scientific line.
 Manuscript FROZEN. No `CLOSE/CLOSED/closeout/CANCELLED/learn nothing` wording anywhere.
 
 ## P0.1 — result-routing replaces all close wording; every negative writes a failure record
