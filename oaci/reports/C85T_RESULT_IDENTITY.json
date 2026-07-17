@@ -1,0 +1,130 @@
+{
+  "schema_version": "c85t_result_identity_v1",
+  "reported_at_utc": "2026-07-17T02:17:37Z",
+  "final_gate": "C85T_SYNTHETIC_VALIDATION_AND_PROOF_CANDIDATES_FROZEN_C85V_REVIEW_REQUIRED",
+  "execution": {
+    "job_id": 899524,
+    "job_name": "C85T-V3",
+    "partition": "cpu-high",
+    "node": "nodecpu01",
+    "state_observed_with_scontrol": "COMPLETED",
+    "exit_code": "0:0",
+    "runtime_seconds": 7,
+    "requested_CPUs": 1,
+    "allocated_CPUs": 2,
+    "tasks": 1,
+    "CPUs_per_task": 1,
+    "requested_memory_GiB": 8,
+    "GPU": 0,
+    "time_limit_minutes": 30,
+    "stdout_path": "/projects/EEG-foundation-model/yinghao/c85t-v3-899524.out",
+    "stdout_size_bytes": 1312,
+    "stdout_sha256": "dbecc8961ab0793586c703b5b767e519dbcbba84b8d738f8409992772cec82ea",
+    "stderr_path": "/projects/EEG-foundation-model/yinghao/c85t-v3-899524.err",
+    "stderr_size_bytes": 0,
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "sacct_used": false
+  },
+  "repository_and_lock": {
+    "execution_HEAD": "b26b21f6b8378188dd59890c5701944c41fad823",
+    "authorization_commit": "b26b21f6b8378188dd59890c5701944c41fad823",
+    "execution_lock_commit": "b1a5ba3aca002de7e302fc375298cc69c1ed82a8",
+    "execution_lock_sha256": "3ee51a994969ebaaad9c1228d52df76e5222284c38eadbc77a50ce6178cdc8a9",
+    "bound_repository_objects": 160
+  },
+  "authorization": {
+    "schema_version": "c85t_direct_pi_authorization_record_v3",
+    "authorization_id": "9ec012be-dbf2-4f1f-ab99-a5406596c31c",
+    "authorization_binding_sha256": "38b8c3f2111df926c388ba7ab60292aa43714b9f0dace1a2beaa978f30a918fc",
+    "authorization_file_sha256": "b0c283967c7741ebe7eecd0c0207c7dbec7e3f8ccd435db4ae594de41e19e501",
+    "external_consumption_receipt_path": "/projects/EEG-foundation-model/yinghao/oaci-c85t-authorization-consumption-v3/38b8c3f2111df926c388ba7ab60292aa43714b9f0dace1a2beaa978f30a918fc.json",
+    "external_consumption_receipt_sha256": "81651f69513fe5986a47975a5616ede4a2bcab2c82696ab620efc61a9c855d67",
+    "consumed": true,
+    "single_use": true
+  },
+  "bundle": {
+    "schema_version": "c85t_atomic_execution_bundle_v3",
+    "output_root": "/projects/EEG-foundation-model/yinghao/oaci-c85t-synthetic-v3/c85t-v3-3ee51a994969ebaa-9ec012bedbf24f1f",
+    "attempt_id": "3ced6e5b117a4a95b9982a5fd22b5e4a",
+    "file_count": 21,
+    "total_size_bytes": 1325040,
+    "staging_root_absent_after_publish": true,
+    "lifecycle_events": 12,
+    "terminal_event": "ATOMIC_PUBLISH_COMMIT_READY",
+    "result_sha256": "ecaff65e942dbb81d93a3bdb61589fa9f1f6590f7188947688e6b30617140cec",
+    "manifest_sha256": "a727beebcb45598ea0f92f37bed8ef32369b1c793ecad9efc2f5d9941bd5bb0e",
+    "lifecycle_sha256": "b27baf359038301bab74e7443750583b2f858c8685456f63bc5b8c0e8f9e17c1",
+    "completion_receipt_sha256": "418f74e4c3cf60847b11bf18a890ffebf870ed8adee1a75d304b01075646e65d",
+    "semantic_replay_receipt_sha256": "735edf13a24c074cb3c18e56d168ebd905b3a7bcb29e3c273b3652bb1b7dcc6e",
+    "authorization_copy_sha256": "81651f69513fe5986a47975a5616ede4a2bcab2c82696ab620efc61a9c855d67",
+    "exact_scenario_results_sha256": "dde13367e7c43403d54e196a250dc7c6b5692f7fc0323b1ceb015d0aa0e39d0f",
+    "monte_carlo_summary_sha256": "60c60f4f020710e7e825330e30ea31c218cfa66b154a7b1b44a35a4b72c6b594",
+    "S6_replicates_sha256": "6e967deff1f0bcda82ae7424256326fa4da35fba7c9c18629c0c8d7d57742321",
+    "S7_replicates_sha256": "bc62b5c73956ff094241d72f5756eb80b66cd23f4b61272a10382540061e9781",
+    "S9_replicates_sha256": "9e7e1d29ab8acab69f2e753465e69481fe139af877d92321f45b9222ef66b9c3",
+    "S9_raw_draw_digest_registry_sha256": "7211ed0ac6a4f43ab76a0604bcaab35bdc65218fc83eb8ad8d98ad1df279bb5d",
+    "proof_candidate_dispositions_sha256": "17a279f0f240ab2316c5371f08be0727cd58a992c31fe6bd99a1509c5db4601e"
+  },
+  "artifact_manifest": {
+    "artifact_count": 18,
+    "semantic_status": "SEMANTIC_REPLAY_PASS",
+    "scenario_results": 11,
+    "S6_logical_replicate_rows": 4096,
+    "S7_logical_replicate_rows": 4096,
+    "S6_S7_logical_replicate_rows": 8192,
+    "S9_logical_replicate_design_rows": 8192,
+    "S9_raw_draw_digest_rows": 4096,
+    "rng_digest_replay_rows": 4096,
+    "proof_candidates": 7,
+    "formal_theorem_status_OPEN": 7,
+    "protected_counters_zero": true
+  },
+  "proof_candidates": {
+    "T1": {
+      "disposition": "PROPOSED_PROOF",
+      "sha256": "57ef99b65846ff62dc1471de311433c8a605774721bd0dbaf89c8a1bd0de98cf",
+      "formal_status": "OPEN"
+    },
+    "T2": {
+      "disposition": "PROPOSED_COUNTEREXAMPLE",
+      "sha256": "417a7496bebff41a8ca1c0240c5a5c7d690124b8fe33c49194d4c51458f2b6fc",
+      "formal_status": "OPEN"
+    },
+    "T3": {
+      "disposition": "PROPOSED_PROOF",
+      "sha256": "cdeda8e9feae09a13617dabc82735633fe39affe7fcd7b9a3aca628e957088d1",
+      "formal_status": "OPEN"
+    },
+    "T4": {
+      "disposition": "PROPOSED_PROOF",
+      "sha256": "9238f914c1bb5efbf5980050b02e0e72e20c934ea30f1287967f2ecc70755d03",
+      "formal_status": "OPEN"
+    },
+    "T5": {
+      "disposition": "INCOMPLETE_OPEN",
+      "sha256": "a6a38358dc3bf1bc2b39e1fda8bdece0a2a416b7627bb16bd671047724d90188",
+      "formal_status": "OPEN"
+    },
+    "T6": {
+      "disposition": "PROPOSED_COUNTEREXAMPLE",
+      "sha256": "d9325fab96d634b5164a3528c0bb9da484d4b20714116027f5bb39d5826b917f",
+      "formal_status": "OPEN"
+    },
+    "T7": {
+      "disposition": "PROPOSED_PROOF",
+      "sha256": "1316236128ae0389f681459ff28dfa99a248b3ad73357208821bb3220476a857",
+      "formal_status": "OPEN"
+    }
+  },
+  "protected_boundaries": {
+    "real_project_data_access": 0,
+    "active_acquisition": 0,
+    "training": 0,
+    "forward": 0,
+    "GPU": 0,
+    "C85V_authorized": false,
+    "C85E_authorized": false,
+    "manuscript_modified": false,
+    "theorem_status_transitions": 0
+  }
+}
