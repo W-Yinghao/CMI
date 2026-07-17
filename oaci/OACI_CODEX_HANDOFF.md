@@ -13,7 +13,72 @@ and collaboration sections before acting.
 
 ---
 
-## 0. Current continuation state through C85URP (2026-07-17)
+## 0. Current continuation state through C85UR1 (2026-07-17)
+
+C85UR1 repaired the non-operative C85U V1 execution boundary and stopped at:
+
+```text
+C85U_PROCESS_ISOLATION_PROTECTED_REPLAY_AND_ACCEPTANCE_TRANSACTION_REPAIRED_V2_LOCK_READY_FOR_PI_AUTHORIZATION
+```
+
+Authoritative C85UR1 identities:
+
+```text
+protocol commit:
+  1cc5531c02571fa95c33b3450c6b7d6ff53a8ebf
+
+protocol SHA-256:
+  aa657133d35602187a5c5e11a9632a44c26a78fb63a4e65197172fb59377061d
+
+implementation commit:
+  5917cf54d33bbd5de906428bea5aaee22f45aabb
+
+C85U V2 lock commit:
+  672670d05e9d7adfbe12673d4a64bfd499413162
+
+C85U V2 lock SHA-256:
+  77382c16a593f7c2bdeb4dcacdfa21df11dcfd59982e9bfb982d6b88f5f04d1d
+```
+
+U1 now has a dedicated registry with no selection/scientific paths and requires
+a semantically validated protected-replay receipt plus a one-use stage receipt
+before protected access. U2 requires the same authorization/lock/attempt,
+complete U1 V2 handoff, lifecycle completion, and its own one-use receipt before
+opening Stage-B/Q0/result inputs.
+
+The success gate can appear only in one final acceptance bundle. All replay,
+receipt, lifecycle, manifest, completion, and fsync operations occur before a
+single final rename. U1 remains provisional if U2 fails.
+
+Readiness evidence:
+
+```text
+post-lock C85UR1 tests: 21 passed
+focused: 396 passed
+C65: 1,088 passed, 1 skipped, 5 deselected
+C23: 1,499 passed, 1 skipped, 5 deselected
+full: 2,423 passed, 1 skipped, 5 deselected
+red team: 72 / 72 PASS
+accepted stderr: empty
+```
+
+C85UR1 performed zero real protected reads and created no authorization record.
+Future execution requires a fresh standalone `授权 C85U`. C85E, C86, active
+acquisition, new data/model zoos, and manuscript work remain unauthorized.
+
+Authoritative C85UR1 reports:
+
+```text
+oaci/reports/C85UR1_OVERALL_REPORT.md
+oaci/reports/C85UR1_OVERALL_REPORT.json
+oaci/reports/C85UR1_OVERALL_REPORT.sha256
+oaci/reports/C85UR1_PROTOCOL_READINESS.md
+oaci/reports/C85UR1_FINAL_REPORT_RED_TEAM.md
+oaci/reports/C85UR1_REGRESSION_VERIFICATION.md
+oaci/reports/OACI_EEG_DG_PROJECT_MEMORY_THROUGH_C85UR1.md
+```
+
+### Prior continuation state through C85URP
 
 C85URP prospectively locked the protected production path for the missing
 944 x 81 held-evaluation candidate-utility field. It stopped at:
