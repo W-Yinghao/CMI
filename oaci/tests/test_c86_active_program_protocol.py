@@ -51,6 +51,13 @@ def test_c86_protocol_hash_status_and_parent_state() -> None:
     access_value = json.loads(access_correction.read_text())
     assert access_value["prospective_correction"]["Dreyer2023_confirmation_role"].startswith("INELIGIBLE")
     assert access_value["chronology"]["performance_outcomes_used"] is False
+    synthetic = REPORTS / "C86P_SYNTHETIC_CALIBRATION_OPERATIONALIZATION_PROTOCOL.json"
+    synthetic_digest = hashlib.sha256(synthetic.read_bytes()).hexdigest()
+    synthetic_sidecar = synthetic.with_suffix(".sha256").read_text().split()[0]
+    assert synthetic_digest == synthetic_sidecar == "a80e8cca75eaa4d22b374794c06a9304ef9bb21605ec75f5d6aa53509f86b54b"
+    synthetic_value = json.loads(synthetic.read_text())
+    assert len(synthetic_value["scenarios"]) == 11
+    assert synthetic_value["chronology"]["registered_synthetic_draws_before_protocol"] == 0
 
 
 def test_c86_protocol_fixes_query_inference_and_taxonomy() -> None:

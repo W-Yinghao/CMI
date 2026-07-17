@@ -116,5 +116,13 @@ def test_c86_shadow_module_has_no_real_data_or_execution_imports() -> None:
 def test_synthetic_registry_is_schema_only_not_registered_execution() -> None:
     path = ROOT / "oaci/reports/c86p_tables/synthetic_scenario_registry.csv"
     text = path.read_text(encoding="utf-8")
-    assert text.count("SHADOW_SCHEMA_ONLY") == 11
-    assert ",0\n" in text
+    import csv
+    with path.open(newline="", encoding="utf-8") as handle:
+        rows = list(csv.DictReader(handle))
+    assert [row["scenario_id"] for row in rows] == [f"C86S{index:02d}" for index in range(11)]
+    assert all(row["C86P_mode"] == "LOCKED_SCHEMA_ONLY_NOT_EXECUTED" for row in rows)
+    assert all(row["target_groups"] == "12" and row["contexts_per_target"] == "8" for row in rows)
+    assert all(row["candidate_count"] == "81" and row["active_chains"] == "2048" for row in rows)
+    assert all(row["registered_draws"] == row["real_data"] == "0" for row in rows)
+    assert all("C86_SYNTHETIC_V1" in row["seed_rule"] for row in rows)
+    assert rows[8]["failure_injection"] == "set_one_post_mixture_remaining_trial_probability_to_zero"

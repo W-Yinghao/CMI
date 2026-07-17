@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import csv
 import hashlib
+import json
 import math
 from pathlib import Path
 from typing import Any, Iterable, Mapping, Sequence
@@ -19,6 +20,9 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 REPORT_DIR = REPO_ROOT / "oaci/reports"
 TABLE_DIR = REPORT_DIR / "c86p_tables"
 PROTOCOL_PATH = REPORT_DIR / "C86_ACTIVE_TESTING_PROGRAM_PROTOCOL.json"
+SYNTHETIC_PROTOCOL_PATH = (
+    REPORT_DIR / "C86P_SYNTHETIC_CALIBRATION_OPERATIONALIZATION_PROTOCOL.json"
+)
 MOABB_ROOT = Path(
     "/home/infres/yinwang/anaconda3/envs/c84c-eeg2025-v3-exact/lib/"
     "python3.13/site-packages/moabb/datasets"
@@ -424,6 +428,8 @@ def _identity_rows() -> list[dict[str, Any]]:
         "C85E_EXECUTION_LOCK.json": "a59062305b521973476e0d40236069eba7c9e149aeca9d3fe03c08a1ce106176",
         "C85E_OVERALL_REPORT.md": "31b9ed96377410d725da30b6de71aabee7702387d04448e10af0be31d52d9c82",
         "C85E_OVERALL_REPORT.json": "3908e1ef72db29030aff023917f7853cbe54607460e143c05b9bdd2047b9aec7",
+        "C86P_SYNTHETIC_CALIBRATION_OPERATIONALIZATION_PROTOCOL.json":
+            "a80e8cca75eaa4d22b374794c06a9304ef9bb21605ec75f5d6aa53509f86b54b",
     }
     rows = []
     for name, digest in expected.items():
@@ -476,6 +482,42 @@ def _literature_rows() -> list[dict[str, Any]]:
          "primary_url": "https://onlinelibrary.wiley.com/doi/abs/10.3982/ECTA5771",
          "role": "plausible_best_set_terminology", "verified": 1,
          "fidelity_limit": "A4_is_project_specific_and_not_an_MCS_replication"},
+    ]
+
+
+def _synthetic_rows() -> list[dict[str, Any]]:
+    contract = json.loads(SYNTHETIC_PROTOCOL_PATH.read_text(encoding="utf-8"))
+    _require(contract["status"] == "LOCKED_GENERATIVE_CONTRACT_NOT_SCIENTIFICALLY_EXECUTED",
+             "synthetic calibration contract status drift")
+    global_contract = contract["global_generator"]
+    scenarios = contract["scenarios"]
+    _require([row["id"] for row in scenarios] == [f"C86S{index:02d}" for index in range(11)],
+             "synthetic scenario identity drift")
+    return [
+        {
+            "scenario_id": row["id"],
+            "scenario": row["name"],
+            "target_groups": global_contract["target_groups_per_scenario"],
+            "contexts_per_target": global_contract["contexts_per_target"],
+            "acquisition_pool_trials": global_contract["acquisition_pool_trials_per_context"],
+            "held_evaluation_trials": global_contract["held_evaluation_trials_per_context"],
+            "candidate_count": global_contract["candidate_count"],
+            "active_chains": global_contract["active_chains"],
+            "seed_rule": global_contract["seed_rule"],
+            "pi_g": row["pi_g"],
+            "stratum_masses": json.dumps(row["stratum_masses"], separators=(",", ":")),
+            "difficulty": json.dumps(row["difficulty"], separators=(",", ":")),
+            "shared_sigma": row["shared_sigma"],
+            "action_sigma": json.dumps(row["action_sigma"], separators=(",", ":")),
+            "skill_profile": row["skill_profile"],
+            "failure_injection": row["failure_injection"],
+            "validation_target": row["validation_target"],
+            "production_entrypoint_required_before_real_execution": 1,
+            "C86P_mode": "LOCKED_SCHEMA_ONLY_NOT_EXECUTED",
+            "registered_draws": 0,
+            "real_data": 0,
+        }
+        for row in scenarios
     ]
 
 
@@ -726,18 +768,7 @@ def _simple_rows() -> dict[str, list[dict[str, Any]]]:
                 ("separate_execution_lock_and_authorization", "required"),
             )
         ],
-        "synthetic_scenario_registry.csv": [
-            {"scenario_id": f"C86S{index:02d}", "scenario": scenario,
-             "production_entrypoint_required_before_real_execution": 1,
-             "C86P_mode": "SHADOW_SCHEMA_ONLY", "real_data": 0}
-            for index, scenario in enumerate((
-                "dense_near_ties", "sparse_large_gaps", "high_pairwise_variance_strata",
-                "low_pairwise_variance_strata", "policy_collapse",
-                "mean_improvement_with_adverse_target_tail", "class_imbalance",
-                "importance_weight_instability", "sampling_probability_floor_failure",
-                "stopping_rule_failure", "dataset_heterogeneity",
-            ))
-        ],
+        "synthetic_scenario_registry.csv": _synthetic_rows(),
         "risk_register.csv": [
             {"risk_id": risk_id, "risk": risk, "blocking": blocking, "mitigation": mitigation,
              "residual_status": status}
