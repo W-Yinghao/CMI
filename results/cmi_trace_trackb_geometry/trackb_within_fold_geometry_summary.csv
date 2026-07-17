@@ -1,5 +1,5 @@
 backbone,dataset,n_cells,cond_head_overlap,cond_contested_rank_mean,note
-DGCNN,BNCI2014_001,27,0.10181456868134507,3.0,effective_rank fields EXCLUDED (orthonormalized-basis artifact); B1b cross-fold stability STOPPED
-DGCNN,BNCI2015_001,36,0.050171099576491934,1.0,effective_rank fields EXCLUDED (orthonormalized-basis artifact); B1b cross-fold stability STOPPED
+DGCNN,BNCI2014_001,27,0.10181456868134502,3.0,effective_rank fields EXCLUDED (orthonormalized-basis artifact); B1b cross-fold stability STOPPED
+DGCNN,BNCI2015_001,36,0.05017109957649191,1.0,effective_rank fields EXCLUDED (orthonormalized-basis artifact); B1b cross-fold stability STOPPED
 EEGNet,BNCI2014_001,27,0.22485655192676657,3.0,effective_rank fields EXCLUDED (orthonormalized-basis artifact); B1b cross-fold stability STOPPED
 EEGNet,BNCI2015_001,36,0.07235577111980383,1.0,effective_rank fields EXCLUDED (orthonormalized-basis artifact); B1b cross-fold stability STOPPED

@@ -57,8 +57,12 @@ def main():
                                   seeds=sorted({r["seed"] for r in R}), latent_dim=R[0]["latent_dim"]))
             for name in ("cond", "rule", "grad"):
                 ci = _ci(_subject_means(R, f"{name}_head_overlap"))
+                enr = _ci(_subject_means(R, f"{name}_head_overlap_enrichment"))   # vs isotropic rank(Wc)/d
+                nrank = _ci(_subject_means(R, f"{name}_numerical_rank"))
                 ho_rows.append(dict(backbone=bb, dataset=ds, basis=name, head_overlap_mean=ci["mean"],
-                                    lo=ci["lo"], hi=ci["hi"], n_subjects=ci["n"]))
+                                    lo=ci["lo"], hi=ci["hi"], head_overlap_enrichment_mean=enr["mean"],
+                                    enrichment_lo=enr["lo"], enrichment_hi=enr["hi"],
+                                    numerical_rank_mean=nrank["mean"], n_subjects=ci["n"]))
             for pair in ("cond_rule", "cond_grad", "rule_grad"):
                 a_ci = _ci(_subject_means(R, f"angle_{pair}_meancos"))
                 o_ci = _ci(_subject_means(R, f"overlap_{pair}"))
@@ -73,7 +77,8 @@ def main():
     def _w(fp, r, keys):
         with open(fp, "w", newline="") as fh:
             w = csv.DictWriter(fh, fieldnames=keys); w.writeheader(); [w.writerow({k: x.get(k) for k in keys}) for x in r]
-    _w(G / "trackb_head_overlap_cluster_ci.csv", ho_rows, ["backbone", "dataset", "basis", "head_overlap_mean", "lo", "hi", "n_subjects"])
+    _w(G / "trackb_head_overlap_cluster_ci.csv", ho_rows, ["backbone", "dataset", "basis", "head_overlap_mean", "lo", "hi",
+        "head_overlap_enrichment_mean", "enrichment_lo", "enrichment_hi", "numerical_rank_mean", "n_subjects"])
     _w(G / "trackb_basis_pair_overlap_cluster_ci.csv", bp_rows, ["backbone", "dataset", "pair", "mean_cos_principal_angle", "angle_lo", "angle_hi", "projector_overlap", "overlap_lo", "overlap_hi"])
     _w(G / "trackb_geometry_completeness.csv", comp_rows, ["backbone", "dataset", "n_cells", "n_subjects", "seeds", "latent_dim"])
     _w(G / "trackb_within_fold_geometry_summary.csv", summ, list(summ[0].keys()))

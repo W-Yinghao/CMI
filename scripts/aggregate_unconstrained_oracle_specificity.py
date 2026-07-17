@@ -121,13 +121,14 @@ def main():
         for x in Rs:
             by[x["subject"]].append(x["dU_specific"]); win[x["subject"]].append(1.0 if x["informed_beats_q95"] else 0.0)
         spec = _ci([np.mean(v) for v in by.values()]); wr = _ci([np.mean(v) for v in win.values()])
-        stage = ("B_COND_ENRICHED_OVER_RANDOM" if spec["lo"] > 0 else
-                 "B_COND_NO_MEAN_ENRICHMENT" if spec["hi"] <= 0 else "B_COND_ENRICHMENT_INCONCLUSIVE")
+        # graded stage verdict (PM): NO_DETECTED != equivalence; the UCB is the not-ruled-out enrichment.
+        stage = "B_COND_ENRICHED_OVER_RANDOM" if spec["lo"] > 0 else "B_COND_NO_DETECTED_ENRICHMENT"
         summ.append(dict(dataset=ds, dU_specific_mean=spec["mean"], dU_specific_lo=spec["lo"], dU_specific_hi=spec["hi"],
+                         not_ruled_out_enrichment_ucb=spec["hi"],
                          q95_exceedance_rate=wr["mean"], q95_exceedance_rate_lo=wr["lo"], q95_exceedance_rate_hi=wr["hi"],
                          q95_null_rate=Q95_NULL_RATE, n_subjects=spec["n"], stage_verdict=stage))
         verdict[ds] = dict(stage_verdict=stage, dU_specific_lcb=spec["lo"], dU_specific_ucb=spec["hi"],
-                           q95_exceedance_rate=wr["mean"], q95_null_rate=Q95_NULL_RATE)
+                           not_ruled_out_enrichment_ucb=spec["hi"], q95_exceedance_rate=wr["mean"], q95_null_rate=Q95_NULL_RATE)
     n_expected = len([1 for ds in DATASETS for _ in glob.glob(str(REPO / "tos_cmi/results/tos_cmi_eeg_frozen" /
                      f"{ds}_{a.backbone}_LOSO" / "sub*_erm_lam0_seed*.npz")) if any(_.endswith(f"_seed{s}.npz") for s in a.seeds)])
     complete = (sum(1 for c in completeness if c["status"] == "ok") == n_expected)
@@ -140,7 +141,10 @@ def main():
     _w(OUT / "unconstrained_oracle_completeness.csv", completeness, ["dataset", "subject", "seed", "dict_rank", "status", "reason"])
     with open(OUT / "unconstrained_oracle_random_rows.jsonl", "w") as fh:
         [fh.write(json.dumps(r) + "\n") for r in random_rows]
-    json.dump({"per_dataset": verdict, "n_random": a.n_random, "completeness_ok": bool(complete),
+    overall = ("CURRENT_BCOND_DICTIONARY_NOT_ENRICHED_OVER_RANDOM"
+               if all(v["stage_verdict"] == "B_COND_NO_DETECTED_ENRICHMENT" for v in verdict.values())
+               else "B_COND_ENRICHED_ON_SOME_DATASET")
+    json.dump({"per_dataset": verdict, "overall_stage_verdict": overall, "n_random": a.n_random, "completeness_ok": bool(complete),
                "control": "greedy_select_on_Tcal_score_on_Tquery_equal_budget",
                "note": "STAGE EVIDENCE for B_cond utility enrichment vs equal-budget random; NOT a closure of subspace research (PM declares stops)"},
               open(OUT / "unconstrained_oracle_stage_verdict.json", "w"), indent=2, default=float)
