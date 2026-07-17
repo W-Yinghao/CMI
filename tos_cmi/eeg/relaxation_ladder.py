@@ -285,6 +285,15 @@ def feat_from_audit_npz(path):
         feat["head_W"] = np.asarray(data["task_head_weight"]); feat["head_b"] = np.asarray(data.get("task_head_bias", 0.0))
     else:
         feat["head_W"] = None; feat["head_b"] = None
+    # D3 (amendment 03): attach the backfilled session_target sidecar if present (fail-closed on y-identity at
+    # write time; here we re-assert length + element-wise y_target agreement before trusting it).
+    from pathlib import Path as _P
+    _sc = _P(path).parent / "session_backfill" / (_P(path).name.replace(".audit.npz", "") + ".session.npz")
+    if _sc.exists():
+        sc = np.load(_sc, allow_pickle=True); st = np.asarray(sc["session_target"]).astype(str)
+        yref = np.asarray(sc["y_target_ref"]).astype(int)
+        if len(st) == len(feat["y_target"]) and np.array_equal(yref, np.asarray(feat["y_target"]).astype(int)):
+            feat["session_target"] = st
     return feat
 
 
