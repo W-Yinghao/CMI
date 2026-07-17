@@ -1,0 +1,389 @@
+{
+  "schema_version": "c86_active_testing_program_protocol_v1",
+  "milestone": "C86P",
+  "created_at_utc": "2026-07-17T21:11:49Z",
+  "status": "LOCKED_PROGRAM_PROTOCOL_READY_FOR_METADATA_AND_SHADOW_VALIDATION_NO_REAL_EXECUTION_LOCK",
+  "success_gate": "C86_ACTIVE_TESTING_DEVELOPMENT_CONFIRMATION_AND_UNTOUCHED_POPULATION_PROTOCOL_LOCKED_READY_FOR_PI_REVIEW",
+  "input_blocker_gate": "C86_NO_ELIGIBLE_UNTOUCHED_COHORT_UNDER_LOCKED_INTERFACE_RULE",
+  "protocol_blocker_gate": "C86_ACTIVE_POLICY_BUDGET_ESTIMATOR_OR_CONFIRMATION_SEPARATION_RECONCILIATION_REQUIRED",
+  "chronology": {
+    "C84_and_C85_outcomes_known": true,
+    "public_metadata_and_loader_source_inspected": true,
+    "published_performance_used_for_dataset_selection": false,
+    "new_EEG_downloaded_or_opened": false,
+    "new_target_labels_opened": false,
+    "new_candidate_outputs_opened": false,
+    "active_acquisition_executed": false,
+    "trial_level_C84_loss_vectors_created": false,
+    "protocol_fixed_before_any_C86_real_data_or_active_result": true
+  },
+  "frozen_parent_state": {
+    "repository_HEAD": "02cd2fce14c09bcdfd01856aa8ff68b808c03520",
+    "C85E_readiness_HEAD": "39891d827985a164a867381246f8dcf6242c7801",
+    "C85E_authorization_execution_HEAD": "c65402db892fb8a58a0592ca5e81a0ee871a88ce",
+    "C85E_execution_lock_commit": "48e177c9914003202cc75cefb4a98832ea8250c3",
+    "C85E_execution_lock_sha256": "a59062305b521973476e0d40236069eba7c9e149aeca9d3fe03c08a1ce106176",
+    "C85E_result_sha256": "f2f09d123dd7767d41e6141ae5fe573bff8c15868aee04ae3be9a3d5c1b8d4db",
+    "C85E_result_manifest_sha256": "75ffaa7212b01f6dfc4c69f86ddbe9d8f6c911ce7a107917b997a8c9fcf6c55e",
+    "C85E_completion_receipt_sha256": "fe0ce0873734fcb709136f32834bd349cccda5710f9098e03297c01d2ab8433f",
+    "C85E_lifecycle_sha256": "898596c9e33d6e1ec920ac49a052716613c8e5b8032e05e5a46836bce9df5e3c",
+    "C85E_overall_markdown_sha256": "31b9ed96377410d725da30b6de71aabee7702387d04448e10af0be31d52d9c82",
+    "C85E_overall_json_sha256": "3908e1ef72db29030aff023917f7853cbe54607460e143c05b9bdd2047b9aec7",
+    "C84_primary_gate": "C84-D_external_dataset_source_panel_seed_level_or_target_heterogeneous",
+    "C84_label_frontier": "C84-L4",
+    "theorem_statuses": {
+      "T1": "PROVED",
+      "T2": "COUNTEREXAMPLE",
+      "T3": "PROVED",
+      "T4": "PROVED",
+      "T5": "OPEN",
+      "T6": "COUNTEREXAMPLE",
+      "T7": "PROVED"
+    }
+  },
+  "scientific_object": {
+    "experiment": "costly-label full-information model evaluation",
+    "query_semantics": "one queried target label reveals the registered per-trial metric-contribution vector for every frozen candidate",
+    "not_standard_bandit": true,
+    "candidate_action_count": 81,
+    "primary_questions": ["Q1", "Q2", "Q3", "Q4", "Q5", "Q6"]
+  },
+  "development_confirmation_separation": {
+    "C86D": {
+      "status": "POST_C84_DEVELOPMENT_ONLY",
+      "allowed_inputs_after_separate_authorization": [
+        "C84_C85_frozen_fields",
+        "C85U_candidate_utility_field",
+        "future_C86L_trial_loss_vector_field",
+        "synthetic_fields"
+      ],
+      "eligible_for_primary_confirmation_claim": false
+    },
+    "C86H": {
+      "status": "PROSPECTIVE_UNTOUCHED_CONFIRMATION_ONLY",
+      "population_frozen_before_download_training_labels_or_execution": true,
+      "same_active_method_and_hyperparameters_across_cohorts": true,
+      "all_cohorts_passing_locked_rule_included": true,
+      "minimum_cohorts": 2,
+      "only_track_eligible_for_primary_active_acquisition_claim": true
+    },
+    "cross_track_information_flow": "C86D_may_freeze_one_registry_before_C86H_but_C86H_outcomes_never_return_to_method_or_hyperparameter_selection"
+  },
+  "untouched_population_rule": {
+    "candidate_universe": "installed_MOABB_imagery_loader_catalog_deduplicated_by_native_cohort_and_protocol",
+    "catalog_sha256": "5d7b3abca6f56c83ce90a90d3e0c252783a24f04e237d8d09b11f3862f0ce7e4",
+    "performance_outcomes_allowed": false,
+    "criteria": {
+      "native_task": "exact_binary_left_hand_vs_right_hand_motor_imagery",
+      "class_filtering_from_multiclass_dataset": false,
+      "population": "healthy_adults_only",
+      "minimum_subjects": 12,
+      "minimum_documented_trials_per_subject": 80,
+      "minimum_EEG_channels": 3,
+      "minimum_trial_interval_seconds": 3.0,
+      "public_repository_and_explicit_license_required": true,
+      "deterministic_loader_and_fixed_subject_list_required": true,
+      "prior_project_target_label_or_outcome_access": false,
+      "candidate_training_interface_compatibility_required": true
+    },
+    "canonical_eligible_cohorts_from_metadata_audit": [
+      "Brandl2020",
+      "Dreyer2023",
+      "Kumar2024"
+    ],
+    "eligible_cohort_count": 3,
+    "all_eligible_included": true,
+    "BNCI2014_004_role": "SEPARATE_STRESS_TRACK_ONLY_FAILS_MINIMUM_SUBJECT_RULE",
+    "metadata_uncertainty_policy": "FAIL_CLOSED_UNTIL_PUBLIC_METADATA_PROVES_EVERY_CRITERION",
+    "fewer_than_two_eligible_action": "STOP_AT_INPUT_BLOCKER"
+  },
+  "candidate_zoo": {
+    "primary_structure": {
+      "ERM": 1,
+      "OACI": 40,
+      "SRC": 40,
+      "total": 81
+    },
+    "canonical_action": "candidate_index_0_through_80_within_exact_zoo",
+    "same_structure_as_C84": true,
+    "heterogeneous_architecture_zoo": false,
+    "candidate_retention_from_C84_outcomes": false,
+    "confirmation_training_requires_separate_prospective_protocol": true,
+    "acquisition_and_action_set_heterogeneity_changed_together": false,
+    "tie_rule": "first_canonical_candidate_index"
+  },
+  "physical_target_views": {
+    "views": [
+      "target_unlabeled_acquisition_pool",
+      "target_acquisition_label_oracle",
+      "target_held_evaluation_label_view",
+      "same_label_oracle_view"
+    ],
+    "split_salt": "C86_TARGET_SPLIT_V1",
+    "split_rule": "sort_trial_ids_by_SHA256(salt|dataset|subject|trial_id);first_floor_n_over_2_to_acquisition_pool;remainder_to_held_evaluation",
+    "split_uses_labels": false,
+    "minimum_total_trials": 80,
+    "minimum_pool_trials": 40,
+    "minimum_evaluation_trials": 40,
+    "post_access_minimum_per_class_per_view": 8,
+    "post_access_support_failure_action": "BLOCK_WITHOUT_RESPLIT_OR_SUBSTITUTION",
+    "acquisition_evaluation_overlap": 0,
+    "label_server_releases_only_queried_trial_label": true,
+    "evaluation_descriptor_sealed_until_selection_freeze": true,
+    "same_label_oracle_closed": true
+  },
+  "label_budget": {
+    "unit": "total_label_queries_per_target",
+    "primary_finite_grid": [4, 8, 16, 32],
+    "complete_grid": [4, 8, 16, 32, "FULL"],
+    "grid_source": "minimum_nonoutcome_trial_support_across_all_eligible_cohorts",
+    "FULL": "all_acquisition_pool_labels",
+    "budgets_per_class": false,
+    "nested_prefixes_within_method_chain": true,
+    "primary_passive": "P0_uniform_without_replacement",
+    "class_aware_secondary": "P1_historical_Q0",
+    "FULL_superiority_test": false,
+    "FULL_role": "common_full_acquisition_information_reference_and_implementation_consistency_check"
+  },
+  "registered_methods": {
+    "P0": "passive_uniform_without_replacement",
+    "P1": "historical_class_stratified_Q0_secondary_class_aware_reference_only",
+    "A1": "LURE_active_testing_with_surrogate_expected_multicandidate_loss_score",
+    "A2": "LURE_pairwise_loss_difference_variance_targeting",
+    "A3": "candidate_disagreement_active_model_selection",
+    "A4": "prospectively_specified_plausible_best_confidence_set_acquisition",
+    "C0": "fixed_B1_ERM_default",
+    "C1": "strict_source_S1",
+    "C2": ["U11_MaNo", "U13_COTT"],
+    "O1": "full_acquisition_label_oracle_ceiling_evaluation_only",
+    "confirmation_registry_rule": "C86D_may_compare_locked_candidate_implementations_but_one_complete_method_and_hyperparameter_registry_must_freeze_before_any_C86H_EEG_or_label_access"
+  },
+  "common_active_sampling_contract": {
+    "sampling": "sequential_without_replacement",
+    "warm_start_queries": 4,
+    "warm_start_distribution": "uniform_without_replacement",
+    "uniform_mixture_rho": 0.05,
+    "query_probability": "q_m(i)=(1-rho)*normalized_nonnegative_score_m(i)+rho/remaining_pool_size",
+    "all_zero_score_rule": "uniform_over_remaining_pool",
+    "probability_floor": "rho/remaining_pool_size",
+    "primary_weight_clipping": false,
+    "primary_early_stopping": false,
+    "secondary_stopping_only": true,
+    "trial_tie_rule": "first_SHA256_canonical_trial_order",
+    "active_chains": 2048,
+    "chain_seed": "low64(SHA256(C86_ACTIVE_CHAIN_V1|dataset|target_subject|chain_id))",
+    "chain_ids": "0_through_2047",
+    "paired_numerical_integration": true,
+    "chains_are_scientific_sample": false
+  },
+  "method_query_scores": {
+    "A1": "mean_over_candidates_of_expected_NLL_under_equal_weight_candidate_predictive_mixture",
+    "A2": "maximum_expected_absolute_NLL_difference_over_current_plausible_best_candidate_pairs",
+    "A3": "one_minus_max_class_vote_fraction_over_current_plausible_best_candidates",
+    "A4": "maximum_expected_absolute_NLL_difference_over_the_prospectively_defined_confidence_set",
+    "candidate_predictive_mixture": "equal_weight_mean_of_candidate_softmax_probabilities_in_current_plausible_set",
+    "confirmation_fidelity_note": "A1_A2_A3_are_registered_adaptations_to_the_81_candidate_full_information_pool;not_claimed_as_byte_exact_reference_reproductions",
+    "A4_reference_role": "project_rule_informed_by_confidence_set_model_selection_not_a_claimed_reference_algorithm_replication"
+  },
+  "estimation_and_selection": {
+    "primary_estimator": "LURE_sequential_without_replacement",
+    "LURE_formula": "L_a(M)=M^-1*sum_m(v_m^M*ell_i_m_a);v_m^M=1+(N-M)/(N-m)*(1/((N-m+1)*q_m(i_m))-1)",
+    "uniform_reduction": "P0_has_q_m=1/(N-m+1)_and_v_m^M=1",
+    "NLL": "LURE_mean_of_clipped_negative_log_probability_with_clip_[1e-12,1]",
+    "balanced_accuracy": "one_half_sum_over_classes_of_LURE_correct_class_indicator_divided_by_LURE_class_indicator",
+    "balanced_accuracy_zero_denominator": "METHOD_CONTEXT_INCOMPLETE",
+    "ECE_bins": 15,
+    "ECE_edges": "linspace_0_1_16_with_last_bin_right_closed",
+    "ECE": "sum_bins_abs(LURE_mean_of_bin_indicator_times_correctness_minus_confidence)",
+    "component_unbiasedness_claim": "only_linear_LURE_moments_are_claimed_unbiased",
+    "nonlinear_plugin_claim": "balanced_accuracy_ratios_ECE_absolute_values_midranks_and_selected_action_are_plugin_quantities_not_claimed_unbiased",
+    "estimated_composite_utility": "mean_of_midrank_percentile(bAcc_hat),midrank_percentile(-NLL_hat),midrank_percentile(-ECE_hat)_across_81_candidates",
+    "primary_selected_action": "first_canonical_argmax_of_estimated_composite_utility",
+    "held_evaluation_utility": "unchanged_historical_C84_bAcc_NLL_ECE_oriented_midrank_composite",
+    "silent_metric_substitution": false,
+    "secondary_self_normalized_estimator": "allowed_only_if_predeclared_in_C86D_and_never_replaces_primary_LURE_result"
+  },
+  "stopping": {
+    "primary": "fixed_total_query_budget_no_early_stop",
+    "secondary_A4": "first_step_after_warm_start_at_which_one_plausible_candidate_remains_for_two_consecutive_queries",
+    "secondary_stopped_policy": "freeze_selected_action_and_report_actual_label_count_without_imputing_unqueried_labels",
+    "failure_states": [
+      "SAMPLING_PROBABILITY_NONPOSITIVE",
+      "WEIGHT_NONFINITE",
+      "CLASS_DENOMINATOR_ZERO",
+      "CONFIDENCE_SET_EMPTY",
+      "POOL_EXHAUSTED_BEFORE_BUDGET",
+      "EVALUATION_DESCRIPTOR_EXPOSED_BEFORE_SELECTION_FREEZE"
+    ]
+  },
+  "primary_endpoints": {
+    "context": [
+      "held_evaluation_standardized_regret",
+      "held_evaluation_selected_utility",
+      "top1",
+      "top5",
+      "top10",
+      "probability_selected_in_A_epsilon",
+      "action_divergence_from_P0_B1_S1",
+      "query_distribution_entropy",
+      "coverage",
+      "stopping",
+      "label_count"
+    ],
+    "epsilon_grid_raw_utility": [0.005, 0.01, 0.02, 0.05],
+    "target_risk": ["mean", "median", "worst_target", "CVaR_0.50", "CVaR_0.75", "CVaR_0.90"],
+    "risk_scale": "historical_standardized_regret",
+    "principal_scientific_unit": "target_subject",
+    "queries_trials_candidates_chains_or_context_repeats_increase_N": false,
+    "dataset_pooling": false
+  },
+  "aggregation_and_inference": {
+    "within_context_finite_method": "arithmetic_mean_over_2048_acquisition_chains",
+    "within_target": "equal_weight_over_registered_panel_seed_level_contexts",
+    "principal_cluster": "target_subject",
+    "paired_effect": "standardized_regret_P0_minus_standardized_regret_active_positive_is_benefit",
+    "materiality_margin": 0.05,
+    "familywise_alpha": 0.05,
+    "maxT_draws": 65536,
+    "maxT_seed": "SHA256(C86_MAXT_V1|dataset|registered_family)",
+    "family": "all_active_methods_crossed_with_four_finite_primary_budgets_within_dataset",
+    "mean_qualification": {
+      "mean_effect_min": 0.05,
+      "familywise_p_max": 0.05,
+      "favorable_target_fraction_min": 0.75,
+      "worst_target_effect_min": -0.10,
+      "positive_panel_seed_level_cells_min": 6,
+      "panel_seed_level_cells_total": 8
+    },
+    "tail_qualification": {
+      "requires_mean_qualification": true,
+      "CVaR_0.90_effect_min": 0.05,
+      "CVaR_effect_nonnegative_at_all_registered_alpha": true,
+      "worst_target_effect_min": -0.10
+    },
+    "LOTO": {
+      "same_method_and_budget_identity": true,
+      "preservation_fraction_min": 0.75
+    },
+    "no_pooled_three_dataset_pvalue": true,
+    "no_new_threshold_after_confirmation_access": true
+  },
+  "taxonomy": {
+    "precedence": [
+      "C86-E_protocol_input_candidate_field_or_provenance_blocker",
+      "C86-A_same_active_policy_reduces_mean_and_tail_regret_across_all_untouched_cohorts",
+      "C86-B_same_active_policy_reduces_mean_regret_but_not_target_tail_across_all_untouched_cohorts",
+      "C86-C_no_registered_active_policy_improves_passive_uniform_at_any_primary_budget",
+      "C86-D_active_policy_dataset_budget_support_or_target_heterogeneous"
+    ],
+    "A": "one_same_active_method_and_finite_budget_passes_mean_and_tail_qualification_in_every_untouched_cohort_and_registered_stability_checks",
+    "B": "A_false_and_one_same_active_method_and_finite_budget_passes_mean_qualification_in_every_cohort_but_tail_qualification_is_not_universal",
+    "C": "no_active_method_and_finite_budget_passes_mean_qualification_in_any_cohort",
+    "D": "all_nonblocking_patterns_not_classified_A_B_or_C_including_method_budget_level_panel_seed_or_target_heterogeneity",
+    "E": "protocol_input_candidate_field_label_view_execution_or_provenance_blocker"
+  },
+  "label_complexity": {
+    "frontier_domain": [4, 8, 16, 32],
+    "qualification": "active_vs_P0_mean_qualification",
+    "closure": "smallest_finite_budget_for_one_method_that_qualifies_at_that_budget_and_every_larger_finite_budget",
+    "FULL_required_consistency": "all_label_acquisition_selection_replays_without_method_specific_query_advantage",
+    "L1": "all_cohort_frontiers_exist_for_same_method_with_max_budget_at_most_8_and_ordinal_distance_at_most_1",
+    "L2": "all_cohort_frontiers_exist_for_same_method_with_max_budget_in_16_or_32_and_ordinal_distance_at_most_1",
+    "L3": "all_frontiers_exist_but_method_or_ordinal_or_registered_stability_is_heterogeneous",
+    "L4": "one_or_more_cohort_frontiers_absent"
+  },
+  "theory_bridge": {
+    "T1": "registered_policy_comparison_does_not_identify_Blackwell_order",
+    "T2": "restricted_policy_nonmonotonicity_is_a_design_warning_not_empirical_information_order",
+    "T3": "applies_only_to_exact_action_identity_over_every_context_in_declared_scope",
+    "T4": "not_empirically_applied_without_state_family_observation_laws_decoder_and_Delta",
+    "T5": "OPEN_and_not_applied",
+    "T6": "mean_and_target_tail_endpoints_reported_separately",
+    "T7": "no_bound_claim_without_independent_pairwise_error_MGF_validation"
+  },
+  "future_C86L": {
+    "role": "development_only_trial_level_full_loss_vector_artifact",
+    "requires_separate_lock_and_authorization": true,
+    "inputs": "already_authorized_C84_evaluation_label_and_logit_universe_only_after_new_scope_specific_authorization",
+    "required_fields": [
+      "candidate_ids",
+      "candidate_predictions_and_probabilities",
+      "true_label",
+      "candidate_metric_contribution_vectors",
+      "pairwise_loss_differences",
+      "trial_identity",
+      "target_context_identity"
+    ],
+    "eligible_for_primary_C86H_evidence": false
+  },
+  "synthetic_calibration": {
+    "production_entrypoints_required": true,
+    "scenarios": [
+      "dense_near_ties",
+      "sparse_large_gaps",
+      "high_pairwise_variance_strata",
+      "low_pairwise_variance_strata",
+      "policy_collapse",
+      "mean_improvement_adverse_target_tail",
+      "class_imbalance",
+      "importance_weight_instability",
+      "sampling_probability_floor_failure",
+      "stopping_rule_failure",
+      "dataset_heterogeneity"
+    ],
+    "outputs": [
+      "selection_regret",
+      "epsilon_near_optimal_probability",
+      "estimator_bias_variance",
+      "importance_weight_diagnostics",
+      "target_tail_risk",
+      "label_complexity",
+      "failure_calibration"
+    ],
+    "C86P_shadow_preflight_is_scientific_execution": false
+  },
+  "future_stage_sequence": ["C86L", "C86D", "C86C_or_C86F", "C86H"],
+  "authorization": {
+    "C86L_authorized": false,
+    "C86D_authorized": false,
+    "C86H_authorized": false,
+    "active_label_acquisition_authorized": false,
+    "new_data_download_authorized": false,
+    "new_model_zoo_authorized": false,
+    "C87_authorized": false,
+    "manuscript_authorized": false,
+    "fresh_scope_specific_lock_and_direct_authorization_required": true
+  },
+  "C86P_execution_boundary": {
+    "may_read": [
+      "committed_compact_C85E_reports",
+      "public_dataset_metadata",
+      "installed_loader_source",
+      "primary_literature",
+      "historical_access_ledgers",
+      "shadow_synthetic_fixtures"
+    ],
+    "forbidden": [
+      "new_EEG_download_or_open",
+      "new_target_label_read",
+      "C84_trial_loss_vector_creation",
+      "active_acquisition_execution",
+      "new_candidate_training_or_forward",
+      "GPU",
+      "performance_based_confirmation_dataset_selection",
+      "real_data_execution_lock",
+      "C87",
+      "manuscript_modification"
+    ]
+  },
+  "claim_boundary": {
+    "C84_gate_changed": false,
+    "C84_frontier_changed": false,
+    "C85_theorem_status_changed": false,
+    "C85E_is_independent_confirmation": false,
+    "passive_Q0_identifies_unrestricted_label_value": false,
+    "active_testing_universally_superior": false,
+    "confirmation_claim_before_C86H": false,
+    "C86_authorizes_manuscript": false
+  }
+}
