@@ -113,8 +113,8 @@ def main():
                     "dataset": ds, "subject": fold["heldout_subject"], "seed": fold["seed"]})
             print(f"  {ds} sub{fold['heldout_subject']} s{fold['seed']}: informed={fold['n_informed']} "
                   f"random={fold['n_random']} sel={fold['selected_action']}(r{fold['selected_rank']}) "
-                  f"[contested={fold['firewall']['contested_rank']}/free={fold['firewall']['free_rank']}/"
-                  f"full={fold['firewall']['full_cond_rank']}] Δtx={fold['delta_tx']:+.3f} "
+                  f"[contested={fold['firewall']['projected_contested_rank']}/free={fold['firewall']['projected_free_rank']}/"
+                  f"full={fold['firewall']['full_cond_rank']} g1app={fold['gate1_applicable']}] Δtx={fold['delta_tx']:+.3f} "
                   f"Δrand(selk)={fold['delta_random_selected_rank']:+.3f} Δsrcgreedy={fold['delta_source_greedy']:+.3f} "
                   f"Δwhite={fold['delta_whitening']:+.3f} Δcenter={fold['delta_mean_centering']:+.3f} "
                   f"Δhind_c={fold['delta_hindsight_constrained']:+.3f} Δhind_u={fold['delta_hindsight_unconstrained']:+.3f}")

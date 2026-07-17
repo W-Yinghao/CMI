@@ -30,11 +30,61 @@ def test_whitened_metric_and_contested_basis():
     f = _feat(0); res = audit_fold(f, seed=0, family="cond", smoke=True, n_random_per_rank=8)
     fw = res["fold"]["firewall"]
     assert fw["metric"] == "source_ledoitwolf_whitened" and fw["primary_basis"] == "cond_contested"
-    assert fw["contested_rank"] <= fw["full_cond_rank"]                     # contested is a restriction
-    assert fw["contested_rank"] + fw["free_rank"] <= fw["full_cond_rank"] + 1e-9
-    # random controls are whitened-orthonormal at their rank
+    assert fw["projected_contested_rank"] <= fw["full_cond_rank"]           # contested is a restriction
     rc = [rw for rw in res["rows"] if rw["kind"] == "random"]
     assert rc and all(rw["basis_label"] == "ambient_whitened" for rw in rc)
+
+
+# ---------------- F2.1c closure tests ----------------
+def test_empty_contested_returns_identity_no_full_fallback():
+    """With an EMPTY contested basis, build_actions yields only identity (informed) + baselines -- never a
+    full-cond fallback direction."""
+    D = 16; W = M.source_whitener(np.random.default_rng(0).standard_normal((200, D)))
+    rng = np.random.default_rng(0); Zs = rng.standard_normal((200, D)); ys = (Zs[:, 0] > 0).astype(int); ds = np.repeat(np.arange(4), 50)
+    acts = build_actions(np.zeros((0, D)), W, Zs, ys, ds, Zs[:50], seed=0, smoke=True)
+    informed = [a for a in acts if a["kind"] == "informed" and a["rank"] >= 1]
+    assert informed == []                                                  # no singleton/subset when contested empty
+    assert any(a["name"] == "identity" for a in acts)
+    assert not any(a["kind"] == "random" for a in acts)                    # no random ranks when no informed rank
+
+
+def test_hindsight_constrained_is_source_safe_and_same_pipeline():
+    f = _feat(1); res = audit_fold(f, seed=1, family="cond", smoke=True, n_random_per_rank=8)
+    hc = next(rw for rw in res["rows"] if rw["action"] == "hindsight_constrained")
+    assert hc["basis_label"] == "cond_contested"                           # same action pipeline / span
+    d = hc["source_task_drop"]
+    assert (hc["rank"] == 0) or (d is None) or (d <= TASK_SAFETY_MAX_DROP + 1e-9)   # source-safe
+
+
+def test_hindsight_never_uses_query():
+    f = _feat(2); r1 = audit_fold(f, seed=2, family="cond", smoke=True, n_random_per_rank=6)
+    f2 = {**f, "Z_target": f["Z_target"].copy()}
+    yt = np.asarray(f["y_target"]); cal, qry, _ = session_split(f["session_target"], yt)
+    f2["Z_target"][qry] = np.random.default_rng(0).standard_normal(f2["Z_target"][qry].shape) * 50
+    r2 = audit_fold(f2, seed=2, family="cond", smoke=True, n_random_per_rank=6)
+    # the constrained-hindsight SELECTION (basis_indices) uses only T_cal labels, not T_query
+    i1 = next(rw for rw in r1["rows"] if rw["action"] == "hindsight_constrained")["basis_indices"]
+    i2 = next(rw for rw in r2["rows"] if rw["action"] == "hindsight_constrained")["basis_indices"]
+    assert i1 == i2
+
+
+def test_duplicate_projectors_deduped():
+    f = _feat(3); res = audit_fold(f, seed=3, family="cond", smoke=False, n_random_per_rank=8)
+    informed = [rw for rw in res["rows"] if rw["kind"] == "informed" and rw["rank"] >= 1]
+    hashes = [rw["projector_hash"] for rw in informed]
+    assert len(hashes) == len(set(hashes))                                 # no double-weighted projector
+
+
+def test_gate1_applicable_flag():
+    f4 = _feat(4)   # 4-class DGP -> contested rank up to 3
+    r4 = audit_fold(f4, seed=4, family="cond", smoke=False, n_random_per_rank=8)
+    # applicability is a structural function of the projected contested rank (>=3 to rank actions)
+    assert r4["fold"]["gate1_applicable"] == (r4["fold"]["projected_contested_rank"] >= 3)
+
+
+def test_no_contested_flag_present():
+    f = _feat(5); res = audit_fold(f, seed=5, family="cond", smoke=True, n_random_per_rank=8)
+    assert "no_contested_candidate" in res["fold"] and "head_overlap_energy" in res["fold"]
 
 
 def test_contested_basis_inside_head_rowspace():

@@ -133,7 +133,16 @@ def build_actions(B_w, W, Zs, ys, ds, Xcal, seed=0, smoke=False, n_random_per_ra
     acts.append(_act("whitening", "baseline", -1, None, W, eligible=False,
                      apply_source=lambda Z: M.to_whitened(Z, W), apply_tcal=lambda Z: M.to_whitened(Z, W),
                      apply_tq=lambda Z: M.to_whitened(Z, W), basis_label="baseline", basis_hash=bh))
-    return acts
+    # dedup INFORMED actions by projector_hash (source-greedy prefixes can equal enumerated subsets) -> aliases
+    seen, out = {}, []
+    for a in acts:
+        if a["kind"] == "informed" and a["rank"] >= 1:
+            h = a["projector_hash"]
+            if h in seen:
+                seen[h].setdefault("aliases", []).append(a["name"]); continue
+            a["aliases"] = []; seen[h] = a
+        out.append(a)
+    return out
 
 
 # ============================================================ safety, selection (shared hashed rule), utility
@@ -224,8 +233,8 @@ def audit_fold(feat, seed=0, family="cond", max_rank=10, smoke=False, phase="pri
     B_cond_w = M.whitened_cond_basis(Zs_w, ys, ds, max_rank=max_rank)
     B_contested = M.project_basis(B_cond_w, row_w)               # PRIMARY (task-used directions)
     B_free = M.project_basis(B_cond_w, null_w)                   # sanitation control (head-null), NOT selectable
-    if B_contested.shape[0] == 0:
-        B_contested = B_cond_w[: min(1, B_cond_w.shape[0])]      # degenerate guard
+    no_contested = bool(B_contested.shape[0] == 0)              # F2.1c: NO fallback to full cond -> identity-only
+    head_overlap_energy = float(np.sum((B_cond_w @ row_w.T) ** 2) / max(B_cond_w.shape[0], 1)) if row_w.shape[0] else 0.0
     d_white = -M.to_whitened(Xcal.mean(0)[None, :], W)[0]        # A_s(mu_s - mu_tcal)
     head_w = LogisticRegression(max_iter=300).fit(Zs_w, ys)
     ev = np.sort(np.linalg.eigvalsh(np.cov(Zs_w.T) + 1e-12 * np.eye(Zs_w.shape[1])))[::-1]; ev = np.clip(ev, 1e-12, None)
@@ -238,19 +247,27 @@ def audit_fold(feat, seed=0, family="cond", max_rank=10, smoke=False, phase="pri
              "targetx_scores_use": "T_cal_X_only", "query_x_used_for_selection": False,
              "query_y_used_for_selection": False, "query_x_used_for_outcome": True, "query_y_used_for_outcome": True,
              "target_greedy_in_action_set": False, "random_controls_selectable": False,
-             "fallback_used": sinfo["fallback_used"], "phase": phase,
+             "fallback_used": sinfo["fallback_used"], "phase": phase, "no_contested_candidate": no_contested,
              "whitening_hash": W["whitening_hash"], "cov_condition_number": W["cond"],
-             "contested_rank": int(B_contested.shape[0]), "free_rank": int(B_free.shape[0]),
-             "full_cond_rank": int(B_cond_w.shape[0])}
+             "projected_contested_rank": int(B_contested.shape[0]), "projected_free_rank": int(B_free.shape[0]),
+             "full_cond_rank": int(B_cond_w.shape[0]), "head_overlap_energy": head_overlap_energy,
+             "note_ranks": "projected_contested/free are projections of B_cond onto row(Wc)/ker(Wc); NOT an additive split of full rank"}
     actions = build_actions(B_contested, W, Zs, ys, ds, Xcal, seed=seed, smoke=smoke, n_random_per_rank=n_random_per_rank)
-    # constrained hindsight (same contested span, rank<=3, source-task-safe) + unconstrained ceiling
-    S_hc = _select_subset(Zs_w, ys, Xcal_w, yt[cal], B_contested, "greedy", PRIMARY_MAX_RANK, seed)
-    hind_c = _act("hindsight_constrained", "oracle", len(S_hc), M._orthonormal(B_contested[S_hc]) if S_hc else np.zeros((0, Zs.shape[1])), W,
-                  eligible=False, basis_label="cond_contested", basis_indices=list(S_hc), basis_hash=M._hash(B_contested))
-    S_hu = _select_subset(Zs_w, ys, Xcal_w, yt[cal], B_cond_w, "greedy", max_rank, seed)
-    hind_u = _act("hindsight_unconstrained", "oracle", len(S_hu), M._orthonormal(B_cond_w[S_hu]) if S_hu else np.zeros((0, Zs.shape[1])), W,
-                  eligible=False, basis_label="cond_full", basis_indices=list(S_hu), basis_hash=M._hash(B_cond_w))
-    actions += [hind_c, hind_u]
+    ycal = yt[cal]
+    # CONSTRAINED hindsight (Gate-3 denominator): SAME action pipeline; source-safe rank<=3; select on T_cal
+    # LABELS (oracle, non-deployable); identity is a legal candidate; NO random-specificity requirement.
+    hc_cands = [a for a in actions if a["kind"] == "informed"
+                and (a["rank"] == 0 or source_task_drop(Zs, ys, ds, a["apply_source"], seed) <= TASK_SAFETY_MAX_DROP)]
+    hind_c = max(hc_cands, key=lambda a: _bacc(a["apply_source"](Zs), ys, a["apply_target_cal"](Xcal), ycal, seed),
+                 default=next(a for a in actions if a["name"] == "identity"))
+    hc = _act("hindsight_constrained", "oracle", hind_c["rank"], hind_c["U"], W, eligible=False,
+              basis_label="cond_contested", basis_indices=hind_c.get("basis_indices"), basis_hash=M._hash(B_contested))
+    # UNCONSTRAINED ceiling (full cond span; not a gate)
+    S_hu = _select_subset(Zs_w, ys, Xcal_w, ycal, B_cond_w, "greedy", max_rank, seed) if B_cond_w.shape[0] else []
+    hu = _act("hindsight_unconstrained", "oracle", len(S_hu),
+              M._orthonormal(B_cond_w[S_hu]) if S_hu else np.zeros((0, Zs.shape[1])), W, eligible=False,
+              basis_label="cond_full", basis_indices=list(S_hu), basis_hash=M._hash(B_cond_w))
+    actions += [hc, hu]
     sel, diag = g1_select(actions, ctx, Zs, ys, ds, seed)
     obs = ["G1"] if phase == "primary" else (["G1"] + SECONDARY)
     rows = []
@@ -261,7 +278,7 @@ def audit_fold(feat, seed=0, family="cond", max_rank=10, smoke=False, phase="pri
                          basis_label=a["basis_label"], basis_family=family, basis_hash=a["basis_hash"],
                          projector_hash=a["projector_hash"], basis_indices=a.get("basis_indices"),
                          G1=sc.get("G1"), scores=sc, source_task_drop=a.get("_drop"), random_q95_same_rank=a.get("_q95"),
-                         safe_gate_pass=a.get("_safe"), specificity_gate_pass=a.get("_specific"),
+                         safe_gate_pass=a.get("_safe"), specificity_gate_pass=a.get("_specific"), aliases=a.get("aliases"),
                          utility_macro=macro, utility_pooled=pooled, config_hash=config_hash, git_sha=git_sha,
                          rule_hash=M.rule_hash()))
     def _u(name):
@@ -276,6 +293,8 @@ def audit_fold(feat, seed=0, family="cond", max_rank=10, smoke=False, phase="pri
                 n_random=sum(rw["kind"] == "random" for rw in rows),
                 selected_action=sel["name"], selected_rank=ksel, selected_basis_indices=sel.get("basis_indices"),
                 selected_basis_hash=sel["basis_hash"], rule_hash=M.rule_hash(),
+                no_contested_candidate=no_contested, projected_contested_rank=int(B_contested.shape[0]),
+                gate1_applicable=bool(B_contested.shape[0] >= 3), head_overlap_energy=head_overlap_energy,
                 delta_tx=_u(sel["name"]),
                 delta_tx_pooled=next((rw["utility_pooled"] for rw in rows if rw["action"] == sel["name"]), float("nan")),
                 delta_source_greedy=_u("srcgreedy_standalone"), delta_whitening=_u("whitening"),

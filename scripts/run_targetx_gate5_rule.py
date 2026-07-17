@@ -89,9 +89,12 @@ def main():
             W = M.source_whitener(Zs[er]); Zs_er_w = M.to_whitened(Zs[er], W)
             row_w, null_w = M.whitened_head_rowspace(Zs_er_w, ys[er], sd)
             B_cond_w = M.whitened_cond_basis(Zs_er_w, ys[er], dsc[er], max_rank=10)
-            B_contested = M.project_basis(B_cond_w, row_w)
+            B_contested = M.project_basis(B_cond_w, row_w)      # F2.1c: NO fallback to full cond
             if B_contested.shape[0] == 0:
-                B_contested = B_cond_w[: min(1, B_cond_w.shape[0])]
+                rows.append(dict(dataset=ds, subject=str(f["heldout_subject"]), seed=sd, selected_action="identity",
+                                 selected_rank=0, rule_hash=M.rule_hash(), audit_rule_hash=audit_rule,
+                                 same_rule_implementation=True, di_specific_linear=0.0, no_contested_candidate=True))
+                continue
             cal, qry, _ = session_split(f["session_target"], yt, sd); Xcal = Zt[cal]
             d_white = -M.to_whitened(Xcal.mean(0)[None, :], W)[0]
             ctx = dict(d_white=d_white, Zs_w=Zs_er_w)
