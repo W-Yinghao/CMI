@@ -207,11 +207,25 @@ def score_on_target_query(Zs_w, ys, U, Xq_w, yq, sq):
 
 
 # ============================================================ result routing (graded; no closeout)
-def route_stage_result(dU_specific_lcb, dU_specific_ucb, holm_p, other_dataset_ucb, family, backbone):
-    """M1 route A only if confirmatory (contrast/EEGNet) LCB>0 & Holm p<0.05 & other dataset UCB>-0.01. Every
-    non-ENRICHED verdict carries a failure record (never a stop; only the project owner stops a line)."""
-    if family == "contrast_disagreement" and backbone == "EEGNet" and dU_specific_lcb > 0 and holm_p < 0.05 and other_dataset_ucb > -0.01:
+def route_stage_result(dU_specific_lcb, dU_specific_ucb, holm_p, other_dataset_ucb, family, backbone,
+                        specificity_control="MATCHED"):
+    """M1 route A only if confirmatory (contrast/EEGNet) LCB>0 & Holm p<0.05 & other dataset UCB>-0.01 AND the
+    PRIMARY (shared-overlap-matched) specificity control actually ran. If only the AMBIENT_ONLY fallback ran (the
+    matched control fail-closed), ENRICHMENT is NOT granted -- routing is gated, not merely flagged, so M2 cannot
+    unlock on an ambient-only comparison. Every non-ENRICHED verdict carries a failure record (never a stop; only
+    the project owner stops a line)."""
+    enrich_stats = (family == "contrast_disagreement" and backbone == "EEGNet" and dU_specific_lcb > 0
+                    and holm_p < 0.05 and other_dataset_ucb > -0.01)
+    if enrich_stats and specificity_control == "MATCHED":
         return dict(verdict="MECHANISM_ENRICHED_OVER_RANDOM", next="M2_source_identifiability")
+    if enrich_stats and specificity_control != "MATCHED":
+        # statistics clear route A but only the ambient fallback ran -> fail-closed, do NOT unlock M2.
+        return dict(verdict="ENRICHED_VS_AMBIENT_ONLY_MATCHED_CONTROL_UNAVAILABLE",
+                    next="resolve_specificity_control_before_M2", failure_layer="specificity_control_unavailable",
+                    evidence="stats clear route A but shared-overlap-matched control fail-closed; only ambient ran",
+                    learned_lesson="the primary matched specificity control did not run; ambient-only cannot certify specificity",
+                    next_hypothesis="a feasible non-degenerate matched control (e.g. shared-null Haar) is required",
+                    next_experiment="resolve_specificity_control_before_M2")
     if dU_specific_ucb <= 0:
         v = "NO_DETECTED_MECHANISM_ENRICHMENT"; nxt = "training_time_shaping"
     elif backbone == "DGCNN" and dU_specific_lcb > 0:

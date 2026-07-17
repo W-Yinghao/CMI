@@ -153,6 +153,17 @@ def test_result_routing_deterministic_and_failure_record():
     assert c["verdict"] == "BACKBONE_SPECIFIC"
 
 
+def test_routing_gated_on_matched_specificity_control():
+    # SAME stats that would clear route A, but only the AMBIENT_ONLY fallback ran (matched control fail-closed):
+    # ENRICHMENT must NOT be granted (fail-closed), so M2 cannot unlock on an ambient-only comparison.
+    g = MS.route_stage_result(0.02, 0.05, 0.01, 0.0, "contrast_disagreement", "EEGNet", specificity_control="AMBIENT_ONLY")
+    assert g["verdict"] == "ENRICHED_VS_AMBIENT_ONLY_MATCHED_CONTROL_UNAVAILABLE"
+    assert g["next"] == "resolve_specificity_control_before_M2"
+    # with a real matched control the same stats DO route A (default is MATCHED)
+    m = MS.route_stage_result(0.02, 0.05, 0.01, 0.0, "contrast_disagreement", "EEGNet", specificity_control="MATCHED")
+    assert m["verdict"] == "MECHANISM_ENRICHED_OVER_RANDOM"
+
+
 def test_score_on_query_is_session_macro():
     Zw, ys, ds = _src(7, p=10)
     U = np.eye(10)[[2]]

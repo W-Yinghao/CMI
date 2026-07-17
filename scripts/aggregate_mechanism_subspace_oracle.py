@@ -81,9 +81,12 @@ def main():
                 n_rows=len(rows), git_sha=next((r.get("git_sha") for r in rows if r.get("git_sha")), "unknown"),
                 config_hash=next((r.get("config_hash") for r in rows if r.get("config_hash")), "unknown"))
 
-    # skip / firewall audit (reason-coded losses are surfaced, never dropped silently)
+    # skip / firewall audit (reason-coded losses are surfaced, never dropped silently). Any row whose status is
+    # neither "ok" nor "skipped" is surfaced too (fail loud; never dropped from both outputs).
     skipped = [dict(dataset=r.get("dataset"), backbone=r.get("backbone"), subject=r.get("subject"),
                     family=r.get("family"), reason=r.get("reason") or r.get("fail")) for r in rows if r.get("status") == "skipped"]
+    unexpected = [dict(dataset=r.get("dataset"), backbone=r.get("backbone"), subject=r.get("subject"),
+                       family=r.get("family"), status=r.get("status")) for r in rows if r.get("status") not in ("ok", "skipped")]
 
     per_cell = defaultdict(lambda: defaultdict(list))       # (bb,fam,ds) -> subject -> [dU_specific]
     win = defaultdict(lambda: defaultdict(list)); ctrl_used = defaultdict(set)
@@ -118,7 +121,24 @@ def main():
         holm_p = holm_by_ds.get(ds, 1.0) if (bb == "EEGNet" and fam == "contrast_disagreement") else spec["p_one_sided"]
         other = [cell_ci[k]["spec"]["hi"] for k in cell_ci if k[0] == bb and k[1] == fam and k[2] != ds]
         other_ucb = min(other) if other else -1.0        # if the other dataset is missing, cannot clear route A
-        route = MS.route_stage_result(spec["lo"], spec["hi"], holm_p, other_ucb, fam, bb)
+        # n<2 subjects -> the cluster bootstrap is degenerate (LCB=UCB=value, p~0); do NOT let it route as
+        # significant. Force INSUFFICIENT_CLUSTERS and neutralize the stats fed to the router.
+        if spec["n"] < 2:
+            route = dict(verdict="INSUFFICIENT_CLUSTERS", next="increase_subjects_or_seeds",
+                         failure_layer="insufficient_cluster_units", evidence=f"n_subjects={spec['n']} (<2)",
+                         learned_lesson="single-cluster bootstrap is degenerate; no CI meaning",
+                         next_hypothesis="need >=2 subject clusters", next_experiment="run more subjects/seeds")
+            significance_state, interval_state, practical_state = "INSUFFICIENT_CLUSTERS", "INSUFFICIENT_CLUSTERS", "INSUFFICIENT_CLUSTERS"
+            summ.append(dict(backbone=bb, family=fam, dataset=ds, n_subjects=spec["n"], dU_specific_mean=spec["mean"],
+                             dU_specific_lcb=spec["lo"], dU_specific_ucb=spec["hi"], holm_p=holm_p,
+                             one_sided_p=spec["p_one_sided"], other_dataset_ucb=other_ucb,
+                             q95_exceedance_rate=c["q95_exceedance"], q95_null_rate=Q95_NULL_RATE,
+                             specificity_control=c["control"], verdict=route["verdict"], next_step=route.get("next"),
+                             significance_state=significance_state, interval_state=interval_state, practical_state=practical_state,
+                             **{k: route[k] for k in ("failure_layer", "learned_lesson", "next_hypothesis", "next_experiment") if k in route}))
+            continue
+        ctrl = "MATCHED" if c["control"] == ["MATCHED"] else "AMBIENT_ONLY"   # gate route A on a real matched control
+        route = MS.route_stage_result(spec["lo"], spec["hi"], holm_p, other_ucb, fam, bb, specificity_control=ctrl)
         significance_state = ("SIGNIFICANT_ENRICHMENT" if holm_p < 0.05 and spec["lo"] > 0
                               else "NO_DETECTED_ENRICHMENT" if spec["hi"] <= 0 else "INCONCLUSIVE")
         interval_state = ("EXCLUDES_ZERO_POSITIVE" if spec["lo"] > 0 else
@@ -149,13 +169,15 @@ def main():
     keys = list(summ[0].keys()) if summ else []
     with open(OUT / f"mechanism_oracle_summary_{tag}.csv", "w", newline="") as fh:
         w = csv.DictWriter(fh, fieldnames=keys); w.writeheader(); [w.writerow({k: r.get(k) for k in keys}) for r in summ]
-    json.dump(dict(provenance=prov, confirmatory=confirmatory, per_cell=summ, skipped=skipped, n_boot=N_BOOT,
-                   scope=("engineering_smoke_no_scientific_weight" if a.smoke else "M1_confirmatory"),
+    json.dump(dict(provenance=prov, confirmatory=confirmatory, per_cell=summ, skipped=skipped, unexpected=unexpected,
+                   n_boot=N_BOOT, scope=("engineering_smoke_no_scientific_weight" if a.smoke else "M1_confirmatory"),
                    discipline="no CLOSED; graded verdicts; only the project owner stops a scientific line; manuscript FROZEN"),
               open(OUT / f"mechanism_oracle_verdict_{tag}.json", "w"), indent=2, default=float)
 
-    print(f"[mech-agg-{tag}] {len(summ)} cells; skipped={len(skipped)}; confirmatory={confirmatory['decision']} "
-          f"(route_A={confirmatory['route_A_datasets']})")
+    print(f"[mech-agg-{tag}] {len(summ)} cells; skipped={len(skipped)}; unexpected={len(unexpected)}; "
+          f"confirmatory={confirmatory['decision']} (route_A={confirmatory['route_A_datasets']})")
+    if unexpected:
+        print(f"  [UNEXPECTED STATUS - surfaced, not dropped] {len(unexpected)}: {sorted({str(u['status']) for u in unexpected})}")
     for s in summ:
         print(f"  {s['dataset'][:11]}/{s['backbone']:6}/{s['family'][:9]}: dU_spec={s['dU_specific_mean']:+.4f}"
               f"[{s['dU_specific_lcb']:+.4f},{s['dU_specific_ucb']:+.4f}] holm={s['holm_p']:.3f} "
