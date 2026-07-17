@@ -1,0 +1,20 @@
+theorem_id,obligation_id,obligation,blocking_for_general_status
+T1,T1_O1,Common state action and loss spaces,1
+T1,T1_O2,State-independent garbling and randomized-kernel composition,1
+T1,T1_O3,Statewise law and risk equality with justified integration,1
+T1,T1_O4,Correct infimum direction and no restricted-class extension,1
+T2,T2_O1,Exact independent S1 and S10 garbling enumeration,1
+T2,T2_O2,Replay 11/40 0 3/5 and 13/40,1
+T3,T3_O1,Kernel equality almost surely under every state,1
+T3,T3_O2,Statewise loss and risk plus prior or group aggregation,1
+T4,T4_O1,Valid action-to-state decoder under disjoint optimum sets,1
+T4,T4_O2,Equal-prior testing lower bound TV convention and factor one-half,1
+T4,T4_O3,Randomized rules and Delta=0 TV=1 boundaries,1
+T5,T5_O1,Decoder and distinct or disjoint optimum conditions,1
+T5,T5_O2,Mutual-information mixture identity and Fano constants,1
+T5,T5_O3,Regret-to-error reduction and K greater than two,1
+T6,T6_O1,Exact ten-group mean and worst risk,1
+T6,T6_O2,Piecewise upper-loss CVaR with alpha 13/20 equality and alpha 1 exclusion,1
+T7,T7_O1,Selection-event inclusion and Chernoff constant,1
+T7,T7_O2,Sigma zero Delta zero empty set and tie boundaries,1
+T7,T7_O3,Union bound without independence and cap at one,1
