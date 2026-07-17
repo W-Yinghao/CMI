@@ -1,0 +1,45 @@
+{
+  "C84_confirmatory_gate_changed": false,
+  "C85E_authorized": false,
+  "C85_theorem_statuses_changed": false,
+  "addendum_role": "PM_INTERPRETIVE_SCOPE_CLARIFICATION",
+  "formal_statuses": {
+    "T1": "PROVED",
+    "T2": "COUNTEREXAMPLE",
+    "T3": "PROVED",
+    "T4": "PROVED",
+    "T5": "OPEN",
+    "T6": "COUNTEREXAMPLE",
+    "T7": "PROVED"
+  },
+  "review_independence": {
+    "blinded_external_mathematical_refereeing": false,
+    "candidate_blind_stage_A": true,
+    "external_human_peer_review": false,
+    "procedurally_separated_internal_rederivation": true,
+    "publication_acceptance": false,
+    "separately_hashed_adversarial_audit": true
+  },
+  "schema_version": "c85v_pm_theorem_scope_and_review_independence_addendum_v1",
+  "scope_contract": {
+    "C85_theorem_establishes_C84_mechanism": false,
+    "T1_T3_T4_T7_role": "PROJECT_INTERNAL_PROOF_OF_EXACT_FROZEN_STATEMENT_UNDER_EXACT_ASSUMPTIONS",
+    "T2_T6_role": "EXACT_FINITE_COUNTEREXAMPLE_NOT_GENERAL_POSITIVE_THEOREM",
+    "T4_required_conditions": [
+      "equal_prior",
+      "common_observation_space",
+      "disjoint_optimal_action_sets",
+      "valid_action_to_state_decoder",
+      "uniform_nonoptimal_action_regret_floor_Delta"
+    ],
+    "T5_statement_repair_inside_empirical_milestone": false,
+    "T7_required_conditions": [
+      "registered_pairwise_sub_Gaussian_MGF",
+      "fixed_valid_optimal_reference"
+    ],
+    "T7_tightness_established_by_C85T": false
+  },
+  "source_C85V_completion_receipt_sha256": "60ae19b5a4e7ad04b02e392c35077e00adbf7aee66dc54d85c50fa47f7ce0d18",
+  "source_C85V_result_manifest_sha256": "952579daf0cd2840bad4eea98a1537c1a25458da96d96a4de89fe205e121ac9c",
+  "source_C85V_result_sha256": "49e148f9c9c8e43dc137a896fd0333b79c3496e06a4e41ef572e9b50d2b06b8e"
+}
