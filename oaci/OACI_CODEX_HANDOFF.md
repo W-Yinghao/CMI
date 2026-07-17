@@ -13,7 +13,146 @@ and collaboration sections before acting.
 
 ---
 
-## 0. Current continuation state through C85TR2 (2026-07-17)
+## 0. Current continuation state through C85T (2026-07-17)
+
+C85T V3 consumed one fresh authorization, executed the locked synthetic
+benchmark, froze seven proof candidates, and atomically published the complete
+bundle. It stopped at:
+
+```text
+C85T_SYNTHETIC_VALIDATION_AND_PROOF_CANDIDATES_FROZEN_C85V_REVIEW_REQUIRED
+```
+
+Authoritative C85T identities:
+
+```text
+authorization/execution commit:
+  b26b21f6b8378188dd59890c5701944c41fad823
+
+result/report commit:
+  53e47126679a38ce70536bd03a4366871031b194
+
+C85T V3 lock commit:
+  b1a5ba3aca002de7e302fc375298cc69c1ed82a8
+
+C85T V3 lock SHA-256:
+  3ee51a994969ebaaad9c1228d52df76e5222284c38eadbc77a50ce6178cdc8a9
+
+authorization binding SHA-256:
+  38b8c3f2111df926c388ba7ab60292aa43714b9f0dace1a2beaa978f30a918fc
+
+authorization file SHA-256:
+  b0c283967c7741ebe7eecd0c0207c7dbec7e3f8ccd435db4ae594de41e19e501
+
+result SHA-256:
+  ecaff65e942dbb81d93a3bdb61589fa9f1f6590f7188947688e6b30617140cec
+
+manifest SHA-256:
+  a727beebcb45598ea0f92f37bed8ef32369b1c793ecad9efc2f5d9941bd5bb0e
+
+semantic replay receipt SHA-256:
+  735edf13a24c074cb3c18e56d168ebd905b3a7bcb29e3c273b3652bb1b7dcc6e
+
+completion receipt SHA-256:
+  418f74e4c3cf60847b11bf18a890ffebf870ed8adee1a75d304b01075646e65d
+```
+
+External bundle:
+
+```text
+/projects/EEG-foundation-model/yinghao/oaci-c85t-synthetic-v3/
+  c85t-v3-3ee51a994969ebaa-9ec012bedbf24f1f
+
+files / bytes:
+  21 / 1,325,040
+
+attempt ID:
+  3ced6e5b117a4a95b9982a5fd22b5e4a
+```
+
+Slurm job `899524` completed on `cpu-high` with exit `0:0` in seven
+seconds, one task, 8 GiB memory, and zero GPU. Job stderr is empty. No `sacct`
+evidence was used.
+
+Frozen result arithmetic:
+
+```text
+exact scenario results:             11
+S6/S7 logical replicate rows:     8,192
+S9 logical replicate-design rows: 8,192
+S9 raw int64 digest rows:          4,096
+registered S9 digest replays:       4,096
+proof candidates:                      7
+formal theorem statuses OPEN:          7
+```
+
+Proof candidate dispositions:
+
+```text
+T1  PROPOSED_PROOF          / OPEN
+T2  PROPOSED_COUNTEREXAMPLE / OPEN
+T3  PROPOSED_PROOF          / OPEN
+T4  PROPOSED_PROOF          / OPEN
+T5  INCOMPLETE_OPEN         / OPEN
+T6  PROPOSED_COUNTEREXAMPLE / OPEN
+T7  PROPOSED_PROOF          / OPEN
+```
+
+C85T internal checks are non-dispositive. C85T did not independently validate
+proofs and did not transition theorem status.
+
+Accepted post-execution regressions:
+
+```text
+focused: 409 passed, 1 deselected
+C65:   1,020 passed, 1 skipped, 4 deselected
+C23:   1,431 passed, 1 skipped, 4 deselected
+full:  2,355 passed, 1 skipped, 4 deselected
+```
+
+All accepted stderr files are empty. Final red team is 80/80 PASS. The extra
+deselection is the now-inapplicable readiness assertion that no V3
+authorization exists; no bound test was modified.
+
+Protected boundary:
+
+```text
+real project data / EEG / labels / logits:
+  0 / 0 / 0 / 0
+
+training / forward / GPU:
+  0 / 0 / 0
+
+active acquisition:
+  0
+
+theorem-status transitions:
+  0
+
+C85V / C85E authorized:
+  false / false
+
+manuscript modified:
+  false
+```
+
+Authoritative C85T reports:
+
+```text
+oaci/reports/C85T_OVERALL_REPORT.md
+oaci/reports/C85T_OVERALL_REPORT.json
+oaci/reports/C85T_OVERALL_REPORT.sha256
+oaci/reports/C85T_RESULT_IDENTITY.json
+oaci/reports/C85T_FINAL_REPORT_RED_TEAM.md
+oaci/reports/C85T_REGRESSION_VERIFICATION.md
+oaci/reports/OACI_EEG_DG_PROJECT_MEMORY_THROUGH_C85T.md
+```
+
+The next possible milestone is separately governed C85V read-only proof review.
+C85V must not rerun Monte Carlo. C85V, C85E, active acquisition, real data, new
+data/model zoos, and manuscript work are not authorized.
+
+### Prior continuation state through C85TR2
 
 C85TR2 additively repaired the C85T authorization-certificate boundary, atomic
 transaction, post-rename recovery, primary-exception precedence, and semantic
@@ -1583,19 +1722,16 @@ Run a rung's report: `python -m oaci.<subpackage>.report --out-dir oaci/reports`
 
 ---
 
-## 7. How to continue (fresh C85T authorization required)
+## 7. How to continue (C85V protocol review required)
 
 - Preserve C84S gates C84-D/C84-L4, all C84A exploratory tags, the C85P theory
-  protocol, and the C85R V2 scenario law.
-- C85T may start only after the exact fresh direct statement `授权 C85T` is
-  bound to V3 lock SHA `3ee51a994969...` and lock commit `b1a5ba3aca00...`.
-- Every direct statement supplied before V3 lock creation is not reusable.
-- Use only `python -m oaci.theory.c85t_execute_v3 run-locked` with the committed
-  V3 authorization path and exact authorized output root; no notebook,
-  `python -c`, unbound shell glue, alternate RNG, or parallel reduction may
-  create a result.
-- C85T must leave T1-T7 formally OPEN. It freezes proof candidates only; a
-  separately approved C85V performs independent review without rerunning MC.
+  protocol, the C85R V2 scenario law, and the complete C85T V3 bundle.
+- Do not rerun C85T. Its authorization is consumed and its atomic bundle is
+  immutable.
+- C85V may begin only after an additive read-only proof-review protocol and PM
+  approval. C85T itself did not authorize C85V.
+- C85V must replay the seven frozen candidates and exact counterexamples, keep
+  rejected proofs, and must not rerun S6/S7/S9 Monte Carlo.
 - Do not access real project data or start C85E, active acquisition, new data/
   model execution, selector retuning, or manuscript changes.
 
