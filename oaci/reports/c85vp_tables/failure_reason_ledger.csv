@@ -1,0 +1,7 @@
+reason,stage,formal_status_effect,disposition
+statement identity mismatch,PREFLIGHT,NONE,BLOCK
+Stage A incomplete,A,NONE,BLOCK_BEFORE_CANDIDATE_ACCESS
+candidate hash mismatch,B,NONE,BLOCK
+candidate substantive gap,B/C,OPEN_OR_INVALIDATED_BY_CONTRACT,RETAIN
+T5 decoder assumption absent,C,OPEN,DO_NOT_REPAIR_STATEMENT
+atomic semantic replay failure,PUBLICATION,NO_FINAL_ROOT,BLOCK

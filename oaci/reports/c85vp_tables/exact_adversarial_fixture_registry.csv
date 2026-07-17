@@ -1,0 +1,9 @@
+check,expected,observed,status
+T2_S10_coarse,11/40,11/40,PASS
+T2_S10_rich_unrestricted,0,0,PASS
+T2_S10_rich_registered,3/5,3/5,PASS
+T2_S10_reversal,13/40,13/40,PASS
+T4_factor_TV0,1,1,PASS
+T4_factor_TV1,0,0,PASS
+T6_alpha_boundary,0,0,PASS
+T7_empty_outside,0.0,0.0,PASS

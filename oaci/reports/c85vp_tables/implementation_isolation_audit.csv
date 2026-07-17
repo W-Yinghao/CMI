@@ -1,0 +1,8 @@
+path,forbidden_import_count,candidate_generator_import,monte_carlo_dispatch_import,real_data_import,status
+oaci/theory/c85v_statement_registry.py,0,0,0,0,PASS
+oaci/theory/c85v_stage_a_derivation.py,0,0,0,0,PASS
+oaci/theory/c85v_stage_b_candidate_audit.py,0,0,0,0,PASS
+oaci/theory/c85v_adjudication.py,0,0,0,0,PASS
+oaci/theory/c85v_result_manifest.py,0,0,0,0,PASS
+oaci/theory/c85v_execute.py,0,0,0,0,PASS
+oaci/theory/c85vp_readiness.py,0,0,0,0,PASS
