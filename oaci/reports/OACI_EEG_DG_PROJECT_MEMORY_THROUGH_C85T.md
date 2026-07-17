@@ -9,7 +9,7 @@ milestone:
 gate:
   C85T_SYNTHETIC_VALIDATION_AND_PROOF_CANDIDATES_FROZEN_C85V_REVIEW_REQUIRED
 
-execution/report HEAD:
+result/report commit:
   53e47126679a38ce70536bd03a4366871031b194
 
 V3 lock commit:
