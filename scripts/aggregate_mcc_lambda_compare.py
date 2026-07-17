@@ -45,8 +45,10 @@ def _per_bundle(d):
     return out
 
 
-def _route(amp_bc, ba_lam1_lcb, dU_spec1_lcbs, worst_src_drop):
-    geom_amplified = amp_bc > 0
+def _route(amp_bc_lcbs, ba_lam1_lcb, dU_spec1_lcbs, worst_src_drop):
+    # amplification must be STATISTICALLY significant (a dataset's amp_BC 95% LCB > 0), not merely mean-positive:
+    # a 4x stronger update that leaves the true-vs-shuffle separation unchanged has NOT amplified the geometry.
+    geom_amplified = any(l > 0 for l in amp_bc_lcbs)
     geom_moves_vs_erm = ba_lam1_lcb > 0
     dg_beats_shuffle = any(l > 0 for l in dU_spec1_lcbs)
     damaged = worst_src_drop > 0.02
@@ -99,10 +101,9 @@ def main():
                          dU_spec1_mean=M["dU_spec1"]["mean"], dU_spec1_lcb=M["dU_spec1"]["lo"], dU_spec1_signflip_p=M["dU_spec1"]["signflip_p"],
                          dU_amp_mean=M["dU_amp"]["mean"], dU_erm1_mean=M["dU_erm1"]["mean"],
                          src_drop1=M["src_drop1"]["mean"], grad_ratio1=M["grad_ratio1"]["mean"]))
-    amp_bc = np.nanmean([s["amp_bc_mean"] for s in summ]) if summ else 0.0
     ba_lcb = max([s["dir_BA_lam1_lcb"] for s in summ], default=-1.0)
     worst_drop = max([s["src_drop1"] for s in summ], default=0.0)
-    route = _route(amp_bc, ba_lcb, [s["dU_spec1_lcb"] for s in summ], worst_drop)
+    route = _route([s["amp_bc_lcb"] for s in summ], ba_lcb, [s["dU_spec1_lcb"] for s in summ], worst_drop)
 
     out = Path(a.lam1_dir)
     json.dump(dict(per_dataset=summ, routing=route, n_paired=len(keys), warmup_hash_mismatched=mismatched,

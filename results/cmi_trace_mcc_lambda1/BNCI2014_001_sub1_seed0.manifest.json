@@ -1,0 +1,54 @@
+{
+  "dataset": "BNCI2014_001",
+  "subject": "1",
+  "seed": 0,
+  "warmup_hash": "6878f4b92bdb50b3",
+  "lam_mcc": 1.0,
+  "arms": {
+    "A_erm_continue": {
+      "dump": "BNCI2014_001_sub1_seed0_A_erm_continue.npz",
+      "target_bacc": 0.6041666666666666,
+      "selected_epoch": 2,
+      "source_val_bacc": 0.6950431034482759,
+      "eff_rank": 12.309436798095703,
+      "contrast_norm": 0.26923276806871094,
+      "mean_mcc_loss": 0.0,
+      "total_parameter_count": 2228,
+      "trainable_parameter_count": 2228,
+      "trainable_parameter_names_hash": "2f4775edc1e19a70",
+      "full_encoder_trainable": true,
+      "mean_grad_ratio": 0.0,
+      "mean_grad_cos": NaN
+    },
+    "B_mcc_true": {
+      "dump": "BNCI2014_001_sub1_seed0_B_mcc_true.npz",
+      "target_bacc": 0.6059027777777778,
+      "selected_epoch": 1,
+      "source_val_bacc": 0.6928879310344828,
+      "eff_rank": 12.285371780395508,
+      "contrast_norm": 0.2724895603954792,
+      "mean_mcc_loss": 0.4766100918075868,
+      "total_parameter_count": 2228,
+      "trainable_parameter_count": 2228,
+      "trainable_parameter_names_hash": "2f4775edc1e19a70",
+      "full_encoder_trainable": true,
+      "mean_grad_ratio": 0.5375198958848377,
+      "mean_grad_cos": 0.4526314750313759
+    },
+    "C_mcc_shuffle": {
+      "dump": "BNCI2014_001_sub1_seed0_C_mcc_shuffle.npz",
+      "target_bacc": 0.6041666666666666,
+      "selected_epoch": 2,
+      "source_val_bacc": 0.6993534482758621,
+      "eff_rank": 12.286385536193848,
+      "contrast_norm": 0.27305853615204495,
+      "mean_mcc_loss": 0.45066784471273424,
+      "total_parameter_count": 2228,
+      "trainable_parameter_count": 2228,
+      "trainable_parameter_names_hash": "2f4775edc1e19a70",
+      "full_encoder_trainable": true,
+      "mean_grad_ratio": 0.4935595334090288,
+      "mean_grad_cos": 0.44907514229416845
+    }
+  }
+}

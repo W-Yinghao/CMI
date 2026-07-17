@@ -1,0 +1,45 @@
+{
+  "per_dataset": [
+    {
+      "dataset": "BNCI2014_001",
+      "n_subjects": 9,
+      "amp_bc_mean": -0.00012088797520240198,
+      "amp_bc_lcb": -0.0008499959375292282,
+      "amp_bc_signflip_p": 0.6171875,
+      "amp_ba_mean": 0.00030680650617127456,
+      "dir_BA_lam1_mean": 0.0009107833032802459,
+      "dir_BA_lam1_lcb": 3.624396454587942e-05,
+      "dU_spec1_mean": 0.0009002057613168878,
+      "dU_spec1_lcb": -0.003729423868312742,
+      "dU_spec1_signflip_p": 0.40234375,
+      "dU_amp_mean": 0.001414609053497967,
+      "dU_erm1_mean": -0.0004501028806584152,
+      "src_drop1": 0.0012771392081736852,
+      "grad_ratio1": 0.5188633268648937
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "n_subjects": 12,
+      "amp_bc_mean": 0.0005581864990317084,
+      "amp_bc_lcb": -0.00043133079661806633,
+      "amp_bc_signflip_p": 0.18896484375,
+      "amp_ba_mean": -0.00022606832606217935,
+      "dir_BA_lam1_mean": -0.00031711140359287783,
+      "dir_BA_lam1_lcb": -0.0007771609715879247,
+      "dU_spec1_mean": -0.0002777777777777781,
+      "dU_spec1_lcb": -0.003564814814814811,
+      "dU_spec1_signflip_p": 0.56005859375,
+      "dU_amp_mean": -0.00013888888888888897,
+      "dU_erm1_mean": 0.002222222222222224,
+      "src_drop1": 0.002863247863247853,
+      "grad_ratio1": 0.8262238608878135
+    }
+  ],
+  "routing": {
+    "verdict": "MINIBATCH_MCC_DOES_NOT_CONTROL_POPULATION_GEOMETRY_AT_USEFUL_SCALE",
+    "next": "change consistency ESTIMATOR: source-only EMA / memory-bank subject-class prototypes (cross-epoch-stable contrasts), NOT more lambda"
+  },
+  "n_paired": 63,
+  "warmup_hash_mismatched": [],
+  "discipline": "paired lambda amplification; exact sign-flip; corrected labels (strict E falsified); manuscript FROZEN"
+}
