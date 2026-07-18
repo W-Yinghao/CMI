@@ -6,10 +6,10 @@
 #   sbatch --array=0-62 scripts/sbatch_rw_mcc_arms.sh
 #   # after 189/189: python scripts/aggregate_rw_mcc.py --from-dir results/cmi_trace_rw_mcc --expect 63
 #SBATCH --job-name=rw-mcc
-# No --time (let SLURM schedule). SLURM's default TimeLimit is 2 days, which EXCEEDS A100/H100 MaxTime (1 day) ->
-# those partitions reject with PartitionTimeLimit. So request only partitions whose MaxTime >= the default
-# (V100/V100-32GB 2d, A40 4d). Do NOT set an explicit walltime.
-#SBATCH --partition=V100,V100-32GB,A40
+# --time=1 day: fits A100/H100 MaxTime (1d) so all partitions are usable, and is ample for a ~15-min 3-arm bundle.
+# (Default 2d would be rejected by A100/H100 -> PartitionTimeLimit; 1d clears that without under-cutting the run.)
+#SBATCH --partition=A100,V100,V100-32GB,A40,H100
+#SBATCH --time=1-00:00:00
 #SBATCH --gres=gpu:1
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=32G
