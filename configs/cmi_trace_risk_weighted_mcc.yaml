@@ -1,0 +1,51 @@
+# FROZEN config = Risk-Weighted MCC. SPEC; NOT an amendment. Manuscript FROZEN. One weighting signal, no sweep.
+weighting_signal: source_LOSO_excess_pairwise_log_loss    # PM-fixed; NOT open exploration
+readout:                                   # pseudo-target readout h_{-d} (weight-only, never deployed)
+  model: LogisticRegression
+  penalty: l2
+  C: 1.0
+  class_weight: balanced
+  solver: lbfgs
+  max_iter: 500
+  scaler: StandardScaler_fit_on_D_ne_d
+excess_risk:
+  pairwise_prob: "p_tilde_a = p_a/(p_a+p_b); p_tilde_b = p_b/(p_a+p_b)"
+  hold_loss: "l_hold_{d,p} = -0.5[ mean_{D=d,Y=a} log p_tilde_a + mean_{D=d,Y=b} log p_tilde_b ]  (class-balanced)"
+  ref_loss: "l_ref_{-d,p} = mean_{e!=d} l_{e,p}(h_{-d})  (subject-balanced, SAME h_{-d})"
+  r: "r_{d,p} = [ l_hold_{d,p} - l_ref_{-d,p} ]_+   # subtraction removes pair-level baseline difficulty"
+normalization:                             # per outer fold
+  winsorize: p90_of_positive_r
+  mean_normalize: "w_tilde = r_win / (mean_{d,p} r_win + eps)"
+  clip: 4.0
+  re_force_mean_1_after_clip: false        # total reg strength drops naturally when few unstable cells
+  all_zero: {status: NO_POSITIVE_SOURCE_TRANSFER_GAP, weights: 0, rw_mcc: no_op, fallback_to_uniform: FORBIDDEN}
+  save: [positive_weight_fraction, effective_weight_support, max_weight, weight_entropy, raw_weights, normalized_weights,
+         hold_losses, ref_losses, weight_hash]
+objective:
+  mcc_term: "l_MCC_{d,p} = 1 - <u_{d,p}, sg(ubar_{-d,p})>"
+  L_RW_MCC: "(1/(|S||P|)) sum_{d,p} w_{d,p} l_MCC_{d,p}"
+  total: "L_task + lambda_RW * L_RW_MCC"
+  lambda_RW: 1.0                           # fixed, no sweep
+  weights: computed_once_at_warmup_frozen_for_continuation   # no dynamic reweighting this round
+control:
+  primary: weight_permuted_MCC             # per-pair fixed permutation of {w_{d,p}} across subjects
+  keeps: [weight_multiset, per_pair_total_weight, mcc_formula, batch, gradient_budget, sparsity, max_weight]
+  breaks: which_source_subject_is_more_constrained
+arms: {A: erm_continue, B: true_rw_mcc, C: pairwise_weight_permuted_rw_mcc, no_uniform_mcc_arm: true}
+training: {backbone: EEGNet, continuation_epochs: 20, cont_lr: 1.0e-4, K: 4, sampler: balanced_subject_class,
+           checkpoint_selection: source_only_validation, warmup: reuse_hash_verified, full_encoder_trainable: true}
+matrix: {bundles: 63, arms: 3, total: 189, require_all_before_aggregate: true, device: GPU_icml}
+endpoints:
+  source_target_moved: [delta_R_source_LOSO_B_minus_A, delta_mean_r_dp]
+  geometry: [WSCI_w, WSCI_unweighted]
+  dg_utility: {primary: "dU_RW-ERM = U_B - U_A", risk_specific: "dU_RW-WPerm = U_B - U_C  (success MUST need B-C)",
+               inference_unit: target_subject, bootstrap: subject_cluster_3seeds_exact_sign_flip}
+  frozen_historical: "U_RW - U_global_MCC_lambda1 (warmup-hash-matched; secondary, not gate)"
+routing:
+  A: source_risk_down_and_DG_beats_ERM_and_WPerm -> seeds_3_4 + ccoral_irm_same_protocol + dgcnn + cmi
+  B: source_risk_down_DG_null -> next_round_cross_SESSION_instability_weights (not more lambda)
+  C: rw_not_better_than_wperm -> STATIC_LOSO_WEIGHTS_DO_NOT_TARGET_TRAINABLE_MECHANISM (not back to EMA)
+  D: source_risk_up_target_damaged -> downweight_unstable_subjects_or_shared_plus_residual
+execution: {RW0: frozen_weight_audit_no_training, RW1: one_gpu_bundle, RW2: full_189_fleet_PREAUTHORIZED_after_eng_pass}
+held: [EMA_prototype, M2_selector, learned_projector, TTE, CMI, manuscript_edit, new_amendment, lambda_sweep]
+scope: {stage: risk_weighted_mcc, manuscript: frozen}
