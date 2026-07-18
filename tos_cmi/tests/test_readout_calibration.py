@@ -73,22 +73,33 @@ def test_query_labels_never_enter_head_fitting():
 
 def test_aggregator_routing():
     sys.path.insert(0, str(__import__("pathlib").Path(__file__).resolve().parents[2]))
-    from scripts.aggregate_readout_label_efficiency import _route
-    def st(kU=None, kA=None, spec=False, biasge=False, fullpos=False):
-        return dict(kU=kU, kA=kA, specific_any_k=spec, bias_ge_map=biasge, full_frozen_pos=fullpos)
-    # R-A: MAP wins few-shot (kU,kA<=8) on both dev + >=1 confirmatory
+    from scripts.aggregate_readout_label_efficiency import _route, FEW
+    def st(kU=None, kA=None, spec=False, biasge=False, fullpos=False, harm=False):
+        return dict(kU=kU, kA=kA, specific_any_k=spec, bias_ge_map=biasge, full_frozen_pos=fullpos,
+                    both_few=(kU in FEW and kA in FEW), harm=harm)
+    # R-A: MAP wins few-shot (kU AND kA <=8, SAME dataset) on both dev + >=1 confirmatory, no harm
     rA = {"BNCI2014_001": st("4", "2", fullpos=True), "BNCI2015_001": st("8", "4", fullpos=True),
           "Lee2019_MI": st("4", "2", fullpos=True), "BNCI2014_004": st(None, None)}
     assert _route(rA)["verdict"].startswith("R-A")
-    # R-D: MAP beats fresh (kA set) but no dataset subspace-specific -> generic
-    rD = {"BNCI2014_001": st("Full", "2"), "BNCI2015_001": st("Full", "4"),
+    # NOT R-A when the two confirmatory conditions are on DIFFERENT datasets (util-only vs anchor-only)
+    rA_split = {"BNCI2014_001": st("4", "2"), "BNCI2015_001": st("8", "4"),
+                "Lee2019_MI": st("4", None), "BNCI2014_004": st(None, "4")}
+    assert not _route(rA_split)["verdict"].startswith("R-A")
+    # NOT R-A when there is significant harm (MAP worse than fresh) on another dataset
+    rA_harm = dict(rA); rA_harm["BNCI2014_004"] = st(None, None, harm=True)
+    assert not _route(rA_harm)["verdict"].startswith("R-A")
+    # R-D: MAP beats fresh (kA set) but <2 datasets subspace-specific -> generic (incl exactly 1 specific)
+    rD = {"BNCI2014_001": st("Full", "2"), "BNCI2015_001": st("Full", "4", spec=True),
           "Lee2019_MI": st(None, "8"), "BNCI2014_004": st(None, None)}
     assert _route(rD)["verdict"].startswith("R-D")
     # R-E: subspace-specific on >=2 datasets
     rE = {"BNCI2014_001": st("4", "2", spec=True), "BNCI2015_001": st("4", "2", spec=True),
           "Lee2019_MI": st(None, None), "BNCI2014_004": st(None, None)}
     assert _route(rE)["verdict"].startswith("R-E")
-    # R-B: only Full utility positive on dev (no few-shot anchor)
+    # R-B: only Full utility positive on dev (no few-shot anchor anywhere)
     rB = {"BNCI2014_001": st("Full", None, fullpos=True), "BNCI2015_001": st("Full", None, fullpos=True),
           "Lee2019_MI": st("Full", None, fullpos=True), "BNCI2014_004": st(None, None)}
     assert _route(rB)["verdict"].startswith("R-B")
+    # total NULL must NOT be labeled R-C (bias-sufficient requires a readout benefit to exist)
+    null = {ds: st(None, None, biasge=True) for ds in ["BNCI2014_001", "BNCI2015_001", "Lee2019_MI", "BNCI2014_004"]}
+    assert _route(null)["verdict"].startswith("READOUT_NULL")
