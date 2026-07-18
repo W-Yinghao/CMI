@@ -10,11 +10,15 @@ warm-up; λ_RW=1.0; weights frozen at warm-up). All weight_status=ok (no no-op b
 | BNCI2014 | −0.0014 [−0.0041] | 0.84 | **−0.0012 [−0.0057]** | 0.69 | −0.00085 | **−0.00109** | +0.0016 |
 | BNCI2015 | −0.0004 [−0.0071] | 0.54 | **−0.0019 [−0.0087]** | 0.66 | −0.00092 | **−0.00104** | +0.0019 |
 
-## Reading = B (source-risk trainable + specific, but DG-inert)
-- **The weighting works on its own target**: true RW-MCC reduced the source-LOSO excess risk (dR_src B−A ≈ −0.0009)
-  AND reduced it MORE than the weight-permuted control (dR_src specific B−C ≈ −0.0011, consistent sign on BOTH
-  datasets) — so the *correct* source-risk assignment specifically constrains the right subjects' contrasts (the
-  permuted control slightly RAISED source risk, ≈ +0.0002). The mechanism is trainable and the weights are specific.
+## Reading = B (source-risk trainable + specific, but DG-inert) — source-risk stats CORRECTED + CONFIRMED
+CORRECTION (PM-caught): the first pass fed 27/36 fold-seed cells into the sign-flip without aggregating seeds per
+target subject, and used the wrong-direction test. Re-done with subject-cluster inference (3 seeds → subject) +
+correct one-sided sign-flip on `dR_B−C < 0`, the specificity is CONFIRMED significant on BOTH datasets:
+`SOURCE_RISK_SPECIFICALLY_TARGETED` — BNCI2014 dR_src(B−C) = −0.00109 **[−0.00148, −0.00071]** (UCB95<0), one-sided
+neg p = **0.002**, **9/9** subjects; BNCI2015 −0.00104 **[−0.00184, −0.00037]**, p = **0.006**, **9/12**.
+- **The weighting works on its own target**: true RW-MCC reduced the source-LOSO excess risk MORE than the
+  weight-permuted control — significantly, on both datasets — so the *correct* source-risk assignment specifically
+  constrains the right subjects' contrasts (the permuted control slightly RAISED source risk). Trainable + specific.
 - **But it does NOT transfer to DG**: ΔU_RW−ERM ≈ 0 (p 0.84/0.54) and — the contract's decisive gate — ΔU_RW−WPerm
   (B−C) ≈ 0 (p 0.69/0.66). Getting the right source subjects weighted gives no future-subject accuracy advantage
   over a permuted assignment. No source damage (drop < 0.002), no no-op bundles.

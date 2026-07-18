@@ -10,9 +10,14 @@
       "dU_RW_WPerm_mean": -0.0012217078189300451,
       "dU_RW_WPerm_lcb": -0.0056584362139917715,
       "dU_RW_WPerm_signflip_p": 0.693359375,
-      "delta_source_excess_risk_B": -0.0008465643198203181,
+      "delta_source_excess_risk_B": -0.0008465643198203182,
       "delta_source_excess_risk_specific_BminusC": -0.0010898938946405548,
-      "delta_source_excess_risk_specific_signflip_p": 0.9999800000999995,
+      "dR_BminusC_lcb": -0.001480352760576909,
+      "dR_BminusC_ucb": -0.0007116111084980194,
+      "dR_BminusC_oneSided_neg_p": 0.001953125,
+      "dR_BminusC_n_neg": 9,
+      "dR_BminusC_n_subj": 9,
+      "source_risk_status": "SOURCE_RISK_SPECIFICALLY_TARGETED",
       "source_drop": 0.0016363346104725394
     },
     {
@@ -27,14 +32,19 @@
       "dU_RW_WPerm_signflip_p": 0.6552734375,
       "delta_source_excess_risk_B": -0.0009225032992801374,
       "delta_source_excess_risk_specific_BminusC": -0.001035092725425212,
-      "delta_source_excess_risk_specific_signflip_p": 0.9919900400497997,
+      "dR_BminusC_lcb": -0.0018394989394567443,
+      "dR_BminusC_ucb": -0.0003721834075606536,
+      "dR_BminusC_oneSided_neg_p": 0.005859375,
+      "dR_BminusC_n_neg": 9,
+      "dR_BminusC_n_subj": 12,
+      "source_risk_status": "SOURCE_RISK_SPECIFICALLY_TARGETED",
       "source_drop": 0.0018888888888888907
     }
   ],
   "routing": {
-    "verdict": "B_source_meta_gen_failure_ne_target_failure",
-    "next": "next round: weights from source-only cross-SESSION (early->later) instability, not more strength"
+    "verdict": "B_source_risk_specifically_targeted_but_DG_inert",
+    "next": "source meta-generalization failure != future-target failure; next = source cross-SESSION instability weights (OWNER decision: one bounded test vs pivot)"
   },
   "n_bundles": 63,
-  "discipline": "success needs B-C (vs weight-permuted); exact sign-flip; no CLOSED; manuscript FROZEN"
+  "discipline": "DG needs B-C (vs weight-permuted); source-risk = subject-cluster CI + correct-direction sign-flip; no CLOSED; manuscript FROZEN"
 }
