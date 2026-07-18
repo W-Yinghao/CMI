@@ -10,7 +10,7 @@ Executed under a direct `授权 C86L` (job 901965, cpu-high, build 10.5 s). The
 output field lives in the external results area (not committed); this is its
 durable identity. C86D / C86H / C87 / manuscript remain NOT authorized.
 
-## Output (three separate physical roots)
+## Output (three separate filesystem directories)
 
 ```text
 root: /projects/EEG-foundation-model/yinghao/oaci-c86l-development-field-v1
@@ -43,7 +43,10 @@ join key      : target_trial_id
 held C85U outcome : oaci-c85u-candidate-utility-v2 (identity-bound only, NOT opened)
 ```
 
-Isolation is real directory separation of pool / oracle / contribution; the
-client-visible pool contains no labels. Recomputed nll/correct match the stored
+Isolation is separate filesystem DIRECTORIES for pool / oracle / contribution
+(the client-visible pool contains no labels); process/access-controlled isolation
+(active-client process ↔ query-server process ↔ sealed dirs) is a C86D requirement,
+not proven here. C86L consumes the immutable C84S construction view; it ran no new
+split. Recomputed nll/correct match the stored
 contribution rows. Endpoint carried forward: `target_near_opt_prob = P(target
 8-context mean regret <= eps)`.

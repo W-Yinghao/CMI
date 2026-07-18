@@ -37,7 +37,10 @@ predictions  : oaci-c84-full-field-target-replay-v2/lock_f0c369ee…/complete_ta
 construction : oaci-c84s-analysis-v3/stage_a_labels/target_construction_label_view/labels.csv
                4,773 rows, canonical_class_label ∈ {0,1} (balanced 2393/2380)
                sha256 fdf36052d36ad9546cda06cbc567f68cdcced7ad08fd1311ab949471218b3134
-split rule   : sort SHA256(C86_TARGET_SPLIT_V1|dataset|subject|trial); floor(n/2)→acquisition
+construction : C86L CONSUMES the immutable C84S target_construction_label_view
+               (split_identity==construction); it executed NO new split. The
+               C86_TARGET_SPLIT_V1 rule is the C86 program-protocol definition,
+               materialized earlier by C84S — not run here.
 join key     : target_trial_id
 held C85U    : oaci-c85u-candidate-utility-v2 — identity-bound only, NOT opened
 ```
@@ -65,7 +68,7 @@ binary probability scalars 6,185,808   = 3,092,904 × 2
 construction ⟂ evaluation overlap  0
 ```
 
-## 6. Output (three separate physical roots)
+## 6. Output (three separate filesystem directories)
 
 ```text
 root: /projects/EEG-foundation-model/yinghao/oaci-c86l-development-field-v1  (62 MB)
@@ -81,6 +84,8 @@ root: /projects/EEG-foundation-model/yinghao/oaci-c86l-development-field-v1  (62
 
 ```text
 isolation      : client pool carries no label field; contribution/oracle are label-derived/sealed
+                 (separate filesystem DIRECTORIES; process/access-controlled isolation —
+                  active-client process ↔ query-server process ↔ sealed dirs — is a C86D requirement)
 oracle SHA     : output acquisition_label_oracle/labels.csv == source construction view (fdf36052…) ✓
 correctness    : recomputed nll = −log p(true class) and correct = 1[argmax==label] MATCH the store ✓
 arithmetic     : 944 / 81 / 4,773 / 38,184 / 3,092,904 / 6,185,808 all asserted at build time ✓
