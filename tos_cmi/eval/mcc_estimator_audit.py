@@ -75,7 +75,7 @@ def exact_population_gradient(bb, X, y, d, device, shuffle=False, rng=None, bs=2
     g_theta = torch.cat([(p.grad if p.grad is not None else torch.zeros_like(p)).flatten()
                          for p in bb.parameters()]).detach().cpu().numpy()
     return (g_theta, {k: means[k].detach().cpu().numpy() for k in means},
-            {k: gmu[k].cpu().numpy() for k in gmu}, float(L))
+            {k: gmu[k].detach().cpu().numpy() for k in gmu}, float(L))
 
 
 def episodic_theta_gradients(bb, X, y, d, device, K, R, seed, shuffle=False, bs=512):
@@ -139,3 +139,23 @@ def prototype_gradient_from_means(means, subs, classes, pairs):
     L = mcc_loss_from_means(mt, subs, classes, pairs)
     g = torch.autograd.grad(L, [mt[k] for k in mt])
     return {k: g[i].detach().numpy() for i, k in enumerate(mt)}
+
+
+def episodic_prototype_one_step_wsci(bb, X, y, d, device, K, R, seed, full_means, subs, classes, pairs, alpha=0.1, bs=512):
+    """Mean over R K-episodes of the one-step WSCI movement of the FULL prototypes stepped in each episode's (noisy)
+    prototype-gradient direction. Compares the K-estimator DIRECTION's effect on population WSCI vs the exact one."""
+    bb.eval()
+    ya = np.asarray(y).astype(int); da = np.asarray(d).astype(int)
+    samp = BalancedSubjectClassSampler(da, ya, K=K, n_batches=R, seed=seed)
+    dws = []
+    for local in samp:
+        with torch.no_grad():
+            z = torch.cat([bb(torch.tensor(X[local[i:i + bs]], dtype=torch.float32).to(device))[1].cpu()
+                           for i in range(0, len(local), bs)]).numpy()
+        yl, dl = ya[local], da[local]
+        em = {(s, c): z[(dl == s) & (yl == c)].mean(0) for s in subs for c in classes}
+        if any(np.isnan(em[k]).any() for k in em):
+            continue
+        gmu_e = prototype_gradient_from_means(em, subs, classes, pairs)
+        dws.append(one_step_prototype_wsci(full_means, gmu_e, subs, classes, pairs, alpha))
+    return float(np.mean(dws)) if dws else float("nan")
