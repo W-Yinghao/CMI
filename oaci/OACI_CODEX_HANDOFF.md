@@ -1,5 +1,9 @@
 # OACI (Direction 1) - Codex Handoff
 
+> **Current handoff (2026-07-18):** C86R2 is complete. A fresh agent should
+> first read `oaci/reports/C86R2_CLAUDE_CODE_HANDOFF.md`; it contains the exact
+> continuation boundary, hashes, validation baseline, and next-stage guards.
+
 **Purpose.** Everything a fresh agent needs to continue the OACI mechanism-audit
 and external-validity line without losing scientific context, chronology,
 authorization boundaries or immutable evidence identities. Read the scientific
@@ -13,7 +17,69 @@ and collaboration sections before acting.
 
 ---
 
-## 0. Current continuation state through C85E (2026-07-17)
+## 0. Current continuation state through C86R2 (2026-07-18)
+
+C86R2 used public metadata only to resolve the adult untouched multi-cohort
+input blocker. It opened no EEG, labels, candidate outputs, active-policy
+results, or registered synthetic streams.
+
+```text
+authoritative C86R2 evidence HEAD:
+  13d7b60e250fe0ffdfe27e3e28ba07485b7ae122
+
+C86R2 protocol commit / SHA-256:
+  0da4ec39f26ac4bc0d89035e9ad951f452217f05
+  2e88e2fef7500b12ca8b3c5b19e6aab06df5a7f388781855b73793a1fe75df92
+
+C86 effective-program manifest V3 SHA-256:
+  c6b7e490e0f78f74f820428cee138782caff1dc0033422723593a7d8e3c5f77e
+
+primary adult interfaces:
+  Brandl2020_CANONICAL_ADULT_V1 (16 targets)
+  OpenNeuro_ds007221_HYBRID_ADULT_V1 (37 targets)
+
+adult target subjects:
+  53
+
+target contexts / candidate-context slices:
+  424 / 34,344
+
+current gate:
+  C86_ADULT_UNTOUCHED_MULTI_COHORT_ELIGIBILITY_RESOLVED_READY_FOR_C86LP_PROTOCOL_REVIEW
+```
+
+Yang2025_2C remains an age-mixed stress track, Kumar2024 remains an
+age-uncertain stress track, and Dreyer2023 remains development-only due to
+historical access. No historical role was rewritten.
+
+```text
+focused: 51 passed
+C65: 1,103 passed, 1 skipped, 12 deselected
+C23: 1,514 passed, 1 skipped, 12 deselected
+full: 2,489 passed, 1 skipped, 12 deselected
+accepted stderr: empty
+```
+
+C86LP is only the next possible protocol-review milestone. It has not been
+started or authorized. C86L, C86D, C86C/F, C86H, real-data access, active
+acquisition, training, GPU, C87, and manuscript work remain unauthorized.
+
+Authoritative current files:
+
+```text
+oaci/reports/C86R2_CLAUDE_CODE_HANDOFF.md
+oaci/reports/C86R2_CLAUDE_CODE_HANDOFF.sha256
+oaci/reports/C86R2_OVERALL_REPORT.md
+oaci/reports/C86R2_OVERALL_REPORT.json
+oaci/reports/C86R2_OVERALL_REPORT.sha256
+oaci/reports/C86R2_PROTOCOL_READINESS.md
+oaci/reports/C86R2_FINAL_REPORT_RED_TEAM.md
+oaci/reports/C86R2_REGRESSION_VERIFICATION.md
+oaci/reports/C86_ACTIVE_TESTING_EFFECTIVE_PROGRAM_MANIFEST_V3.json
+oaci/reports/C86_ACTIVE_TESTING_EFFECTIVE_PROGRAM_MANIFEST_V3.sha256
+```
+
+## 0A. Prior continuation state through C85E (2026-07-17)
 
 C85E consumed one fresh authorization and stopped at:
 
