@@ -1,0 +1,63 @@
+{
+  "dataset": "BNCI2014_001",
+  "subject": "1",
+  "seed": 1,
+  "warmup_hash": "41b69fe6b69cfdd9",
+  "lam": 1.0,
+  "weight_status": "ok",
+  "effective_weight_support": 21.042926011559523,
+  "mean_source_late_risk": 0.04262299958519925,
+  "gradient_alignment_diagnostic": {
+    "cs_rw": 0.5217794095493097,
+    "cs_risk": -0.21471270888026298,
+    "loso": 0.5186160151759913,
+    "task": -0.5389837856118053
+  },
+  "arms": {
+    "A_erm_continue": {
+      "dump": "BNCI2014_001_sub1_seed1_A_erm_continue.npz",
+      "target_bacc": 0.5972222222222223,
+      "selected_epoch": 1,
+      "source_val_bacc": 0.7262931034482758,
+      "eff_rank": 12.831324577331543,
+      "contrast_norm": 0.2198954204718272,
+      "mean_aux_loss": 0.0
+    },
+    "B_cs_rw_mcc": {
+      "dump": "BNCI2014_001_sub1_seed1_B_cs_rw_mcc.npz",
+      "target_bacc": 0.59375,
+      "selected_epoch": 0,
+      "source_val_bacc": 0.7198275862068966,
+      "eff_rank": 12.795597076416016,
+      "contrast_norm": 0.21891063104073208,
+      "mean_aux_loss": 0.5287741604128054
+    },
+    "C_cs_rw_perm": {
+      "dump": "BNCI2014_001_sub1_seed1_C_cs_rw_perm.npz",
+      "target_bacc": 0.59375,
+      "selected_epoch": 0,
+      "source_val_bacc": 0.7230603448275862,
+      "eff_rank": 12.795785903930664,
+      "contrast_norm": 0.2188249581803878,
+      "mean_aux_loss": 0.5728146902684654
+    },
+    "D_cs_risk": {
+      "dump": "BNCI2014_001_sub1_seed1_D_cs_risk.npz",
+      "target_bacc": 0.5885416666666666,
+      "selected_epoch": 0,
+      "source_val_bacc": 0.7295258620689655,
+      "eff_rank": 12.837759971618652,
+      "contrast_norm": 0.21651384495198728,
+      "mean_aux_loss": 0.9029477728264672
+    },
+    "E_cs_risk_perm": {
+      "dump": "BNCI2014_001_sub1_seed1_E_cs_risk_perm.npz",
+      "target_bacc": 0.5902777777777778,
+      "selected_epoch": 0,
+      "source_val_bacc": 0.7262931034482758,
+      "eff_rank": 12.840300559997559,
+      "contrast_norm": 0.2172140968342622,
+      "mean_aux_loss": 0.9245031286563192
+    }
+  }
+}

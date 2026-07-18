@@ -1,0 +1,63 @@
+{
+  "dataset": "BNCI2015_001",
+  "subject": "1",
+  "seed": 0,
+  "warmup_hash": "adb9034c4ebdce65",
+  "lam": 1.0,
+  "weight_status": "ok",
+  "effective_weight_support": 3.984282258364092,
+  "mean_source_late_risk": 0.021503537591561053,
+  "gradient_alignment_diagnostic": {
+    "cs_rw": -0.016406339644110306,
+    "cs_risk": -0.29699059782198134,
+    "loso": -0.13872427766110404,
+    "task": 0.8138254004871782
+  },
+  "arms": {
+    "A_erm_continue": {
+      "dump": "BNCI2015_001_sub1_seed0_A_erm_continue.npz",
+      "target_bacc": 0.63,
+      "selected_epoch": 2,
+      "source_val_bacc": 0.8846153846153846,
+      "eff_rank": 11.11351203918457,
+      "contrast_norm": 0.4037351480552128,
+      "mean_aux_loss": 0.0
+    },
+    "B_cs_rw_mcc": {
+      "dump": "BNCI2015_001_sub1_seed0_B_cs_rw_mcc.npz",
+      "target_bacc": 0.6174999999999999,
+      "selected_epoch": 0,
+      "source_val_bacc": 0.8817307692307692,
+      "eff_rank": 11.036520957946777,
+      "contrast_norm": 0.4149262032338551,
+      "mean_aux_loss": 0.36567457955568394
+    },
+    "C_cs_rw_perm": {
+      "dump": "BNCI2015_001_sub1_seed0_C_cs_rw_perm.npz",
+      "target_bacc": 0.6375,
+      "selected_epoch": 1,
+      "source_val_bacc": 0.8846153846153846,
+      "eff_rank": 10.962817192077637,
+      "contrast_norm": 0.42090273967811037,
+      "mean_aux_loss": 0.28540350255814007
+    },
+    "D_cs_risk": {
+      "dump": "BNCI2015_001_sub1_seed0_D_cs_risk.npz",
+      "target_bacc": 0.615,
+      "selected_epoch": 1,
+      "source_val_bacc": 0.8807692307692307,
+      "eff_rank": 11.124921798706055,
+      "contrast_norm": 0.40494483709335327,
+      "mean_aux_loss": 0.38512553209637074
+    },
+    "E_cs_risk_perm": {
+      "dump": "BNCI2015_001_sub1_seed0_E_cs_risk_perm.npz",
+      "target_bacc": 0.6225,
+      "selected_epoch": 2,
+      "source_val_bacc": 0.8826923076923077,
+      "eff_rank": 11.079336166381836,
+      "contrast_norm": 0.40588794222899843,
+      "mean_aux_loss": 0.3544186542722139
+    }
+  }
+}

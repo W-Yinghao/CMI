@@ -1,0 +1,63 @@
+{
+  "dataset": "BNCI2014_001",
+  "subject": "9",
+  "seed": 0,
+  "warmup_hash": "df8985b535f1429d",
+  "lam": 1.0,
+  "weight_status": "ok",
+  "effective_weight_support": 16.26451382801848,
+  "mean_source_late_risk": 0.039112014702491434,
+  "gradient_alignment_diagnostic": {
+    "cs_rw": -0.07952215739784539,
+    "cs_risk": 0.17045788630085143,
+    "loso": -0.16990215487680446,
+    "task": 0.4572194457892785
+  },
+  "arms": {
+    "A_erm_continue": {
+      "dump": "BNCI2014_001_sub9_seed0_A_erm_continue.npz",
+      "target_bacc": 0.5607638888888888,
+      "selected_epoch": 6,
+      "source_val_bacc": 0.7209051724137931,
+      "eff_rank": 12.322412490844727,
+      "contrast_norm": 0.38579005300998687,
+      "mean_aux_loss": 0.0
+    },
+    "B_cs_rw_mcc": {
+      "dump": "BNCI2014_001_sub9_seed0_B_cs_rw_mcc.npz",
+      "target_bacc": 0.5642361111111112,
+      "selected_epoch": 0,
+      "source_val_bacc": 0.71875,
+      "eff_rank": 12.27643871307373,
+      "contrast_norm": 0.384286875774463,
+      "mean_aux_loss": 0.4990054519048759
+    },
+    "C_cs_rw_perm": {
+      "dump": "BNCI2014_001_sub9_seed0_C_cs_rw_perm.npz",
+      "target_bacc": 0.5659722222222222,
+      "selected_epoch": 0,
+      "source_val_bacc": 0.7219827586206897,
+      "eff_rank": 12.279582023620605,
+      "contrast_norm": 0.3844842021663984,
+      "mean_aux_loss": 0.45366916342505387
+    },
+    "D_cs_risk": {
+      "dump": "BNCI2014_001_sub9_seed0_D_cs_risk.npz",
+      "target_bacc": 0.5625,
+      "selected_epoch": 1,
+      "source_val_bacc": 0.7122844827586207,
+      "eff_rank": 12.2818603515625,
+      "contrast_norm": 0.3854126237332821,
+      "mean_aux_loss": 0.8468847910208361
+    },
+    "E_cs_risk_perm": {
+      "dump": "BNCI2014_001_sub9_seed0_E_cs_risk_perm.npz",
+      "target_bacc": 0.5607638888888888,
+      "selected_epoch": 0,
+      "source_val_bacc": 0.71875,
+      "eff_rank": 12.305349349975586,
+      "contrast_norm": 0.3823511970539888,
+      "mean_aux_loss": 0.7671217447412866
+    }
+  }
+}

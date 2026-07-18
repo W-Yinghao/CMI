@@ -1,0 +1,102 @@
+{
+  "per_dataset": [
+    {
+      "dataset": "BNCI2014_001",
+      "n_subjects": 9,
+      "noop_bundles": 0,
+      "dU_B_A": {
+        "mean": -0.0002572016460905104,
+        "lcb": -0.0031507201646090075,
+        "ucb": 0.0027649176954732684,
+        "signflip_p": 0.580078125
+      },
+      "dU_D_A": {
+        "mean": -0.0031507201646090418,
+        "lcb": -0.0072016460905349544,
+        "ucb": 0.0014162165637860073,
+        "signflip_p": 0.8984375
+      },
+      "dU_B_C": {
+        "mean": 0.0019290123456790328,
+        "lcb": -0.0018004115226337386,
+        "ucb": 0.005594135802469148,
+        "signflip_p": 0.193359375
+      },
+      "dU_D_E": {
+        "mean": -0.003986625514403298,
+        "lcb": -0.008101851851851853,
+        "ucb": 0.0012860082304526742,
+        "signflip_p": 0.921875
+      },
+      "dU_D_B": {
+        "mean": -0.0028935185185185305,
+        "lcb": -0.006687242798353904,
+        "ucb": 0.0016075102880658213,
+        "signflip_p": 0.89453125
+      },
+      "worst_source_damage": 0.009698275862069061,
+      "damaged": false,
+      "min_eff_rank": 10.405344009399414,
+      "mean_source_late_drift": 0.03477038566182131,
+      "align_codiag": {
+        "cs_rw": -0.07758737659538452,
+        "cs_risk": 0.07265208050821279,
+        "loso": -0.07284712000655053,
+        "task": 0.017796642939790372
+      }
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "n_subjects": 12,
+      "noop_bundles": 0,
+      "dU_B_A": {
+        "mean": 0.0011805555555555551,
+        "lcb": -0.0010416666666666723,
+        "ucb": 0.0035879629629629686,
+        "signflip_p": 0.189453125
+      },
+      "dU_D_A": {
+        "mean": 0.0006712962962962962,
+        "lcb": -0.003634837962962965,
+        "ucb": 0.00395833333333332,
+        "signflip_p": 0.396484375
+      },
+      "dU_B_C": {
+        "mean": -0.0006481481481481478,
+        "lcb": -0.003379629629629625,
+        "ucb": 0.0020138888888889014,
+        "signflip_p": 0.684814453125
+      },
+      "dU_D_E": {
+        "mean": -0.0006944444444444575,
+        "lcb": -0.0048611111111111225,
+        "ucb": 0.003495370370370374,
+        "signflip_p": 0.6279296875
+      },
+      "dU_D_B": {
+        "mean": -0.0005092592592592586,
+        "lcb": -0.004398148148148148,
+        "ucb": 0.002824652777777788,
+        "signflip_p": 0.603515625
+      },
+      "worst_source_damage": 0.015000000000000013,
+      "damaged": false,
+      "min_eff_rank": 9.646690368652344,
+      "mean_source_late_drift": 0.028132238441513087,
+      "align_codiag": {
+        "cs_rw": -0.03140961138966833,
+        "cs_risk": 0.1410961615705809,
+        "loso": 0.018183821957731112,
+        "task": 0.04456956781573651
+      }
+    }
+  ],
+  "routing": {
+    "verdict": "CROSS_SESSION_PROXY_INVALID_or_GENERIC_EXTRA_TRAINING",
+    "next": "no cross-session objective beats extra-training with a specific (permuted-control), undamaged margin -> pivot to the information-regime ladder (source-only -> target-X -> few-shot target labels; minimal-info sample-complexity of TARGET_HINDSIGHT_ONLY)"
+  },
+  "n_bundles": 63,
+  "incomplete_bundles": 0,
+  "endpoints": "dU_B-A/dU_D-A vs extra-training; DECISIVE dU_B-C/dU_D-E vs permuted control; dU_D-B mediator",
+  "discipline": "inference unit=target subject (3 seeds->subj first), subject-cluster bootstrap + exact sign-flip; gradient-alignment = CO-DIAGNOSTIC not a gate; no CLOSED without 3rd-dataset confirm; manuscript FROZEN"
+}

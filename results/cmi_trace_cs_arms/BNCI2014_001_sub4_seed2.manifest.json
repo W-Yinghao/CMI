@@ -1,0 +1,63 @@
+{
+  "dataset": "BNCI2014_001",
+  "subject": "4",
+  "seed": 2,
+  "warmup_hash": "2ec1eb62c5c21c8a",
+  "lam": 1.0,
+  "weight_status": "ok",
+  "effective_weight_support": 16.692336523342316,
+  "mean_source_late_risk": 0.04021284658830265,
+  "gradient_alignment_diagnostic": {
+    "cs_rw": -0.04001047795258057,
+    "cs_risk": 0.163645818383798,
+    "loso": -0.0395112961444312,
+    "task": 0.5222662115940162
+  },
+  "arms": {
+    "A_erm_continue": {
+      "dump": "BNCI2014_001_sub4_seed2_A_erm_continue.npz",
+      "target_bacc": 0.34027777777777773,
+      "selected_epoch": 1,
+      "source_val_bacc": 0.759698275862069,
+      "eff_rank": 11.661981582641602,
+      "contrast_norm": 0.3568717281023661,
+      "mean_aux_loss": 0.0
+    },
+    "B_cs_rw_mcc": {
+      "dump": "BNCI2014_001_sub4_seed2_B_cs_rw_mcc.npz",
+      "target_bacc": 0.34375,
+      "selected_epoch": 0,
+      "source_val_bacc": 0.7575431034482758,
+      "eff_rank": 11.669220924377441,
+      "contrast_norm": 0.3574461544553439,
+      "mean_aux_loss": 0.468370687056865
+    },
+    "C_cs_rw_perm": {
+      "dump": "BNCI2014_001_sub4_seed2_C_cs_rw_perm.npz",
+      "target_bacc": 0.3333333333333333,
+      "selected_epoch": 1,
+      "source_val_bacc": 0.7629310344827587,
+      "eff_rank": 11.659076690673828,
+      "contrast_norm": 0.3581047336260478,
+      "mean_aux_loss": 0.40842397952718396
+    },
+    "D_cs_risk": {
+      "dump": "BNCI2014_001_sub4_seed2_D_cs_risk.npz",
+      "target_bacc": 0.34375,
+      "selected_epoch": 0,
+      "source_val_bacc": 0.7575431034482758,
+      "eff_rank": 11.679594993591309,
+      "contrast_norm": 0.35686183298627533,
+      "mean_aux_loss": 0.8688443229666778
+    },
+    "E_cs_risk_perm": {
+      "dump": "BNCI2014_001_sub4_seed2_E_cs_risk_perm.npz",
+      "target_bacc": 0.3263888888888889,
+      "selected_epoch": 2,
+      "source_val_bacc": 0.7672413793103449,
+      "eff_rank": 11.648759841918945,
+      "contrast_norm": 0.3606932713339726,
+      "mean_aux_loss": 0.7011328752019576
+    }
+  }
+}

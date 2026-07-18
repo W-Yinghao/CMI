@@ -1,0 +1,63 @@
+{
+  "dataset": "BNCI2014_001",
+  "subject": "6",
+  "seed": 0,
+  "warmup_hash": "60cb7745022e8439",
+  "lam": 1.0,
+  "weight_status": "ok",
+  "effective_weight_support": 17.46924351135865,
+  "mean_source_late_risk": 0.034455162792542474,
+  "gradient_alignment_diagnostic": {
+    "cs_rw": -0.018331243497616077,
+    "cs_risk": -0.26956032602234586,
+    "loso": 0.0047034594455416705,
+    "task": -0.02696408726670195
+  },
+  "arms": {
+    "A_erm_continue": {
+      "dump": "BNCI2014_001_sub6_seed0_A_erm_continue.npz",
+      "target_bacc": 0.3454861111111111,
+      "selected_epoch": 1,
+      "source_val_bacc": 0.7543103448275862,
+      "eff_rank": 10.808640480041504,
+      "contrast_norm": 0.4719173677265644,
+      "mean_aux_loss": 0.0
+    },
+    "B_cs_rw_mcc": {
+      "dump": "BNCI2014_001_sub6_seed0_B_cs_rw_mcc.npz",
+      "target_bacc": 0.34375,
+      "selected_epoch": 1,
+      "source_val_bacc": 0.75,
+      "eff_rank": 10.782435417175293,
+      "contrast_norm": 0.47432422637939453,
+      "mean_aux_loss": 0.5281274209597281
+    },
+    "C_cs_rw_perm": {
+      "dump": "BNCI2014_001_sub6_seed0_C_cs_rw_perm.npz",
+      "target_bacc": 0.34375,
+      "selected_epoch": 0,
+      "source_val_bacc": 0.7510775862068966,
+      "eff_rank": 10.84202766418457,
+      "contrast_norm": 0.47377063184976576,
+      "mean_aux_loss": 0.4519445065408945
+    },
+    "D_cs_risk": {
+      "dump": "BNCI2014_001_sub6_seed0_D_cs_risk.npz",
+      "target_bacc": 0.34201388888888884,
+      "selected_epoch": 3,
+      "source_val_bacc": 0.7532327586206897,
+      "eff_rank": 10.917052268981934,
+      "contrast_norm": 0.462210293362538,
+      "mean_aux_loss": 0.8828042236821992
+    },
+    "E_cs_risk_perm": {
+      "dump": "BNCI2014_001_sub6_seed0_E_cs_risk_perm.npz",
+      "target_bacc": 0.3402777777777778,
+      "selected_epoch": 1,
+      "source_val_bacc": 0.7510775862068966,
+      "eff_rank": 10.787205696105957,
+      "contrast_norm": 0.4741714102526506,
+      "mean_aux_loss": 0.7243101265813623
+    }
+  }
+}

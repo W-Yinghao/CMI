@@ -1,0 +1,63 @@
+{
+  "dataset": "BNCI2014_001",
+  "subject": "2",
+  "seed": 1,
+  "warmup_hash": "6620b01cb4d2d901",
+  "lam": 1.0,
+  "weight_status": "ok",
+  "effective_weight_support": 17.5426062489533,
+  "mean_source_late_risk": 0.03924024878261762,
+  "gradient_alignment_diagnostic": {
+    "cs_rw": 0.08790750072375755,
+    "cs_risk": 0.4718189731425801,
+    "loso": 0.04712222664964027,
+    "task": 0.12287257881476608
+  },
+  "arms": {
+    "A_erm_continue": {
+      "dump": "BNCI2014_001_sub2_seed1_A_erm_continue.npz",
+      "target_bacc": 0.27604166666666663,
+      "selected_epoch": 2,
+      "source_val_bacc": 0.7618534482758621,
+      "eff_rank": 11.97787094116211,
+      "contrast_norm": 0.4357927791774273,
+      "mean_aux_loss": 0.0
+    },
+    "B_cs_rw_mcc": {
+      "dump": "BNCI2014_001_sub2_seed1_B_cs_rw_mcc.npz",
+      "target_bacc": 0.27777777777777773,
+      "selected_epoch": 2,
+      "source_val_bacc": 0.7618534482758621,
+      "eff_rank": 11.963035583496094,
+      "contrast_norm": 0.4393517571190993,
+      "mean_aux_loss": 0.4325776012880462
+    },
+    "C_cs_rw_perm": {
+      "dump": "BNCI2014_001_sub2_seed1_C_cs_rw_perm.npz",
+      "target_bacc": 0.265625,
+      "selected_epoch": 8,
+      "source_val_bacc": 0.7607758620689655,
+      "eff_rank": 11.96863842010498,
+      "contrast_norm": 0.4400981130699317,
+      "mean_aux_loss": 0.38625239894858426
+    },
+    "D_cs_risk": {
+      "dump": "BNCI2014_001_sub2_seed1_D_cs_risk.npz",
+      "target_bacc": 0.2673611111111111,
+      "selected_epoch": 2,
+      "source_val_bacc": 0.7532327586206896,
+      "eff_rank": 12.019046783447266,
+      "contrast_norm": 0.4294315015276273,
+      "mean_aux_loss": 0.7997681878507137
+    },
+    "E_cs_risk_perm": {
+      "dump": "BNCI2014_001_sub2_seed1_E_cs_risk_perm.npz",
+      "target_bacc": 0.2760416666666667,
+      "selected_epoch": 9,
+      "source_val_bacc": 0.7575431034482759,
+      "eff_rank": 12.015098571777344,
+      "contrast_norm": 0.429301373163859,
+      "mean_aux_loss": 0.7130562938217606
+    }
+  }
+}

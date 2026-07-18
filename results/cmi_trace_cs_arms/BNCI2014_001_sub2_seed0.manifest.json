@@ -1,0 +1,63 @@
+{
+  "dataset": "BNCI2014_001",
+  "subject": "2",
+  "seed": 0,
+  "warmup_hash": "2d47d683f62024ae",
+  "lam": 1.0,
+  "weight_status": "ok",
+  "effective_weight_support": 15.523792922888328,
+  "mean_source_late_risk": 0.03135756837982125,
+  "gradient_alignment_diagnostic": {
+    "cs_rw": -0.1693418695709541,
+    "cs_risk": 0.327496870933428,
+    "loso": 0.1878418889795931,
+    "task": 0.4649760035056403
+  },
+  "arms": {
+    "A_erm_continue": {
+      "dump": "BNCI2014_001_sub2_seed0_A_erm_continue.npz",
+      "target_bacc": 0.27777777777777773,
+      "selected_epoch": 0,
+      "source_val_bacc": 0.7586206896551724,
+      "eff_rank": 11.893360137939453,
+      "contrast_norm": 0.45326125000913936,
+      "mean_aux_loss": 0.0
+    },
+    "B_cs_rw_mcc": {
+      "dump": "BNCI2014_001_sub2_seed0_B_cs_rw_mcc.npz",
+      "target_bacc": 0.2864583333333333,
+      "selected_epoch": 3,
+      "source_val_bacc": 0.759698275862069,
+      "eff_rank": 11.824124336242676,
+      "contrast_norm": 0.4597134865820408,
+      "mean_aux_loss": 0.40106506528598923
+    },
+    "C_cs_rw_perm": {
+      "dump": "BNCI2014_001_sub2_seed0_C_cs_rw_perm.npz",
+      "target_bacc": 0.2829861111111111,
+      "selected_epoch": 2,
+      "source_val_bacc": 0.7564655172413792,
+      "eff_rank": 11.823132514953613,
+      "contrast_norm": 0.4607662583390872,
+      "mean_aux_loss": 0.356465969607234
+    },
+    "D_cs_risk": {
+      "dump": "BNCI2014_001_sub2_seed0_D_cs_risk.npz",
+      "target_bacc": 0.28298611111111116,
+      "selected_epoch": 0,
+      "source_val_bacc": 0.7553879310344829,
+      "eff_rank": 11.919018745422363,
+      "contrast_norm": 0.4509794863561789,
+      "mean_aux_loss": 0.8176804050271
+    },
+    "E_cs_risk_perm": {
+      "dump": "BNCI2014_001_sub2_seed0_E_cs_risk_perm.npz",
+      "target_bacc": 0.2916666666666667,
+      "selected_epoch": 0,
+      "source_val_bacc": 0.7575431034482758,
+      "eff_rank": 11.89423656463623,
+      "contrast_norm": 0.45319798464576405,
+      "mean_aux_loss": 0.7129198036023549
+    }
+  }
+}

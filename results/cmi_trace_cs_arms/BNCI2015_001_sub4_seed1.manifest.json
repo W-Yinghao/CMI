@@ -1,0 +1,63 @@
+{
+  "dataset": "BNCI2015_001",
+  "subject": "4",
+  "seed": 1,
+  "warmup_hash": "dc0b7b02bf03c2a2",
+  "lam": 1.0,
+  "weight_status": "ok",
+  "effective_weight_support": 3.372786573547091,
+  "mean_source_late_risk": 0.03151841372033166,
+  "gradient_alignment_diagnostic": {
+    "cs_rw": 0.2970717499707078,
+    "cs_risk": -0.5686252738175971,
+    "loso": 0.13608797719520424,
+    "task": 0.6061544387767471
+  },
+  "arms": {
+    "A_erm_continue": {
+      "dump": "BNCI2015_001_sub4_seed1_A_erm_continue.npz",
+      "target_bacc": 0.8225,
+      "selected_epoch": 2,
+      "source_val_bacc": 0.8692307692307693,
+      "eff_rank": 10.86091136932373,
+      "contrast_norm": 0.47989420486348017,
+      "mean_aux_loss": 0.0
+    },
+    "B_cs_rw_mcc": {
+      "dump": "BNCI2015_001_sub4_seed1_B_cs_rw_mcc.npz",
+      "target_bacc": 0.8374999999999999,
+      "selected_epoch": 0,
+      "source_val_bacc": 0.8663461538461539,
+      "eff_rank": 10.922910690307617,
+      "contrast_norm": 0.47437892109155655,
+      "mean_aux_loss": 0.25298530405506175
+    },
+    "C_cs_rw_perm": {
+      "dump": "BNCI2015_001_sub4_seed1_C_cs_rw_perm.npz",
+      "target_bacc": 0.8325,
+      "selected_epoch": 2,
+      "source_val_bacc": 0.8663461538461539,
+      "eff_rank": 10.510184288024902,
+      "contrast_norm": 0.5224768306527819,
+      "mean_aux_loss": 0.2114333696623749
+    },
+    "D_cs_risk": {
+      "dump": "BNCI2015_001_sub4_seed1_D_cs_risk.npz",
+      "target_bacc": 0.8175,
+      "selected_epoch": 10,
+      "source_val_bacc": 0.8730769230769231,
+      "eff_rank": 10.687352180480957,
+      "contrast_norm": 0.49966434815100264,
+      "mean_aux_loss": 0.31511509590881304
+    },
+    "E_cs_risk_perm": {
+      "dump": "BNCI2015_001_sub4_seed1_E_cs_risk_perm.npz",
+      "target_bacc": 0.8300000000000001,
+      "selected_epoch": 1,
+      "source_val_bacc": 0.8673076923076923,
+      "eff_rank": 10.792391777038574,
+      "contrast_norm": 0.48923505204064505,
+      "mean_aux_loss": 0.2875628445574895
+    }
+  }
+}

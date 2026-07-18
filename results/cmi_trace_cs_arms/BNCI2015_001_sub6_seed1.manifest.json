@@ -1,0 +1,63 @@
+{
+  "dataset": "BNCI2015_001",
+  "subject": "6",
+  "seed": 1,
+  "warmup_hash": "2985afffcaa47380",
+  "lam": 1.0,
+  "weight_status": "ok",
+  "effective_weight_support": 3.499398808631222,
+  "mean_source_late_risk": 0.027716995532660348,
+  "gradient_alignment_diagnostic": {
+    "cs_rw": -0.1856240519589943,
+    "cs_risk": 0.6719003967362052,
+    "loso": 0.007776069831151597,
+    "task": -0.9237996602303483
+  },
+  "arms": {
+    "A_erm_continue": {
+      "dump": "BNCI2015_001_sub6_seed1_A_erm_continue.npz",
+      "target_bacc": 0.6900000000000001,
+      "selected_epoch": 3,
+      "source_val_bacc": 0.8788461538461538,
+      "eff_rank": 10.494355201721191,
+      "contrast_norm": 0.5490318366459438,
+      "mean_aux_loss": 0.0
+    },
+    "B_cs_rw_mcc": {
+      "dump": "BNCI2015_001_sub6_seed1_B_cs_rw_mcc.npz",
+      "target_bacc": 0.6925,
+      "selected_epoch": 0,
+      "source_val_bacc": 0.8798076923076923,
+      "eff_rank": 10.495800971984863,
+      "contrast_norm": 0.5477909626705306,
+      "mean_aux_loss": 0.29020342341762906
+    },
+    "C_cs_rw_perm": {
+      "dump": "BNCI2015_001_sub6_seed1_C_cs_rw_perm.npz",
+      "target_bacc": 0.7000000000000001,
+      "selected_epoch": 0,
+      "source_val_bacc": 0.8798076923076923,
+      "eff_rank": 10.442533493041992,
+      "contrast_norm": 0.5544893869331905,
+      "mean_aux_loss": 0.25049185895539344
+    },
+    "D_cs_risk": {
+      "dump": "BNCI2015_001_sub6_seed1_D_cs_risk.npz",
+      "target_bacc": 0.6925,
+      "selected_epoch": 0,
+      "source_val_bacc": 0.8798076923076923,
+      "eff_rank": 10.50909423828125,
+      "contrast_norm": 0.5449863587106977,
+      "mean_aux_loss": 0.30387420758129435
+    },
+    "E_cs_risk_perm": {
+      "dump": "BNCI2015_001_sub6_seed1_E_cs_risk_perm.npz",
+      "target_bacc": 0.6925,
+      "selected_epoch": 1,
+      "source_val_bacc": 0.8826923076923077,
+      "eff_rank": 10.322672843933105,
+      "contrast_norm": 0.5734482162765094,
+      "mean_aux_loss": 0.2768190766744157
+    }
+  }
+}
