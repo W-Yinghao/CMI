@@ -35,6 +35,11 @@ from .query_server import QueryServer
 
 TAIL_FRACTION = 0.25       # tail = mean of the worst 25% of TARGET regrets (upper-loss)
 NEAR_OPT_EPS = 0.05        # a target is "near-optimal" if its regret <= this
+# PRECISE endpoint definition (carried forward to C86D/C86H): target_near_opt_prob is
+#   P( a target's 8-context MEAN regret <= NEAR_OPT_EPS ).
+# It is NOT the per-context P( selected context-action in A_eps ). If that per-context
+# quantity is ever reported it must be a SEPARATELY pre-defined endpoint, never conflated.
+NEAR_OPT_DEFINITION = "P(target 8-context mean regret <= eps)"
 NEAROPT_MARGIN = 0.05      # near-opt probability improvement must beat this
 CEILING_NEAROPT_MIN = 0.9  # FULL ceiling must reach at least this near-opt per cohort
 TEST_BUDGET = 4            # small-budget operating point
@@ -56,11 +61,11 @@ _TAIL_TARGETS = frozenset(t for ts in COHORTS.values() for t in ts[-2:])   # 2 t
 class PolicyMetrics:
     mean_regret: float                       # over all targets
     tail_regret: float                       # CVaR over all target regrets
-    near_opt_prob: float
+    target_near_opt_prob: float
     top1_rate: float
     mean_regret_by_cohort: dict[str, float]
     tail_regret_by_cohort: dict[str, float]
-    near_opt_prob_by_cohort: dict[str, float]
+    target_near_opt_prob_by_cohort: dict[str, float]
 
 
 @dataclass(frozen=True)
@@ -95,7 +100,7 @@ def classify(passive: PolicyMetrics, registered: PolicyMetrics, oracle: PolicyMe
     ceil_ok = all(
         ceiling.mean_regret_by_cohort[c] <= K.TAU_CEILING_REGRET
         and ceiling.tail_regret_by_cohort[c] <= K.TAU_CEILING_REGRET
-        and ceiling.near_opt_prob_by_cohort[c] >= CEILING_NEAROPT_MIN
+        and ceiling.target_near_opt_prob_by_cohort[c] >= CEILING_NEAROPT_MIN
         for c in cohorts
     )
     reg_gain = (passive.mean_regret - registered.mean_regret) >= m          # overall (target-pooled)
@@ -109,7 +114,7 @@ def classify(passive: PolicyMetrics, registered: PolicyMetrics, oracle: PolicyMe
     crossed_every_cohort = all(
         (passive.mean_regret_by_cohort[c] - registered.mean_regret_by_cohort[c]) >= m
         and (passive.tail_regret_by_cohort[c] - registered.tail_regret_by_cohort[c]) >= m
-        and (registered.near_opt_prob_by_cohort[c] - passive.near_opt_prob_by_cohort[c]) >= NEAROPT_MARGIN
+        and (registered.target_near_opt_prob_by_cohort[c] - passive.target_near_opt_prob_by_cohort[c]) >= NEAROPT_MARGIN
         for c in cohorts
     )
     return "BOUNDARY_OPERATIONALLY_CROSSED" if crossed_every_cohort else "BOUNDARY_WEAKENED_NOT_ROBUST"
@@ -271,11 +276,11 @@ def _metrics(truth: _Truth, budget: int, kind: str) -> PolicyMetrics:
     return PolicyMetrics(
         mean_regret=float(all_r.mean()),
         tail_regret=_cvar(all_r),
-        near_opt_prob=float((all_r <= NEAR_OPT_EPS).mean()),
+        target_near_opt_prob=float((all_r <= NEAR_OPT_EPS).mean()),
         top1_rate=float((all_r <= 1e-9).mean()),
         mean_regret_by_cohort={ck: float(a.mean()) for ck, a in cohort_arr.items()},
         tail_regret_by_cohort={ck: _cvar(a) for ck, a in cohort_arr.items()},
-        near_opt_prob_by_cohort={ck: float((a <= NEAR_OPT_EPS).mean()) for ck, a in cohort_arr.items()},
+        target_near_opt_prob_by_cohort={ck: float((a <= NEAR_OPT_EPS).mean()) for ck, a in cohort_arr.items()},
     )
 
 

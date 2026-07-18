@@ -115,7 +115,11 @@ contexts are averaged into one target regret *before* any cohort statistic, so t
 8 repeated contexts are never treated as 8 independent tail observations. Endpoints
 are **regret / tail / ε-near-optimal probability**, never top-1 alone (S5 shows
 why). Tail is the upper-`TAIL_FRACTION` (=0.25) CVaR over a cohort's **target**
-distribution (variable renamed from the misleading `CVAR_ALPHA`).
+distribution (variable renamed from the misleading `CVAR_ALPHA`). The near-optimal
+endpoint carries the precise name `target_near_opt_prob = P(target 8-context mean
+regret ≤ ε)` (`pilot.NEAR_OPT_DEFINITION`), never the per-context
+`P(selected context-action ∈ A_ε)`; the latter, if ever reported, is a separately
+pre-defined endpoint.
 
 ```text
 BOUNDARY_OPERATIONALLY_CROSSED     in EVERY cohort, same policy & total budget, improves
@@ -160,8 +164,8 @@ COUNTEREXAMPLE, T5 OPEN are bound immutable; any mutation blocks publication.
 
 ## 8. Validation
 
-`pytest oaci/tests/test_c86lp_query_field.py oaci/tests/test_c86lp_pilot.py` — 63
-passed. Full collection unaffected (2,565). Query-field properties: Semantics-B
+`pytest oaci/tests/test_c86lp_query_field.py oaci/tests/test_c86lp_pilot.py
+oaci/tests/test_c86l_production.py` — 70 passed. Full collection unaffected (2,572). Query-field properties: Semantics-B
 one-label-informs-8-contexts, budget counts physical labels, nonoverlap,
 unlabeled-pool no-label, linear-contribution exactness, pairwise-derived-not-
 stored, nonlinear-plugin claim guard, duplicate/unknown/cross-target/exhaustion
@@ -175,16 +179,20 @@ expected across the committed 20 seeds.
 ## 9. Files
 
 ```text
-oaci/active_testing/{constants,contribution,field,query_server,pilot,__init__}.py
-oaci/tests/test_c86lp_query_field.py   oaci/tests/test_c86lp_pilot.py
+oaci/active_testing/{constants,contribution,field,query_server,pilot,c86l_production,__init__}.py
+oaci/tests/{test_c86lp_query_field,test_c86lp_pilot,test_c86l_production}.py
+oaci/reports/C86L_EXECUTION_CONTRACT.md   (short C86L contract, prepared under GO)
 ```
 
-## 10. For PM — the operational, falsifiable question this now supports
+## 10. The operational, falsifiable question this now supports
 
 > How much does a small amount of queried target-label information reduce
 > optimal-action uncertainty, and does that reduction convert into decision
 > control across targets, across cohorts, and especially in the target tail?
 
-The instrument and pre-registered criteria are ready for a brief PM review. On
-acceptance, the next step is a real C86L (separately authorized). No further stage
-is started pending that review.
+The PM accepted the reframe, the Semantics-B instrument, and the shadow probe
+criteria, and gave a GO to *prepare* one real C86L production stage. Per that GO
+the short execution contract (`C86L_EXECUTION_CONTRACT.md`) and a guarded, inert
+entrypoint (`c86l_production.py`, `execute` refuses without `授权 C86L`) are
+prepared. C86LP still does **not** authorize C86L; execution awaits a separate
+direct `授权 C86L`. No real data is opened and no further stage is started.

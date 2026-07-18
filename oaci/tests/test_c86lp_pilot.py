@@ -23,10 +23,10 @@ def _pm(mean, tail, nearopt, top1=0.0, cohorts=None):
     if cohorts is None:
         cohorts = {c: (mean, tail, nearopt) for c in COHORTS}
     return PolicyMetrics(
-        mean_regret=mean, tail_regret=tail, near_opt_prob=nearopt, top1_rate=top1,
+        mean_regret=mean, tail_regret=tail, target_near_opt_prob=nearopt, top1_rate=top1,
         mean_regret_by_cohort={c: v[0] for c, v in cohorts.items()},
         tail_regret_by_cohort={c: v[1] for c, v in cohorts.items()},
-        near_opt_prob_by_cohort={c: v[2] for c, v in cohorts.items()},
+        target_near_opt_prob_by_cohort={c: v[2] for c, v in cohorts.items()},
     )
 
 
@@ -112,7 +112,7 @@ def test_s5_low_top1_still_crossed():
     r = run_scenario("S5", seed=0)
     assert r.classification == "BOUNDARY_OPERATIONALLY_CROSSED"
     assert r.registered.top1_rate < 0.5          # top-1 is low ...
-    assert r.registered.near_opt_prob >= 0.9     # ... but near-optimal probability is high
+    assert r.registered.target_near_opt_prob >= 0.9     # ... but near-optimal probability is high
 
 
 # --- metrics are target-based (16 targets, 2 cohorts) -------------------------
