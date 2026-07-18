@@ -1,0 +1,139 @@
+{
+  "dataset": "BNCI2015_001",
+  "subject": "1",
+  "seed": 2,
+  "status": "ok",
+  "C": 2,
+  "rank": 8,
+  "n_cal": 200,
+  "n_query": 200,
+  "cal_session": [
+    "0A"
+  ],
+  "query_sessions": [
+    "1B"
+  ],
+  "alpha": 0.01,
+  "alpha_info": {
+    "mean_ce": {
+      "0.001": 0.39665536466827545,
+      "0.01": 0.3603364324081766,
+      "0.1": 0.3605164253393051,
+      "1.0": 0.38615509883059307,
+      "10.0": 0.39828394147015855,
+      "100.0": 0.4001640099242396
+    },
+    "n_pseudo": 11
+  },
+  "n_random": 50,
+  "n_matched_random": 18,
+  "informed_src_bacc": 0.6615384615384615,
+  "native_src_bacc": 0.8017307692307691,
+  "n_draws": 50,
+  "cal_per_class": {
+    "0": 100,
+    "1": 100
+  },
+  "budget_class_shortfall": {},
+  "endpoints": {
+    "1": {
+      "dU_MAP_frozen": 0.2797999999999998,
+      "dU_MAP_fresh": 0.12139999999999984,
+      "dU_MAP_bias": 0.01660000000000006,
+      "U_frozen": 0.56,
+      "U_fresh": 0.7184,
+      "U_MAP": 0.8397999999999999,
+      "U_bias": 0.8231999999999998,
+      "Gh_native": 0.2797999999999998,
+      "Gh_informed": 0.10029999999999994,
+      "Gh_random_mean": 0.07112777777777775,
+      "dGh_specific": 0.029172222222222197
+    },
+    "2": {
+      "dU_MAP_frozen": 0.34329999999999994,
+      "dU_MAP_fresh": 0.10950000000000004,
+      "dU_MAP_bias": 0.023499999999999965,
+      "U_frozen": 0.56,
+      "U_fresh": 0.7938,
+      "U_MAP": 0.9033,
+      "U_bias": 0.8798,
+      "Gh_native": 0.34329999999999994,
+      "Gh_informed": 0.09560000000000002,
+      "Gh_random_mean": 0.09905000000000001,
+      "dGh_specific": -0.0034499999999999947
+    },
+    "4": {
+      "dU_MAP_frozen": 0.3656999999999999,
+      "dU_MAP_fresh": 0.08009999999999995,
+      "dU_MAP_bias": -0.0019000000000001238,
+      "U_frozen": 0.56,
+      "U_fresh": 0.8456,
+      "U_MAP": 0.9257,
+      "U_bias": 0.9276000000000001,
+      "Gh_native": 0.3656999999999999,
+      "Gh_informed": 0.09940000000000004,
+      "Gh_random_mean": 0.12603888888888892,
+      "dGh_specific": -0.02663888888888888
+    },
+    "8": {
+      "dU_MAP_frozen": 0.3828999999999999,
+      "dU_MAP_fresh": 0.05399999999999994,
+      "dU_MAP_bias": 0.009299999999999975,
+      "U_frozen": 0.56,
+      "U_fresh": 0.8889,
+      "U_MAP": 0.9429,
+      "U_bias": 0.9336,
+      "Gh_native": 0.3828999999999999,
+      "Gh_informed": 0.09330000000000016,
+      "Gh_random_mean": 0.14098888888888889,
+      "dGh_specific": -0.047688888888888725
+    },
+    "16": {
+      "dU_MAP_frozen": 0.3957999999999998,
+      "dU_MAP_fresh": 0.04080000000000006,
+      "dU_MAP_bias": 0.01839999999999975,
+      "U_frozen": 0.56,
+      "U_fresh": 0.9149999999999998,
+      "U_MAP": 0.9557999999999999,
+      "U_bias": 0.9374000000000001,
+      "Gh_native": 0.3957999999999998,
+      "Gh_informed": 0.14780000000000015,
+      "Gh_random_mean": 0.17687777777777774,
+      "dGh_specific": -0.02907777777777759
+    },
+    "32": {
+      "dU_MAP_frozen": 0.4099999999999999,
+      "dU_MAP_fresh": 0.017299999999999982,
+      "dU_MAP_bias": 0.03190000000000026,
+      "U_frozen": 0.56,
+      "U_fresh": 0.9527,
+      "U_MAP": 0.97,
+      "U_bias": 0.9380999999999997,
+      "Gh_native": 0.4099999999999999,
+      "Gh_informed": 0.18920000000000003,
+      "Gh_random_mean": 0.20927777777777776,
+      "dGh_specific": -0.020077777777777722
+    },
+    "Full": {
+      "dU_MAP_frozen": 0.4099999999999999,
+      "dU_MAP_fresh": -0.010000000000000009,
+      "dU_MAP_bias": 0.02499999999999991,
+      "U_frozen": 0.56,
+      "U_fresh": 0.98,
+      "U_MAP": 0.97,
+      "U_bias": 0.9450000000000001,
+      "Gh_native": 0.4099999999999999,
+      "Gh_informed": 0.24,
+      "Gh_random_mean": 0.22916666666666666,
+      "dGh_specific": 0.010833333333333334
+    }
+  },
+  "firewall": {
+    "source_only_construction": true,
+    "alpha_source_only": true,
+    "Ycal_used_for_head_adapt": true,
+    "Yquery_used_for_selection": false,
+    "Xquery_used_for_selection": false,
+    "Yquery_used_for_outcome": true
+  }
+}

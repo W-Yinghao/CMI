@@ -1,0 +1,139 @@
+{
+  "dataset": "Lee2019_MI",
+  "subject": "6",
+  "seed": 0,
+  "status": "ok",
+  "C": 2,
+  "rank": 8,
+  "n_cal": 100,
+  "n_query": 100,
+  "cal_session": [
+    "0"
+  ],
+  "query_sessions": [
+    "1"
+  ],
+  "alpha": 1.0,
+  "alpha_info": {
+    "mean_ce": {
+      "0.001": 0.5520644241172745,
+      "0.01": 0.48359075744364555,
+      "0.1": 0.42442293707026224,
+      "1.0": 0.4119577403723822,
+      "10.0": 0.412850719381585,
+      "100.0": 0.4131380310499401
+    },
+    "n_pseudo": 53
+  },
+  "n_random": 50,
+  "n_matched_random": 18,
+  "informed_src_bacc": 0.6252830188679246,
+  "native_src_bacc": 0.7941509433962264,
+  "n_draws": 50,
+  "cal_per_class": {
+    "0": 50,
+    "1": 50
+  },
+  "budget_class_shortfall": {},
+  "endpoints": {
+    "1": {
+      "dU_MAP_frozen": 0.0034000000000000696,
+      "dU_MAP_fresh": 0.15960000000000008,
+      "dU_MAP_bias": 0.04720000000000002,
+      "U_frozen": 0.71,
+      "U_fresh": 0.5538,
+      "U_MAP": 0.7134,
+      "U_bias": 0.6662,
+      "Gh_native": 0.0034000000000000696,
+      "Gh_informed": 0.01880000000000004,
+      "Gh_random_mean": -0.002600000000000022,
+      "dGh_specific": 0.02140000000000006
+    },
+    "2": {
+      "dU_MAP_frozen": 0.005199999999999982,
+      "dU_MAP_fresh": 0.15239999999999987,
+      "dU_MAP_bias": 0.03359999999999996,
+      "U_frozen": 0.71,
+      "U_fresh": 0.5628000000000001,
+      "U_MAP": 0.7152,
+      "U_bias": 0.6816,
+      "Gh_native": 0.005199999999999982,
+      "Gh_informed": 0.026800000000000046,
+      "Gh_random_mean": 0.003644444444444441,
+      "dGh_specific": 0.023155555555555606
+    },
+    "4": {
+      "dU_MAP_frozen": 0.012800000000000034,
+      "dU_MAP_fresh": 0.14660000000000006,
+      "dU_MAP_bias": 0.023199999999999887,
+      "U_frozen": 0.71,
+      "U_fresh": 0.5761999999999999,
+      "U_MAP": 0.7228,
+      "U_bias": 0.6996000000000001,
+      "Gh_native": 0.012800000000000034,
+      "Gh_informed": 0.02200000000000002,
+      "Gh_random_mean": 0.013344444444444443,
+      "dGh_specific": 0.008655555555555576
+    },
+    "8": {
+      "dU_MAP_frozen": 0.008400000000000074,
+      "dU_MAP_fresh": 0.14600000000000013,
+      "dU_MAP_bias": 0.011599999999999944,
+      "U_frozen": 0.71,
+      "U_fresh": 0.5723999999999999,
+      "U_MAP": 0.7184,
+      "U_bias": 0.7068000000000001,
+      "Gh_native": 0.008400000000000074,
+      "Gh_informed": 0.03379999999999994,
+      "Gh_random_mean": 0.02261111111111111,
+      "dGh_specific": 0.011188888888888832
+    },
+    "16": {
+      "dU_MAP_frozen": 0.026000000000000023,
+      "dU_MAP_fresh": 0.14539999999999997,
+      "dU_MAP_bias": 0.005199999999999982,
+      "U_frozen": 0.71,
+      "U_fresh": 0.5906,
+      "U_MAP": 0.736,
+      "U_bias": 0.7308,
+      "Gh_native": 0.026000000000000023,
+      "Gh_informed": 0.031000000000000028,
+      "Gh_random_mean": 0.03547777777777775,
+      "dGh_specific": -0.0044777777777777195
+    },
+    "32": {
+      "dU_MAP_frozen": 0.02100000000000013,
+      "dU_MAP_fresh": 0.08960000000000012,
+      "dU_MAP_bias": 0.0024000000000000687,
+      "U_frozen": 0.71,
+      "U_fresh": 0.6414,
+      "U_MAP": 0.7310000000000001,
+      "U_bias": 0.7286,
+      "Gh_native": 0.02100000000000013,
+      "Gh_informed": 0.02960000000000007,
+      "Gh_random_mean": 0.04303333333333334,
+      "dGh_specific": -0.01343333333333327
+    },
+    "Full": {
+      "dU_MAP_frozen": 0.020000000000000018,
+      "dU_MAP_fresh": 0.040000000000000036,
+      "dU_MAP_bias": 0.0,
+      "U_frozen": 0.71,
+      "U_fresh": 0.69,
+      "U_MAP": 0.73,
+      "U_bias": 0.73,
+      "Gh_native": 0.020000000000000018,
+      "Gh_informed": 0.020000000000000018,
+      "Gh_random_mean": 0.04944444444444445,
+      "dGh_specific": -0.029444444444444433
+    }
+  },
+  "firewall": {
+    "source_only_construction": true,
+    "alpha_source_only": true,
+    "Ycal_used_for_head_adapt": true,
+    "Yquery_used_for_selection": false,
+    "Xquery_used_for_selection": false,
+    "Yquery_used_for_outcome": true
+  }
+}

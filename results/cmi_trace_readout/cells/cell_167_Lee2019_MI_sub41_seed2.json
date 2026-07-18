@@ -1,0 +1,139 @@
+{
+  "dataset": "Lee2019_MI",
+  "subject": "41",
+  "seed": 2,
+  "status": "ok",
+  "C": 2,
+  "rank": 8,
+  "n_cal": 100,
+  "n_query": 100,
+  "cal_session": [
+    "0"
+  ],
+  "query_sessions": [
+    "1"
+  ],
+  "alpha": 1.0,
+  "alpha_info": {
+    "mean_ce": {
+      "0.001": 0.5485504421697273,
+      "0.01": 0.4838265850632187,
+      "0.1": 0.4274371035579744,
+      "1.0": 0.41684126272154703,
+      "10.0": 0.4188985992592155,
+      "100.0": 0.4193623466484301
+    },
+    "n_pseudo": 53
+  },
+  "n_random": 50,
+  "n_matched_random": 6,
+  "informed_src_bacc": 0.5994339622641509,
+  "native_src_bacc": 0.7952830188679245,
+  "n_draws": 50,
+  "cal_per_class": {
+    "0": 50,
+    "1": 50
+  },
+  "budget_class_shortfall": {},
+  "endpoints": {
+    "1": {
+      "dU_MAP_frozen": -0.0030000000000000027,
+      "dU_MAP_fresh": 0.0,
+      "dU_MAP_bias": 0.009000000000000008,
+      "U_frozen": 0.51,
+      "U_fresh": 0.507,
+      "U_MAP": 0.507,
+      "U_bias": 0.498,
+      "Gh_native": -0.0030000000000000027,
+      "Gh_informed": 0.020800000000000207,
+      "Gh_random_mean": 0.00016666666666666682,
+      "dGh_specific": 0.02063333333333354
+    },
+    "2": {
+      "dU_MAP_frozen": -0.007800000000000029,
+      "dU_MAP_fresh": 0.015000000000000013,
+      "dU_MAP_bias": 0.004399999999999904,
+      "U_frozen": 0.51,
+      "U_fresh": 0.48719999999999997,
+      "U_MAP": 0.5022,
+      "U_bias": 0.4978000000000001,
+      "Gh_native": -0.007800000000000029,
+      "Gh_informed": 0.019000000000000183,
+      "Gh_random_mean": -0.011299999999999996,
+      "dGh_specific": 0.03030000000000018
+    },
+    "4": {
+      "dU_MAP_frozen": -0.014600000000000002,
+      "dU_MAP_fresh": -0.02020000000000005,
+      "dU_MAP_bias": 0.0015999999999999903,
+      "U_frozen": 0.51,
+      "U_fresh": 0.5156000000000001,
+      "U_MAP": 0.4954,
+      "U_bias": 0.4938,
+      "Gh_native": -0.014600000000000002,
+      "Gh_informed": 0.024800000000000266,
+      "Gh_random_mean": -0.002000000000000011,
+      "dGh_specific": 0.02680000000000028
+    },
+    "8": {
+      "dU_MAP_frozen": -0.007199999999999984,
+      "dU_MAP_fresh": 0.0041999999999999815,
+      "dU_MAP_bias": 0.005200000000000038,
+      "U_frozen": 0.51,
+      "U_fresh": 0.49860000000000004,
+      "U_MAP": 0.5028,
+      "U_bias": 0.4976,
+      "Gh_native": -0.007199999999999984,
+      "Gh_informed": 0.0008000000000001339,
+      "Gh_random_mean": -0.0032666666666666677,
+      "dGh_specific": 0.004066666666666802
+    },
+    "16": {
+      "dU_MAP_frozen": -0.005599999999999938,
+      "dU_MAP_fresh": -0.0047999999999999154,
+      "dU_MAP_bias": 0.0032000000000000917,
+      "U_frozen": 0.51,
+      "U_fresh": 0.5092,
+      "U_MAP": 0.5044000000000001,
+      "U_bias": 0.5012,
+      "Gh_native": -0.005599999999999938,
+      "Gh_informed": -0.00859999999999983,
+      "Gh_random_mean": -0.003499999999999994,
+      "dGh_specific": -0.005099999999999836
+    },
+    "32": {
+      "dU_MAP_frozen": -0.005199999999999982,
+      "dU_MAP_fresh": -0.01539999999999997,
+      "dU_MAP_bias": 0.00039999999999995595,
+      "U_frozen": 0.51,
+      "U_fresh": 0.5202,
+      "U_MAP": 0.5048,
+      "U_bias": 0.5044000000000001,
+      "Gh_native": -0.005199999999999982,
+      "Gh_informed": -0.027199999999999835,
+      "Gh_random_mean": -0.0034999999999999845,
+      "dGh_specific": -0.02369999999999985
+    },
+    "Full": {
+      "dU_MAP_frozen": 0.0,
+      "dU_MAP_fresh": -0.020000000000000018,
+      "dU_MAP_bias": 0.0,
+      "U_frozen": 0.51,
+      "U_fresh": 0.53,
+      "U_MAP": 0.51,
+      "U_bias": 0.51,
+      "Gh_native": 0.0,
+      "Gh_informed": -0.05999999999999994,
+      "Gh_random_mean": -0.008333333333333323,
+      "dGh_specific": -0.05166666666666662
+    }
+  },
+  "firewall": {
+    "source_only_construction": true,
+    "alpha_source_only": true,
+    "Ycal_used_for_head_adapt": true,
+    "Yquery_used_for_selection": false,
+    "Xquery_used_for_selection": false,
+    "Yquery_used_for_outcome": true
+  }
+}

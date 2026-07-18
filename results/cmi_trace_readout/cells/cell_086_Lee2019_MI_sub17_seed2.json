@@ -1,0 +1,139 @@
+{
+  "dataset": "Lee2019_MI",
+  "subject": "17",
+  "seed": 2,
+  "status": "ok",
+  "C": 2,
+  "rank": 8,
+  "n_cal": 100,
+  "n_query": 100,
+  "cal_session": [
+    "0"
+  ],
+  "query_sessions": [
+    "1"
+  ],
+  "alpha": 1.0,
+  "alpha_info": {
+    "mean_ce": {
+      "0.001": 0.5811896739034692,
+      "0.01": 0.4973934647459373,
+      "0.1": 0.43198353207569773,
+      "1.0": 0.4176287330616747,
+      "10.0": 0.41828466366808,
+      "100.0": 0.41857803860222775
+    },
+    "n_pseudo": 53
+  },
+  "n_random": 50,
+  "n_matched_random": 25,
+  "informed_src_bacc": 0.6270754716981133,
+  "native_src_bacc": 0.7884905660377359,
+  "n_draws": 50,
+  "cal_per_class": {
+    "0": 50,
+    "1": 50
+  },
+  "budget_class_shortfall": {},
+  "endpoints": {
+    "1": {
+      "dU_MAP_frozen": -0.0232,
+      "dU_MAP_fresh": 0.1342000000000001,
+      "dU_MAP_bias": 0.0494,
+      "U_frozen": 0.66,
+      "U_fresh": 0.5025999999999999,
+      "U_MAP": 0.6368,
+      "U_bias": 0.5874,
+      "Gh_native": -0.0232,
+      "Gh_informed": -0.012400000000000189,
+      "Gh_random_mean": -0.011904000000000026,
+      "dGh_specific": -0.000496000000000163
+    },
+    "2": {
+      "dU_MAP_frozen": -0.016799999999999926,
+      "dU_MAP_fresh": 0.1362000000000001,
+      "dU_MAP_bias": 0.04280000000000006,
+      "U_frozen": 0.66,
+      "U_fresh": 0.507,
+      "U_MAP": 0.6432000000000001,
+      "U_bias": 0.6004,
+      "Gh_native": -0.016799999999999926,
+      "Gh_informed": -0.0132000000000001,
+      "Gh_random_mean": -0.008616000000000023,
+      "dGh_specific": -0.004584000000000078
+    },
+    "4": {
+      "dU_MAP_frozen": -0.017400000000000082,
+      "dU_MAP_fresh": 0.13019999999999987,
+      "dU_MAP_bias": 0.023599999999999954,
+      "U_frozen": 0.66,
+      "U_fresh": 0.5124000000000001,
+      "U_MAP": 0.6426,
+      "U_bias": 0.619,
+      "Gh_native": -0.017400000000000082,
+      "Gh_informed": -0.014200000000000101,
+      "Gh_random_mean": -0.008504000000000022,
+      "dGh_specific": -0.0056960000000000795
+    },
+    "8": {
+      "dU_MAP_frozen": -0.014000000000000123,
+      "dU_MAP_fresh": 0.13219999999999987,
+      "dU_MAP_bias": 0.01619999999999988,
+      "U_frozen": 0.66,
+      "U_fresh": 0.5138,
+      "U_MAP": 0.6459999999999999,
+      "U_bias": 0.6298,
+      "Gh_native": -0.014000000000000123,
+      "Gh_informed": -0.0018000000000001348,
+      "Gh_random_mean": -0.004400000000000032,
+      "dGh_specific": 0.0025999999999998975
+    },
+    "16": {
+      "dU_MAP_frozen": -0.0016000000000000458,
+      "dU_MAP_fresh": 0.11740000000000006,
+      "dU_MAP_bias": 0.01200000000000001,
+      "U_frozen": 0.66,
+      "U_fresh": 0.5409999999999999,
+      "U_MAP": 0.6584,
+      "U_bias": 0.6464,
+      "Gh_native": -0.0016000000000000458,
+      "Gh_informed": 0.0047999999999999154,
+      "Gh_random_mean": 0.0017119999999999935,
+      "dGh_specific": 0.003087999999999922
+    },
+    "32": {
+      "dU_MAP_frozen": -0.001000000000000112,
+      "dU_MAP_fresh": 0.07279999999999986,
+      "dU_MAP_bias": 0.0035999999999998256,
+      "U_frozen": 0.66,
+      "U_fresh": 0.5862,
+      "U_MAP": 0.6589999999999999,
+      "U_bias": 0.6554000000000001,
+      "Gh_native": -0.001000000000000112,
+      "Gh_informed": -0.0026000000000000467,
+      "Gh_random_mean": -0.0009760000000000124,
+      "dGh_specific": -0.0016240000000000343
+    },
+    "Full": {
+      "dU_MAP_frozen": 0.0,
+      "dU_MAP_fresh": 0.050000000000000044,
+      "dU_MAP_bias": 1.1102230246251565e-16,
+      "U_frozen": 0.66,
+      "U_fresh": 0.61,
+      "U_MAP": 0.66,
+      "U_bias": 0.6599999999999999,
+      "Gh_native": 0.0,
+      "Gh_informed": -0.010000000000000009,
+      "Gh_random_mean": -0.0011999999999999945,
+      "dGh_specific": -0.008800000000000014
+    }
+  },
+  "firewall": {
+    "source_only_construction": true,
+    "alpha_source_only": true,
+    "Ycal_used_for_head_adapt": true,
+    "Yquery_used_for_selection": false,
+    "Xquery_used_for_selection": false,
+    "Yquery_used_for_outcome": true
+  }
+}

@@ -1,0 +1,139 @@
+{
+  "dataset": "Lee2019_MI",
+  "subject": "24",
+  "seed": 1,
+  "status": "ok",
+  "C": 2,
+  "rank": 8,
+  "n_cal": 100,
+  "n_query": 100,
+  "cal_session": [
+    "0"
+  ],
+  "query_sessions": [
+    "1"
+  ],
+  "alpha": 1.0,
+  "alpha_info": {
+    "mean_ce": {
+      "0.001": 0.5754977448857774,
+      "0.01": 0.48770678066141937,
+      "0.1": 0.41652019583100075,
+      "1.0": 0.40226488651973263,
+      "10.0": 0.40289655886476394,
+      "100.0": 0.40312828443917414
+    },
+    "n_pseudo": 53
+  },
+  "n_random": 50,
+  "n_matched_random": 28,
+  "informed_src_bacc": 0.7011320754716981,
+  "native_src_bacc": 0.8017924528301887,
+  "n_draws": 50,
+  "cal_per_class": {
+    "0": 50,
+    "1": 50
+  },
+  "budget_class_shortfall": {},
+  "endpoints": {
+    "1": {
+      "dU_MAP_frozen": 0.016000000000000014,
+      "dU_MAP_fresh": -0.00040000000000006697,
+      "dU_MAP_bias": -0.0030000000000000027,
+      "U_frozen": 0.49,
+      "U_fresh": 0.5064000000000001,
+      "U_MAP": 0.506,
+      "U_bias": 0.509,
+      "Gh_native": 0.016000000000000014,
+      "Gh_informed": 0.011199999999999988,
+      "Gh_random_mean": -0.0002571428571428685,
+      "dGh_specific": 0.011457142857142857
+    },
+    "2": {
+      "dU_MAP_frozen": 0.019000000000000017,
+      "dU_MAP_fresh": -0.006399999999999961,
+      "dU_MAP_bias": -0.010600000000000054,
+      "U_frozen": 0.49,
+      "U_fresh": 0.5154,
+      "U_MAP": 0.509,
+      "U_bias": 0.5196000000000001,
+      "Gh_native": 0.019000000000000017,
+      "Gh_informed": 0.013799999999999923,
+      "Gh_random_mean": 0.0006785714285714173,
+      "dGh_specific": 0.013121428571428506
+    },
+    "4": {
+      "dU_MAP_frozen": 0.025600000000000067,
+      "dU_MAP_fresh": 0.0038000000000000256,
+      "dU_MAP_bias": -0.020399999999999974,
+      "U_frozen": 0.49,
+      "U_fresh": 0.5118,
+      "U_MAP": 0.5156000000000001,
+      "U_bias": 0.536,
+      "Gh_native": 0.025600000000000067,
+      "Gh_informed": 0.016599999999999948,
+      "Gh_random_mean": 0.00556428571428572,
+      "dGh_specific": 0.011035714285714229
+    },
+    "8": {
+      "dU_MAP_frozen": 0.021200000000000108,
+      "dU_MAP_fresh": 0.0016000000000000458,
+      "dU_MAP_bias": -0.02939999999999987,
+      "U_frozen": 0.49,
+      "U_fresh": 0.5096,
+      "U_MAP": 0.5112000000000001,
+      "U_bias": 0.5406,
+      "Gh_native": 0.021200000000000108,
+      "Gh_informed": 0.015800000000000036,
+      "Gh_random_mean": 0.004192857142857149,
+      "dGh_specific": 0.011607142857142887
+    },
+    "16": {
+      "dU_MAP_frozen": 0.017000000000000015,
+      "dU_MAP_fresh": -0.012800000000000034,
+      "dU_MAP_bias": -0.030000000000000027,
+      "U_frozen": 0.49,
+      "U_fresh": 0.5198,
+      "U_MAP": 0.507,
+      "U_bias": 0.537,
+      "Gh_native": 0.017000000000000015,
+      "Gh_informed": 0.01440000000000008,
+      "Gh_random_mean": 0.005985714285714269,
+      "dGh_specific": 0.008414285714285812
+    },
+    "32": {
+      "dU_MAP_frozen": 0.014800000000000035,
+      "dU_MAP_fresh": -0.02200000000000002,
+      "dU_MAP_bias": -0.03759999999999997,
+      "U_frozen": 0.49,
+      "U_fresh": 0.5268,
+      "U_MAP": 0.5048,
+      "U_bias": 0.5424,
+      "Gh_native": 0.014800000000000035,
+      "Gh_informed": 0.008000000000000118,
+      "Gh_random_mean": 0.006292857142857151,
+      "dGh_specific": 0.0017071428571429669
+    },
+    "Full": {
+      "dU_MAP_frozen": 0.010000000000000009,
+      "dU_MAP_fresh": 0.010000000000000009,
+      "dU_MAP_bias": -0.010000000000000009,
+      "U_frozen": 0.49,
+      "U_fresh": 0.49,
+      "U_MAP": 0.5,
+      "U_bias": 0.51,
+      "Gh_native": 0.010000000000000009,
+      "Gh_informed": 0.010000000000000009,
+      "Gh_random_mean": 0.005357142857142866,
+      "dGh_specific": 0.004642857142857143
+    }
+  },
+  "firewall": {
+    "source_only_construction": true,
+    "alpha_source_only": true,
+    "Ycal_used_for_head_adapt": true,
+    "Yquery_used_for_selection": false,
+    "Xquery_used_for_selection": false,
+    "Yquery_used_for_outcome": true
+  }
+}

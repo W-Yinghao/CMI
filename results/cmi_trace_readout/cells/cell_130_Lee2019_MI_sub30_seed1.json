@@ -1,0 +1,139 @@
+{
+  "dataset": "Lee2019_MI",
+  "subject": "30",
+  "seed": 1,
+  "status": "ok",
+  "C": 2,
+  "rank": 8,
+  "n_cal": 100,
+  "n_query": 100,
+  "cal_session": [
+    "0"
+  ],
+  "query_sessions": [
+    "1"
+  ],
+  "alpha": 1.0,
+  "alpha_info": {
+    "mean_ce": {
+      "0.001": 0.5371526162985947,
+      "0.01": 0.469050114838508,
+      "0.1": 0.41322736081176326,
+      "1.0": 0.4024612208239336,
+      "10.0": 0.40370083070155355,
+      "100.0": 0.4040117889024595
+    },
+    "n_pseudo": 53
+  },
+  "n_random": 50,
+  "n_matched_random": 29,
+  "informed_src_bacc": 0.6672641509433962,
+  "native_src_bacc": 0.7961320754716981,
+  "n_draws": 50,
+  "cal_per_class": {
+    "0": 50,
+    "1": 50
+  },
+  "budget_class_shortfall": {},
+  "endpoints": {
+    "1": {
+      "dU_MAP_frozen": -0.006000000000000116,
+      "dU_MAP_fresh": 0.11659999999999993,
+      "dU_MAP_bias": 0.03359999999999996,
+      "U_frozen": 0.65,
+      "U_fresh": 0.5274,
+      "U_MAP": 0.6439999999999999,
+      "U_bias": 0.6103999999999999,
+      "Gh_native": -0.006000000000000116,
+      "Gh_informed": 0.012199999999999989,
+      "Gh_random_mean": -0.005462068965517239,
+      "dGh_specific": 0.017662068965517228
+    },
+    "2": {
+      "dU_MAP_frozen": -0.0026000000000000467,
+      "dU_MAP_fresh": 0.12319999999999998,
+      "dU_MAP_bias": 0.03859999999999997,
+      "U_frozen": 0.65,
+      "U_fresh": 0.5242,
+      "U_MAP": 0.6474,
+      "U_bias": 0.6088,
+      "Gh_native": -0.0026000000000000467,
+      "Gh_informed": 0.01319999999999999,
+      "Gh_random_mean": -0.004758620689655154,
+      "dGh_specific": 0.017958620689655144
+    },
+    "4": {
+      "dU_MAP_frozen": -0.0048000000000000265,
+      "dU_MAP_fresh": 0.11299999999999999,
+      "dU_MAP_bias": 0.016000000000000014,
+      "U_frozen": 0.65,
+      "U_fresh": 0.5322,
+      "U_MAP": 0.6452,
+      "U_bias": 0.6292,
+      "Gh_native": -0.0048000000000000265,
+      "Gh_informed": 0.012599999999999945,
+      "Gh_random_mean": -0.0033931034482758693,
+      "dGh_specific": 0.015993103448275814
+    },
+    "8": {
+      "dU_MAP_frozen": 0.0021999999999999797,
+      "dU_MAP_fresh": 0.0958,
+      "dU_MAP_bias": 0.01200000000000001,
+      "U_frozen": 0.65,
+      "U_fresh": 0.5564,
+      "U_MAP": 0.6522,
+      "U_bias": 0.6402,
+      "Gh_native": 0.0021999999999999797,
+      "Gh_informed": 0.003800000000000081,
+      "Gh_random_mean": 0.0068896551724137965,
+      "dGh_specific": -0.0030896551724137154
+    },
+    "16": {
+      "dU_MAP_frozen": -0.0015999999999999348,
+      "dU_MAP_fresh": 0.06780000000000008,
+      "dU_MAP_bias": 0.007600000000000051,
+      "U_frozen": 0.65,
+      "U_fresh": 0.5806,
+      "U_MAP": 0.6484000000000001,
+      "U_bias": 0.6408,
+      "Gh_native": -0.0015999999999999348,
+      "Gh_informed": 0.007399999999999907,
+      "Gh_random_mean": 0.01135862068965517,
+      "dGh_specific": -0.003958620689655263
+    },
+    "32": {
+      "dU_MAP_frozen": -0.018199999999999994,
+      "dU_MAP_fresh": 0.009399999999999964,
+      "dU_MAP_bias": -0.011199999999999988,
+      "U_frozen": 0.65,
+      "U_fresh": 0.6224000000000001,
+      "U_MAP": 0.6318,
+      "U_bias": 0.643,
+      "Gh_native": -0.018199999999999994,
+      "Gh_informed": 0.009599999999999997,
+      "Gh_random_mean": 0.013634482758620683,
+      "dGh_specific": -0.004034482758620686
+    },
+    "Full": {
+      "dU_MAP_frozen": -0.010000000000000009,
+      "dU_MAP_fresh": -0.020000000000000018,
+      "dU_MAP_bias": -0.010000000000000009,
+      "U_frozen": 0.65,
+      "U_fresh": 0.66,
+      "U_MAP": 0.64,
+      "U_bias": 0.65,
+      "Gh_native": -0.010000000000000009,
+      "Gh_informed": 0.010000000000000009,
+      "Gh_random_mean": 0.01275862068965519,
+      "dGh_specific": -0.0027586206896551817
+    }
+  },
+  "firewall": {
+    "source_only_construction": true,
+    "alpha_source_only": true,
+    "Ycal_used_for_head_adapt": true,
+    "Yquery_used_for_selection": false,
+    "Xquery_used_for_selection": false,
+    "Yquery_used_for_outcome": true
+  }
+}

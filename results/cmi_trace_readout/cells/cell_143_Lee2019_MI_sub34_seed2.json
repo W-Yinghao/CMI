@@ -1,0 +1,139 @@
+{
+  "dataset": "Lee2019_MI",
+  "subject": "34",
+  "seed": 2,
+  "status": "ok",
+  "C": 2,
+  "rank": 8,
+  "n_cal": 100,
+  "n_query": 100,
+  "cal_session": [
+    "0"
+  ],
+  "query_sessions": [
+    "1"
+  ],
+  "alpha": 1.0,
+  "alpha_info": {
+    "mean_ce": {
+      "0.001": 0.5891538376208307,
+      "0.01": 0.4883496377558681,
+      "0.1": 0.422954340571001,
+      "1.0": 0.41250113458397664,
+      "10.0": 0.4149710629201258,
+      "100.0": 0.4155762524575164
+    },
+    "n_pseudo": 53
+  },
+  "n_random": 50,
+  "n_matched_random": 12,
+  "informed_src_bacc": 0.6115094339622642,
+  "native_src_bacc": 0.7969811320754717,
+  "n_draws": 50,
+  "cal_per_class": {
+    "0": 50,
+    "1": 50
+  },
+  "budget_class_shortfall": {},
+  "endpoints": {
+    "1": {
+      "dU_MAP_frozen": -0.03059999999999996,
+      "dU_MAP_fresh": -0.02059999999999995,
+      "dU_MAP_bias": -0.019399999999999917,
+      "U_frozen": 0.51,
+      "U_fresh": 0.5,
+      "U_MAP": 0.47940000000000005,
+      "U_bias": 0.49879999999999997,
+      "Gh_native": -0.03059999999999996,
+      "Gh_informed": 0.020400000000000196,
+      "Gh_random_mean": -0.0002500000000000511,
+      "dGh_specific": 0.020650000000000248
+    },
+    "2": {
+      "dU_MAP_frozen": -0.04060000000000008,
+      "dU_MAP_fresh": -0.030000000000000138,
+      "dU_MAP_bias": -0.016800000000000093,
+      "U_frozen": 0.51,
+      "U_fresh": 0.49940000000000007,
+      "U_MAP": 0.46939999999999993,
+      "U_bias": 0.4862,
+      "Gh_native": -0.04060000000000008,
+      "Gh_informed": 0.011000000000000176,
+      "Gh_random_mean": -0.0005166666666666838,
+      "dGh_specific": 0.01151666666666686
+    },
+    "4": {
+      "dU_MAP_frozen": -0.024600000000000066,
+      "dU_MAP_fresh": -0.013600000000000056,
+      "dU_MAP_bias": 0.0041999999999998705,
+      "U_frozen": 0.51,
+      "U_fresh": 0.499,
+      "U_MAP": 0.48539999999999994,
+      "U_bias": 0.48120000000000007,
+      "Gh_native": -0.024600000000000066,
+      "Gh_informed": 0.022800000000000153,
+      "Gh_random_mean": 0.00033333333333327814,
+      "dGh_specific": 0.022466666666666874
+    },
+    "8": {
+      "dU_MAP_frozen": -0.014800000000000035,
+      "dU_MAP_fresh": -0.0042000000000000925,
+      "dU_MAP_bias": 0.015599999999999947,
+      "U_frozen": 0.51,
+      "U_fresh": 0.49940000000000007,
+      "U_MAP": 0.4952,
+      "U_bias": 0.4796,
+      "Gh_native": -0.014800000000000035,
+      "Gh_informed": 0.01780000000000015,
+      "Gh_random_mean": 0.0010166666666666425,
+      "dGh_specific": 0.016783333333333508
+    },
+    "16": {
+      "dU_MAP_frozen": -0.017199999999999938,
+      "dU_MAP_fresh": -0.003599999999999881,
+      "dU_MAP_bias": 0.017600000000000116,
+      "U_frozen": 0.51,
+      "U_fresh": 0.49639999999999995,
+      "U_MAP": 0.49280000000000007,
+      "U_bias": 0.47519999999999996,
+      "Gh_native": -0.017199999999999938,
+      "Gh_informed": 0.015200000000000158,
+      "Gh_random_mean": -0.0004000000000000485,
+      "dGh_specific": 0.015600000000000206
+    },
+    "32": {
+      "dU_MAP_frozen": -0.0011999999999999789,
+      "dU_MAP_fresh": 0.01040000000000002,
+      "dU_MAP_bias": 0.05120000000000002,
+      "U_frozen": 0.51,
+      "U_fresh": 0.4984,
+      "U_MAP": 0.5088,
+      "U_bias": 0.4576,
+      "Gh_native": -0.0011999999999999789,
+      "Gh_informed": 0.031400000000000095,
+      "Gh_random_mean": -0.0010666666666666925,
+      "dGh_specific": 0.03246666666666679
+    },
+    "Full": {
+      "dU_MAP_frozen": 0.0,
+      "dU_MAP_fresh": 0.050000000000000044,
+      "dU_MAP_bias": 0.06,
+      "U_frozen": 0.51,
+      "U_fresh": 0.45999999999999996,
+      "U_MAP": 0.51,
+      "U_bias": 0.45,
+      "Gh_native": 0.0,
+      "Gh_informed": 0.010000000000000009,
+      "Gh_random_mean": -0.0033333333333333223,
+      "dGh_specific": 0.01333333333333333
+    }
+  },
+  "firewall": {
+    "source_only_construction": true,
+    "alpha_source_only": true,
+    "Ycal_used_for_head_adapt": true,
+    "Yquery_used_for_selection": false,
+    "Xquery_used_for_selection": false,
+    "Yquery_used_for_outcome": true
+  }
+}

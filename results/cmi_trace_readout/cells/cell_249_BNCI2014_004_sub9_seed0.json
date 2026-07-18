@@ -1,0 +1,142 @@
+{
+  "dataset": "BNCI2014_004",
+  "subject": "9",
+  "seed": 0,
+  "status": "ok",
+  "C": 2,
+  "rank": 8,
+  "n_cal": 120,
+  "n_query": 600,
+  "cal_session": [
+    "0train"
+  ],
+  "query_sessions": [
+    "1train",
+    "2train",
+    "3test",
+    "4test"
+  ],
+  "alpha": 1.0,
+  "alpha_info": {
+    "mean_ce": {
+      "0.001": 0.674159015367306,
+      "0.01": 0.5986440338218891,
+      "0.1": 0.5383333628411656,
+      "1.0": 0.523016657756852,
+      "10.0": 0.5273677538064665,
+      "100.0": 0.5284146517725837
+    },
+    "n_pseudo": 8
+  },
+  "n_random": 50,
+  "n_matched_random": 2,
+  "informed_src_bacc": 0.5625862068965517,
+  "native_src_bacc": 0.7360344827586207,
+  "n_draws": 50,
+  "cal_per_class": {
+    "0": 60,
+    "1": 60
+  },
+  "budget_class_shortfall": {},
+  "endpoints": {
+    "1": {
+      "dU_MAP_frozen": -0.015885416666666652,
+      "dU_MAP_fresh": 0.18048958333333331,
+      "dU_MAP_bias": 0.04936458333333338,
+      "U_frozen": 0.7171875,
+      "U_fresh": 0.5208125,
+      "U_MAP": 0.7013020833333333,
+      "U_bias": 0.6519375,
+      "Gh_native": -0.015885416666666652,
+      "Gh_informed": -0.06582291666666684,
+      "Gh_random_mean": -0.025281249999999977,
+      "dGh_specific": -0.040541666666666865
+    },
+    "2": {
+      "dU_MAP_frozen": -0.014979166666666655,
+      "dU_MAP_fresh": 0.186875,
+      "dU_MAP_bias": 0.0209583333333333,
+      "U_frozen": 0.7171875,
+      "U_fresh": 0.5153333333333333,
+      "U_MAP": 0.7022083333333333,
+      "U_bias": 0.68125,
+      "Gh_native": -0.014979166666666655,
+      "Gh_informed": -0.07480208333333349,
+      "Gh_random_mean": -0.020843749999999994,
+      "dGh_specific": -0.0539583333333335
+    },
+    "4": {
+      "dU_MAP_frozen": -0.01128124999999991,
+      "dU_MAP_fresh": 0.16212500000000007,
+      "dU_MAP_bias": 0.03301041666666682,
+      "U_frozen": 0.7171875,
+      "U_fresh": 0.54378125,
+      "U_MAP": 0.7059062500000001,
+      "U_bias": 0.6728958333333332,
+      "Gh_native": -0.01128124999999991,
+      "Gh_informed": -0.05092708333333351,
+      "Gh_random_mean": -0.002999999999999947,
+      "dGh_specific": -0.047927083333333564
+    },
+    "8": {
+      "dU_MAP_frozen": -0.004072916666666648,
+      "dU_MAP_fresh": 0.15325,
+      "dU_MAP_bias": 0.014562499999999923,
+      "U_frozen": 0.7171875,
+      "U_fresh": 0.5598645833333333,
+      "U_MAP": 0.7131145833333333,
+      "U_bias": 0.6985520833333334,
+      "Gh_native": -0.004072916666666648,
+      "Gh_informed": -0.048281250000000164,
+      "Gh_random_mean": 0.001135416666666722,
+      "dGh_specific": -0.049416666666666886
+    },
+    "16": {
+      "dU_MAP_frozen": -0.0027083333333334236,
+      "dU_MAP_fresh": 0.13807291666666655,
+      "dU_MAP_bias": 0.010218749999999943,
+      "U_frozen": 0.7171875,
+      "U_fresh": 0.57640625,
+      "U_MAP": 0.7144791666666666,
+      "U_bias": 0.7042604166666666,
+      "Gh_native": -0.0027083333333334236,
+      "Gh_informed": -0.025447916666666792,
+      "Gh_random_mean": 0.013911458333333349,
+      "dGh_specific": -0.03935937500000014
+    },
+    "32": {
+      "dU_MAP_frozen": 0.0006041666666668499,
+      "dU_MAP_fresh": 0.08615625000000027,
+      "dU_MAP_bias": 0.011302083333333601,
+      "U_frozen": 0.7171875,
+      "U_fresh": 0.6316354166666666,
+      "U_MAP": 0.7177916666666668,
+      "U_bias": 0.7064895833333332,
+      "Gh_native": 0.0006041666666668499,
+      "Gh_informed": -0.011875000000000191,
+      "Gh_random_mean": 0.014880208333333367,
+      "dGh_specific": -0.026755208333333558
+    },
+    "Full": {
+      "dU_MAP_frozen": 0.007291666666666585,
+      "dU_MAP_fresh": 0.03489583333333324,
+      "dU_MAP_bias": 0.015104166666666585,
+      "U_frozen": 0.7171875,
+      "U_fresh": 0.6895833333333333,
+      "U_MAP": 0.7244791666666666,
+      "U_bias": 0.709375,
+      "Gh_native": 0.007291666666666585,
+      "Gh_informed": 0.005729166666666563,
+      "Gh_random_mean": 0.021093750000000022,
+      "dGh_specific": -0.01536458333333346
+    }
+  },
+  "firewall": {
+    "source_only_construction": true,
+    "alpha_source_only": true,
+    "Ycal_used_for_head_adapt": true,
+    "Yquery_used_for_selection": false,
+    "Xquery_used_for_selection": false,
+    "Yquery_used_for_outcome": true
+  }
+}

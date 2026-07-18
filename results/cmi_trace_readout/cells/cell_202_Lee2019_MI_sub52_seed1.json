@@ -1,0 +1,139 @@
+{
+  "dataset": "Lee2019_MI",
+  "subject": "52",
+  "seed": 1,
+  "status": "ok",
+  "C": 2,
+  "rank": 8,
+  "n_cal": 100,
+  "n_query": 100,
+  "cal_session": [
+    "0"
+  ],
+  "query_sessions": [
+    "1"
+  ],
+  "alpha": 1.0,
+  "alpha_info": {
+    "mean_ce": {
+      "0.001": 0.5540124555262758,
+      "0.01": 0.48130347790554945,
+      "0.1": 0.4218215434894165,
+      "1.0": 0.40965274007213626,
+      "10.0": 0.410466787839597,
+      "100.0": 0.4107259476445866
+    },
+    "n_pseudo": 53
+  },
+  "n_random": 50,
+  "n_matched_random": 23,
+  "informed_src_bacc": 0.6495283018867924,
+  "native_src_bacc": 0.7956603773584905,
+  "n_draws": 50,
+  "cal_per_class": {
+    "0": 50,
+    "1": 50
+  },
+  "budget_class_shortfall": {},
+  "endpoints": {
+    "1": {
+      "dU_MAP_frozen": -0.01299999999999979,
+      "dU_MAP_fresh": 0.1542,
+      "dU_MAP_bias": 0.019399999999999973,
+      "U_frozen": 0.6899999999999998,
+      "U_fresh": 0.5228,
+      "U_MAP": 0.677,
+      "U_bias": 0.6576000000000001,
+      "Gh_native": -0.01299999999999979,
+      "Gh_informed": -0.03520000000000001,
+      "Gh_random_mean": -0.012869565217391268,
+      "dGh_specific": -0.02233043478260874
+    },
+    "2": {
+      "dU_MAP_frozen": -0.015199999999999991,
+      "dU_MAP_fresh": 0.12499999999999989,
+      "dU_MAP_bias": 0.02619999999999989,
+      "U_frozen": 0.6899999999999998,
+      "U_fresh": 0.5498,
+      "U_MAP": 0.6747999999999998,
+      "U_bias": 0.6486,
+      "Gh_native": -0.015199999999999991,
+      "Gh_informed": -0.0252,
+      "Gh_random_mean": -0.006886956521739111,
+      "dGh_specific": -0.01831304347826089
+    },
+    "4": {
+      "dU_MAP_frozen": -0.012199999999999878,
+      "dU_MAP_fresh": 0.12179999999999991,
+      "dU_MAP_bias": 0.01319999999999999,
+      "U_frozen": 0.6899999999999998,
+      "U_fresh": 0.556,
+      "U_MAP": 0.6778,
+      "U_bias": 0.6646,
+      "Gh_native": -0.012199999999999878,
+      "Gh_informed": -0.018000000000000016,
+      "Gh_random_mean": 0.0020347826086956574,
+      "dGh_specific": -0.020034782608695675
+    },
+    "8": {
+      "dU_MAP_frozen": -0.006999999999999673,
+      "dU_MAP_fresh": 0.10580000000000023,
+      "dU_MAP_bias": 0.010600000000000054,
+      "U_frozen": 0.6899999999999998,
+      "U_fresh": 0.5771999999999999,
+      "U_MAP": 0.6830000000000002,
+      "U_bias": 0.6724000000000001,
+      "Gh_native": -0.006999999999999673,
+      "Gh_informed": -0.01980000000000004,
+      "Gh_random_mean": 0.0033999999999999924,
+      "dGh_specific": -0.023200000000000033
+    },
+    "16": {
+      "dU_MAP_frozen": -0.00759999999999994,
+      "dU_MAP_fresh": 0.04299999999999993,
+      "dU_MAP_bias": 0.0129999999999999,
+      "U_frozen": 0.6899999999999998,
+      "U_fresh": 0.6394,
+      "U_MAP": 0.6823999999999999,
+      "U_bias": 0.6694,
+      "Gh_native": -0.00759999999999994,
+      "Gh_informed": -0.0012000000000000899,
+      "Gh_random_mean": 0.011252173913043489,
+      "dGh_specific": -0.012452173913043579
+    },
+    "32": {
+      "dU_MAP_frozen": -0.010599999999999832,
+      "dU_MAP_fresh": 0.0050000000000000044,
+      "dU_MAP_bias": 0.012399999999999967,
+      "U_frozen": 0.6899999999999998,
+      "U_fresh": 0.6744,
+      "U_MAP": 0.6794,
+      "U_bias": 0.667,
+      "Gh_native": -0.010599999999999832,
+      "Gh_informed": -0.0030000000000001137,
+      "Gh_random_mean": 0.010660869565217397,
+      "dGh_specific": -0.01366086956521751
+    },
+    "Full": {
+      "dU_MAP_frozen": -0.020000000000000018,
+      "dU_MAP_fresh": -0.030000000000000027,
+      "dU_MAP_bias": 0.009999999999999898,
+      "U_frozen": 0.69,
+      "U_fresh": 0.7,
+      "U_MAP": 0.6699999999999999,
+      "U_bias": 0.66,
+      "Gh_native": -0.020000000000000018,
+      "Gh_informed": -0.010000000000000009,
+      "Gh_random_mean": 0.013043478260869582,
+      "dGh_specific": -0.02304347826086959
+    }
+  },
+  "firewall": {
+    "source_only_construction": true,
+    "alpha_source_only": true,
+    "Ycal_used_for_head_adapt": true,
+    "Yquery_used_for_selection": false,
+    "Xquery_used_for_selection": false,
+    "Yquery_used_for_outcome": true
+  }
+}

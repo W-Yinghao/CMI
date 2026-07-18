@@ -1,0 +1,139 @@
+{
+  "dataset": "Lee2019_MI",
+  "subject": "36",
+  "seed": 1,
+  "status": "ok",
+  "C": 2,
+  "rank": 8,
+  "n_cal": 100,
+  "n_query": 100,
+  "cal_session": [
+    "0"
+  ],
+  "query_sessions": [
+    "1"
+  ],
+  "alpha": 1.0,
+  "alpha_info": {
+    "mean_ce": {
+      "0.001": 0.565516957605206,
+      "0.01": 0.4881907898115082,
+      "0.1": 0.4267211468783497,
+      "1.0": 0.4171678336290931,
+      "10.0": 0.4186815722721071,
+      "100.0": 0.41899919492154186
+    },
+    "n_pseudo": 53
+  },
+  "n_random": 50,
+  "n_matched_random": 6,
+  "informed_src_bacc": 0.5911320754716981,
+  "native_src_bacc": 0.7943396226415094,
+  "n_draws": 50,
+  "cal_per_class": {
+    "0": 50,
+    "1": 50
+  },
+  "budget_class_shortfall": {},
+  "endpoints": {
+    "1": {
+      "dU_MAP_frozen": -0.000400000000000178,
+      "dU_MAP_fresh": 0.1160000000000001,
+      "dU_MAP_bias": 0.005600000000000049,
+      "U_frozen": 0.8100000000000003,
+      "U_fresh": 0.6936,
+      "U_MAP": 0.8096000000000001,
+      "U_bias": 0.804,
+      "Gh_native": -0.000400000000000178,
+      "Gh_informed": 0.05099999999999982,
+      "Gh_random_mean": 0.0415666666666667,
+      "dGh_specific": 0.00943333333333312
+    },
+    "2": {
+      "dU_MAP_frozen": -1.1102230246251565e-16,
+      "dU_MAP_fresh": 0.03740000000000021,
+      "dU_MAP_bias": 0.013400000000000079,
+      "U_frozen": 0.8100000000000003,
+      "U_fresh": 0.7726,
+      "U_MAP": 0.8100000000000002,
+      "U_bias": 0.7966000000000001,
+      "Gh_native": -1.1102230246251565e-16,
+      "Gh_informed": 0.11339999999999983,
+      "Gh_random_mean": 0.07533333333333332,
+      "dGh_specific": 0.03806666666666651
+    },
+    "4": {
+      "dU_MAP_frozen": -0.00040000000000006697,
+      "dU_MAP_fresh": 0.0132000000000001,
+      "dU_MAP_bias": 0.017400000000000082,
+      "U_frozen": 0.8100000000000003,
+      "U_fresh": 0.7964000000000001,
+      "U_MAP": 0.8096000000000002,
+      "U_bias": 0.7922000000000001,
+      "Gh_native": -0.00040000000000006697,
+      "Gh_informed": 0.14019999999999977,
+      "Gh_random_mean": 0.09709999999999996,
+      "dGh_specific": 0.043099999999999805
+    },
+    "8": {
+      "dU_MAP_frozen": 0.0005999999999999339,
+      "dU_MAP_fresh": -0.02479999999999971,
+      "dU_MAP_bias": 0.009200000000000208,
+      "U_frozen": 0.8100000000000003,
+      "U_fresh": 0.8353999999999999,
+      "U_MAP": 0.8106000000000002,
+      "U_bias": 0.8014,
+      "Gh_native": 0.0005999999999999339,
+      "Gh_informed": 0.16679999999999995,
+      "Gh_random_mean": 0.10783333333333334,
+      "dGh_specific": 0.05896666666666661
+    },
+    "16": {
+      "dU_MAP_frozen": 0.00039999999999995595,
+      "dU_MAP_fresh": -0.04659999999999975,
+      "dU_MAP_bias": 0.008600000000000163,
+      "U_frozen": 0.8100000000000003,
+      "U_fresh": 0.857,
+      "U_MAP": 0.8104000000000002,
+      "U_bias": 0.8018000000000001,
+      "Gh_native": 0.00039999999999995595,
+      "Gh_informed": 0.18839999999999968,
+      "Gh_random_mean": 0.13303333333333336,
+      "dGh_specific": 0.055366666666666314
+    },
+    "32": {
+      "dU_MAP_frozen": 0.0,
+      "dU_MAP_fresh": -0.07039999999999946,
+      "dU_MAP_bias": 0.0032000000000000917,
+      "U_frozen": 0.8100000000000003,
+      "U_fresh": 0.8803999999999997,
+      "U_MAP": 0.8100000000000003,
+      "U_bias": 0.8068000000000002,
+      "Gh_native": 0.0,
+      "Gh_informed": 0.19239999999999968,
+      "Gh_random_mean": 0.13346666666666662,
+      "dGh_specific": 0.05893333333333306
+    },
+    "Full": {
+      "dU_MAP_frozen": 0.0,
+      "dU_MAP_fresh": -0.10999999999999988,
+      "dU_MAP_bias": 0.0,
+      "U_frozen": 0.81,
+      "U_fresh": 0.9199999999999999,
+      "U_MAP": 0.81,
+      "U_bias": 0.81,
+      "Gh_native": 0.0,
+      "Gh_informed": 0.17999999999999994,
+      "Gh_random_mean": 0.14,
+      "dGh_specific": 0.039999999999999925
+    }
+  },
+  "firewall": {
+    "source_only_construction": true,
+    "alpha_source_only": true,
+    "Ycal_used_for_head_adapt": true,
+    "Yquery_used_for_selection": false,
+    "Xquery_used_for_selection": false,
+    "Yquery_used_for_outcome": true
+  }
+}
