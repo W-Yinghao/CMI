@@ -870,8 +870,13 @@
     }
   ],
   "routing": {
-    "verdict": "P-A_PARTIAL_PRIOR_VALUE_NOT_FULLY_REPLICATED",
-    "next": "dU_center>0 few-shot on some but not all required datasets -> source-prior value is real but not uniformly replicated; report per-dataset, hold P-A"
+    "verdict": "P-A_PARTIAL_DEV_ONLY_ADAPT_VS_FROZEN_NOT_PRIOR_CENTER_NO_EXTERNAL_REPLICATION",
+    "dev_adapt": [
+      "BNCI2014_001",
+      "BNCI2015_001"
+    ],
+    "gate_safe": true,
+    "next": "the GENUINE effect is dU_MAP_frozen (source-anchored MAP + target labels beats DEPLOYING the frozen head), real and GROWING with data but DEV-ONLY (+0.11-0.13 @Full); the preregistered dU_center (vs the fair ridge) is CONFOUNDED with target-data scarcity (reverses at Full on dev, survives externally only in the NO-HEADROOM regime where H2 collapses onto frozen); does NOT externally replicate; gate safe but near-vacuous externally; report the SCOPED dev claim, drop 'prior-center'/'external replication'"
   },
   "n_cells": 252,
   "skipped": {},

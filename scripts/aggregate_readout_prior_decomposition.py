@@ -46,34 +46,38 @@ def _route(stats, lockbox_available):
     if any(stats[ds]["init_bad"] for ds in stats):
         return dict(verdict="P-C_OPTIMIZATION_PATH_ARTIFACT",
                     next="H1 != H1-W at the parameter level (init-variant) -> the anchoring comparison is a solver artifact; fix the optimiser before any prior claim")
-    center_dev = all(stats[ds]["k_center"] in FEW for ds in DEV if ds in stats)
-    center_ext = [ds for ds in EXT if ds in stats and stats[ds]["k_center"] in FEW]
-    harm = any(stats[ds]["harm_vs_frozen"] for ds in stats)
     specific = [ds for ds in stats if stats[ds]["specific_any"]]
-    gate_safe = all(stats[ds]["gate_no_harm"] for ds in stats)
-    gate_pos = any(stats[ds]["gate_pos"] for ds in stats)
-    center_any = any(stats[ds]["k_center"] is not None for ds in stats)
-    full_only = all((stats[ds]["k_util"] == "Full") for ds in DEV if ds in stats) and not any(stats[ds]["k_util"] in FEW for ds in stats)
-    # P-F note (subspace specificity) is reported alongside; it does not gate the readout routing.
+    gate_safe = all(stats[ds]["gate_no_harm"] for ds in stats); gate_pos = any(stats[ds]["gate_pos"] for ds in stats)
+    # DISCRIMINATING tests (verifier): a CLEAN prior-center needs to beat the FAIR ridge at FULL where headroom exists;
+    # the GENUINE adaptation effect is dU_MAP_frozen (H2 vs frozen); external replication needs real few-shot adaptation
+    # (H2 does NOT collapse onto frozen).
+    prior_center = [ds for ds in stats if stats[ds]["prior_center_full"]]                 # beats fair ridge at Full WITH headroom
+    dev_map = [ds for ds in DEV if ds in stats and stats[ds]["map_full_pos"]]             # genuine adapt-vs-frozen on dev
+    ext_map = [ds for ds in EXT if ds in stats and stats[ds]["map_fewshot_pos"]]          # external real adaptation (not collapse)
     if len(specific) >= 2:
         return dict(verdict="P_SUBSPACE_SPECIFIC_UNEXPECTED", datasets=specific,
                     next="dGh_specific LCB>0 on >=2 datasets under high-powered control -> UNEXPECTED, re-examine B_cond causal hypothesis (contra parked status)")
-    if center_dev and center_ext and not harm:
-        lock = "LOCKBOX_CONFIRMED" if lockbox_available else "LOCKBOX_PENDING (no natural-session held-out dataset available; strict P-A needs owner decision)"
-        return dict(verdict="P-A_SOURCE_HEAD_PRIOR_IMPROVES_LABEL_EFFICIENCY_provisional", confirm_ext=center_ext, lockbox=lock,
-                    next=f"H2 (source-centered MAP) beats the FAIR hardened ridge H1 at few labels on dev + external {center_ext}, no harm, gate-safe -> source head IS a valuable prior center; {lock}; if gate keeps positive utility this is deployable")
-    if center_any and not (center_dev and center_ext):
-        return dict(verdict="P-A_PARTIAL_PRIOR_VALUE_NOT_FULLY_REPLICATED",
-                    next="dU_center>0 few-shot on some but not all required datasets -> source-prior value is real but not uniformly replicated; report per-dataset, hold P-A")
-    if not center_any and any(stats[ds]["k_util"] is not None for ds in stats):
+    # P-A: a clean prior-center (beats fair ridge at Full WITH headroom) that ALSO externally replicates (real adaptation)
+    if prior_center and ext_map:
+        lock = "LOCKBOX_CONFIRMED" if lockbox_available else "LOCKBOX_PENDING"
+        return dict(verdict="P-A_SOURCE_HEAD_PRIOR_IMPROVES_LABEL_EFFICIENCY", prior_center_datasets=prior_center, ext_map=ext_map, lockbox=lock,
+                    next=f"H2 beats the fair ridge at FULL with headroom on {prior_center} AND adapts externally {ext_map} -> genuine prior center; {lock}")
+    # HONEST PARTIAL (verifier): dev adapt-vs-frozen is real & grows with data, but dU_center (vs the fair ridge) is
+    # CONFOUNDED with data scarcity (reverses at Full where headroom exists), and it does NOT externally replicate
+    # (externally H2 collapses onto frozen -> few-shot dU_MAP_frozen ~0).
+    if dev_map and not prior_center and not ext_map:
+        return dict(verdict="P-A_PARTIAL_DEV_ONLY_ADAPT_VS_FROZEN_NOT_PRIOR_CENTER_NO_EXTERNAL_REPLICATION",
+                    dev_adapt=dev_map, gate_safe=bool(gate_safe),
+                    next="the GENUINE effect is dU_MAP_frozen (source-anchored MAP + target labels beats DEPLOYING the frozen head), real and GROWING with data but DEV-ONLY (+0.11-0.13 @Full); the preregistered dU_center (vs the fair ridge) is CONFOUNDED with target-data scarcity (reverses at Full on dev, survives externally only in the NO-HEADROOM regime where H2 collapses onto frozen); does NOT externally replicate; gate safe but near-vacuous externally; report the SCOPED dev claim, drop 'prior-center'/'external replication'")
+    if dev_map and not prior_center:
         return dict(verdict="P-B_GENERIC_REGULARIZED_TARGET_READOUT",
-                    next="H1 ~= H2 (source center adds nothing over a fair ridge) but both beat frozen -> the gain is generic regularization, NOT source anchoring")
-    if gate_safe and gate_pos and not center_any:
+                    next="H2 beats frozen (dev) but the source-CENTER adds nothing over a fair ridge at Full -> generic regularized readout, not prior-center value")
+    if gate_safe and gate_pos and not dev_map:
         return dict(verdict="P-D_SAFE_ABSTENTION_POLICY",
-                    next="the source-only gate avoids harm and keeps some positive utility, but no few-shot prior value -> deploy-safe abstention policy, not a performance method")
-    if full_only:
+                    next="source-only gate avoids harm + keeps some utility, but no clean prior value -> deploy-safe abstention, not a performance method")
+    if all((stats[ds]["k_util"] == "Full") for ds in DEV if ds in stats):
         return dict(verdict="P-E_READOUT_ADAPTATION_REQUIRES_DENSE_CALIBRATION",
-                    next="only Full calibration is positive -> next question is lowering supervision need, not subspace surgery")
+                    next="only Full calibration positive -> lower supervision need, not subspace surgery")
     return dict(verdict="READOUT_PRIOR_NULL_OR_INCONCLUSIVE", next="no robust prior-value or utility; inspect heterogeneity")
 
 
@@ -122,8 +126,18 @@ def main():
         gate_no_harm = all(ci["dU_gate_frozen"][k]["lo"] > -0.005 for k in BUDGETS)     # gate never significantly hurts
         gate_pos = any(ci["dU_gate_frozen"][k]["lo"] > 0 for k in BUDGETS)
         spec_any = any(_subj_ci(spec[a2][k][ds])["lo"] > 0 for a2 in ("ridge", "map") for k in SPEC_BUDGETS if spec[a2][k][ds])
+        # DISCRIMINATING (verifier decomposition dU_center = dU_MAP_frozen + (U_H0-U_H1)): a genuine prior-CENTER value
+        # must beat the FAIR ridge at FULL (where H1 is well-estimated, not scarcity-crippled) AND with headroom present
+        # (else it is a no-headroom 'source head >> unbeatable-target' artifact). The genuine ADAPTATION effect is
+        # dU_MAP_frozen (H2 vs deploying the frozen head); externally H2 collapses onto frozen (taus maxed) -> ~0.
+        headroom_gain = float(np.mean(hr[ds].get("fullcal_gain", [0.0])))
+        center_full_lcb = ci["dU_center"]["Full"]["lo"]
+        prior_center_full = center_full_lcb > 0 and headroom_gain > 0.005        # clean prior center in the discriminating regime
+        map_full_lcb = ci["dU_MAP_frozen"]["Full"]["lo"]; map_fewshot_lcb = min(ci["dU_MAP_frozen"][k]["lo"] for k in FEW)
         stats[ds] = dict(k_center=k_center, k_util=k_util, init_bad=init_mean > INIT_TOL, harm_vs_frozen=harm_vs_frozen,
-                         gate_no_harm=gate_no_harm, gate_pos=gate_pos, specific_any=spec_any)
+                         gate_no_harm=gate_no_harm, gate_pos=gate_pos, specific_any=spec_any,
+                         prior_center_full=prior_center_full, headroom_gain=headroom_gain,
+                         map_full_pos=map_full_lcb > 0, map_fewshot_pos=map_fewshot_lcb > 0)
         per_ds.append(dict(dataset=ds, role=("dev" if ds in DEV else "external"), n_subjects=ci["dU_center"]["Full"]["n"],
                            kstar_center=k_center, kstar_util=k_util, init_param_diff_mean=init_mean,
                            gate_no_harm=gate_no_harm, gate_pos=gate_pos, subspace_specific=spec_any, n_matched_random=(float(np.mean(nmatch[ds])) if nmatch[ds] else 0),

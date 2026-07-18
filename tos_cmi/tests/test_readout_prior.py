@@ -66,18 +66,20 @@ def test_source_prior_beats_fair_ridge_at_low_k():
 
 def test_aggregator_routing():
     sys.path.insert(0, str(__import__("pathlib").Path(__file__).resolve().parents[2]))
-    from scripts.aggregate_readout_prior_decomposition import _route, FEW
-    def st(kc=None, ku=None, initbad=False, harm=False, gnoharm=True, gpos=False, spec=False):
-        return dict(k_center=kc, k_util=ku, init_bad=initbad, harm_vs_frozen=harm, gate_no_harm=gnoharm, gate_pos=gpos, specific_any=spec)
-    ALL = ["BNCI2014_001", "BNCI2015_001", "Lee2019_MI", "BNCI2014_004"]
+    from scripts.aggregate_readout_prior_decomposition import _route
+    def st(initbad=False, gnoharm=True, gpos=False, spec=False, pcf=False, hg=0.0, mfull=False, mfew=False, ku=None):
+        return dict(k_center=None, k_util=ku, init_bad=initbad, harm_vs_frozen=False, gate_no_harm=gnoharm, gate_pos=gpos,
+                    specific_any=spec, prior_center_full=pcf, headroom_gain=hg, map_full_pos=mfull, map_fewshot_pos=mfew)
+    DEV = ["BNCI2014_001", "BNCI2015_001"]; EXT = ["Lee2019_MI", "BNCI2014_004"]; ALL = DEV + EXT
     # P-C: init not invariant
     assert _route({d: st(initbad=(d == "Lee2019_MI")) for d in ALL}, False)["verdict"].startswith("P-C")
-    # P-A provisional: dU_center few-shot on dev + external, no harm, lockbox pending
-    pa = {"BNCI2014_001": st("2", "4"), "BNCI2015_001": st("4", "4"), "Lee2019_MI": st("2", "8"), "BNCI2014_004": st(None, None)}
-    v = _route(pa, False); assert v["verdict"].startswith("P-A") and "PENDING" in v["lockbox"]
-    # P-B: no center value but utility exists (H1~=H2)
-    pb = {d: st(None, "4") for d in ALL}
-    assert _route(pb, False)["verdict"].startswith("P-B")
-    # P-D: gate safe + positive, no center
-    pd = {d: st(None, None, gnoharm=True, gpos=True) for d in ALL}
+    # P-A: clean prior center (beats fair ridge @Full WITH headroom) on a dev set AND external adaptation replicates
+    pa = {"BNCI2014_001": st(pcf=True, hg=0.05, mfull=True), "BNCI2015_001": st(mfull=True),
+          "Lee2019_MI": st(mfew=True, mfull=True), "BNCI2014_004": st()}
+    assert _route(pa, False)["verdict"].startswith("P-A_SOURCE_HEAD_PRIOR")
+    # HONEST PARTIAL (the actual result): dev adapt-vs-frozen real, NO prior_center_full anywhere, NO external adaptation
+    partial = {"BNCI2014_001": st(mfull=True), "BNCI2015_001": st(mfull=True), "Lee2019_MI": st(), "BNCI2014_004": st()}
+    assert _route(partial, False)["verdict"].startswith("P-A_PARTIAL_DEV_ONLY")
+    # P-D: gate safe + positive, no dev adaptation
+    pd = {d: st(gnoharm=True, gpos=True) for d in ALL}
     assert _route(pd, False)["verdict"].startswith("P-D")
