@@ -20,7 +20,7 @@ def _route(per_ds):
     a4_low = all(v < 0.5 for v in med_A4.values())
     a16_gain = all(per_ds[ds]["median_A_16"] - per_ds[ds]["median_A_4"] > 0.25 for ds in per_ds)
     dw_ratio_ok = all(per_ds[ds]["median_dw_full"] >= 2.0 * max(per_ds[ds]["median_dw_k4"], 1e-9) for ds in per_ds)
-    robust = all(per_ds[ds]["A_4_frac_below_0.5"] >= 0.5 for ds in per_ds)   # not driven by 1-2 subjects
+    robust = all(per_ds[ds]["A_4_frac_below_half"] >= 0.5 for ds in per_ds)   # not driven by 1-2 subjects
     if a4_low and a16_gain and dw_ratio_ok and robust:
         return dict(verdict="EPISODIC_MCC_ESTIMATOR_VARIANCE_LIMITED",
                     next="approve ONE source-only EMA / memory-bank prototype MCC round, then a full A/B/C GPU matrix to test DG")
@@ -59,7 +59,7 @@ def main():
                           median_dw_full=float(np.median([r["dw_full"] for r in R])), median_dw_k4=float(np.median([r["dw_k4"] for r in R])),
                           median_true_vs_shuffle_cos=float(np.median([r["true_vs_shuffle_cos"] for r in R])),
                           median_full_grad_norm=float(np.median([r["full_grad_norm"] for r in R])),
-                          A_4_frac_below_0.5=float(np.mean(A4 < 0.5)))
+                          A_4_frac_below_half=float(np.mean(A4 < 0.5)))
     route = _route(per_ds)
     json.dump(dict(per_dataset=per_ds, routing=route, n_cells=len(rows),
                    discipline="frozen diagnostic: estimator quality ONLY, not geometry->DG; no training committed; manuscript FROZEN"),
@@ -68,7 +68,7 @@ def main():
     for ds, v in per_ds.items():
         print(f"  {ds}: median A_4={v['median_A_4']:+.3f} A_16={v['median_A_16']:+.3f} (gain {v['median_A_16']-v['median_A_4']:+.3f}) "
               f"SNR_4={v['median_SNR_4']:.2f} SNR_16={v['median_SNR_16']:.2f} dw_full/k4={v['median_dw_full']:+.4f}/{v['median_dw_k4']:+.4f} "
-              f"frac(A4<0.5)={v['A_4_frac_below_0.5']:.2f} trueVSshuf_cos={v['median_true_vs_shuffle_cos']:+.3f}")
+              f"frac(A4<0.5)={v['A_4_frac_below_half']:.2f} trueVSshuf_cos={v['median_true_vs_shuffle_cos']:+.3f}")
     print(f"  -> {route['verdict']} : next = {route['next']}")
 
 
