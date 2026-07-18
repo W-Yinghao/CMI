@@ -37,13 +37,35 @@
         "mean": 0.005851337448559671,
         "lcb": 0.00045010288065846387,
         "ucb": 0.01041666666666665,
-        "note": "TARGET-EPOCH ORACLE UPPER BOUND (non-deployable)"
+        "note": "max over e>=5 = SELECTION-INFLATED upper bound, non-deployable"
       },
       "ORACLE_UB_D_E_maxE": {
         "mean": 0.00688014403292184,
         "lcb": 0.002572016460905378,
         "ucb": 0.011123971193415672,
-        "note": "TARGET-EPOCH ORACLE UPPER BOUND (non-deployable)"
+        "note": "max over e>=5 = SELECTION-INFLATED upper bound, non-deployable"
+      },
+      "LEVEL_B_C_meanE": {
+        "mean": -0.0007555298353909458,
+        "lcb": -0.005674511316872419,
+        "ucb": 0.0032150205761316835,
+        "note": "UNBIASED late-epoch level (mean over e>=5) = routing basis"
+      },
+      "LEVEL_D_E_meanE": {
+        "mean": -0.001093106995884761,
+        "lcb": -0.005658436213991763,
+        "ucb": 0.003070344650205768,
+        "note": "UNBIASED late-epoch level (mean over e>=5) = routing basis"
+      },
+      "NET_vs_matched_null_B_C": {
+        "mean": -0.002443415637860083,
+        "lcb": -0.008294753086419726,
+        "note": "informed maxE - control-vs-control(C-E) maxE, paired"
+      },
+      "NET_vs_matched_null_D_E": {
+        "mean": -0.0014146090534979134,
+        "lcb": -0.0056584362139917325,
+        "note": "informed maxE - control-vs-control(C-E) maxE, paired"
       },
       "target_trajectory": {
         "A_erm_continue": {
@@ -130,13 +152,35 @@
         "mean": 0.0054629629629629655,
         "lcb": 0.0018055555555555414,
         "ucb": 0.0091898148148148,
-        "note": "TARGET-EPOCH ORACLE UPPER BOUND (non-deployable)"
+        "note": "max over e>=5 = SELECTION-INFLATED upper bound, non-deployable"
       },
       "ORACLE_UB_D_E_maxE": {
         "mean": 0.007037037037037042,
         "lcb": 0.0014351851851851904,
         "ucb": 0.01393518518518517,
-        "note": "TARGET-EPOCH ORACLE UPPER BOUND (non-deployable)"
+        "note": "max over e>=5 = SELECTION-INFLATED upper bound, non-deployable"
+      },
+      "LEVEL_B_C_meanE": {
+        "mean": -0.0032407407407407415,
+        "lcb": -0.006846064814814809,
+        "ucb": 0.0005729166666666597,
+        "note": "UNBIASED late-epoch level (mean over e>=5) = routing basis"
+      },
+      "LEVEL_D_E_meanE": {
+        "mean": -0.002812499999999999,
+        "lcb": -0.008269820601851866,
+        "ucb": 0.0032061631944444485,
+        "note": "UNBIASED late-epoch level (mean over e>=5) = routing basis"
+      },
+      "NET_vs_matched_null_B_C": {
+        "mean": -0.005046296296296293,
+        "lcb": -0.01467650462962964,
+        "note": "informed maxE - control-vs-control(C-E) maxE, paired"
+      },
+      "NET_vs_matched_null_D_E": {
+        "mean": -0.003472222222222217,
+        "lcb": -0.013449652777777779,
+        "note": "informed maxE - control-vs-control(C-E) maxE, paired"
       },
       "target_trajectory": {
         "A_erm_continue": {
@@ -188,8 +232,8 @@
     }
   ],
   "routing": {
-    "verdict": "FS-B_EPOCH_SPECIFIC_ORACLE_ONLY",
-    "next": "epoch-20 is null on both datasets, but the max_{e>=5} TARGET-EPOCH ORACLE upper bound (non-deployable) is positive on >=1 dataset -> a transient epoch-specific effect visible ONLY with target-label epoch selection; does NOT support a method and does NOT overturn the deployable negative; carry to the ladder as an epoch-selection information question"
+    "verdict": "FS-C_FULL_STRENGTH_CROSS_SESSION_OBJECTIVE_DG_NULL",
+    "next": "epoch-20 null on both datasets AND the late-epoch LEVEL is null/negative AND the raw max_{e>=5} oracle-UB does not beat its matched max-selection null (it is pure selection inflation) -> ramp/early-stopping is not the missing explanation; the full-strength cross-session objective is DG-null and anti-specific; the information-regime ladder drives the next question"
   },
   "n_bundles": 63,
   "incomplete_bundles": 0,
