@@ -91,6 +91,9 @@ def test_aggregator_routing():
         d = {reg: {"dU": ci(*dus[reg]), "spec": ci(*specs[reg])} for reg in IL.REGIMES}
         d["_headcase"] = headcase; d["_rf_lcb"] = dus["RF"][0]; return d
     null = {r: (-0.01, 0.01) for r in IL.REGIMES}
+    # IL-R0: source-only positive on both datasets (unexpected) takes precedence
+    r0 = {**null, "R0": (0.01, 0.03)}
+    assert _route({"BNCI2014_001": ds(r0, null), "BNCI2015_001": ds(r0, null)})["verdict"].startswith("IL-R0")
     # IL-A: R2 dU and spec both LCB>0 on both datasets
     a = {**null, "R2": (0.01, 0.03), "R4": (0.01, 0.03), "RF": (0.01, 0.03)}
     aspec = {**null, "R2": (0.005, 0.02), "R4": (0.005, 0.02), "RF": (0.005, 0.02)}

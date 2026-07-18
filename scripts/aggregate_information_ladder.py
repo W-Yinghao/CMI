@@ -32,8 +32,8 @@ def _subj_ci(per_subj):
 
 def _route(ds_stats):
     """ds_stats[ds] = {regime: {'dU':ci,'spec':ci}, '_headcase':str, '_rf_lcb':float}. Positive claims require BOTH
-    datasets. Precedence: IL-A (few-shot subspace-specific) > IL-D (unlabeled geometry) > IL-E (full-cal only) >
-    IL-B (generic low-rank) > IL-C (head-only) > null."""
+    datasets. Precedence: IL-R0 (source-only, unexpected) > IL-A (few-shot subspace-specific) > IL-D (unlabeled
+    geometry) > IL-B (few-shot generic low-rank) > IL-E (full-cal only) > IL-C (head-only) > null."""
     dsl = list(ds_stats)
     both = len(dsl) >= 2
     def lcb(ds, reg, key): return ds_stats[ds][reg][key]["lo"]
@@ -47,10 +47,15 @@ def _route(ds_stats):
             if both and all(lcb(ds, reg, "dU") > 0 for ds in dsl):
                 return reg
         return None
+    r0_pos = both and all(lcb(ds, "R0", "dU") > 0 for ds in dsl)
     rx_only = both and all(lcb(ds, "RX", "dU") > 0 for ds in dsl) and all(lcb(ds, "R0", "dU") <= 0 for ds in dsl)
     rf_only = both and all(lcb(ds, "RF", "dU") > 0 for ds in dsl) and not any_few_gain()
     head_pos = both and all(ds_stats[ds].get("_headcase") in ("B_head_only", "C_both") for ds in dsl)
 
+    if r0_pos:
+        spec = both and all(lcb(ds, "R0", "spec") > 0 for ds in dsl)
+        return dict(verdict="IL-R0_SOURCE_ONLY_SELECTS" + ("_SUBSPACE_SPECIFIC" if spec else "_GENERIC"),
+                    next="UNEXPECTED given the whole line: source-only (no target info) selects a query-helpful action on BOTH datasets" + (" AND beats matched-random" if spec else " but NOT beyond matched-random (generic)") + " -> re-examine the source-meta gauge; confirm on a 3rd dataset before any claim (contradicts prior source-unobservable results)")
     reg = any_few_specific()
     if reg:
         return dict(verdict="IL-A_FEWSHOT_LABELS_RESOLVE_IDENTIFIABILITY_SUBSPACE_SPECIFIC",

@@ -55,30 +55,31 @@ def run_cell(ds, path, n_random=10, n_draws=20, seed=0, smoke=False):
                       for i in range(nd)] for k in IL.KSHOT.values()}
 
     def ladder(Bd):
+        """-> (dU per regime, selection per regime, recs). selection[reg] = single S (R0/RX/RF) or per-draw list (k-shot)."""
         rp, _ = IL.precompute_actions(Zs_w, ys, dsc, Bd, Xcal_w, ycal, Xq_w, yq, sq, d_white)
-        o = {}
+        o, sels = {}, {}
         for reg in IL.REGIMES:
-            if reg in IL.KSHOT:
-                dU, _ = IL.select_and_utility(rp, reg, Xcal_w, ycal, classes, draws=draws_by_k[IL.KSHOT[reg]])
-            else:
-                dU, _ = IL.select_and_utility(rp, reg, Xcal_w, ycal, classes)
-            o[reg] = float(dU)
-        ces = [IL._ce(rr["head"], rr["U"], Xcal_w, ycal, classes) for rr in rp]
-        o["_rf_U"] = rp[int(np.argmin(ces))]["U"]
-        return o
+            dd = draws_by_k[IL.KSHOT[reg]] if reg in IL.KSHOT else None
+            dU, sel = IL.select_and_utility(rp, reg, Xcal_w, ycal, classes, draws=dd)
+            o[reg] = float(dU); sels[reg] = sel
+        return o, sels, rp
 
-    informed = ladder(B)
+    informed, sels_inf, rp_inf = ladder(B)
     nr = 3 if smoke else n_random
     rand_dicts = build_ambient_random_dictionaries(D, r, nr, cell_seed(ds, "EEGNet", subj, sd, "ambient"))
-    rand_ladders = [ladder(Q) for Q in rand_dicts]
-    rand_mean = {reg: float(np.mean([rl[reg] for rl in rand_ladders])) for reg in IL.REGIMES}
+    rand_mean = {reg: float(np.mean([ladder(Q)[0][reg] for Q in rand_dicts])) for reg in IL.REGIMES}
 
-    # head-only calibration secondary (native vs selected-subspace) using the RF-selected informed action
-    U_star = informed["_rf_U"]
+    # head-only calibration secondary: for EACH regime use THAT regime's OWN selected informed subspace (averaged over
+    # the >=20 draws for k-shot regimes; single selection for RF) so head_only[reg] characterizes regime k, not RF.
+    U_by_S = {tuple(rr["S"]): rr["U"] for rr in rp_inf}
     head_only = {}
     for reg, k in [("R1", 1), ("R2", 2), ("R4", 4), ("RF", None)]:
-        di = draws_by_k[k][0] if k is not None else None
-        head_only[reg] = IL.head_only_calibration(U_star, Zs_w, ys, Xcal_w, ycal, Xq_w, yq, sq, di)
+        if k is None:
+            head_only["RF"] = IL.head_only_calibration(U_by_S[tuple(sels_inf["RF"])], Zs_w, ys, Xcal_w, ycal, Xq_w, yq, sq, None)
+        else:
+            accs = [IL.head_only_calibration(U_by_S[tuple(S)], Zs_w, ys, Xcal_w, ycal, Xq_w, yq, sq, draws_by_k[k][i])
+                    for i, S in enumerate(sels_inf[reg])]
+            head_only[reg] = {key: float(np.mean([a[key] for a in accs])) for key in ("source_identity", "native", "selected")}
 
     # crossfit target-oracle ceiling (hindsight; selects on disjoint query labels) on the informed dictionary
     try:
