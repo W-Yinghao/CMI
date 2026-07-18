@@ -22,7 +22,7 @@ from tos_cmi.train import cross_session_objective as CS
 ARMS = ["A_erm_continue", "B_cs_rw_mcc", "C_cs_rw_perm", "D_cs_risk", "E_cs_risk_perm"]
 
 
-def _continue(warm_sd, Xtr, ytr, dtr, sess_tr, n_cls, X_shape, arm, W, Wp, v, vp, device, cont_epochs, lr, K, lam, ramp, seed):
+def _continue(warm_sd, Xtr, ytr, dtr, is_late_full, n_cls, X_shape, arm, W, Wp, v, vp, device, cont_epochs, lr, K, lam, ramp, seed):
     bb = build_backbone("EEGNet", X_shape[1], X_shape[2], n_cls, device=device); bb.load_state_dict(copy.deepcopy(warm_sd))
     params = list(bb.parameters()); assert sum(p.numel() for p in params if p.requires_grad) == sum(p.numel() for p in params)
     tr_idx, va_idx = _source_val_split(dtr, ytr, seed=seed)
@@ -44,9 +44,9 @@ def _continue(warm_sd, Xtr, ytr, dtr, sess_tr, n_cls, X_shape, arm, W, Wp, v, vp
             elif arm == "C_cs_rw_perm":
                 aux, _ = rw_mcc_loss(z, yb, db, Wp); loss = ce + lam_t * aux; aux_v = float(aux.detach())
             elif arm == "D_cs_risk":
-                aux = CS.direct_risk_loss(logits, ytr[gi], dtr[gi], sess_tr[gi], v, device); loss = ce + lam_t * aux; aux_v = float(aux.detach())
+                aux = CS.direct_risk_loss(logits, ytr[gi], dtr[gi], is_late_full[gi], v, device); loss = ce + lam_t * aux; aux_v = float(aux.detach())
             else:  # E_cs_risk_perm
-                aux = CS.direct_risk_loss(logits, ytr[gi], dtr[gi], sess_tr[gi], vp, device); loss = ce + lam_t * aux; aux_v = float(aux.detach())
+                aux = CS.direct_risk_loss(logits, ytr[gi], dtr[gi], is_late_full[gi], vp, device); loss = ce + lam_t * aux; aux_v = float(aux.detach())
             opt.zero_grad(); loss.backward(); opt.step()
             diag["aux"].append(aux_v); diag["ce"].append(float(ce.detach()))
         val = _bacc(bb, Xtr[va_idx], ytr[va_idx], device)
@@ -84,6 +84,7 @@ def main():
     warm_sd = copy.deepcopy(bb.state_dict())
     tr_idx, _ = _source_val_split(dtr, ytr, seed=seed)
     sess_full = np.asarray(meta_arr["session_source"])
+    is_late_full = np.isin(sess_full, list(CS._early_late(sess_full)[1]))  # global bool mask (later-session trials)
     Zs = _forward_dump(bb, Xtr[tr_idx], a.device)[1]
     csw = CS.cross_session_risk_weights(Zs, ytr[tr_idx], dtr[tr_idx], sess_full[tr_idx])
     subs, pairs, W = csw["subs"], csw["pairs"], csw["weights"]; Wp = permute_weights(W, subs, pairs, seed=seed)
@@ -105,7 +106,7 @@ def main():
                     effective_weight_support=csw["effective_weight_support"], mean_source_late_risk=float(np.mean(list(csw["r"].values()))),
                     gradient_alignment_diagnostic=align, arms={})
     for arm in ARMS:
-        b2, diag = _continue(warm_sd, Xtr, ytr, dtr, sess_full, n_cls, X_shape, arm, W, Wp, v, vp, a.device,
+        b2, diag = _continue(warm_sd, Xtr, ytr, dtr, is_late_full, n_cls, X_shape, arm, W, Wp, v, vp, a.device,
                              a.cont_epochs, a.cont_lr, a.K, a.lam, a.ramp, seed)
         p = _dump_arm(b2, arm, ds, subj, seed, meta_arr, Xtr, ytr, Xte, yte, classes, a.device, warm_hash, a.lam, diag, a.out_dir)
         tgt = _bacc(b2, Xte, yte, a.device)

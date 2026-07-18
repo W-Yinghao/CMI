@@ -81,6 +81,26 @@ def test_early_late_ordering():
     assert e2 == "0A" and l2 == {"1B", "2C"}
 
 
+def test_direct_risk_loss_late_only_and_bool_guard():
+    """CS-Risk training term must (a) reject raw session STRINGS (the bug: every non-empty string is truthy ->
+    all trials treated as late), and (b) with a proper bool mask, ignore early-session trials entirely."""
+    torch.manual_seed(0)
+    logits = torch.randn(6, 4, requires_grad=True)
+    y = np.array([0, 1, 2, 0, 1, 2]); d = np.array([0, 0, 0, 1, 1, 1])
+    v = {(0, 0): 1.0, (0, 1): 1.0, (0, 2): 1.0, (1, 0): 1.0, (1, 1): 1.0, (1, 2): 1.0}
+    # (a) raw strings must fail loud, not silently treat all-as-late
+    with pytest.raises(AssertionError):
+        CS.direct_risk_loss(logits, y, d, np.array(["0early", "1late", "0early", "1late", "0early", "1late"]), v, "cpu")
+    # (b) bool mask: loss depends ONLY on the late-flagged trials
+    late = np.array([False, False, False, True, True, True])
+    L_all_late = CS.direct_risk_loss(logits, y, d, np.ones(6, bool), v, "cpu")
+    L_late = CS.direct_risk_loss(logits, y, d, late, v, "cpu")
+    # perturb an EARLY trial's target weight -> late-only loss unchanged; all-late loss changes
+    v2 = dict(v); v2[(0, 0)] = 9.0
+    assert abs(float(CS.direct_risk_loss(logits, y, d, late, v2, "cpu")) - float(L_late)) < 1e-9
+    assert abs(float(CS.direct_risk_loss(logits, y, d, np.ones(6, bool), v2, "cpu")) - float(L_all_late)) > 1e-6
+
+
 def test_missing_session_class_fails_loud():
     X, y, d, sess = _src()
     keep = ~((d == 0) & (sess == "1late") & (y == 3))              # drop subject 0 late class 3

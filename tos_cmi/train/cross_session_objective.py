@@ -175,6 +175,7 @@ def direct_risk_loss(logits, y, d, is_late, v, device, eps=1e-6):
     """CS-Risk TRAINING term: L = (Sum_{late i} v_{d(i),y(i)} CE_i) / (Sum v + eps) -- weighted later-session
     predictive risk (upweights drift-prone late-session cells). NO cosine geometry. is_late = per-batch-trial bool."""
     y = np.asarray(y).astype(int); d = np.asarray(d).astype(int); late = np.asarray(is_late)
+    assert late.dtype == np.bool_, f"is_late must be a bool mask, got {late.dtype} (pass np.isin(sess, later), NOT raw session strings)"
     ce = F.cross_entropy(logits, torch.tensor(y, dtype=torch.long, device=device), reduction="none")
     w = torch.tensor([v.get((int(d[i]), int(y[i])), 0.0) if late[i] else 0.0 for i in range(len(y))],
                      dtype=logits.dtype, device=device)
