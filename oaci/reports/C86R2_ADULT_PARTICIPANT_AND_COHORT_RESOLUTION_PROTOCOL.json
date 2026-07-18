@@ -1,0 +1,177 @@
+{
+  "schema_version": "c86r2_adult_participant_and_cohort_resolution_protocol_v1",
+  "protocol_id": "C86R2_ADULT_PARTICIPANT_INTERFACE_UNTOUCHED_COHORT_RESOLUTION",
+  "created_at_utc": "2026-07-18T00:39:52Z",
+  "chronology": {
+    "entry_head": "1412067610f3133a5307239307c1f569c337548a",
+    "entry_head_equals_origin_oaci": true,
+    "protocol_committed_before_additional_participant_metadata_inspection": true,
+    "protocol_committed_before_catalog_expansion": true,
+    "aggregate_C86R_outcomes_known": true,
+    "repair_outcome_informed": false,
+    "performance_outcomes_used": false
+  },
+  "preserved_identities": {
+    "C86R_protocol_commit": "1ec508e64655edd71f278a0696c4c8d757700e29",
+    "C86R_protocol_sha256": "d3550350e2e4f9ff300d03a03f9353fcef09d324b69af21608f5a6f6b45741d3",
+    "C86R_implementation_commit": "ffe1fa01b6e9395c5fde0f120d348897a270898e",
+    "C86_effective_program_manifest_V2_sha256": "c19ca4090b64dec3cc98971e44cbf09f7a1367e4a754535529d972b691c7ca65",
+    "C86_synthetic_operationalization_V2_sha256": "3413f8f13d7e11657823120b386acd7659f291d927617aa97d141b3981147862",
+    "C84_C85_science_and_theorem_statuses_immutable": true
+  },
+  "historical_roles_preserved": {
+    "Brandl2020": "PRIMARY_UNTOUCHED_COHORT",
+    "Kumar2024": "AGE_UNCERTAIN_STRESS_TRACK_ONLY",
+    "Yang2025_2C": "AGE_MIXED_STRESS_TRACK_ONLY",
+    "Dreyer2023": "DEVELOPMENT_ONLY_HISTORICAL_ACCESS",
+    "retroactive_rewrite_allowed": false
+  },
+  "protected_counters_before_protocol": {
+    "new_EEG_downloaded_or_opened": 0,
+    "new_target_labels_opened": 0,
+    "candidate_outputs_opened": 0,
+    "active_acquisition_executed": 0,
+    "new_candidate_training_or_forward": 0,
+    "registered_C86_synthetic_results": 0,
+    "GPU": 0
+  },
+  "adult_participant_rule": {
+    "age_definition": "age_at_recording_years_greater_than_or_equal_to_18",
+    "threshold_years": 18,
+    "present_day_age_allowed": false,
+    "acceptable_evidence": [
+      "subject_level_age_at_recording_mapped_to_canonical_loader_subject_ID",
+      "primary_paper_or_protocol_inclusion_criterion_proving_every_included_subject_age_at_recording_at_least_18",
+      "public_repository_participant_table_with_valid_interpretable_age_at_recording"
+    ],
+    "insufficient_evidence": [
+      "mean_plus_or_minus_standard_deviation",
+      "cohort_minimum_or_maximum_without_subject_to_interface_mapping",
+      "written_consent_language_alone",
+      "invalid_year_like_age_column",
+      "private_or_unverifiable_communication",
+      "inference_from_appearance_institution_or_recruitment_setting"
+    ],
+    "deterministic_subset": {
+      "include": "all_canonical_subjects_with_verified_age_at_recording_at_least_18",
+      "exclude": "all_age_below_18_or_unknown_age_subjects",
+      "performance_or_EEG_selection": false,
+      "loader_ID_mapping_required": true,
+      "minimum_adult_subjects": 12,
+      "subject_ID_registry_and_sha256_frozen_before_EEG_access": true
+    }
+  },
+  "cohort_specific_audits": {
+    "Yang2025_2C": {
+      "candidate_interface": "Yang2025_2C_ADULT_V1",
+      "required_objects": [
+        "canonical_2C_loader_subject_IDs",
+        "public_subject_level_age_at_recording",
+        "demographic_to_loader_ID_mapping",
+        "adult_minor_and_unknown_ID_partitions",
+        "trial_support_metadata",
+        "license_and_loader_identity"
+      ],
+      "acceptance": "exact_mapping_and_at_least_12_verified_adults",
+      "failure_role": "AGE_MIXED_STRESS_TRACK_ONLY"
+    },
+    "Kumar2024": {
+      "candidate_interface": "Kumar2024_ADULT_V1",
+      "acceptance": "all_subject_adult_inclusion_proof_or_exact_verified_adult_subset_with_at_least_12_subjects",
+      "mean_SD_sufficient": false,
+      "EEG_archive_download_for_age_inspection": false,
+      "failure_label": "KUMAR_AGE_ELIGIBILITY_NOT_PROVEN_FAIL_CLOSED"
+    }
+  },
+  "frozen_external_search_universe": {
+    "selection_frozen_before_row_inspection": true,
+    "catalogs": [
+      {
+        "catalog_id": "MOABB_INSTALLED_IMAGERY_CATALOG_C86R2",
+        "source_type": "installed_package_catalog",
+        "path": "/home/infres/yinwang/anaconda3/envs/c84c-eeg2025-v3-exact/lib/python3.13/site-packages/moabb/datasets/summary_imagery.csv",
+        "preexisting_sha256": "5d7b3abca6f56c83ce90a90d3e0c252783a24f04e237d8d09b11f3862f0ce7e4",
+        "scope": "all_rows"
+      },
+      {
+        "catalog_id": "EEGDASH_NEMAR_PUBLIC_CATALOG_C86R2",
+        "source_type": "public_catalog_snapshot",
+        "source_roots": [
+          "https://eegdash.org/",
+          "https://nemar.org/dataexplorer/"
+        ],
+        "snapshot_rule": "first_complete_post_protocol_public_catalog_response_is_saved_and_sha256_frozen_before_eligibility_screening",
+        "scope": "all_public_dataset_rows_returned_by_the_named_catalogs"
+      }
+    ],
+    "additional_catalogs": [],
+    "additional_catalog_may_be_added_after_protocol": false,
+    "native_cohort_deduplication_required": true,
+    "published_performance_inspection": false
+  },
+  "unchanged_external_eligibility_rule": {
+    "native_exact_binary_left_hand_vs_right_hand_motor_imagery": true,
+    "multiclass_class_filtering": false,
+    "healthy_participants": true,
+    "participant_level_adult_evidence": true,
+    "minimum_verified_adult_target_subjects": 12,
+    "minimum_documented_trials_per_included_subject": 80,
+    "minimum_compatible_EEG_channels": 3,
+    "minimum_usable_event_interval_seconds": 3,
+    "public_repository": true,
+    "explicit_license": true,
+    "deterministic_subject_and_loader_or_BIDS_identity": true,
+    "prior_project_target_label_or_outcome_access": false,
+    "common_field_interface_compatibility_required": true,
+    "all_passing_cohorts_included": true
+  },
+  "final_population_rule": {
+    "target_population": "adults_age_at_recording_at_least_18",
+    "all_passing_adult_interfaces_are_primary": true,
+    "minimum_primary_adult_cohorts": 2,
+    "exactly_two_cap": false,
+    "mixed_age_relaxation_allowed": false
+  },
+  "field_replay": {
+    "source_training_and_audit": "fixed_legacy_C84_source_panels_under_one_new_common_channel_zoo",
+    "untouched_subjects_are_targets_only": true,
+    "target_in_own_training": false,
+    "same_candidate_zoo_across_confirmation_cohorts": true,
+    "cohort_specific_primary_zoos": false,
+    "metadata_only": true
+  },
+  "manifest_policy": {
+    "create_success_V3_only_if_at_least_two_adult_cohorts_and_common_interface_pass": true,
+    "success_status": "EFFECTIVE_PROGRAM_RESOLVED_READY_FOR_C86LP_PROTOCOL_REVIEW",
+    "otherwise_create_distinct_blocker_manifest": true,
+    "success_looking_manifest_on_failure": false
+  },
+  "registered_gates": {
+    "success": "C86_ADULT_UNTOUCHED_MULTI_COHORT_ELIGIBILITY_RESOLVED_READY_FOR_C86LP_PROTOCOL_REVIEW",
+    "public_evidence_blocker": "C86_ADULT_AGE_METADATA_OR_SUBJECT_MAPPING_RECONCILIATION_REQUIRED",
+    "insufficient_population_blocker": "C86_ADULT_UNTOUCHED_MULTI_COHORT_INPUT_BLOCKER_PI_POPULATION_DECISION_REQUIRED",
+    "field_interface_blocker": "C86_ADULT_CONFIRMATION_COMMON_FIELD_INTERFACE_RECONCILIATION_REQUIRED"
+  },
+  "execution_boundary": {
+    "public_metadata_and_loader_source_only": true,
+    "EEG_download_or_open": false,
+    "target_label_read": false,
+    "candidate_prediction_or_utility_read": false,
+    "active_acquisition": false,
+    "registered_C86_synthetic_draw": false,
+    "training_or_forward": false,
+    "GPU": false,
+    "C86_execution_lock": false,
+    "authorization_record": false,
+    "C87": false,
+    "manuscript": false
+  },
+  "validation": {
+    "focused_C86R2": true,
+    "C65_cumulative": true,
+    "C23_cumulative": true,
+    "full_OACI": true,
+    "accepted_stderr_must_be_empty": true
+  },
+  "status": "PROTOCOL_LOCKED_BEFORE_ADDITIONAL_PUBLIC_METADATA_INSPECTION_NOT_EXECUTED"
+}
