@@ -1,0 +1,372 @@
+{
+  "dataset": "BNCI2014_001",
+  "subject": "4",
+  "seed": 2,
+  "warmup_hash": "2ec1eb62c5c21c8a",
+  "lam": 1.0,
+  "protocol": "full_strength_no_ramp_no_rollback",
+  "weight_status": "ok",
+  "effective_weight_support": 16.686918902164052,
+  "mean_source_late_risk_weight": 0.040215835642588064,
+  "save_epochs": [
+    0,
+    1,
+    2,
+    5,
+    10,
+    15,
+    20
+  ],
+  "arms": {
+    "A_erm_continue": {
+      "dump": "BNCI2014_001_sub4_seed2_A_erm_continue.npz",
+      "per_epoch": {
+        "0": {
+          "source_val_bacc": 0.7521551724137931,
+          "aux_loss": 0.0,
+          "source_late_risk": 0.7007571458816528,
+          "target_bacc": 0.3420138888888889,
+          "eff_rank": 11.65947151184082,
+          "contrast_norm": 0.3593166463077068,
+          "task_margin": 0.9775151014328003
+        },
+        "1": {
+          "source_val_bacc": 0.7543103448275863,
+          "aux_loss": 0.0,
+          "source_late_risk": 0.7020809054374695,
+          "target_bacc": 0.34375,
+          "eff_rank": 11.681307792663574,
+          "contrast_norm": 0.35731568597257135,
+          "task_margin": 0.9687995314598083
+        },
+        "2": {
+          "source_val_bacc": 0.759698275862069,
+          "aux_loss": 0.0,
+          "source_late_risk": 0.7030426859855652,
+          "target_bacc": 0.34027777777777773,
+          "eff_rank": 11.661998748779297,
+          "contrast_norm": 0.3568809150407712,
+          "task_margin": 0.9594159126281738
+        },
+        "5": {
+          "source_val_bacc": 0.7586206896551724,
+          "aux_loss": 0.0,
+          "source_late_risk": 0.7067372798919678,
+          "target_bacc": 0.3350694444444444,
+          "eff_rank": 11.660222053527832,
+          "contrast_norm": 0.35607194068531195,
+          "task_margin": 0.9485688209533691
+        },
+        "10": {
+          "source_val_bacc": 0.7435344827586208,
+          "aux_loss": 0.0,
+          "source_late_risk": 0.6963561773300171,
+          "target_bacc": 0.34722222222222227,
+          "eff_rank": 11.689465522766113,
+          "contrast_norm": 0.3541182023783525,
+          "task_margin": 0.9551653265953064
+        },
+        "15": {
+          "source_val_bacc": 0.7467672413793103,
+          "aux_loss": 0.0,
+          "source_late_risk": 0.69480961561203,
+          "target_bacc": 0.3454861111111111,
+          "eff_rank": 11.69845962524414,
+          "contrast_norm": 0.36047137329975765,
+          "task_margin": 0.9461338520050049
+        },
+        "20": {
+          "source_val_bacc": 0.7413793103448275,
+          "aux_loss": 0.0,
+          "source_late_risk": 0.6977380514144897,
+          "target_bacc": 0.3506944444444445,
+          "eff_rank": 11.7047119140625,
+          "contrast_norm": 0.3610025386015574,
+          "task_margin": 0.9488512277603149
+        }
+      },
+      "target_bacc_final": 0.3506944444444445,
+      "source_val_bacc_final": 0.7413793103448275
+    },
+    "B_cs_rw_mcc": {
+      "dump": "BNCI2014_001_sub4_seed2_B_cs_rw_mcc.npz",
+      "per_epoch": {
+        "0": {
+          "source_val_bacc": 0.7521551724137931,
+          "aux_loss": 0.0,
+          "source_late_risk": 0.7007571458816528,
+          "target_bacc": 0.3420138888888889,
+          "eff_rank": 11.65947151184082,
+          "contrast_norm": 0.3593166463077068,
+          "task_margin": 0.9775151014328003
+        },
+        "1": {
+          "source_val_bacc": 0.7575431034482758,
+          "aux_loss": 0.5130042540175574,
+          "source_late_risk": 0.7078598737716675,
+          "target_bacc": 0.3385416666666667,
+          "eff_rank": 11.630247116088867,
+          "contrast_norm": 0.3585906758904457,
+          "task_margin": 0.9663482308387756
+        },
+        "2": {
+          "source_val_bacc": 0.7553879310344827,
+          "aux_loss": 0.4747130370565823,
+          "source_late_risk": 0.7066879868507385,
+          "target_bacc": 0.3402777777777778,
+          "eff_rank": 11.592008590698242,
+          "contrast_norm": 0.35774807234605155,
+          "task_margin": 0.9529505372047424
+        },
+        "5": {
+          "source_val_bacc": 0.7521551724137931,
+          "aux_loss": 0.47496551488127026,
+          "source_late_risk": 0.7074856162071228,
+          "target_bacc": 0.3298611111111111,
+          "eff_rank": 11.543391227722168,
+          "contrast_norm": 0.3580618634819984,
+          "task_margin": 0.9448866844177246
+        },
+        "10": {
+          "source_val_bacc": 0.7370689655172413,
+          "aux_loss": 0.47702764932598385,
+          "source_late_risk": 0.7036965489387512,
+          "target_bacc": 0.3368055555555555,
+          "eff_rank": 11.529779434204102,
+          "contrast_norm": 0.3587977180878321,
+          "task_margin": 0.9414393305778503
+        },
+        "15": {
+          "source_val_bacc": 0.7424568965517242,
+          "aux_loss": 0.46199624985456467,
+          "source_late_risk": 0.7056878805160522,
+          "target_bacc": 0.33333333333333337,
+          "eff_rank": 11.435663223266602,
+          "contrast_norm": 0.3677484994133314,
+          "task_margin": 0.928420901298523
+        },
+        "20": {
+          "source_val_bacc": 0.7316810344827587,
+          "aux_loss": 0.4588171935507229,
+          "source_late_risk": 0.7077810764312744,
+          "target_bacc": 0.3142361111111111,
+          "eff_rank": 11.379206657409668,
+          "contrast_norm": 0.3718813188374043,
+          "task_margin": 0.9325937628746033
+        }
+      },
+      "target_bacc_final": 0.3142361111111111,
+      "source_val_bacc_final": 0.7316810344827587
+    },
+    "C_cs_rw_perm": {
+      "dump": "BNCI2014_001_sub4_seed2_C_cs_rw_perm.npz",
+      "per_epoch": {
+        "0": {
+          "source_val_bacc": 0.7521551724137931,
+          "aux_loss": 0.0,
+          "source_late_risk": 0.7007571458816528,
+          "target_bacc": 0.3420138888888889,
+          "eff_rank": 11.65947151184082,
+          "contrast_norm": 0.3593166463077068,
+          "task_margin": 0.9775151014328003
+        },
+        "1": {
+          "source_val_bacc": 0.7586206896551725,
+          "aux_loss": 0.4334701725414821,
+          "source_late_risk": 0.7047982215881348,
+          "target_bacc": 0.34201388888888895,
+          "eff_rank": 11.681580543518066,
+          "contrast_norm": 0.3599039055407047,
+          "task_margin": 0.9763728380203247
+        },
+        "2": {
+          "source_val_bacc": 0.7586206896551724,
+          "aux_loss": 0.4224302885787828,
+          "source_late_risk": 0.7025071382522583,
+          "target_bacc": 0.3333333333333333,
+          "eff_rank": 11.654682159423828,
+          "contrast_norm": 0.3597628171245257,
+          "task_margin": 0.9817659854888916
+        },
+        "5": {
+          "source_val_bacc": 0.7564655172413793,
+          "aux_loss": 0.4208744934626988,
+          "source_late_risk": 0.7078990936279297,
+          "target_bacc": 0.3298611111111111,
+          "eff_rank": 11.5794095993042,
+          "contrast_norm": 0.36266001760959626,
+          "task_margin": 0.9663834571838379
+        },
+        "10": {
+          "source_val_bacc": 0.7553879310344827,
+          "aux_loss": 0.4040239804557392,
+          "source_late_risk": 0.7016376256942749,
+          "target_bacc": 0.33854166666666663,
+          "eff_rank": 11.571050643920898,
+          "contrast_norm": 0.3621857397258282,
+          "task_margin": 0.9677021503448486
+        },
+        "15": {
+          "source_val_bacc": 0.7456896551724138,
+          "aux_loss": 0.39797489664384295,
+          "source_late_risk": 0.7040321230888367,
+          "target_bacc": 0.3385416666666667,
+          "eff_rank": 11.528368949890137,
+          "contrast_norm": 0.3710398900012175,
+          "task_margin": 0.9442076683044434
+        },
+        "20": {
+          "source_val_bacc": 0.7543103448275862,
+          "aux_loss": 0.39987304700272425,
+          "source_late_risk": 0.7036511301994324,
+          "target_bacc": 0.3368055555555555,
+          "eff_rank": 11.532269477844238,
+          "contrast_norm": 0.37203686585028967,
+          "task_margin": 0.9597650766372681
+        }
+      },
+      "target_bacc_final": 0.3368055555555555,
+      "source_val_bacc_final": 0.7543103448275862
+    },
+    "D_cs_risk": {
+      "dump": "BNCI2014_001_sub4_seed2_D_cs_risk.npz",
+      "per_epoch": {
+        "0": {
+          "source_val_bacc": 0.7521551724137931,
+          "aux_loss": 0.0,
+          "source_late_risk": 0.7007571458816528,
+          "target_bacc": 0.3420138888888889,
+          "eff_rank": 11.65947151184082,
+          "contrast_norm": 0.3593166463077068,
+          "task_margin": 0.9775151014328003
+        },
+        "1": {
+          "source_val_bacc": 0.75,
+          "aux_loss": 0.9182551098721368,
+          "source_late_risk": 0.7024042010307312,
+          "target_bacc": 0.3402777777777778,
+          "eff_rank": 11.67879581451416,
+          "contrast_norm": 0.3563201740384102,
+          "task_margin": 0.9535937309265137
+        },
+        "2": {
+          "source_val_bacc": 0.7467672413793104,
+          "aux_loss": 0.8937509996550423,
+          "source_late_risk": 0.7094920873641968,
+          "target_bacc": 0.34375,
+          "eff_rank": 11.684889793395996,
+          "contrast_norm": 0.35459983025987946,
+          "task_margin": 0.9258564710617065
+        },
+        "5": {
+          "source_val_bacc": 0.7359913793103448,
+          "aux_loss": 0.8723833560943604,
+          "source_late_risk": 0.7069729566574097,
+          "target_bacc": 0.3402777777777778,
+          "eff_rank": 11.697946548461914,
+          "contrast_norm": 0.3534347427388032,
+          "task_margin": 0.9404692053794861
+        },
+        "10": {
+          "source_val_bacc": 0.7241379310344828,
+          "aux_loss": 0.8483433468001229,
+          "source_late_risk": 0.7051651477813721,
+          "target_bacc": 0.3402777777777778,
+          "eff_rank": 11.715348243713379,
+          "contrast_norm": 0.352582328269879,
+          "task_margin": 0.9276069402694702
+        },
+        "15": {
+          "source_val_bacc": 0.7392241379310345,
+          "aux_loss": 0.8903960117271968,
+          "source_late_risk": 0.7034759521484375,
+          "target_bacc": 0.3315972222222222,
+          "eff_rank": 11.747886657714844,
+          "contrast_norm": 0.3550545225540797,
+          "task_margin": 0.9158689379692078
+        },
+        "20": {
+          "source_val_bacc": 0.7262931034482759,
+          "aux_loss": 0.8416403255292347,
+          "source_late_risk": 0.7001781463623047,
+          "target_bacc": 0.3368055555555556,
+          "eff_rank": 11.744282722473145,
+          "contrast_norm": 0.3602368580798308,
+          "task_margin": 0.9247485995292664
+        }
+      },
+      "target_bacc_final": 0.3368055555555556,
+      "source_val_bacc_final": 0.7262931034482759
+    },
+    "E_cs_risk_perm": {
+      "dump": "BNCI2014_001_sub4_seed2_E_cs_risk_perm.npz",
+      "per_epoch": {
+        "0": {
+          "source_val_bacc": 0.7521551724137931,
+          "aux_loss": 0.0,
+          "source_late_risk": 0.7007571458816528,
+          "target_bacc": 0.3420138888888889,
+          "eff_rank": 11.65947151184082,
+          "contrast_norm": 0.3593166463077068,
+          "task_margin": 0.9775151014328003
+        },
+        "1": {
+          "source_val_bacc": 0.7543103448275862,
+          "aux_loss": 0.7381033790963036,
+          "source_late_risk": 0.7025337815284729,
+          "target_bacc": 0.3454861111111111,
+          "eff_rank": 11.674238204956055,
+          "contrast_norm": 0.36147342758874096,
+          "task_margin": 0.9706988334655762
+        },
+        "2": {
+          "source_val_bacc": 0.7424568965517242,
+          "aux_loss": 0.7375041033540454,
+          "source_late_risk": 0.708962619304657,
+          "target_bacc": 0.34375,
+          "eff_rank": 11.650445938110352,
+          "contrast_norm": 0.3613473542034626,
+          "task_margin": 0.9519654512405396
+        },
+        "5": {
+          "source_val_bacc": 0.7489224137931034,
+          "aux_loss": 0.6977054785404887,
+          "source_late_risk": 0.7119150161743164,
+          "target_bacc": 0.34374999999999994,
+          "eff_rank": 11.59400749206543,
+          "contrast_norm": 0.36029284273584683,
+          "task_margin": 0.943027138710022
+        },
+        "10": {
+          "source_val_bacc": 0.740301724137931,
+          "aux_loss": 0.6786400590624128,
+          "source_late_risk": 0.7030140161514282,
+          "target_bacc": 0.33854166666666663,
+          "eff_rank": 11.616235733032227,
+          "contrast_norm": 0.3555367375413577,
+          "task_margin": 0.9375923871994019
+        },
+        "15": {
+          "source_val_bacc": 0.7295258620689655,
+          "aux_loss": 0.7084618019206184,
+          "source_late_risk": 0.7098168730735779,
+          "target_bacc": 0.34375,
+          "eff_rank": 11.619670867919922,
+          "contrast_norm": 0.36063428595662117,
+          "task_margin": 0.9182883501052856
+        },
+        "20": {
+          "source_val_bacc": 0.7273706896551725,
+          "aux_loss": 0.688245877623558,
+          "source_late_risk": 0.7072573304176331,
+          "target_bacc": 0.33854166666666663,
+          "eff_rank": 11.623780250549316,
+          "contrast_norm": 0.35978612465163073,
+          "task_margin": 0.9238247275352478
+        }
+      },
+      "target_bacc_final": 0.33854166666666663,
+      "source_val_bacc_final": 0.7273706896551725
+    }
+  }
+}
