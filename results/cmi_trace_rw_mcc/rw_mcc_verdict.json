@@ -1,0 +1,40 @@
+{
+  "per_dataset": [
+    {
+      "dataset": "BNCI2014_001",
+      "n_subjects": 9,
+      "noop_bundles": 0,
+      "dU_RW_ERM_mean": -0.001414609053497926,
+      "dU_RW_ERM_lcb": -0.00405092592592592,
+      "dU_RW_ERM_signflip_p": 0.83984375,
+      "dU_RW_WPerm_mean": -0.0012217078189300451,
+      "dU_RW_WPerm_lcb": -0.0056584362139917715,
+      "dU_RW_WPerm_signflip_p": 0.693359375,
+      "delta_source_excess_risk_B": -0.0008465643198203181,
+      "delta_source_excess_risk_specific_BminusC": -0.0010898938946405548,
+      "delta_source_excess_risk_specific_signflip_p": 0.9999800000999995,
+      "source_drop": 0.0016363346104725394
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "n_subjects": 12,
+      "noop_bundles": 0,
+      "dU_RW_ERM_mean": -0.0003703703703703697,
+      "dU_RW_ERM_lcb": -0.007060185185185179,
+      "dU_RW_ERM_signflip_p": 0.53662109375,
+      "dU_RW_WPerm_mean": -0.0018518518518518578,
+      "dU_RW_WPerm_lcb": -0.008657407407407407,
+      "dU_RW_WPerm_signflip_p": 0.6552734375,
+      "delta_source_excess_risk_B": -0.0009225032992801374,
+      "delta_source_excess_risk_specific_BminusC": -0.001035092725425212,
+      "delta_source_excess_risk_specific_signflip_p": 0.9919900400497997,
+      "source_drop": 0.0018888888888888907
+    }
+  ],
+  "routing": {
+    "verdict": "B_source_meta_gen_failure_ne_target_failure",
+    "next": "next round: weights from source-only cross-SESSION (early->later) instability, not more strength"
+  },
+  "n_bundles": 63,
+  "discipline": "success needs B-C (vs weight-permuted); exact sign-flip; no CLOSED; manuscript FROZEN"
+}
