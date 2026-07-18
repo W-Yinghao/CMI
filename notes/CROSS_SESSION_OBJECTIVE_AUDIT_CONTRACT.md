@@ -1,12 +1,40 @@
-# Cross-Session Objective Audit — exact-gradient discriminator (SPEC; NOT an amendment; manuscript FROZEN)
+# Cross-Session objective — DIRECT 5-arm full-EEG training (SPEC; NOT an amendment; manuscript FROZEN)
 
-PM 2026-07-18: after RW-MCC DG-null (source cross-subject LOSO risk trainable but DG-inert), do NOT jump to a full
-cross-session RW-MCC 189-arm fleet. First a NO-TRAINING, 63-cell real-EEG audit that separates: (1) does source
-CROSS-SESSION instability carry a signal different from LOSO risk? (2) does its training gradient point closer to
-the held-out target's descent direction than LOSO-RW-MCC? (3) is the bottleneck the MCC geometry MEDIATION, or does
-cross-session shift itself fail to predict unseen-subject failure? Branch
-`agent/cmi-trace-cross-session-objective-audit`, base f13a9c1e (RW head incl. source-risk reaggregation fix). Only
-the project owner may stop a scientific line.
+**REVISED PM 2026-07-18 (4th discipline: training cost is NOT a route criterion).** The earlier "gradient audit
+BEFORE training to save a fleet" is RETRACTED. Go DIRECTLY to full real-EEG 5-arm training; the exact-gradient
+alignment is recorded as a CO-DIAGNOSTIC in each manifest, NOT a pre-training gate. Branch
+`agent/cmi-trace-cross-session-objective-audit`, base f13a9c1e. Only the project owner may stop a scientific line.
+
+## The 5-arm experiment (one experiment separates all competing hypotheses)
+From the SAME ERM warm-up checkpoint per bundle, same epochs/optimizer/LR/checkpoint-selection; outer-source
+subjects only for the early→late signal; target X/Y evaluation ONLY; both datasets, all 21 LOSO folds, 3 seeds; no
+deleting unfavorable cells; no shrinking datasets/seeds for more arms.
+- **A. ERM continuation** — extra-training-budget control.
+- **B. CS-RW-MCC** — L_task + λ Σ w^sess_{d,p} [1 − cos(u_{d,p}, ū_{-d,p})] (source early→late instability weighting
+  the mechanism-consistency geometry).
+- **C. weight-permuted CS-RW-MCC** — same, with per-pair subject-permuted weights (does the CORRECT subject-pair
+  assignment matter?).
+- **D. direct cross-session risk** — L_task + λ · (weighted late-session predictive risk), NO cosine geometry (is
+  the cross-session signal valuable but the MCC mediator wrong?).
+- **E. permuted direct-risk** — D with permuted weights (does the correct session-instability assignment matter?).
+This separates: cross-session proxy invalid / proxy valid but MCC-mediator wrong (D beats B) / correct assignment
+valuable (B>C or D>E) / only a generic extra-training effect (all ≈ A).
+
+## Cross-session risk weight (source-only) — unchanged
+For source subject d, class pair p=(a,b): fit `h^early_{-d}` on the EARLIEST session of the OTHER source subjects;
+`r^sess_{d,p} = [ l^late_{d,p} − l^early_{d,p} ]_+` (same classifier for early/late). Same winsor-p90 / mean-norm /
+clip-4 / no-remean as RW-MCC. Weights computed once at warm-up, frozen for continuation. λ=1.0 fixed (no sweep).
+
+## Co-diagnostic (recorded, NOT a gate)
+At the warm-up, record the exact-gradient alignment A_o = cos(g_o, g_target) for g_CS-RW / g_CS-Risk / g_LOSO-RW /
+their permuted controls / g_task, and the normalized one-step target-loss — as a mechanism diagnostic alongside the
+trained DG result (target labels audit-only for these).
+
+## Primary endpoints (from training)
+Inference unit = target subject (3 seeds → subject), subject-cluster bootstrap + exact sign-flip:
+ΔU_B−A, ΔU_D−A (does either objective beat extra-training?); the DECISIVE specificity contrasts ΔU_B−C and ΔU_D−E
+(does the CORRECT source-instability assignment beat its permuted control?); and ΔU_D−B (direct risk vs the MCC
+mediator). Plus collapse/damage guards and the source late-session risk change.
 
 ## Cross-session risk weight (source-only)
 Natural session ordering: BNCI2014 `0train→1test`; BNCI2015 `0A→1B/2C`. For source subject d, class pair p=(a,b):

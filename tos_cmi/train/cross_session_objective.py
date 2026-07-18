@@ -161,6 +161,26 @@ def exact_weighted_mcc_gradient(bb, X, y, d, weights, device, bs=256):
     return torch.cat([(p.grad if p.grad is not None else torch.zeros_like(p)).flatten() for p in bb.parameters()]).detach().cpu().numpy()
 
 
+def per_trial_cs_weights(weights, subs, pairs, classes):
+    """Aggregate per-(subject,pair) weights to per-(subject,class): v_{s,c} = mean over pairs containing c."""
+    v = {}
+    for s in subs:
+        for c in classes:
+            ws = [weights[(s, (a, b))] for (a, b) in pairs if c in (a, b)]
+            v[(s, c)] = float(np.mean(ws)) if ws else 0.0
+    return v
+
+
+def direct_risk_loss(logits, y, d, is_late, v, device, eps=1e-6):
+    """CS-Risk TRAINING term: L = (Sum_{late i} v_{d(i),y(i)} CE_i) / (Sum v + eps) -- weighted later-session
+    predictive risk (upweights drift-prone late-session cells). NO cosine geometry. is_late = per-batch-trial bool."""
+    y = np.asarray(y).astype(int); d = np.asarray(d).astype(int); late = np.asarray(is_late)
+    ce = F.cross_entropy(logits, torch.tensor(y, dtype=torch.long, device=device), reduction="none")
+    w = torch.tensor([v.get((int(d[i]), int(y[i])), 0.0) if late[i] else 0.0 for i in range(len(y))],
+                     dtype=logits.dtype, device=device)
+    return (w * ce).sum() / (w.sum() + eps)
+
+
 def cos(a, b):
     na = np.linalg.norm(a); nb = np.linalg.norm(b)
     return float(a @ b / (na * nb + 1e-12))
