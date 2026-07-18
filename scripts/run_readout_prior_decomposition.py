@@ -1,0 +1,226 @@
+"""Readout Prior Decomposition per-cell runner (CPU, env c84c). Decisive question: is the anchoring win a genuine
+source-head PRIOR (H2 source-centered MAP > H1 hardened zero-centered ridge) or a weak-baseline / optimisation-path /
+budget-mismatch artifact? Primary = native Z0, arms H0/H1/H1-W/H2/H3/H4 with FIXED-tau budget-matched source-only tau.
+Secondary = high-powered matched-random subspace specificity (Z0/ZI/ZR) at budgets {1,8,Full} for H1/H2. Plus external
+headroom diagnostics. Firewall: target QUERY only in the final utility; cal Y only adapts heads; tau + gate source-only.
+NO re-inference. Manuscript FROZEN; only the owner stops/redirects a line.
+
+  python -m scripts.run_readout_prior_decomposition --cell-index 0 --out-dir results/cmi_trace_readout_prior
+"""
+from __future__ import annotations
+import argparse, glob, json, sys
+from pathlib import Path
+import numpy as np
+REPO = Path(__file__).resolve().parents[1]; sys.path.insert(0, str(REPO))
+from sklearn.metrics import balanced_accuracy_score
+from tos_cmi.eeg.relaxation_ladder import feat_from_tos_dump
+from tos_cmi.eval import targetx_metric as TM
+from tos_cmi.eval import readout_prior as RP
+from tos_cmi.eval.readout_calibration import standardize, _std, fit_head, fit_biastemp, session_macro_bacc
+from tos_cmi.eval.mechanism_subspace import _del, build_ambient_random_dictionaries, cell_seed
+from tos_cmi.eval.targetx_observability import session_split
+
+FEAT_ROOTS = {
+    "BNCI2014_001": "/home/infres/yinwang/CMI_AAAI_cmitrace/tos_cmi/results/tos_cmi_eeg_frozen/BNCI2014_001_EEGNet_LOSO",
+    "BNCI2015_001": "/home/infres/yinwang/CMI_AAAI_cmitrace/tos_cmi/results/tos_cmi_eeg_frozen/BNCI2015_001_EEGNet_LOSO",
+    "Lee2019_MI":   "/home/infres/yinwang/CMI_AAAI_tos/tos_cmi/results/tos_cmi_eeg_frozen/Lee2019_MI_EEGNet_LOSO",
+    "BNCI2014_004": "/home/infres/yinwang/CMI_AAAI_tos/tos_cmi/results/tos_cmi_eeg_frozen/BNCI2014_004_EEGNet_LOSO",
+}
+DATASETS = ["BNCI2014_001", "BNCI2015_001", "Lee2019_MI", "BNCI2014_004"]
+BUDGETS = [1, 2, 4, 8, 16, 32, "Full"]
+SPEC_BUDGETS = [1, 8, "Full"]           # reduced-resolution specificity (high-powered control is expensive)
+DICT_RANK = 8
+SRC_RETENTION_TOL = 0.03
+N_TAU_DRAWS = 10                         # draws for the internal tau hyperparameter selection
+MAX_TAU_PSEUDO = 12                      # cap pseudo-subjects used for tau selection (subsample if more)
+
+
+def enumerate_cells():
+    return [(ds, p) for ds in DATASETS for p in sorted(glob.glob(f"{FEAT_ROOTS[ds]}/sub*_erm_lam0_seed*.npz"))]
+
+
+def _draws(ds, subj, sd, ycal, k, nd):
+    if k == "Full":
+        return [np.arange(len(ycal))]
+    return [RP.balanced_draw(ycal, k, np.random.default_rng(cell_seed(ds, "EEGNet", subj, sd, f"draw{k}", i))) for i in range(nd)]
+
+
+def _headroom(Zs_w, ys, dsub, Xcal_w, ycal, Xq_w, yq, sq, C):
+    """External-headroom mechanism diagnostics per cell."""
+    mu, sd = standardize(Zs_w); Xs, Xc, Xq = _std(Zs_w, mu, sd), _std(Xcal_w, mu, sd), _std(Xq_w, mu, sd)
+    Ws, bs = fit_head(Xs, ys, C)
+    fro_bacc = session_macro_bacc(Ws, bs, Xq, yq, sq)
+    # full-cal target head (oracle-ish headroom)
+    Wt, bt = fit_head(Xc, ycal, C); full_bacc = session_macro_bacc(Wt, bt, Xq, yq, sq)
+    ang = float(np.degrees(np.arccos(np.clip(np.sum(Ws * Wt) / (np.linalg.norm(Ws) * np.linalg.norm(Wt) + 1e-12), -1, 1))))
+    from sklearn.metrics import log_loss
+    fro_nll = float(log_loss(yq, RP._softmax(Xq @ Ws.T + bs), labels=list(range(C))))
+    # calibration Hessian condition number (Fisher proxy): cov of standardized cal features
+    cov = np.cov(Xc.T) + 1e-9 * np.eye(Xc.shape[1]); ev = np.linalg.eigvalsh(cov)
+    cond = float(ev[-1] / max(ev[0], 1e-12))
+    prior_shift = float(np.abs(np.bincount(ycal, minlength=C) / len(ycal) - np.bincount(yq, minlength=C) / len(yq)).sum())
+    mean_drift = float(np.linalg.norm(Xc.mean(0) - Xq.mean(0)))
+    return dict(frozen_query_bacc=fro_bacc, frozen_query_nll=fro_nll, fullcal_query_bacc=full_bacc,
+                fullcal_gain=full_bacc - fro_bacc, angle_Ws_Wt_deg=ang, bias_displacement=float(np.linalg.norm(bs - bt)),
+                direction_displacement=float(np.linalg.norm(Ws - Wt)), cal_cov_condition=cond,
+                class_prior_shift=prior_shift, cal_query_mean_drift=mean_drift)
+
+
+def run_cell(ds, path, n_random=50, n_draws=50, smoke=False):
+    f = feat_from_tos_dump(path)
+    subj = str(f.get("heldout_subject")); sd = int(f.get("seed", -1))
+    if "session_target" not in f:
+        return dict(dataset=ds, subject=subj, seed=sd, status="skipped", reason="NO_SESSION_AXIS")
+    Zs = np.asarray(f["Z_source"], float); ys = np.asarray(f["y_source"]).astype(int)
+    dsub = np.asarray(f["subj_source"]).astype(int); Zt = np.asarray(f["Z_target"], float)
+    yt = np.asarray(f["y_target"]).astype(int); C = int(f.get("n_cls", len(np.unique(ys))))
+    sess_s = np.asarray(f["session_source"]).astype(str)
+    W = TM.source_whitener(Zs); Zs_w = TM.to_whitened(Zs, W); D = Zs.shape[1]
+    cal, qry, sinfo = session_split(f["session_target"], yt, sd)
+    Xcal_w, ycal = TM.to_whitened(Zt[cal], W), yt[cal]
+    Xq_w, yq, sq = TM.to_whitened(Zt[qry], W), yt[qry], np.asarray(f["session_target"])[qry]
+    nd = 5 if smoke else n_draws; ntd = 3 if smoke else N_TAU_DRAWS
+    draws_by_k = {k: _draws(ds, subj, sd, ycal, k, nd) for k in BUDGETS}
+
+    # native source-standardised space + source head
+    mu, sd_ = standardize(Zs_w); Xs_std = _std(Zs_w, mu, sd_)
+    Ws, bs = fit_head(Xs_std, ys, C)
+    Xcal_std = _std(Xcal_w, mu, sd_); Xq_std = _std(Xq_w, mu, sd_)
+
+    # budget-matched SOURCE-ONLY tau selection + gate (tau selection operates on the native standardised source)
+    def rng_fn(dd, di): return np.random.default_rng(cell_seed(ds, "EEGNet", subj, sd, "tau", int(dd), di))
+    tau0, taus, gate = {}, {}, {}
+    for k in BUDGETS:
+        t0, _ = RP.select_tau_budget_matched(Xs_std, ys, dsub, sess_s, C, k, ntd, source_centered=False, rng_fn=rng_fn)
+        ts, _ = RP.select_tau_budget_matched(Xs_std, ys, dsub, sess_s, C, k, ntd, source_centered=True, rng_fn=rng_fn)
+        tau0[str(k)] = float(t0); taus[str(k)] = float(ts)
+        g, _ = RP.source_gate(Xs_std, ys, dsub, sess_s, C, k, ts, ntd, rng_fn)
+        gate[str(k)] = int(g)
+
+    draws_std = {k: draws_by_k[k] for k in BUDGETS}
+    nat_curve, init_pdiff = _arm_curve_native(Xs_std, ys, Xq_std, yq, sq, C, Ws, bs, Xcal_std, ycal, draws_std, tau0, taus, gate)
+
+    # endpoints (native)
+    ep = {}
+    for k in BUDGETS:
+        kk = str(k); c = nat_curve[kk]
+        ep[kk] = dict(U_H0=c["frozen"], U_H1=c["ridge"], U_H1W=c["ridgeW"], U_H2=c["map"], U_H3=c["bias"], U_H4=c["gate"],
+                      dU_center=c["map"] - c["ridge"], dU_MAP_frozen=c["map"] - c["frozen"],
+                      dU_gate_frozen=c["gate"] - c["frozen"], dU_gate_map=c["gate"] - c["map"],
+                      dU_init_bacc=c["ridgeW"] - c["ridge"], U_H2_minus_H3=c["map"] - c["bias"],
+                      tau0=tau0[kk], taus=taus[kk], gate=gate[kk])
+
+    # high-powered matched-random subspace specificity (reduced budgets, H1+H2), source-VALIDATION matching metric
+    spec = _specificity(Zs_w, ys, dsub, Xcal_w, ycal, Xq_w, yq, sq, C, D, mu, sd_, Ws, bs, tau0, taus, gate,
+                        draws_std, ds, subj, sd, n_random, smoke)
+
+    hr = _headroom(Zs_w, ys, dsub, Xcal_w, ycal, Xq_w, yq, sq, C)
+    return dict(dataset=ds, subject=subj, seed=sd, status="ok", C=C, n_cal=int(cal.sum()), n_query=int(qry.sum()),
+                cal_session=sinfo["cal_sessions"], query_sessions=sinfo["query_sessions"], n_draws=nd, n_tau_draws=ntd,
+                init_param_diff=float(init_pdiff), endpoints=ep, specificity=spec, headroom=hr, tau0=tau0, taus=taus, gate=gate,
+                firewall=dict(source_only_construction=True, tau_source_only=True, gate_source_only=True,
+                              Ycal_used_for_head_adapt=True, Yquery_used_for_selection=False, Yquery_used_for_outcome=True))
+
+
+def _arm_curve_native(Xs_std, ys, Xq_std, yq, sq, C, Ws, bs, Xcal_std, ycal, draws_std, tau0, taus, gate):
+    which = ("frozen", "ridge", "ridgeW", "map", "bias", "gate")
+    u_frozen = session_macro_bacc(Ws, bs, Xq_std, yq, sq); curve = {}; init_pdiff = []
+    for k in draws_std:
+        acc = {a: [] for a in which}
+        for di in draws_std[k]:
+            xc, yc = Xcal_std[di], ycal[di]
+            if len(np.unique(yc)) < 2:
+                for a in which: acc[a].append(u_frozen)
+                continue
+            acc["frozen"].append(u_frozen)
+            W1, b1, _ = RP.fit_ridge_map(xc, yc, C, None, None, tau0[str(k)])
+            W1w, b1w, _ = RP.fit_ridge_map(xc, yc, C, None, None, tau0[str(k)], init=np.concatenate([Ws.ravel(), bs]))
+            Wm, bm, _ = RP.fit_ridge_map(xc, yc, C, Ws, bs, taus[str(k)]); Wt, bt = fit_biastemp(xc, yc, C, Ws)
+            acc["ridge"].append(session_macro_bacc(W1, b1, Xq_std, yq, sq))
+            acc["ridgeW"].append(session_macro_bacc(W1w, b1w, Xq_std, yq, sq)); init_pdiff.append(float(np.linalg.norm(W1 - W1w) + np.linalg.norm(b1 - b1w)))
+            acc["map"].append(session_macro_bacc(Wm, bm, Xq_std, yq, sq))
+            acc["bias"].append(session_macro_bacc(Wt, bt, Xq_std, yq, sq))
+            acc["gate"].append(session_macro_bacc(Wm, bm, Xq_std, yq, sq) if gate[str(k)] else u_frozen)
+        curve[str(k)] = {a: float(np.mean(acc[a])) for a in which}
+    return curve, (float(np.mean(init_pdiff)) if init_pdiff else 0.0)
+
+
+def _src_val_bacc(Zs_wd, ys, dsub, C):
+    """Source-VALIDATION bAcc of a (deleted) representation: leave-one-source-subject-out mean bAcc (cheap subset)."""
+    subs = np.unique(dsub); accs = []
+    for v in subs[: min(5, len(subs))]:              # 5-fold subset for speed
+        tr, te = dsub != v, dsub == v
+        if len(np.unique(ys[tr])) < 2 or te.sum() == 0: continue
+        mu, sd = standardize(Zs_wd[tr]); Wv, bv = fit_head(_std(Zs_wd[tr], mu, sd), ys[tr], C)
+        accs.append(balanced_accuracy_score(ys[te], (_std(Zs_wd[te], mu, sd) @ Wv.T + bv).argmax(1)))
+    return float(np.mean(accs)) if accs else float("nan")
+
+
+def _rep_gain(Zs_wd, ys, Xcal_wd, ycal, Zq_wd, yq, sq, C, tau0, taus, gate, draws_std, arms=("ridge", "map")):
+    """G_h(rep,k) = U_arm - U_frozen for a (deleted) representation, at SPEC_BUDGETS."""
+    mu, sd = standardize(Zs_wd); Xs = _std(Zs_wd, mu, sd); Ws, bs = fit_head(Xs, ys, C)
+    Xc = _std(Xcal_wd, mu, sd); Xq = _std(Zq_wd, mu, sd); u0 = session_macro_bacc(Ws, bs, Xq, yq, sq)
+    out = {}
+    for k in SPEC_BUDGETS:
+        g = {a: [] for a in arms}
+        for di in draws_std[k]:
+            xc, yc = Xc[di], ycal[di]
+            if len(np.unique(yc)) < 2:
+                for a in arms: g[a].append(0.0)
+                continue
+            if "ridge" in arms:
+                W1, b1, _ = RP.fit_ridge_map(xc, yc, C, None, None, tau0[str(k)]); g["ridge"].append(session_macro_bacc(W1, b1, Xq, yq, sq) - u0)
+            if "map" in arms:
+                Wm, bm, _ = RP.fit_ridge_map(xc, yc, C, Ws, bs, taus[str(k)]); g["map"].append(session_macro_bacc(Wm, bm, Xq, yq, sq) - u0)
+        out[str(k)] = {a: float(np.mean(g[a])) for a in arms}
+    return out
+
+
+def _specificity(Zs_w, ys, dsub, Xcal_w, ycal, Xq_w, yq, sq, C, D, mu, sd_, Ws, bs, tau0, taus, gate, draws_std, ds, subj, sd, n_random, smoke):
+    B = TM.whitened_cond_basis(Zs_w, ys, dsub, max_rank=DICT_RANK); r = B.shape[0]
+    if r == 0:
+        return dict(status="EMPTY_B_COND")
+    inf_srcval = _src_val_bacc(_del(Zs_w, B), ys, dsub, C)
+    gh_informed = _rep_gain(_del(Zs_w, B), ys, _del(Xcal_w, B), ycal, _del(Xq_w, B), yq, sq, C, tau0, taus, gate, draws_std)
+    need = 8 if smoke else 50; cap = 200 if smoke else 5000
+    matched = []; tried = 0
+    while len(matched) < need and tried < cap:
+        Q = build_ambient_random_dictionaries(D, r, 1, cell_seed(ds, "EEGNet", subj, sd, "rnd", tried))[0]
+        if abs(_src_val_bacc(_del(Zs_w, Q), ys, dsub, C) - inf_srcval) <= SRC_RETENTION_TOL:
+            matched.append(Q)
+        tried += 1
+    rand_gains = [_rep_gain(_del(Zs_w, Q), ys, _del(Xcal_w, Q), ycal, _del(Xq_w, Q), yq, sq, C, tau0, taus, gate, draws_std) for Q in matched]
+    dgh = {}
+    for k in SPEC_BUDGETS:
+        for a in ("ridge", "map"):
+            er = float(np.mean([rg[str(k)][a] for rg in rand_gains])) if rand_gains else float("nan")
+            dgh[f"{a}_k{k}"] = dict(informed=gh_informed[str(k)][a], random_mean=er, specific=gh_informed[str(k)][a] - er)
+    return dict(status="ok", rank=int(r), n_matched=len(matched), n_tried=tried, informed_srcval=inf_srcval, dGh_specific=dgh)
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--cell-index", type=int); ap.add_argument("--list-cells", action="store_true")
+    ap.add_argument("--out-dir", default="results/cmi_trace_readout_prior")
+    ap.add_argument("--n-random", type=int, default=50); ap.add_argument("--n-draws", type=int, default=50); ap.add_argument("--smoke", action="store_true")
+    a = ap.parse_args()
+    cells = enumerate_cells()
+    if a.list_cells:
+        [print(f"{i}\t{ds}\t{Path(p).name}") for i, (ds, p) in enumerate(cells)]; print(f"# {len(cells)}"); return
+    ds, path = cells[a.cell_index]
+    print(f"[ro-prior] cell {a.cell_index} {ds} {Path(path).name}", flush=True)
+    row = run_cell(ds, path, n_random=a.n_random, n_draws=a.n_draws, smoke=a.smoke)
+    outd = Path(a.out_dir); (outd / "cells").mkdir(parents=True, exist_ok=True)
+    stem = f"cell_{a.cell_index:03d}_{ds}_sub{row.get('subject')}_seed{row.get('seed')}"
+    (outd / "cells" / f"{stem}.json").write_text(json.dumps(row, indent=2, default=float))
+    (outd / "cells" / f"{stem}.done").write_text(row.get("status", "?") + "\n")
+    if row.get("status") == "ok":
+        e = row["endpoints"]
+        print(f"  init_param_diff={row['init_param_diff']:.2e} (init-invariance) | spec matched={row['specificity'].get('n_matched')}/{row['specificity'].get('n_tried')}", flush=True)
+        print("  dU_center(H2-H1): " + " ".join(f"k{k}={e[str(k)]['dU_center']:+.3f}" for k in BUDGETS), flush=True)
+        print("  dU_MAP-frozen   : " + " ".join(f"k{k}={e[str(k)]['dU_MAP_frozen']:+.3f}" for k in BUDGETS), flush=True)
+        print("  dU_gate-frozen  : " + " ".join(f"k{k}={e[str(k)]['dU_gate_frozen']:+.3f}" for k in BUDGETS), flush=True)
+
+
+if __name__ == "__main__":
+    main()
