@@ -29,8 +29,8 @@ def test_catalog_snapshots_are_complete_and_frozen_after_protocol() -> None:
 
 def test_external_registry_dispositions_every_safe_candidate_and_ds007221_interfaces() -> None:
     rows = _rows("external_adult_cohort_eligibility_registry.csv")
-    assert len(rows) == 92
-    assert len({row["catalog_source_id"] for row in rows}) == 89
+    assert len(rows) == 82
+    assert len({row["catalog_source_id"] for row in rows}) == 79
     assert all(row["decision"] for row in rows)
     assert all(row["outcome_fields_present"] == "0" for row in rows)
     assert not any("performance" in field.lower() for field in rows[0])
@@ -103,4 +103,3 @@ def test_module_has_no_protected_runtime_import_or_real_execution_entrypoint() -
     assert "C86H_EXECUTION_LOCK" not in source
     assert "AuthorizationRecord" not in source
     assert "performance" not in source.lower()
-

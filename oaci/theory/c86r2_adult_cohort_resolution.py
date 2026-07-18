@@ -278,8 +278,8 @@ def _read_safe_catalog(path: Path) -> list[dict[str, Any]]:
                 "license": license_name,
                 "source": source,
             })
-    _require(len(rows) == 89, "deduplicated safe candidate catalog must contain 89 rows")
-    _require(len({row["source_id"] for row in rows}) == 89, "duplicate safe candidate source ID")
+    _require(len(rows) == 79, "deduplicated safe candidate catalog must contain 79 rows")
+    _require(len({row["source_id"] for row in rows}) == 79, "duplicate safe candidate source ID")
     return rows
 
 
@@ -368,7 +368,7 @@ def _external_eligibility_rows(catalog_rows: Sequence[Mapping[str, Any]]) -> lis
             "selected_primary": int(passed),
             "outcome_fields_present": 0,
         })
-    _require(len(rows) == 92, "external interface audit must contain 92 rows")
+    _require(len(rows) == 82, "external interface audit must contain 82 rows")
     return rows
 
 
@@ -379,7 +379,7 @@ def _deduplication_rows() -> list[dict[str, Any]]:
         {"public_identity": "nm000177", "native_identity": "Kumar2024", "duplicate_role": "NEMAR_REPRESENTATION_OF_REGISTERED_COHORT", "independent_cohort_count": 1},
         {"public_identity": "nm000250", "native_identity": "Dreyer2023", "duplicate_role": "NEMAR_REPRESENTATION_OF_HISTORICALLY_ACCESSED_COHORT", "independent_cohort_count": 1},
         {"public_identity": "ds007221|on007221", "native_identity": "OpenNeuro_ds007221", "duplicate_role": "OPENNEURO_AND_NEMAR_MIRROR_ONE_NATIVE_COHORT", "independent_cohort_count": 1},
-        {"public_identity": "EEGDash_71|NEMAR_78", "native_identity": "89_deduplicated_safe_candidate_datasets", "duplicate_role": "CATALOG_LEVEL_DEDUPLICATION", "independent_cohort_count": 89},
+        {"public_identity": "EEGDash_71|NEMAR_78", "native_identity": "79_deduplicated_safe_candidate_datasets", "duplicate_role": "CATALOG_LEVEL_DEDUPLICATION", "independent_cohort_count": 79},
     ]
 
 
