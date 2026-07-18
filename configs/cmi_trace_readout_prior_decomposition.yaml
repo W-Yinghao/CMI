@@ -1,0 +1,31 @@
+# Readout Prior Decomposition -- FROZEN pre-registration config. Manuscript FROZEN.
+name: cmi_trace_readout_prior_decomposition
+base_commit: 466a171f
+question: is the anchoring win a genuine source-head PRIOR (H2>H1) or weak-baseline/opt-path/budget-mismatch artifact?
+objective: SUM_i CE_i + tau*||theta - theta_anchor||^2   # fixed prior precision (shrinkage ~1/n)
+arms:
+  H0_frozen: theta = theta_s
+  H1_ridge: hardened zero-centered ridge (anchor=0); tau0 source-only budget-matched   # THE fair from-scratch baseline
+  H1W_warmstart: same objective+tau0 as H1, init from theta_s (solver init-invariance audit, parameter-level)
+  H2_MAP: source-centered (anchor=theta_s); taus source-only budget-matched            # PRIMARY
+  H3_bias_temp: fix Ws, per-class bias + positive temperature
+  H4_gate: source-only budget gate g_k = 1[mean delta - SE(delta) > 0] on pseudo-target; H4 = H2 if g_k else H0
+tau_selection: per-budget k, source-only outer-source early->later pseudo-target, grid [1e-3..100]; SUM-CE objective
+budgets: [1,2,4,8,16,32,Full] ; n_draws: 50 ; n_tau_draws: 10 ; max_tau_pseudo: 12
+representations: Z0 native (primary) ; ZI informed B_cond deletion ; ZR >=50 matched-random (source-VALIDATION metric,
+                 continuous sample to >=50, cap 5000) at budgets {1,8,Full} for H1/H2
+primary_endpoints:
+  dU_center(k): U_H2 - U_H1        # decisive: does the source head as a PRIOR CENTER beat a fair ridge?
+  dU_MAP_frozen(k): U_H2 - U_H0
+  dU_gate_frozen(k): U_H4 - U_H0 ; dU_gate_map: U_H4 - U_H2
+  dU_init: ||W_H1 - W_H1W|| (parameter-level; argmax bAcc knife-edge at high tau, not authoritative)
+  U_H2 - U_H3 (bias sufficiency)
+  dGh_specific(k) for H1,H2 (high-powered matched-random)
+datasets: dev [BNCI2014_001, BNCI2015_001] + external [Lee2019_MI, BNCI2014_004]
+lockbox: REQUIRED for strict P-A (natural cal->future-session, unused in method decisions). AVAILABILITY: Cho2017 +
+         Schirrmeister2017/High-Gamma frozen dumps are SINGLE-SESSION (target session '0', no run/order axis in dump)
+         -> NOT eligible -> lockbox PENDING owner decision (re-dump multi-session / accept Lee-as-external / defer).
+routing: P-A prior-value replicated+lockbox / P-B generic-regularization / P-C solver-artifact / P-D safe-abstention /
+         P-E dense-cal-only / P-F subspace still non-specific
+firewall: target QUERY only in the final utility; cal Y only adapts heads; tau + gate source-only
+holds: new erasure/target-X selector/mechanism-consistency loss/learned projector/TTE ; manuscript FROZEN
