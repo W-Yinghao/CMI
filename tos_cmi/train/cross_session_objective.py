@@ -182,6 +182,28 @@ def direct_risk_loss(logits, y, d, is_late, v, device, eps=1e-6):
     return (w * ce).sum() / (w.sum() + eps)
 
 
+def direct_risk_gradient(bb, X, y, d, is_late, v, device, bs=512, eps=1e-6):
+    """Exact encoder-param gradient of the ARM-D training objective direct_risk_loss over ALL source trials (BN
+    frozen so micro-batching is exact; the denominator Sum w is a model-independent constant, so grad accumulates
+    across micro-batches). This makes the co-diagnostic 'cs_risk' alignment characterize the SAME objective arm D
+    actually optimizes (full multiclass weighted CE), not the pairwise weighted_late_task_gradient."""
+    bb.eval(); params = list(bb.parameters())
+    y = np.asarray(y).astype(int); d = np.asarray(d).astype(int); late = np.asarray(is_late)
+    assert late.dtype == np.bool_, f"is_late must be a bool mask, got {late.dtype}"
+    w_all = np.array([v.get((int(d[i]), int(y[i])), 0.0) if late[i] else 0.0 for i in range(len(y))], float)
+    denom = float(w_all.sum()) + eps
+    for p in params:
+        p.grad = None
+    idx = np.where(w_all > 0)[0]
+    for i0 in range(0, len(idx), bs):
+        j = idx[i0:i0 + bs]
+        logits = bb(torch.tensor(X[j], dtype=torch.float32).to(device))[0]
+        ce = F.cross_entropy(logits, torch.tensor(y[j], dtype=torch.long, device=device), reduction="none")
+        wj = torch.tensor(w_all[j], dtype=logits.dtype, device=device)
+        ((wj * ce).sum() / denom).backward()
+    return torch.cat([(p.grad if p.grad is not None else torch.zeros_like(p)).flatten() for p in params]).detach().cpu().numpy()
+
+
 def cos(a, b):
     na = np.linalg.norm(a); nb = np.linalg.norm(b)
     return float(a @ b / (na * nb + 1e-12))

@@ -101,6 +101,21 @@ def test_direct_risk_loss_late_only_and_bool_guard():
     assert abs(float(CS.direct_risk_loss(logits, y, d, np.ones(6, bool), v2, "cpu")) - float(L_all_late)) > 1e-6
 
 
+def test_direct_risk_gradient_equals_full_batch():
+    """The co-diagnostic arm-D gradient (micro-batched, BN frozen) must equal the single-graph gradient of the actual
+    direct_risk_loss the arm optimizes -> the recorded cs_risk alignment faithfully characterizes arm D."""
+    bb = _Fixture(); X, y, d, sess = _src()
+    _, later = CS._early_late(sess); is_late = np.isin(sess, list(later))
+    w = CS.cross_session_risk_weights(X.reshape(len(X), -1), y, d, sess)
+    v = CS.per_trial_cs_weights(w["weights"], w["subs"], w["pairs"], w["classes"])
+    g_mb = CS.direct_risk_gradient(bb, X, y, d, is_late, v, "cpu", bs=16)
+    bb.eval(); logits = bb(torch.tensor(X, dtype=torch.float32))[0]
+    L = CS.direct_risk_loss(logits, y, d, is_late, v, "cpu")
+    params = list(bb.parameters()); g = torch.autograd.grad(L, params, allow_unused=True)
+    g_ref = torch.cat([(gi if gi is not None else torch.zeros_like(p)).flatten() for gi, p in zip(g, params)]).detach().numpy()
+    assert np.linalg.norm(g_mb - g_ref) / (np.linalg.norm(g_ref) + 1e-12) < 1e-5
+
+
 def test_missing_session_class_fails_loud():
     X, y, d, sess = _src()
     keep = ~((d == 0) & (sess == "1late") & (y == 3))              # drop subject 0 late class 3

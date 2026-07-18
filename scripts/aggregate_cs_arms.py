@@ -35,23 +35,31 @@ def _route(ds_stats):
     the matched specificity contrast (dU_B-C or dU_D-E LCB>0) on the SAME arm, on >=1 dataset, other not reversed."""
     def lcb(ds, k):  return ds_stats[ds][k]["lo"]
     def ucb(ds, k):  return ds_stats[ds][k]["hi"]
+    def undamaged(ds):  return not ds_stats[ds].get("_meta", {}).get("damaged", False)
     dsl = list(ds_stats)
-    B_wins = any(lcb(ds, "dU_B_A") > 0 and lcb(ds, "dU_B_C") > 0 for ds in dsl) and \
-        all(ucb(ds, "dU_B_A") > -0.05 for ds in dsl)
-    D_wins = any(lcb(ds, "dU_D_A") > 0 and lcb(ds, "dU_D_E") > 0 for ds in dsl) and \
-        all(ucb(ds, "dU_D_A") > -0.05 for ds in dsl)
+    # A DG win on a dataset requires: beats extra-training (dU_?_A LCB>0) AND beats its matched permuted control
+    # (decisive dU_?_C / dU_?_E LCB>0) AND the winning arm did NOT damage source val on that dataset (else a COLLAPSED
+    # permuted control could fake the specificity margin -> the exact M1-P/RW-MCC false-positive we must block). The
+    # OTHER dataset must not be clearly reversed on BOTH the vs-extra-training AND the decisive contrast (UCB>-0.05).
+    B_wins = any(lcb(ds, "dU_B_A") > 0 and lcb(ds, "dU_B_C") > 0 and undamaged(ds) for ds in dsl) and \
+        all(ucb(ds, "dU_B_A") > -0.05 and ucb(ds, "dU_B_C") > -0.05 for ds in dsl)
+    D_wins = any(lcb(ds, "dU_D_A") > 0 and lcb(ds, "dU_D_E") > 0 and undamaged(ds) for ds in dsl) and \
+        all(ucb(ds, "dU_D_A") > -0.05 and ucb(ds, "dU_D_E") > -0.05 for ds in dsl)
     D_beats_B = any(lcb(ds, "dU_D_B") > 0 for ds in dsl)
-    if D_wins and (not B_wins or D_beats_B):
+    # Contract routing: when BOTH candidates pass, prefer the MORE DIRECT CS-Risk (D). Only fall to CS-RW-MCC when D
+    # does NOT clear the bar but B does.
+    if D_wins:
+        also = " (both objectives pass; preferring the more-direct CS-Risk per contract" + (", and D>B specifically)" if D_beats_B else ")") if B_wins else ""
         return dict(verdict="CORRECT_ASSIGNMENT_VALUABLE_via_DIRECT_RISK",
-                    next="EXPLORATORY: direct cross-session risk beats extra-training AND its permuted control; confirm on a THIRD EEG dataset before any method claim (OWNER decision)")
+                    next="EXPLORATORY: direct cross-session risk beats extra-training AND its permuted control, undamaged" + also + "; confirm on a THIRD EEG dataset before any method claim (OWNER decision)")
     if B_wins:
         return dict(verdict="CORRECT_ASSIGNMENT_VALUABLE_via_CS_RW_MCC",
-                    next="EXPLORATORY: CS-RW-MCC beats extra-training AND weight-permuted control; confirm on a THIRD EEG dataset (OWNER decision)")
-    if D_beats_B and any(lcb(ds, "dU_D_E") > 0 for ds in dsl):
+                    next="EXPLORATORY: CS-RW-MCC beats extra-training AND weight-permuted control, undamaged; confirm on a THIRD EEG dataset (OWNER decision)")
+    if D_beats_B and any(lcb(ds, "dU_D_E") > 0 and undamaged(ds) for ds in dsl):
         return dict(verdict="PROXY_VALID_BUT_MCC_MEDIATOR_WRONG",
                     next="direct cross-session risk (D>E specific) helps where the MCC geometry mediator (B) does not; drop the cosine mediator, but D does not clear extra-training -> treat as mechanism finding not DG win")
     return dict(verdict="CROSS_SESSION_PROXY_INVALID_or_GENERIC_EXTRA_TRAINING",
-                next="no cross-session objective beats extra-training with a specific (permuted-control) margin -> pivot to the information-regime ladder (source-only -> target-X -> few-shot target labels; minimal-info sample-complexity of TARGET_HINDSIGHT_ONLY)")
+                next="no cross-session objective beats extra-training with a specific (permuted-control), undamaged margin -> pivot to the information-regime ladder (source-only -> target-X -> few-shot target labels; minimal-info sample-complexity of TARGET_HINDSIGHT_ONLY)")
 
 
 def main():
@@ -95,8 +103,9 @@ def main():
         if ds not in acc["dU_B_A"] or not acc["dU_B_A"][ds]:
             continue
         cis = {e: _subj_ci(acc[e][ds]) for e in EP}
-        ds_stats[ds] = cis
         worst_damage = max((max(v) for v in [damage[ds][k] for k in ARMS if damage[ds][k]]), default=0.0)
+        cis["_meta"] = dict(damaged=bool(worst_damage > DAMAGE_TOL), worst_damage=float(worst_damage))
+        ds_stats[ds] = cis
         summ.append(dict(dataset=ds, n_subjects=cis["dU_B_A"]["n"], noop_bundles=noop[ds],
                          **{e: dict(mean=cis[e]["mean"], lcb=cis[e]["lo"], ucb=cis[e]["hi"], signflip_p=cis[e]["signflip_p"]) for e in EP},
                          worst_source_damage=float(worst_damage), damaged=bool(worst_damage > DAMAGE_TOL),

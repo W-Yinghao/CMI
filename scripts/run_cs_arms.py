@@ -28,6 +28,12 @@ def _continue(warm_sd, Xtr, ytr, dtr, is_late_full, n_cls, X_shape, arm, W, Wp, 
     tr_idx, va_idx = _source_val_split(dtr, ytr, seed=seed)
     samp = BalancedSubjectClassSampler(dtr[tr_idx], ytr[tr_idx], K=K, n_batches=max(1, len(tr_idx) // (len(np.unique(dtr)) * n_cls * K)), seed=seed)
     opt = torch.optim.AdamW(params, lr=lr)
+    # MATCHED DROPOUT: reseed the global torch RNG identically for every arm so A..E draw the SAME dropout masks on
+    # the SAME (numpy-seeded) batch schedule -> the ONLY difference between arms is the aux-loss gradient. Depends on
+    # `seed` so the 3 bundle seeds still vary. (aux losses draw no RNG; AdamW is deterministic.)
+    torch.manual_seed(seed)
+    if str(device) != "cpu":
+        torch.cuda.manual_seed_all(seed)
     best = dict(val=-1.0, sd=None, ep=-1); diag = dict(aux=[], ce=[])
     for ep in range(cont_epochs):
         lam_t = 0.0 if arm == "A_erm_continue" else lam * min(1.0, (ep + 1) / max(1, ramp))
@@ -96,8 +102,10 @@ def main():
             tf = np.ones(len(yte), bool)
         Xs, ys, dsub = Xtr[tr_idx], ytr[tr_idx], dtr[tr_idx]
         gt = CS.task_gradient(bb, Xte, yte, a.device, mask=tf)
+        # cs_rw = arm-B objective direction (weighted MCC geometry); cs_risk = arm-D objective direction (the ACTUAL
+        # direct_risk_loss full-CE gradient, so the diagnostic characterizes what arm D optimizes, not a pairwise proxy).
         align = dict(cs_rw=CS.cos(CS.exact_weighted_mcc_gradient(bb, Xs, ys, dsub, W, a.device), gt),
-                     cs_risk=CS.cos(CS.weighted_late_task_gradient(bb, Xs, ys, dsub, csw["is_late"], W, a.device), gt),
+                     cs_risk=CS.cos(CS.direct_risk_gradient(bb, Xs, ys, dsub, is_late_full[tr_idx], v, a.device), gt),
                      loso=CS.cos(CS.exact_weighted_mcc_gradient(bb, Xs, ys, dsub, source_loso_excess_risk_weights(Zs, ys, dsub)["weights"], a.device), gt),
                      task=CS.cos(CS.task_gradient(bb, Xs, ys, a.device), gt))
     except Exception as e:
