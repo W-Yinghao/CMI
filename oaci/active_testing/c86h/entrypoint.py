@@ -53,23 +53,10 @@ def preflight() -> dict:
 
 
 def execute(authorization: str, output_root: str | None = None):
-    """Gated confirmation trigger. Refuses without 授权 C86H, and refuses again until the
-    untouched field exists (that field is generated under a separate authorized step)."""
-    if authorization != AUTHORIZATION_TOKEN:
-        raise SystemExit(
-            "C86H requires authorization '授权 C86H'; this build is protocol/prep only")
-    bindings = K.verify_bindings()
-    if not bindings["ok"]:
-        raise RuntimeError(f"C86H binding verification failed: {bindings['mismatches']}")
-    if not os.path.isdir(FIELD_ROOT):
-        raise RuntimeError(
-            "C86H untouched confirmation field not generated. Real Brandl2020/ds007221 "
-            "EEG download, candidate-zoo forward passes, target-unlabeled prediction, and "
-            "the label-blind split are a separately authorized step, not built in this "
-            "preparation package.")
-    raise RuntimeError(
-        "C86H field-generation and D1/D2 execution wiring are implemented under the "
-        "authorized-execution build after the §13 pre-execution review; not in prep.")
+    """Gated confirmation trigger — delegates to the integrated runner, which refuses
+    without 授权 C86H and again until the untouched field exists (separately authorized)."""
+    from . import runner
+    return runner.execute(authorization, output_root)
 
 
 if __name__ == "__main__":

@@ -62,9 +62,41 @@ def test_maxt_flags_strong_and_ignores_null():
     nulle = rng.normal(0.00, 0.05, n)       # centred on zero
     fam = {("A1", 8): strong, ("A2H", 8): nulle,
            ("A1", 16): nulle, ("A2H", 16): nulle}
-    out = A.maxt_familywise(fam, seed=A.maxt_seed("cohortX"), draws=2000)
+    out = A.maxt_familywise(fam, "OpenNeuro_ds007221_HYBRID_ADULT_V1", draws=2000)
+    assert out["sign_mode"] == "monte_carlo"          # 2**53 >> 2000
     assert out["significant"][("A1", 8)] is True
     assert out["significant"][("A2H", 8)] is False
+    assert out["hypotheses"][("A1", 8)]["adjusted_p"] <= 0.05
+    assert out["hypotheses"][("A2H", 8)]["adjusted_p"] > 0.05
+
+
+def test_maxt_parent_salt_and_family():
+    import hashlib
+    assert A.registered_family() == "A1@4|A1@8|A1@16|A1@32|A2H@4|A2H@8|A2H@16|A2H@32"
+    ds = "Brandl2020_CANONICAL_ADULT_V1"
+    want = int.from_bytes(
+        hashlib.sha256(f"C86_MAXT_V1|{ds}|{A.registered_family()}".encode()).digest()[:8],
+        "little")
+    assert A.maxt_seed(ds) == want                    # registered salt, dataset+family bound
+
+
+def test_maxt_exhaustive_for_small_n_and_min_p():
+    # n=4 -> 2**4 = 16 <= draws -> exhaustive exact enumeration, seed-independent
+    fam = {("A1", 8): np.array([0.4, 0.3, 0.35, 0.45]),
+           ("A2H", 8): np.array([0.0, 0.01, -0.01, 0.0])}
+    out = A.maxt_familywise(fam, "Brandl2020_CANONICAL_ADULT_V1", draws=65536)
+    assert out["sign_mode"] == "exhaustive"
+    assert out["n_signs"] == 16
+    # plus-one min achievable adjusted p = 1/(n_signs+1)
+    assert min(h["adjusted_p"] for h in out["hypotheses"].values()) >= 1.0 / (16 + 1)
+
+
+def test_maxt_brandl_16_is_exact_65536():
+    # Brandl has 16 targets -> 2**16 == 65536 == registered draws -> exhaustive exact
+    rng = np.random.default_rng(1)
+    fam = {("A1", 8): rng.normal(0.3, 0.05, 16), ("A2H", 8): rng.normal(0.0, 0.05, 16)}
+    out = A.maxt_familywise(fam, "Brandl2020_CANONICAL_ADULT_V1", draws=65536)
+    assert out["sign_mode"] == "exhaustive" and out["n_signs"] == 65536
 
 
 def test_tail_qualification_positive_and_negative():
@@ -95,14 +127,33 @@ def test_budget_status_input_unavailable_no_substitution():
 
 
 # --------------------------------------------------------------- formal gate C86-A..E
-def _uniform(mean_ok, tail_ok):
+def _uniform(mean_ok, tail_ok, stab_ok=None):
+    if stab_ok is None:
+        stab_ok = mean_ok
     fam = [(m, b) for m in K.ACTIVE_METHODS for b in K.FINITE_BUDGETS]
-    return {"mean": {mb: mean_ok for mb in fam}, "tail": {mb: tail_ok for mb in fam}}
+    return {"mean": {mb: mean_ok for mb in fam}, "tail": {mb: tail_ok for mb in fam},
+            "stability": {mb: stab_ok for mb in fam}}
 
 
 def test_gate_A_when_mean_and_tail_everywhere():
     pc = {"c1": _uniform(True, True), "c2": _uniform(True, True)}
     assert A.formal_gate(pc) == "C86-A"
+
+
+def test_gate_A_requires_stability():
+    # mean + tail universal but LOTO stability fails -> demoted to C86-B, not C86-A
+    pc = {"c1": _uniform(True, True, stab_ok=False), "c2": _uniform(True, True, stab_ok=False)}
+    assert A.formal_gate(pc) == "C86-B"
+
+
+def test_mean_qualification_excludes_loto_stability_separate():
+    e = np.full(20, 0.2)
+    cells = [0.1] * 8
+    mq = A.mean_qualification(e, cells, familywise_significant=True)
+    assert "loto" not in mq["checks"]           # LOTO is NOT a mean-qualification gate
+    assert mq["qualified"] is True
+    sq = A.stability_qualification(e)            # LOTO lives in the C86-A stability check
+    assert "loto" in sq and sq["qualified"] is True
 
 
 def test_gate_B_mean_but_not_tail():
@@ -136,7 +187,8 @@ def _mean_map(spec):
         for m, budgets in methods.items():
             for b in budgets:
                 mm[(m, b)] = True
-        pc[c] = {"mean": mm, "tail": {mb: False for mb in fam}}
+        pc[c] = {"mean": mm, "tail": {mb: False for mb in fam},
+                 "stability": {mb: False for mb in fam}}
     return pc
 
 
@@ -160,18 +212,72 @@ def test_frontier_L4_absent_in_a_cohort():
     assert A.label_frontier(pc) == "C86-L4"
 
 
+def test_frontier_L3_on_stability_heterogeneity():
+    # same-method small-budget frontier in both cohorts, but stability heterogeneous -> L3
+    pc = _mean_map({"c1": {"A1": {8, 16, 32}}, "c2": {"A1": {8, 16, 32}}})
+    pc["c1"]["stability"][("A1", 8)] = True
+    pc["c2"]["stability"][("A1", 8)] = False
+    assert A.label_frontier(pc) == "C86-L3"
+
+
+def test_frontier_method_precedence_prefers_L1():
+    # A1 -> L2 (max budget 16), A2H -> L1 (max budget 8); best across methods = L1
+    pc = _mean_map({"c1": {"A1": {16, 32}, "A2H": {8, 16, 32}},
+                    "c2": {"A1": {16, 32}, "A2H": {8, 16, 32}}})
+    assert A.label_frontier(pc) == "C86-L1"
+
+
 # ----------------------------------------------------- interpretive descriptor (L2)
+def _ceil(mean, tail, near_opt):
+    return {"mean": mean, "tail": tail, "near_opt": near_opt}
+
+
+def test_descriptor_computed_from_secondary_objects():
+    # FULL ceiling not usable in ANY cohort -> NONTRANSPORTABLE (independent of gate)
+    fails = {"c1": _ceil(0.20, 0.30, 0.0), "c2": _ceil(0.29, 0.48, 0.0)}
+    d = A.interpretive_descriptor(fails, {"any_material": True,
+                                          "robust_same_method_cross_cohort": True})
+    assert d["descriptor"] == "ACQUISITION_VIEW_NONTRANSPORTABLE"
+    # FULL usable + robust same-method cross-cohort -> CROSSED
+    usable = {"c1": _ceil(0.01, 0.02, 0.95), "c2": _ceil(0.02, 0.03, 0.93)}
+    assert A.interpretive_descriptor(
+        usable, {"any_material": True, "robust_same_method_cross_cohort": True}
+    )["descriptor"] == "BOUNDARY_OPERATIONALLY_CROSSED"
+    # FULL usable + material but not robust -> WEAKENED
+    assert A.interpretive_descriptor(
+        usable, {"any_material": True, "robust_same_method_cross_cohort": False}
+    )["descriptor"] == "BOUNDARY_WEAKENED_NOT_ROBUST"
+    # FULL usable + no gain -> NO_REGISTERED_ACTIVE_GAIN
+    assert A.interpretive_descriptor(
+        usable, {"any_material": False, "robust_same_method_cross_cohort": False}
+    )["descriptor"] == "NO_REGISTERED_ACTIVE_GAIN"
+
+
 def test_policy_limited_fixed_not_identifiable():
-    for gate in ("C86-A", "C86-B", "C86-C", "C86-D"):
-        d = A.interpretive_descriptor(gate)
+    usable = {"c1": _ceil(0.01, 0.02, 0.95), "c2": _ceil(0.02, 0.03, 0.93)}
+    for gain in ({"any_material": True, "robust_same_method_cross_cohort": True},
+                 {"any_material": False, "robust_same_method_cross_cohort": False}):
+        d = A.interpretive_descriptor(usable, gain)
         assert d["policy_limited"] == "NOT_IDENTIFIABLE_IN_C86H"
         assert d["descriptor"] != "POLICY_LIMITED"   # never inferred from results
-    assert A.interpretive_descriptor("C86-E")["descriptor"] is None
+
+
+def test_descriptor_decoupled_from_gate():
+    # gate = C86-C (no mean anywhere) but FULL ceiling usable + robust -> descriptor CROSSED,
+    # proving the descriptor is NOT a table-lookup from the gate.
+    pc = {"c1": _uniform(False, False), "c2": _uniform(False, False)}
+    usable = {"c1": _ceil(0.01, 0.02, 0.95), "c2": _ceil(0.02, 0.03, 0.93)}
+    out = A.classify(pc, usable, {"any_material": True,
+                                  "robust_same_method_cross_cohort": True})
+    assert out["formal_gate"] == "C86-C"
+    assert out["interpretive"]["descriptor"] == "BOUNDARY_OPERATIONALLY_CROSSED"
 
 
 def test_classify_two_levels_separate():
     pc = {"c1": _uniform(True, True), "c2": _uniform(True, True)}
-    out = A.classify(pc)
+    usable = {"c1": _ceil(0.01, 0.02, 0.95), "c2": _ceil(0.02, 0.03, 0.93)}
+    out = A.classify(pc, usable, {"any_material": True,
+                                  "robust_same_method_cross_cohort": True})
     assert out["formal_gate"] == "C86-A"
     assert out["label_frontier"] in K.LABEL_FRONTIER
     assert out["interpretive"]["policy_limited"] == "NOT_IDENTIFIABLE_IN_C86H"
