@@ -1,0 +1,75 @@
+{
+  "dataset": "BNCI2015_001",
+  "subject": "3",
+  "seed": 1,
+  "status": "ok",
+  "rank": 8,
+  "n_cal": 200,
+  "n_query": 200,
+  "cal_session": [
+    "0A"
+  ],
+  "query_sessions": [
+    "1B"
+  ],
+  "n_random": 10,
+  "n_draws": 20,
+  "informed": {
+    "R0": -0.0050000000000000044,
+    "RX": 0.020000000000000018,
+    "R1": 0.0019999999999999797,
+    "R2": 0.005749999999999972,
+    "R4": -0.002750000000000008,
+    "RF": -0.0050000000000000044
+  },
+  "random_mean": {
+    "R0": -0.0050000000000000044,
+    "RX": 0.08499999999999996,
+    "R1": 0.07809999999999996,
+    "R2": 0.08554999999999999,
+    "R4": 0.09392499999999995,
+    "RF": 0.09849999999999996
+  },
+  "specific": {
+    "R0": 0.0,
+    "RX": -0.06499999999999995,
+    "R1": -0.07609999999999999,
+    "R2": -0.07980000000000001,
+    "R4": -0.09667499999999996,
+    "RF": -0.10349999999999997
+  },
+  "head_only": {
+    "R1": {
+      "source_identity": 0.5399999999999998,
+      "native": 0.5574999999999999,
+      "selected": 0.51175
+    },
+    "R2": {
+      "source_identity": 0.5399999999999998,
+      "native": 0.632,
+      "selected": 0.6035
+    },
+    "R4": {
+      "source_identity": 0.5399999999999998,
+      "native": 0.72775,
+      "selected": 0.62675
+    },
+    "RF": {
+      "source_identity": 0.54,
+      "native": 0.895,
+      "selected": 0.775
+    }
+  },
+  "oracle": {
+    "delta": 0.02285714285714286,
+    "random": 0.0058571428571428785,
+    "rank": 8
+  },
+  "firewall": {
+    "source_only_construction": true,
+    "Ycal_used_for_selection": true,
+    "Yquery_used_for_selection": false,
+    "Xquery_used_for_selection": false,
+    "Yquery_used_for_outcome": true
+  }
+}
