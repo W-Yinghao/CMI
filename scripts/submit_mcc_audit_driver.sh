@@ -10,8 +10,12 @@ while :; do
   done_n=$(ls "$OUTDIR"/cell_*.done 2>/dev/null | wc -l)
   echo "[audit-driver] done=$done_n/63 $(date -u +%H:%M:%S)"
   [ "$done_n" -ge 63 ] && { echo "[audit-driver] all 63 cells done"; break; }
-  havedone=$(ls "$OUTDIR"/cell_*.done 2>/dev/null | grep -oE 'cell_0*[0-9]+_' | grep -oE '[0-9]+' | sort -n | uniq)
-  missing=$(comm -23 <(seq 0 62 | sort -n) <(echo "$havedone" | sort -n) | sort -n)
+  # missing = indices 0..62 whose zero-padded cell_NNN_*.done does not exist (loop-based; no fragile comm sort)
+  missing=""
+  for i in $(seq 0 62); do
+    compgen -G "$OUTDIR/cell_$(printf '%03d' "$i")_*.done" > /dev/null || missing="$missing $i"
+  done
+  missing=$(echo "$missing" | tr ' ' '\n' | grep -v '^$')
   mine=$(squeue -u "$USER" -h 2>/dev/null | grep -c mcc-audit || true)
   room=$((CAP - mine))
   if [ "$room" -ge 1 ] && [ -n "$missing" ]; then
