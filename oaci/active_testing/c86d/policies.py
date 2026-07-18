@@ -9,6 +9,7 @@ linear moments; the composite plugin has no unbiasedness claim.
 from __future__ import annotations
 
 import glob
+import hashlib
 import json
 import os
 
@@ -90,40 +91,49 @@ def composite_from_metrics(bacc, nll, ece):
     return comp, std_regret, int(np.argmax(comp))     # first-index tie
 
 
-def estimate_metrics(labels, contribs, weights, full: bool):
-    """Per-candidate bAcc (Jeffreys finite / exact FULL), LURE-weighted NLL, 15-bin ECE."""
+def estimate_metrics(labels, contribs, weights, full: bool, n_pool: int):
+    """Locked LURE population-total estimator (NOT self-normalized).
+
+    NLL   = (1/M) Σ v_m nll_m
+    N̂_y  = (N/M) Σ v_m 1{y_m=y};   Ĉ_y = (N/M) Σ v_m 1{y_m=y} correct_m
+    recall_y = (Ĉ_y + p)/(N̂_y + 2p)  with Jeffreys p=0.5 (finite) / p=0 (FULL, exact)
+    ECE   = Σ_b |(1/M) Σ v_m 1{bin=b}(correct_m − conf_m)|
+    """
     y = np.asarray(labels)
     nll = np.asarray(contribs["nll"]); correct = np.asarray(contribs["correct"])
     conf = np.asarray(contribs["confidence"]); cbin = np.asarray(contribs["conf_bin"])
-    w = np.ones(len(y)) if weights is None else np.asarray(weights, dtype=np.float64)
-    w = w / w.sum() * len(y)                            # mean-preserving normalization
-    K = nll.shape[1]
-    est_nll = (w[:, None] * nll).mean(axis=0)          # LURE-weighted linear moment
-    pseudo = 0.0 if full else 0.5                      # Jeffreys for finite budget; exact at FULL
+    v = np.ones(len(y)) if weights is None else np.asarray(weights, dtype=np.float64)
+    M = len(y); N = n_pool; K = nll.shape[1]
+    est_nll = (v[:, None] * nll).sum(axis=0) / M                 # (1/M) Σ v_m nll_m
+    pseudo = 0.0 if full else 0.5
     bacc = np.zeros(K)
-    for cl in CLASSES:                                 # pre-registered class set (never drop a class)
+    for cl in CLASSES:                                          # pre-registered class set (never drop)
         m = y == cl
-        Nw = w[m].sum()
-        Cw = (w[m][:, None] * correct[m]).sum(axis=0) if m.any() else np.zeros(K)
-        bacc += (Cw + pseudo) / (Nw + 2 * pseudo)
+        Ny = (N / M) * v[m].sum() if m.any() else 0.0
+        Cy = (N / M) * (v[m][:, None] * correct[m]).sum(axis=0) if m.any() else np.zeros(K)
+        bacc += (Cy + pseudo) / (Ny + 2 * pseudo)
     bacc /= len(CLASSES)
-    # 15-bin weighted ECE: Σ_b (w_b/W) |mean_conf_b − mean_acc_b|
-    ece = np.zeros(K); W = w.sum()
+    ece = np.zeros(K)
     for c in range(K):
         e = 0.0
         for b in range(CONF_BINS):
             mb = cbin[:, c] == b
-            wb = w[mb].sum()
-            if wb > 0:
-                conf_b = (w[mb] * conf[mb, c]).sum() / wb
-                acc_b = (w[mb] * correct[mb, c]).sum() / wb
-                e += (wb / W) * abs(conf_b - acc_b)
+            if mb.any():
+                e += abs((v[mb] * (correct[mb, c] - conf[mb, c])).sum() / M)
         ece[c] = e
     return bacc, est_nll, ece
 
 
-def composite_select(labels, contribs, weights=None, full=False):
-    bacc, nll, ece = estimate_metrics(labels, contribs, weights, full)
+def chain_seed(dataset, subject, chain_id, salt="C86_ACTIVE_CHAIN_V1"):
+    """Target-bound seed: low64(SHA256(salt|dataset|subject|chain_id))."""
+    h = hashlib.sha256(f"{salt}|{dataset}|{subject}|{chain_id}".encode()).digest()
+    return int.from_bytes(h[:8], "little")
+
+
+def composite_select(labels, contribs, weights=None, full=False, n_pool=None):
+    if n_pool is None:
+        n_pool = len(labels)
+    bacc, nll, ece = estimate_metrics(labels, contribs, weights, full, n_pool)
     comp, std_regret, sel = composite_from_metrics(bacc, nll, ece)
     return sel, {"balanced_accuracy": bacc, "nll": nll, "ece": ece,
                  "composite": comp, "std_regret_construction": std_regret}

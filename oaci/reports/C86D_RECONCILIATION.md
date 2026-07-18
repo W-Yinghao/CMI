@@ -52,3 +52,52 @@ Patched + tested (32 C86D tests pass; full collection intact). Attempt 902203 is
 preserved as engineering. **No rerun performed.** The corrected development run
 (D1→D2) will run only under a fresh direct `授权 C86D`; C86H / C87 / manuscript
 remain unauthorized; C86H does not auto-start C87.
+
+---
+
+## Round 2 — final estimator / seed / order / endpoint reconciliation
+
+Second PM review; same C86D scope; tested (37 tests), NOT rerun (needs fresh
+`授权 C86D`).
+
+1. **D2 verifies freezes BEFORE opening C85U.** `run_d2.verify_freezes` fully
+   checks path/count/SHA/schema/uniqueness and returns a selected-actions-only
+   object; `load_c85u_field` is called only afterward. Test monkeypatches
+   `load_c85u_field` to fire if reached — a tampered freeze raises in verification
+   first, proving C85U is not opened before selection is verified.
+2. **Locked LURE population-total estimator (no self-normalization).** NLL =
+   `(1/M) Σ v_m ℓ_m`; Jeffreys bAcc from estimated totals `N̂_y=(N/M)Σ v_m 1{y}`,
+   `Ĉ_y=(N/M)Σ v_m 1{y}·correct`, `recall=(Ĉ+0.5)/(N̂+1)`; ECE =
+   `Σ_b |(1/M) Σ v_m 1{bin=b}(correct−conf)|`. FULL (M=N, v=1) is exact. Test: the
+   estimator is not self-normalized.
+3. **Target-bound chain seeds.** `chain_seed = low64(SHA256(C86_ACTIVE_CHAIN_V1|
+   dataset|subject|chain))` — different targets get independent streams; the same
+   (target, chain) is shared across P0/A1/A2H as paired common random numbers.
+4. **Indicator-first near-opt.** Per replicate: `1{ mean_8ctx raw_gap ≤ ε }`;
+   target near-opt prob = mean over replicates; cohort = mean over targets — not a
+   threshold on the replicate-averaged gap.
+5. **Path separation.** C85U identities moved to `c85u_config` (imported only by
+   D2 / lazily by `verify_c85u_identity`), so `core` and any D1 process hold no held
+   path. D1 is a launcher that starts the sealed server and spawns a **path-blind
+   worker** (a separate spawned process holding only the pipe + the client-visible
+   pool). Tests: core has no C85U attribute; run_d1 does not import `c85u_config`.
+6. **C86L acceptance replay in D1.** The launcher re-hashes every C86L field artifact
+   against the accepted content-addressed manifest and binds the acceptance gate
+   before any query.
+7. **FULL positive control.** The composite pipeline is validated against C85U to
+   0.0 error (formula), and D2 checks `full_acquisition_invariant` (P0/A1/A2H select
+   identically at FULL). Note: no standalone historical *construction* composite
+   artifact exists (C85U is evaluation-side), so the construction FULL reference is
+   the exact deterministic recomputation, not a pre-stored table.
+8. **Replicate/target-level table persisted.** `C86D_REPLICATE_TABLE.json`
+   (target×method×budget×chain rows: std regret, raw gap, near-opt indicator) plus
+   paired active−P0 Monte-Carlo SE per budget.
+9. **Five-way development taxonomy** (`run_d2._classify`): CROSSED / WEAKENED /
+   ACQUISITION_VIEW_NONTRANSPORTABLE / NO_REGISTERED_ACTIVE_GAIN with per-cohort
+   mean/tail/near-opt gates + FULL ceiling. POLICY_LIMITED requires a separate
+   oracle-acquisition diagnostic (not part of the {P0,A1,A2H} registry), noted in
+   the manifest rather than silently emitted.
+10. **Old raw-gap `HeldEvaluator` retired** to diagnostic-only (returns
+    `target_raw_gap_diagnostic`, explicitly not the primary risk).
+
+37 C86D tests pass. Corrected D1→D2 run performed only under a fresh `授权 C86D`.

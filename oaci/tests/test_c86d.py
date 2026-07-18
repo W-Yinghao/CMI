@@ -9,7 +9,7 @@ import numpy as np
 import pytest
 
 from oaci.active_testing import c86d
-from oaci.active_testing.c86d import core, policies
+from oaci.active_testing.c86d import core, policies, c85u_config
 from oaci.active_testing.c86d.pipeline import (
     AUTHORIZATION_PHRASE, C86DNotAuthorized, C86DOrderingError, HeldEvaluator,
     execute, run_selection,
@@ -107,7 +107,7 @@ def test_evaluation_requires_frozen_selection(tmp_path):
         fr = run_selection(client, pool[("ShadowDS", 0)], ("ShadowDS", 0), "A1", 4, seed=1)
         ev = HeldEvaluator(f["held_by_ctx"], verify_identity=False)
         out = ev.evaluate(fr)
-        assert out["n_contexts"] == 8 and 0.0 <= out["target_regret"]
+        assert out["n_contexts"] == 8 and 0.0 <= out["target_raw_gap_diagnostic"]
         fr.frozen = False                              # tamper: unfreeze
         with pytest.raises(C86DOrderingError):
             ev.evaluate(fr)
@@ -132,7 +132,7 @@ def test_method_freeze_registry():
 
 # --- C85U identity: real-manifest verify (guarded) + mismatch path -----------
 def test_c85u_identity_verify_real_if_present():
-    if not os.path.exists(core.C85U_ACCEPTANCE_MANIFEST):
+    if not os.path.exists(c85u_config.C85U_ACCEPTANCE_MANIFEST):
         pytest.skip("C85U manifest not mounted")
     idy = core.verify_c85u_identity()
     assert idy["verified"] is True
@@ -185,7 +185,7 @@ def test_jeffreys_bacc_missing_class():
     y = [0, 0, 0]
     contribs = {"nll": np.zeros((3, 81)), "correct": np.ones((3, 81), int),
                 "confidence": np.full((3, 81), 0.9), "conf_bin": np.full((3, 81), 13, int)}
-    bacc, _, _ = policies.estimate_metrics(y, contribs, None, full=False)
+    bacc, _, _ = policies.estimate_metrics(y, contribs, None, False, len(y))
     # class0 recall = (3+.5)/(3+1)=0.875 ; class1 (missing) = (0+.5)/(0+1)=0.5 ; bAcc=mean=0.6875
     assert np.allclose(bacc, (0.875 + 0.5) / 2)
 
@@ -196,15 +196,15 @@ def test_binwise_ece_closed_form():
     y = [0, 1]
     contribs = {"nll": np.zeros((2, 2)), "correct": np.array([[1, 1], [0, 0]]),
                 "confidence": np.full((2, 2), 0.8), "conf_bin": np.full((2, 2), 12, int)}
-    _, _, ece = policies.estimate_metrics(y, contribs, None, full=True)
+    _, _, ece = policies.estimate_metrics(y, contribs, None, True, len(y))
     assert np.allclose(ece, 0.3)                    # binwise |mean_conf - mean_acc|, not mean|.|
 
 
 # --- blocker 2c: composite pipeline reproduces C85U exactly (positive control)
 def test_c85u_composite_positive_control():
-    if not os.path.exists(core.C85U_UTILITY_INDEX):
+    if not os.path.exists(c85u_config.C85U_UTILITY_INDEX):
         pytest.skip("C85U index not mounted")
-    rows = [r for r in csv.DictReader(open(core.C85U_UTILITY_INDEX))
+    rows = [r for r in csv.DictReader(open(c85u_config.C85U_UTILITY_INDEX))
             if r["context_id"] == "8f38605b8c47d37ef0b1e76f"]
     bacc = np.array([float(r["balanced_accuracy"]) for r in rows])
     nll = np.array([float(r["NLL"]) for r in rows]); ece = np.array([float(r["ECE"]) for r in rows])
@@ -258,7 +258,7 @@ def test_d2_rejects_tampered_freeze(tmp_path):
             "sha256": hashlib.sha256(b"WRONG").hexdigest()}]   # deliberately wrong hash
     (d1 / "C86D_D1_MANIFEST.json").write_text(json.dumps(
         {"c85u_accessed": False, "budgets": ["FULL"], "n_freeze_files": 1, "freeze_index": idx}))
-    if not os.path.exists(core.C85U_UTILITY_INDEX):
+    if not os.path.exists(c85u_config.C85U_UTILITY_INDEX):
         pytest.skip("C85U index not mounted")
     with pytest.raises(RuntimeError):
         run_d2.run_d2(str(d1), str(tmp_path / "out"))
@@ -268,3 +268,78 @@ def test_d2_rejects_tampered_freeze(tmp_path):
 def test_c86h_registry_constant():
     assert core.METHOD_FREEZE["primary_registry"] == ("P0", "A1", "A2H")
     assert core.METHOD_FREEZE["no_post_hoc_method_add_or_drop"] is True
+
+
+# ============ PM C86D final-reconciliation tests ============
+
+# --- LURE population-total estimator (NOT self-normalized) --------------------
+def test_lure_population_totals_not_self_normalized():
+    y = [0, 1]
+    nll = np.array([[1.0, 2.0], [3.0, 4.0]])
+    contribs = {"nll": nll, "correct": np.zeros((2, 2), int),
+                "confidence": np.full((2, 2), 0.6), "conf_bin": np.full((2, 2), 9, int)}
+    v = [2.0, 1.0]
+    _, est_nll, _ = policies.estimate_metrics(y, contribs, v, False, n_pool=10)
+    assert np.allclose(est_nll, (2.0 * nll[0] + 1.0 * nll[1]) / 2)   # (1/M) Σ v_m nll_m
+    # self-normalized would give a different value
+    w = np.array(v) / np.sum(v) * 2
+    assert not np.allclose(est_nll, (w[:, None] * nll).mean(axis=0))
+
+
+# --- target-bound chain seeds ------------------------------------------------
+def test_chain_seed_target_bound():
+    a = policies.chain_seed("Cho2017", 1, 0)
+    assert a == policies.chain_seed("Cho2017", 1, 0)            # deterministic
+    assert a != policies.chain_seed("Lee2019_MI", 1, 0)        # different target -> different seed
+    assert a != policies.chain_seed("Cho2017", 2, 0)          # different subject
+    assert a != policies.chain_seed("Cho2017", 1, 1)          # different chain
+
+
+# --- config split: core holds no C85U path; run_d1 has no C85U ----------------
+def test_c85u_paths_only_in_c85u_config():
+    assert not hasattr(core, "C85U_UTILITY_INDEX")
+    assert not hasattr(core, "C85U_ACCEPTANCE_MANIFEST")
+    from oaci.active_testing.c86d import run_d1
+    assert not hasattr(run_d1, "C85U_UTILITY_INDEX")
+    src = open(run_d1.__file__).read()
+    assert "c85u_config" not in src and "candidate_utility_index" not in src
+
+
+# --- 5-way development taxonomy classifier -----------------------------------
+def test_taxonomy_five_way():
+    from oaci.active_testing.c86d.run_d2 import _classify
+    cohorts = ["Cho2017", "Lee2019_MI", "PhysionetMI"]
+
+    def ep(mean, tail, nopt):
+        return {"mean_regret_std": mean, "tail_regret_std": tail, "target_near_opt_prob": nopt,
+                "mean_by_cohort": {c: mean for c in cohorts},
+                "tail_by_cohort": {c: tail for c in cohorts},
+                "near_opt_by_cohort": {c: nopt for c in cohorts}}
+    budgets = ["4", "FULL"]
+    # ceiling fails -> nontransportable
+    e = {f"{m}|{b}": ep(0.3, 0.3, 0.0) for m in ("P0", "A1", "A2H") for b in budgets}
+    assert _classify(e, budgets, cohorts)["label"] == "ACQUISITION_VIEW_NONTRANSPORTABLE"
+    # ceiling ok, no active gain
+    e = {f"{m}|{b}": ep(0.02, 0.02, 1.0) for m in ("P0", "A1", "A2H") for b in budgets}
+    assert _classify(e, budgets, cohorts)["label"] == "NO_REGISTERED_ACTIVE_GAIN"
+    # ceiling ok, A1 crosses at budget 4
+    e = {f"{m}|{b}": ep(0.02, 0.02, 1.0) for m in ("P0", "A1", "A2H") for b in budgets}
+    e["P0|4"] = ep(0.20, 0.30, 0.3); e["A1|4"] = ep(0.02, 0.03, 0.9)
+    assert _classify(e, budgets, cohorts)["label"] == "BOUNDARY_OPERATIONALLY_CROSSED"
+
+
+# --- D2 verifies freezes BEFORE opening C85U (order) -------------------------
+def test_d2_verifies_freeze_before_opening_c85u(tmp_path, monkeypatch):
+    from oaci.active_testing.c86d import run_d2
+    d1 = tmp_path / "d1"; (d1 / "freezes").mkdir(parents=True)
+    (d1 / "freezes" / "f.json").write_text('{"method":"P0","target":["Cho2017",1],"chain":0,"seed":9,"budgets":[]}')
+    idx = [{"file": "freezes/f.json", "method": "P0", "target": ["Cho2017", 1], "chain": 0,
+            "sha256": "0" * 64}]                            # deliberately wrong hash
+    (d1 / "C86D_D1_MANIFEST.json").write_text(json.dumps(
+        {"c85u_accessed": False, "budgets": ["FULL"], "n_freeze_files": 1, "freeze_index": idx}))
+    # if C85U were opened before verification, this would fire the wrong error
+    monkeypatch.setattr(run_d2, "load_c85u_field",
+                        lambda: (_ for _ in ()).throw(AssertionError("C85U opened before verify")))
+    with pytest.raises(RuntimeError) as ei:
+        run_d2.run_d2(str(d1), str(tmp_path / "out"))
+    assert "tampered" in str(ei.value)                     # caught by verify_freezes, before C85U

@@ -23,17 +23,8 @@ LINEAR_MOMENTS = frozenset({"nll", "correct", "class_numerator", "signed_calibra
 NONLINEAR_PLUGINS = frozenset({"balanced_accuracy", "ece", "candidate_midrank",
                                "composite_utility", "selected_action", "target_regret"})
 
-# C85U held-evaluation utility identity (verified by hashing, never hardcoded-trusted).
-C85U_ACCEPTANCE_MANIFEST = ("/projects/EEG-foundation-model/yinghao/oaci-c85u-candidate-utility-v2/"
-                            "c85u-v2-77382c16a593f7c2-91a428488a634268/final_acceptance_bundle/"
-                            "C85U_RESULT_ARTIFACT_MANIFEST.json")
-C85U_ACCEPTANCE_SHA = "dfcf84569beb1b34b786cbe72233a22fd3928a4475b7e345f23b40cdb6671620"
-C85U_FIELD_IDENTITY = {"contexts": 944, "candidates_per_context": 81,
-                       "candidate_rows": 76_464, "evaluation_label_table_rows": 4_848}
-C85U_UTILITY_INDEX = ("/projects/EEG-foundation-model/yinghao/oaci-c85u-candidate-utility-v2/"
-                      "c85u-v2-77382c16a593f7c2-91a428488a634268/stage_u1_candidate_utility_v2/"
-                      "candidate_utility_index.csv")
-C85U_UTILITY_INDEX_SHA = "83bddf56290c4e06a306d64dadfc9611115a177f479d433fe0e4485b0c181509"
+# C85U held-evaluation identities live in c85u_config (imported lazily below and by
+# D2 only) so that a Stage-D1 selection process never holds a held-evaluation path.
 
 
 class C86DClaimError(RuntimeError):
@@ -79,11 +70,15 @@ def sha256_file(path: str) -> str:
     return h.hexdigest()
 
 
-def verify_c85u_identity(manifest_path: str = C85U_ACCEPTANCE_MANIFEST) -> dict:
+def verify_c85u_identity(manifest_path: str | None = None) -> dict:
     """Open + hash the REAL C85U acceptance manifest and check its field identity.
 
-    Fail-closed; never trust a hardcoded SHA alone.
+    Fail-closed; never trust a hardcoded SHA alone. The C85U path/SHA are imported
+    lazily here so that merely importing ``core`` never puts a held path in scope.
     """
+    from .c85u_config import (C85U_ACCEPTANCE_MANIFEST, C85U_ACCEPTANCE_SHA,
+                              C85U_FIELD_IDENTITY)
+    manifest_path = manifest_path or C85U_ACCEPTANCE_MANIFEST
     if not os.path.exists(manifest_path):
         raise C86DIdentityError(f"C85U acceptance manifest absent: {manifest_path}")
     actual = sha256_file(manifest_path)

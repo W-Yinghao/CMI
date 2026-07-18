@@ -80,24 +80,29 @@ def run_selection(client, target_pool, target, method, budget, seed) -> Selectio
 
 
 class HeldEvaluator:
-    """Opens C85U only after a finalized freeze. No server handle, no oracle."""
+    """DIAGNOSTIC-ONLY raw-utility-gap evaluator for shadow tests.
 
-    def __init__(self, held_by_ctx: dict, verify_identity: bool = True):
-        # held_by_ctx: (target, context) -> util[81] (the frozen C85U candidate-utility field)
+    RETIRED as the C86D primary path: the primary development risk is the held
+    STANDARDIZED regret computed in ``run_d2`` (which also enforces freeze-verify-
+    before-C85U-open and holds no server handle). This class only computes the raw
+    composite-utility gap for the epsilon geometry / shadow ordering tests, and must
+    not be used as the primary risk.
+    """
+
+    def __init__(self, held_by_ctx: dict, verify_identity: bool = False):
         self._held = held_by_ctx
         self.identity = verify_c85u_identity() if verify_identity else {"verified": False}
 
     def evaluate(self, freeze: SelectionFreeze) -> dict:
         if not freeze.frozen:
             raise C86DOrderingError("selection must be frozen before held evaluation")
-        ctx_regret = {}
+        gap = {}
         for ctx, sel in freeze.selected_by_context.items():
             util = np.asarray(self._held[(freeze.target, ctx)])
-            ctx_regret[ctx] = float(util.max() - util[sel])
-        target_regret = float(np.mean(list(ctx_regret.values())))   # equal-weight 8-context mean
+            gap[ctx] = float(util.max() - util[sel])
         return {"target": freeze.target, "method": freeze.method, "budget": freeze.budget,
-                "context_regret": ctx_regret, "target_regret": target_regret,
-                "n_contexts": len(ctx_regret)}
+                "context_raw_gap": gap, "target_raw_gap_diagnostic": float(np.mean(list(gap.values()))),
+                "n_contexts": len(gap), "primary_risk": "see run_d2 standardized regret"}
 
 
 def execute(authorization: str | None = None, output_root: str = "", **kwargs):

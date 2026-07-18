@@ -120,9 +120,10 @@ class QueryClientHandle:
             self._conn.send(("shutdown",))
         except (BrokenPipeError, OSError):
             pass
-        self._proc.join(timeout=10)
-        if self._proc.is_alive():
-            self._proc.terminate()
+        if self._proc is not None:
+            self._proc.join(timeout=10)
+            if self._proc.is_alive():
+                self._proc.terminate()
 
 
 def start_query_server(oracle_root: str, contrib_root: str) -> QueryClientHandle:
@@ -133,3 +134,15 @@ def start_query_server(oracle_root: str, contrib_root: str) -> QueryClientHandle
     proc.start()
     child.close()
     return QueryClientHandle(parent, proc)
+
+
+def start_server_process(oracle_root: str, contrib_root: str):
+    """Low-level launcher: returns (parent_conn, server_proc). The launcher holds the
+    sealed paths; the parent_conn can be handed to a SEPARATE path-blind worker so the
+    active-policy process never sees oracle/contribution paths."""
+    ctx = mp.get_context("spawn")
+    parent, child = ctx.Pipe()
+    proc = ctx.Process(target=_server_loop, args=(child, oracle_root, contrib_root), daemon=True)
+    proc.start()
+    child.close()
+    return parent, proc
