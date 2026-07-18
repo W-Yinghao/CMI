@@ -20,7 +20,8 @@ from .core import (  # noqa: F401
 )
 from .server import QueryClientHandle, start_query_server  # noqa: F401
 from .policies import (  # noqa: F401
-    acquisition_score, composite_select, load_pool, select_query_sequence, unbiasedness_claim,
+    acquisition_path, acquisition_score, budget_prefix, composite_from_metrics,
+    composite_select, estimate_metrics, load_pool, unbiasedness_claim,
 )
 from .pipeline import (  # noqa: F401
     AUTHORIZATION_PHRASE, C86DNotAuthorized, C86DOrderingError, HeldEvaluator,

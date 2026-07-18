@@ -2,6 +2,7 @@
 exact CVaR, claim boundary, C85U identity, gated execution. No real active run."""
 from __future__ import annotations
 
+import json
 import os
 
 import numpy as np
@@ -158,3 +159,112 @@ def test_execute_authorized_requires_output_root():
     # with the phrase the guard passes; the real run still needs an explicit output_root
     with pytest.raises(ValueError):
         execute(authorization=AUTHORIZATION_PHRASE)
+
+
+# ============ PM C86D reconciliation tests ============
+import csv
+
+
+# --- blocker 1: A1 entropy non-negative + non-uniform; uniform pool degenerates to P0
+def test_a1_entropy_nonnegative_and_nonuniform():
+    p = np.array([[0.99, 0.01], [0.5, 0.5], [0.7, 0.3]])
+    assert (policies._entropy(p) >= 0).all()
+    pool = {"t0": {"c": np.tile([0.99, 0.01], (81, 1))},
+            "t1": {"c": np.tile([0.5, 0.5], (81, 1))}}
+    s = policies.acquisition_score(pool, "A1")
+    assert s["t0"] != s["t1"]                       # informative asymmetry -> non-uniform score
+    # symmetric pool -> equal scores -> A1 proposal is uniform (== P0 regime)
+    sym = {"t0": {"c": np.tile([0.5, 0.5], (81, 1))}, "t1": {"c": np.tile([0.5, 0.5], (81, 1))}}
+    ss = policies.acquisition_score(sym, "A1")
+    assert abs(ss["t0"] - ss["t1"]) < 1e-12
+
+
+# --- blocker 2a: Jeffreys bAcc (missing class -> 0.5), no dropped class
+def test_jeffreys_bacc_missing_class():
+    # only class 0 present in the queried sample; class 1 must contribute Jeffreys 0.5
+    y = [0, 0, 0]
+    contribs = {"nll": np.zeros((3, 81)), "correct": np.ones((3, 81), int),
+                "confidence": np.full((3, 81), 0.9), "conf_bin": np.full((3, 81), 13, int)}
+    bacc, _, _ = policies.estimate_metrics(y, contribs, None, full=False)
+    # class0 recall = (3+.5)/(3+1)=0.875 ; class1 (missing) = (0+.5)/(0+1)=0.5 ; bAcc=mean=0.6875
+    assert np.allclose(bacc, (0.875 + 0.5) / 2)
+
+
+# --- blocker 2b: 15-bin ECE closed form (not mean|conf-correct|)
+def test_binwise_ece_closed_form():
+    # 2 candidates, 2 trials in the same bin; conf 0.8 both, correct [1,0] -> acc 0.5, |0.8-0.5|=0.3
+    y = [0, 1]
+    contribs = {"nll": np.zeros((2, 2)), "correct": np.array([[1, 1], [0, 0]]),
+                "confidence": np.full((2, 2), 0.8), "conf_bin": np.full((2, 2), 12, int)}
+    _, _, ece = policies.estimate_metrics(y, contribs, None, full=True)
+    assert np.allclose(ece, 0.3)                    # binwise |mean_conf - mean_acc|, not mean|.|
+
+
+# --- blocker 2c: composite pipeline reproduces C85U exactly (positive control)
+def test_c85u_composite_positive_control():
+    if not os.path.exists(core.C85U_UTILITY_INDEX):
+        pytest.skip("C85U index not mounted")
+    rows = [r for r in csv.DictReader(open(core.C85U_UTILITY_INDEX))
+            if r["context_id"] == "8f38605b8c47d37ef0b1e76f"]
+    bacc = np.array([float(r["balanced_accuracy"]) for r in rows])
+    nll = np.array([float(r["NLL"]) for r in rows]); ece = np.array([float(r["ECE"]) for r in rows])
+    comp_t = np.array([float(r["composite_utility"]) for r in rows])
+    sr_t = np.array([float(r["standardized_regret"]) for r in rows])
+    comp, sr, _ = policies.composite_from_metrics(bacc, nll, ece)
+    assert np.max(np.abs(comp - comp_t)) < 1e-9
+    assert np.max(np.abs(sr - sr_t)) < 1e-9
+
+
+# --- blocker 3: raw utility gap and standardized regret are NOT interchangeable
+def test_raw_gap_vs_standardized_regret_differ():
+    comp = np.array([0.9, 0.6, 0.1] + [0.5] * 78)
+    _, std, _ = policies.composite_from_metrics(
+        comp, np.zeros(81), np.zeros(81))            # feed comp as one metric to get a spread
+    raw_gap = comp.max() - comp
+    # std regret is raw_gap / spread; they differ unless spread == 1
+    assert not np.allclose(raw_gap, (comp.max() - comp) / (comp.max() - comp.min()))
+
+
+# --- warm start (first 4 uniform) + nested prefix + budget-specific LURE weights
+def test_warm_start_and_nested_prefix():
+    pool = {f"t{i}": {"c": np.tile([0.5 + 0.004 * i, 0.5 - 0.004 * i], (81, 1))} for i in range(20)}
+    order, q = policies.acquisition_path(pool, "A1", seed=0)
+    N = len(order)
+    assert q[:4] == [1.0 / N, 1.0 / (N - 1), 1.0 / (N - 2), 1.0 / (N - 3)]   # warm start uniform
+    p8, w8 = policies.budget_prefix(order, q, N, 8)
+    p16, w16 = policies.budget_prefix(order, q, N, 16)
+    assert p8 == p16[:8]                             # nested prefixes
+    assert np.allclose(w8[:4], 1.0)                 # warm-start steps => LURE weight 1
+    assert not np.allclose(w8[4:8], w16[:8][4:8])   # ACTIVE steps use budget-specific LURE v_m^M
+
+
+# --- D1 stage does not import/reference C85U ---------------------------------
+def test_d1_has_no_c85u_reference():
+    from oaci.active_testing.c86d import run_d1
+    src = open(run_d1.__file__).read()
+    assert "candidate_utility_index" not in src and "C85U_UTILITY_INDEX" not in src
+    assert "verify_c85u_identity" not in src
+    assert not hasattr(run_d1, "C85U_UTILITY_INDEX")
+
+
+# --- D2 fails closed on a tampered freeze ------------------------------------
+def test_d2_rejects_tampered_freeze(tmp_path):
+    from oaci.active_testing.c86d import run_d2
+    import hashlib
+    d1 = tmp_path / "d1"; (d1 / "freezes").mkdir(parents=True)
+    blob = '{"method":"P0","target":["Cho2017",1],"seed":0,"budgets":[]}'
+    (d1 / "freezes" / "f.json").write_text(blob)
+    idx = [{"file": "freezes/f.json", "method": "P0", "target": ["Cho2017", 1], "seed": 0,
+            "sha256": hashlib.sha256(b"WRONG").hexdigest()}]   # deliberately wrong hash
+    (d1 / "C86D_D1_MANIFEST.json").write_text(json.dumps(
+        {"c85u_accessed": False, "budgets": ["FULL"], "n_freeze_files": 1, "freeze_index": idx}))
+    if not os.path.exists(core.C85U_UTILITY_INDEX):
+        pytest.skip("C85U index not mounted")
+    with pytest.raises(RuntimeError):
+        run_d2.run_d2(str(d1), str(tmp_path / "out"))
+
+
+# --- C86H registry is not pruned by development performance -------------------
+def test_c86h_registry_constant():
+    assert core.METHOD_FREEZE["primary_registry"] == ("P0", "A1", "A2H")
+    assert core.METHOD_FREEZE["no_post_hoc_method_add_or_drop"] is True

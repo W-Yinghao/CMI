@@ -1,6 +1,15 @@
-# C86D — Overall Report (executed under 授权 C86D)
+# C86D — Overall Report (attempt 902203)
 
-**Gate reached**
+> **STATUS (PM review): SCIENTIFIC RESULT REJECTED — preserved as engineering
+> execution only.** This attempt's endpoints, method comparison, and
+> "no_registered_active_gain" conclusion are NOT valid: A1's entropy sign bug made
+> it degenerate to uniform (≡ P0); the composite plugin was not the locked C85U
+> methodology (no Jeffreys bAcc, wrong ECE); the risk used raw composite-utility gap
+> instead of held standardized regret; and held utility was opened before a
+> persisted, process-isolated selection freeze. See `C86D_RECONCILIATION.md` for the
+> same-scope patch. A corrected rerun requires a fresh direct `授权 C86D`.
+
+**Gate reached (engineering path)**
 
 ```text
 C86D_DEVELOPMENT_ACTIVE_POLICY_FIELD_FROZEN_C86H_REVIEW_REQUIRED

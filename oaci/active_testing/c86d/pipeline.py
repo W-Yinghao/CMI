@@ -11,9 +11,10 @@ from dataclasses import dataclass, field as dc_field
 import numpy as np
 
 from .core import CONTEXTS_PER_TRIAL, verify_c85u_identity
-from .policies import composite_select, select_query_sequence
+from .policies import acquisition_path, budget_prefix, composite_select
 
 _CONTRIB_FIELDS = ("nll", "correct", "confidence", "conf_bin", "signed_calibration")
+_PLUGIN_FIELDS = ("nll", "correct", "confidence", "conf_bin")
 
 
 class C86DNotAuthorized(RuntimeError):
@@ -46,28 +47,32 @@ class SelectionFreeze:
 
 
 def run_selection(client, target_pool, target, method, budget, seed) -> SelectionFreeze:
-    """Acquire labels via the sealed server, estimate, and FREEZE the selection."""
-    attempt = client.open_attempt(target, budget)
-    order, weights = select_query_sequence(target_pool, method, budget, seed)
-    # collect queried rows per context
-    per_ctx = {}                        # context -> {field: [m,81]}, labels
-    receipts = []
-    for trial in order:
+    """Acquire labels via the sealed server, estimate, and FREEZE the selection.
+
+    Uses the nested-prefix acquisition path (uniform warm start + budget-specific
+    LURE weights). FULL uses the exact (unsmoothed) construction plugin.
+    """
+    order, q_seq = acquisition_path(target_pool, method, seed)
+    pre, weights = budget_prefix(order, q_seq, len(order), budget)
+    full = (budget == "FULL")
+    attempt = client.open_attempt(target, "FULL")
+    per_ctx, receipts = {}, []
+    for trial in pre:
         label, contexts = client.query(attempt, trial)
         receipts.append((trial, int(label)))
         for ctx, row in contexts.items():
-            d = per_ctx.setdefault(ctx, {"labels": [], **{f: [] for f in _CONTRIB_FIELDS}})
+            d = per_ctx.setdefault(ctx, {"labels": [], **{f: [] for f in _PLUGIN_FIELDS}})
             d["labels"].append(int(label))
-            for f in _CONTRIB_FIELDS:
+            for f in _PLUGIN_FIELDS:
                 d[f].append(np.asarray(row[f]))
     selected, ests = {}, {}
     for ctx, d in per_ctx.items():
-        contribs = {f: np.array(d[f]) for f in _CONTRIB_FIELDS}
-        sel, metrics = composite_select(d["labels"], contribs, weights)
+        contribs = {f: np.array(d[f]) for f in _PLUGIN_FIELDS}
+        sel, metrics = composite_select(d["labels"], contribs, weights, full=full)
         selected[ctx] = sel
         ests[ctx] = metrics["composite"]
     fr = SelectionFreeze(target=tuple(target), method=method, budget=budget, seed=seed,
-                         query_sequence=list(order), lure_weights=list(np.asarray(weights)),
+                         query_sequence=list(pre), lure_weights=list(np.asarray(weights)),
                          receipts=receipts, selected_by_context=selected,
                          per_context_estimates=ests)
     fr.lock()
@@ -104,5 +109,13 @@ def execute(authorization: str | None = None, output_root: str = "", **kwargs):
         )
     if not output_root:
         raise ValueError("authorized C86D execution requires an output_root")
-    from .run import run_c86d
-    return run_c86d(output_root)
+    # D1 (selection, no C85U) and D2 (held evaluation, C85U) run as SEPARATE processes.
+    import subprocess
+    import sys
+    d1_root = output_root + "_d1"
+    subprocess.run([sys.executable, "-m", "oaci.active_testing.c86d.run_d1",
+                    "--output-root", d1_root, "--authorization", AUTHORIZATION_PHRASE], check=True)
+    subprocess.run([sys.executable, "-m", "oaci.active_testing.c86d.run_d2",
+                    "--d1-root", d1_root, "--output-root", output_root,
+                    "--authorization", AUTHORIZATION_PHRASE], check=True)
+    return {"d1_root": d1_root, "output_root": output_root, "stages": ["D1", "D2"]}

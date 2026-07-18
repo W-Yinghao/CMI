@@ -1,29 +1,25 @@
-"""C86D active policies + estimation.
+"""C86D active policies + estimation (reconciled per PM C86D review).
 
-Client-side: reads the unlabeled pool (probabilities), acquires physical labels via
-the sealed server handle, and estimates candidate utility.
-
-P0  uniform without replacement.
-A1  registered Active Testing / LURE: acquisition ∝ mean expected candidate NLL
-    (mean candidate predictive entropy), LURE weights correct the biased sampling.
-A2H faithful Hara general-K: acquisition = Σ_{k<k'} E_π|NLL_k − NLL_k'|.
-Candidate selection = composite plugin (bAcc/NLL/ECE → oriented midranks → equal-
-weight composite → first-index argmax). Claim boundary: LURE unbiasedness applies
-ONLY to linear moments; the composite plugin has no unbiasedness claim.
+Fixes: A1 entropy sign; C85U-exact composite plugin (Jeffreys bAcc, 15-bin ECE,
+LURE-weighted NLL, oriented midrank percentile (r-1)/(n-1), equal-weight composite,
+first-index argmax); uniform warm start (first 4) + nested-prefix acquisition path
+with budget-specific LURE weights. Claim boundary: LURE unbiasedness only for the
+linear moments; the composite plugin has no unbiasedness claim.
 """
 from __future__ import annotations
 
 import glob
 import json
 import os
-from dataclasses import dataclass
 
 import numpy as np
 
-from .core import N_CANDIDATES, NONLINEAR_PLUGINS, C86DClaimError
+from .core import N_CANDIDATES, NONLINEAR_PLUGINS
 
 PROB_FLOOR = 1e-7
 CONF_BINS = 15
+WARM_START = 4                     # first 4 queries uniform (locked contract)
+CLASSES = (0, 1)
 
 
 def load_pool(pool_root: str) -> dict:
@@ -34,18 +30,18 @@ def load_pool(pool_root: str) -> dict:
         meta = json.loads(str(z["meta"]))
         tgt = (meta["dataset"], meta["subject"])
         ctx = f"panel={meta['panel']}|seed={meta['seed']}|level={meta['level']}"
-        probs = z["probabilities"].astype(np.float64)      # [n,81,2]
+        probs = z["probabilities"].astype(np.float64)
         for j, t in enumerate(z["trial_ids"]):
             out.setdefault(tgt, {}).setdefault(str(t), {})[ctx] = probs[j]
     return out
 
 
-def _nll(probs):                       # [...,81,2] -> [...,81,2] class NLL
+def _nll(probs):
     return -np.log(np.clip(probs, PROB_FLOOR, 1.0))
 
 
-def _entropy(probs):                   # [81,2] -> [81]
-    return -np.sum(probs * _nll(probs), axis=1)
+def _entropy(probs):               # [81,2] -> [81]  (non-negative Shannon entropy)
+    return np.sum(probs * _nll(probs), axis=1)
 
 
 def acquisition_score(target_pool: dict, method: str) -> dict:
@@ -53,26 +49,88 @@ def acquisition_score(target_pool: dict, method: str) -> dict:
     scores = {}
     for trial, ctxs in target_pool.items():
         vals = []
-        for probs in ctxs.values():                        # probs [81,2]
-            if method == "A1":                              # mean expected candidate NLL = mean entropy
+        for probs in ctxs.values():
+            if method == "A1":                         # mean expected candidate NLL = mean entropy
                 vals.append(float(np.mean(_entropy(probs))))
-            elif method == "A2H":                           # Σ_{k<k'} E_π|NLL_k − NLL_k'|
-                p_ref = probs.mean(axis=0)                  # [2] ensemble predictive
-                nll = _nll(probs)                           # [81,2]
-                s = 0.0
-                for y in (0, 1):
-                    d = np.abs(nll[:, y][:, None] - nll[:, y][None, :])
-                    s += p_ref[y] * 0.5 * d.sum()
+            elif method == "A2H":                      # Σ_{k<k'} E_π|NLL_k − NLL_k'|
+                p_ref = probs.mean(axis=0)
+                nll = _nll(probs)
+                s = sum(p_ref[y] * 0.5 * np.abs(nll[:, y][:, None] - nll[:, y][None, :]).sum()
+                        for y in (0, 1))
                 vals.append(float(s))
             else:
                 raise ValueError(method)
-        scores[trial] = float(np.mean(vals))                # equal-weight context aggregation
+        scores[trial] = float(np.mean(vals))
     return scores
 
 
+def _avg_rank(x):
+    """1..n average ranks with ties."""
+    vals, cnt = np.unique(x, return_counts=True)
+    start, avg = 0, {}
+    for v, c in zip(vals, cnt):
+        avg[v] = (start + 1 + start + c) / 2.0
+        start += c
+    return np.array([avg[xi] for xi in x])
+
+
+def _midrank_pct(values, higher_is_better):
+    x = np.asarray(values, dtype=np.float64) if higher_is_better else -np.asarray(values, dtype=np.float64)
+    r = _avg_rank(x)
+    n = len(x)
+    return (r - 1) / (n - 1) if n > 1 else np.zeros(n)
+
+
+def composite_from_metrics(bacc, nll, ece):
+    """C85U-exact composite pipeline. Returns (composite[81], std_regret[81], selected)."""
+    comp = (_midrank_pct(bacc, True) + _midrank_pct(nll, False) + _midrank_pct(ece, False)) / 3.0
+    cmax, cmin = comp.max(), comp.min()
+    spread = cmax - cmin
+    std_regret = (cmax - comp) / spread if spread > 0 else np.zeros_like(comp)
+    return comp, std_regret, int(np.argmax(comp))     # first-index tie
+
+
+def estimate_metrics(labels, contribs, weights, full: bool):
+    """Per-candidate bAcc (Jeffreys finite / exact FULL), LURE-weighted NLL, 15-bin ECE."""
+    y = np.asarray(labels)
+    nll = np.asarray(contribs["nll"]); correct = np.asarray(contribs["correct"])
+    conf = np.asarray(contribs["confidence"]); cbin = np.asarray(contribs["conf_bin"])
+    w = np.ones(len(y)) if weights is None else np.asarray(weights, dtype=np.float64)
+    w = w / w.sum() * len(y)                            # mean-preserving normalization
+    K = nll.shape[1]
+    est_nll = (w[:, None] * nll).mean(axis=0)          # LURE-weighted linear moment
+    pseudo = 0.0 if full else 0.5                      # Jeffreys for finite budget; exact at FULL
+    bacc = np.zeros(K)
+    for cl in CLASSES:                                 # pre-registered class set (never drop a class)
+        m = y == cl
+        Nw = w[m].sum()
+        Cw = (w[m][:, None] * correct[m]).sum(axis=0) if m.any() else np.zeros(K)
+        bacc += (Cw + pseudo) / (Nw + 2 * pseudo)
+    bacc /= len(CLASSES)
+    # 15-bin weighted ECE: Σ_b (w_b/W) |mean_conf_b − mean_acc_b|
+    ece = np.zeros(K); W = w.sum()
+    for c in range(K):
+        e = 0.0
+        for b in range(CONF_BINS):
+            mb = cbin[:, c] == b
+            wb = w[mb].sum()
+            if wb > 0:
+                conf_b = (w[mb] * conf[mb, c]).sum() / wb
+                acc_b = (w[mb] * correct[mb, c]).sum() / wb
+                e += (wb / W) * abs(conf_b - acc_b)
+        ece[c] = e
+    return bacc, est_nll, ece
+
+
+def composite_select(labels, contribs, weights=None, full=False):
+    bacc, nll, ece = estimate_metrics(labels, contribs, weights, full)
+    comp, std_regret, sel = composite_from_metrics(bacc, nll, ece)
+    return sel, {"balanced_accuracy": bacc, "nll": nll, "ece": ece,
+                 "composite": comp, "std_regret_construction": std_regret}
+
+
 def _lure_weights(q_seq, n_pool):
-    """LURE weights for without-replacement acquisition (Farquhar/Kossen)."""
-    M = len(q_seq); N = n_pool
+    M, N = len(q_seq), n_pool
     v = np.ones(M)
     for m in range(1, M + 1):
         q = max(q_seq[m - 1], 1e-12)
@@ -81,75 +139,34 @@ def _lure_weights(q_seq, n_pool):
     return v
 
 
-def select_query_sequence(target_pool, method, budget, seed, rho=0.05):
-    """Return ordered trial ids + LURE weights (uniform for P0)."""
+def acquisition_path(target_pool, method, seed, rho=0.05):
+    """ONE full without-replacement path (warm start + active); returns (order, q_seq)."""
     trials = sorted(target_pool)
     N = len(trials)
-    cap = N if budget == "FULL" else min(int(budget), N)
     rng = np.random.default_rng(seed)
-    if method == "P0" or cap >= N:
-        order = list(rng.permutation(trials))[:cap]
-        w = np.full(len(order), N / len(order)) if len(order) else np.array([])   # HT sample mean scale
-        return order, (w / w.mean() if w.size else w)                              # normalized -> plain mean
+    if method == "P0":
+        order = list(rng.permutation(trials))
+        return order, [1.0 / (N - m) for m in range(N)]
     scores = acquisition_score(target_pool, method)
-    remaining = list(trials)
-    order, q_seq = [], []
-    for _ in range(cap):
-        s = np.array([max(scores[t], 0.0) for t in remaining], dtype=np.float64)
-        p = s / s.sum() if s.sum() > 0 else np.ones(len(s)) / len(s)
-        p = (1 - rho) * p + rho / len(p)                    # uniform mixing (LURE validity floor)
+    remaining = list(trials); order, q_seq = [], []
+    for step in range(N):
+        if step < WARM_START or not remaining:
+            p = np.ones(len(remaining)) / len(remaining)
+        else:
+            s = np.array([max(scores[t], 0.0) for t in remaining])
+            p = s / s.sum() if s.sum() > 0 else np.ones(len(s)) / len(s)
+            p = (1 - rho) * p + rho / len(p)
         idx = int(rng.choice(len(remaining), p=p))
-        order.append(remaining[idx]); q_seq.append(float(p[idx]))
-        remaining.pop(idx)
-    return order, _lure_weights(q_seq, N)
+        order.append(remaining[idx]); q_seq.append(float(p[idx])); remaining.pop(idx)
+    return order, q_seq
 
 
-def _oriented_midrank(values, higher_is_better):
-    """Average-rank (midrank) oriented so a better metric => higher rank."""
-    v = np.asarray(values, dtype=np.float64)
-    order = v if higher_is_better else -v
-    # average ranks with ties
-    idx = np.argsort(order, kind="mergesort")
-    ranks = np.empty(len(v)); ranks[idx] = np.arange(1, len(v) + 1)
-    # midrank for ties
-    uniq, inv, counts = np.unique(order, return_inverse=True, return_counts=True)
-    cum = np.cumsum(counts)
-    mid = {}
-    start = 0
-    for u, c in zip(uniq, counts):
-        mid[u] = (start + 1 + start + c) / 2.0
-        start += c
-    return np.array([mid[order[i]] for i in range(len(v))])
-
-
-def composite_select(labels, contribs, weights=None):
-    """Per context: choose candidate via composite plugin (first-index argmax).
-
-    labels: [m] queried true labels; contribs: {field: [m,81]} for queried trials.
-    weights: [m] LURE weights (applied to the LINEAR moment; default uniform).
-    Returns selected candidate index + the plugin metrics (all NONLINEAR — no claim).
-    """
-    y = np.asarray(labels)
-    nll = np.asarray(contribs["nll"]); correct = np.asarray(contribs["correct"])
-    conf = np.asarray(contribs["confidence"])
-    w = np.ones(len(y)) if weights is None else np.asarray(weights, dtype=np.float64)
-    w = w / w.sum() * len(y)                                # normalize (mean-preserving)
-    est_nll = (w[:, None] * nll).mean(axis=0)               # [81] LURE-weighted linear moment
-    # balanced accuracy plugin (LURE-weighted per-class recall over present classes)
-    bacc = np.zeros(N_CANDIDATES)
-    for c in range(N_CANDIDATES):
-        recs = []
-        for cl in np.unique(y):
-            m = y == cl
-            if m.any():
-                recs.append(float((w[m] * correct[m, c]).sum() / w[m].sum()))
-        bacc[c] = float(np.mean(recs)) if recs else 0.0
-    # ECE plugin (weighted mean |confidence − correctness|)
-    ece = (w[:, None] * np.abs(conf - correct)).mean(axis=0)
-    comp = (_oriented_midrank(bacc, True) + _oriented_midrank(est_nll, False)
-            + _oriented_midrank(ece, False)) / 3.0
-    sel = int(np.argmax(comp))                              # first-index tie
-    return sel, {"balanced_accuracy": bacc, "ece": ece, "nll": est_nll, "composite": comp}
+def budget_prefix(order, q_seq, n_pool, budget):
+    """Nested prefix for a budget with budget-specific LURE weights v_m^M."""
+    M = n_pool if budget == "FULL" else min(int(budget), n_pool)
+    pre = order[:M]
+    w = _lure_weights(q_seq[:M], n_pool)
+    return pre, w
 
 
 def unbiasedness_claim(quantity: str) -> bool:
