@@ -1,0 +1,43 @@
+# Target Readout Calibration Ladder -- FROZEN pre-registration config. Manuscript FROZEN.
+name: cmi_trace_readout_label_efficiency
+base_commit: de170ede
+question: >
+  When the frozen representation Z already holds target task information, how do we correct the source-trained
+  readout into a future-session readout with as FEW target labels as possible?
+
+datasets:
+  dev: [BNCI2014_001, BNCI2015_001]              # existing evidence (develop/reproduce)
+  confirmatory: [Lee2019_MI, BNCI2014_004]       # external; drive status
+  encoder: EEGNet (frozen ERM LOSO dumps, z_dim=16, method=erm lam=0, seeds 0/1/2); NO re-inference
+  session_split: earliest session = calibration; rest = future query (session_split; frozen manifests)
+
+label_budgets_per_class: [1, 2, 4, 8, 16, 32, Full]
+n_draws_per_finite_budget: 50                    # deterministic class-balanced; SAME draws across all methods+repr
+aggregation_order: draw -> seed -> target_subject ; subject-cluster bootstrap + exact sign-flip ; Holm across budgets
+
+readout_heads:
+  H0_frozen: source-trained head, no target labels
+  H1_fresh: standardized logistic head fit on the k cal labels
+  H2_MAP_primary: min CE + alpha*||W-Ws||^2 + alpha*||b-bs||^2 ; alpha (=alpha_b) source-only via outer-source
+                  early->later pseudo-target ; grid [1e-3, 1e-2, 1e-1, 1, 10, 100]
+  H3_bias_temp: fix Ws; optimise per-class bias + one positive temperature
+
+representations:                                  # matched-random-subspace head refit (MANDATORY)
+  Z0_native: Z
+  ZI_informed: source-fitted B_cond deletion (whitened_cond_basis rank<=8, whole subspace, NO target selection)
+  ZR_random: n_random=50 ambient random rank-r deletions; enters matched set iff |src_bacc - informed src_bacc| <= 0.03
+  dict_rank: 8
+
+endpoints:
+  dU_MAP_frozen(k): U_MAP - U_frozen                       # label-efficient utility
+  dU_MAP_fresh(k):  U_MAP - U_fresh                        # anchoring value
+  dU_MAP_bias(k):   U_MAP - U_bias                         # low-capacity sufficiency
+  dGh_specific(k):  G_h(informed) - E_R[G_h(random)]       # representation specificity ; G_h = U_MAP - U_frozen
+  kstar_utility: min k with LCB95[dU_MAP_frozen] > 0
+  kstar_anchor:  min k with LCB95[dU_MAP_fresh]  > 0
+
+routing: R-A MAP wins fewshot / R-B full-cal only / R-C bias~MAP / R-D generic (subspace not causal) /
+         R-E informed>>random on >=2 datasets (revive subspace) / R-F no external replication
+
+firewall: target QUERY (X,Y) only in the final utility ; cal Y only adapts heads ; alpha SOURCE-only
+holds: new erasure/target-X selector / source proxy / mechanism-consistency loss / learned projector / TTE / manuscript

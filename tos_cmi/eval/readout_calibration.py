@@ -103,6 +103,33 @@ def select_alpha_pseudo_target(Zs_std, ys, ds, sess_s, C, grid=ALPHA_GRID):
     return astar, dict(mean_ce=mean_ce, n_pseudo=len(subs))
 
 
+def prepare_source_head(Zs_wd, ys, C):
+    """Fit the frozen source head ONCE for a representation (reused across all k-budgets and draws). Returns
+    (mu, sd, Ws, bs) in the source-standardised deleted space + the in-sample source bAcc (for the ZR retention filter)."""
+    mu, sd = standardize(Zs_wd); Xs = _std(Zs_wd, mu, sd)
+    Ws, bs = fit_head(Xs, ys, C)
+    src_bacc = float(balanced_accuracy_score(ys, (Xs @ Ws.T + bs).argmax(1)))
+    return mu, sd, Ws, bs, src_bacc
+
+
+def adapt_and_score(prep, Xcal_wd, ycal, draw_idx, Zq_wd, yq, sq, C, alpha, heads=("frozen", "fresh", "map", "bias")):
+    """Given a prepared source head, adapt on ONE cal draw and score the requested heads on the query session. The
+    source head (frozen) is reused; only the small cal-draw heads are fit here."""
+    mu, sd, Ws, bs = prep[0], prep[1], prep[2], prep[3]
+    Xq = _std(Zq_wd, mu, sd); Xcalk = _std(Xcal_wd[draw_idx], mu, sd); yck = ycal[draw_idx]
+    out = {}
+    if "frozen" in heads:
+        out["frozen"] = session_macro_bacc(Ws, bs, Xq, yq, sq)
+    ok = len(np.unique(yck)) >= 2
+    if "fresh" in heads:
+        W, b = fit_head(Xcalk, yck, C) if ok else (Ws, bs); out["fresh"] = session_macro_bacc(W, b, Xq, yq, sq)
+    if "map" in heads:
+        W, b = fit_head(Xcalk, yck, C, Ws, bs, alpha) if ok else (Ws, bs); out["map"] = session_macro_bacc(W, b, Xq, yq, sq)
+    if "bias" in heads:
+        W, b = fit_biastemp(Xcalk, yck, C, Ws) if ok else (Ws, bs); out["bias"] = session_macro_bacc(W, b, Xq, yq, sq)
+    return out
+
+
 def readout_utilities(Zs_wd, ys, ds, sess_s, Xcal_wd, ycal, Zq_wd, yq, sq, C, draw_idx, alpha=None):
     """For ONE representation (already whitened+deleted) and ONE k-shot cal draw, return the 4 head utilities on the
     query session. alpha (H2) is passed in (selected once per representation, source-only). Standardisation is fit on
