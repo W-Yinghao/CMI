@@ -1,0 +1,36 @@
+{
+  "per_dataset": {
+    "BNCI2014_001": {
+      "n_cells": 27,
+      "median_A_4": 0.7466855699482303,
+      "median_A_16": 0.9235960348302542,
+      "median_SNR_4": 0.11331304205054309,
+      "median_SNR_16": 0.40289247991850624,
+      "median_B_4": 0.6859068073013898,
+      "median_dw_full": 0.06377707794308662,
+      "median_dw_k4": 0.039938765259920794,
+      "median_true_vs_shuffle_cos": 0.2819898036927121,
+      "median_full_grad_norm": 0.8645145297050476,
+      "A_4_frac_below_half": 0.1111111111111111
+    },
+    "BNCI2015_001": {
+      "n_cells": 36,
+      "median_A_4": 0.8105082405200015,
+      "median_A_16": 0.9450051984090903,
+      "median_SNR_4": 0.229964950569712,
+      "median_SNR_16": 0.7121370638961357,
+      "median_B_4": 0.7071880095968908,
+      "median_dw_full": 0.07473068887537176,
+      "median_dw_k4": 0.042765574438888954,
+      "median_true_vs_shuffle_cos": 0.5587830676135574,
+      "median_full_grad_norm": 0.6316787302494049,
+      "A_4_frac_below_half": 0.0
+    }
+  },
+  "routing": {
+    "verdict": "MIXED_OR_NOT_VARIANCE_LIMITED",
+    "next": "add episode DRAWS to cut MC uncertainty (NOT new seeds/training); default to risk_weighted_MCC (geometry-DG decoupling is the stronger standing evidence), do NOT commit an EMA round"
+  },
+  "n_cells": 63,
+  "discipline": "frozen diagnostic: estimator quality ONLY, not geometry->DG; no training committed; manuscript FROZEN"
+}
