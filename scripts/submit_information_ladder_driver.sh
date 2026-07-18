@@ -10,13 +10,18 @@ while :; do
   done_n=$(ls "$OUTDIR"/cells/*.done 2>/dev/null | wc -l)
   echo "[il-driver] done=$done_n/63 $(date -u +%H:%M:%S)"
   [ "$done_n" -ge 63 ] && { echo "[il-driver] all 63 cells done"; break; }
+  # cells CURRENTLY in the queue (running or pending), expanded per array task (%K = array task index = cell index).
+  # Excluding these prevents resubmitting a not-yet-.done cell that is already running (the duplicate-submission bug).
+  running=" $(squeue -u "$USER" -h -r -n info-ladder -o '%K' 2>/dev/null | tr '\n' ' ') "
   missing=""
   for i in $(seq 0 62); do
     ii=$(printf "%03d" "$i")
-    ls "$OUTDIR"/cells/cell_${ii}_*.done >/dev/null 2>&1 || missing="$missing $i"
+    ls "$OUTDIR"/cells/cell_${ii}_*.done >/dev/null 2>&1 && continue      # already done
+    case "$running" in *" $i "*) continue;; esac                          # already queued/running -> do NOT resubmit
+    missing="$missing $i"
   done
   missing=$(echo "$missing" | tr ' ' '\n' | grep -v '^$')
-  mine=$(squeue -u "$USER" -h -n info-ladder 2>/dev/null | wc -l)
+  mine=$(squeue -u "$USER" -h -r -n info-ladder 2>/dev/null | wc -l)
   room=$((CAP - mine))
   if [ "$room" -ge 1 ] && [ -n "$missing" ]; then
     chunk=$(echo "$missing" | head -n "$room" | paste -sd, -)
