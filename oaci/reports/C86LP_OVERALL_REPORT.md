@@ -25,7 +25,10 @@ commit message: an earlier `git add` aborted on a stale pathspec and committed t
 renamed-but-old file. That is fixed here, and the commit is now verified against
 the working tree before pushing. The prior gate string
 (`..._IMPLEMENTED_AND_LOCKED_READY_FOR_PI_AUTHORIZATION`) was also semantically
-false once the lock/authorization apparatus was dropped; it is replaced (§2).
+false once the lock/authorization apparatus was dropped; it is replaced (§2). A
+second PM review then found the probe-criteria *implementation* diverged from the
+definitions; §6 now reflects target-first aggregation, per-cohort mean/tail/near-
+opt gates, a multi-endpoint FULL ceiling gate, and corrected tail-fraction naming.
 
 ## 1. Our current best statement of the problem (tightened)
 
@@ -105,29 +108,40 @@ per-target physical cost); per-context deployment problems share that budget.
 ## 6. Pre-registered probe criteria + bounded shadow pilot (PM §seven, option B)
 
 Frozen **before** any real query. Decision rules (`pilot.classify`, thresholds in
-`constants`):
+`constants`).
+
+**Scientific unit = target subject; everything is target-first.** Each target's 8
+contexts are averaged into one target regret *before* any cohort statistic, so the
+8 repeated contexts are never treated as 8 independent tail observations. Endpoints
+are **regret / tail / ε-near-optimal probability**, never top-1 alone (S5 shows
+why). Tail is the upper-`TAIL_FRACTION` (=0.25) CVaR over a cohort's **target**
+distribution (variable renamed from the misleading `CVAR_ALPHA`).
 
 ```text
-BOUNDARY_OPERATIONALLY_CROSSED     same active policy, same total budget, BOTH cohorts:
-                                   improves mean regret AND tail (CVaR) AND near-optimal prob
-BOUNDARY_WEAKENED_NOT_ROBUST       mean / near-opt improve, tail or cohort gate fails
+BOUNDARY_OPERATIONALLY_CROSSED     in EVERY cohort, same policy & total budget, improves
+                                   mean AND target-tail AND near-optimal prob (all three, each cohort)
+BOUNDARY_WEAKENED_NOT_ROBUST       any single cohort fails any of mean/tail/near-opt (Simpson-safe)
 POLICY_LIMITED                     an oracle acquisition cheaply beats P0, registered policy does not
-ACQUISITION_VIEW_NONTRANSPORTABLE  even FULL construction info leaves weak/heterogeneous actionability
+ACQUISITION_VIEW_NONTRANSPORTABLE  FULL ceiling fails, per cohort, on mean OR target-tail OR near-opt
 NO_REGISTERED_ACTIVE_GAIN          no registered active policy beats passive P0  (NOT an impossibility claim)
 ```
 
-Endpoints are **regret / tail-CVaR / ε-near-optimal probability**, never top-1
-alone (S5 below shows why). The pilot builds five **known-truth** shadow scenarios
-and checks the instrument classifies each correctly — a discriminative-validity
-battery for the active regime (the positive control the 0-label line never had),
-robust across 20 seeds:
+The `BOUNDARY_OPERATIONALLY_CROSSED` and FULL-ceiling gates are checked **per
+cohort on all three endpoints**, so a Simpson case (cohort A improves, cohort B's
+tail degrades but is masked in the pool) is correctly demoted to
+`BOUNDARY_WEAKENED_NOT_ROBUST`.
+
+The pilot builds five **known-truth** shadow scenarios and checks the instrument
+classifies each correctly — a discriminative-validity battery for the active
+regime (the positive control the 0-label line never had), robust across the
+committed 20 seeds:
 
 ```text
-S1 small-label identifiable   -> BOUNDARY_OPERATIONALLY_CROSSED
-S2 budget-limited (need FULL)  -> NO_REGISTERED_ACTIVE_GAIN   (exchangeable trials: no acquisition helps)
-S3 policy-limited              -> POLICY_LIMITED              (oracle finds it cheaply, registered can't)
-S4 mean-only / tail failure    -> BOUNDARY_WEAKENED_NOT_ROBUST
-S5 dense near-ties             -> BOUNDARY_OPERATIONALLY_CROSSED with top-1 ~0.15 but near-opt ~1.0
+S1 small-label identifiable    -> BOUNDARY_OPERATIONALLY_CROSSED
+S2 budget-limited (need FULL)   -> NO_REGISTERED_ACTIVE_GAIN   (exchangeable trials: no acquisition helps)
+S3 policy-limited               -> POLICY_LIMITED              (oracle finds it cheaply, registered can't)
+S4 target-tail failure          -> BOUNDARY_WEAKENED_NOT_ROBUST (2 tail TARGETS/cohort: mean improves, target-tail does not)
+S5 dense near-ties              -> BOUNDARY_OPERATIONALLY_CROSSED with target top-1 low but near-opt ~1.0
 ```
 
 No non-passing scenario is called an information-theoretic "hard wall."
@@ -146,15 +160,17 @@ COUNTEREXAMPLE, T5 OPEN are bound immutable; any mutation blocks publication.
 
 ## 8. Validation
 
-`pytest oaci/tests/test_c86lp_query_field.py oaci/tests/test_c86lp_pilot.py` — 45
-passed. Full collection unaffected (2,547). Query-field properties: Semantics-B
+`pytest oaci/tests/test_c86lp_query_field.py oaci/tests/test_c86lp_pilot.py` — 63
+passed. Full collection unaffected (2,565). Query-field properties: Semantics-B
 one-label-informs-8-contexts, budget counts physical labels, nonoverlap,
 unlabeled-pool no-label, linear-contribution exactness, pairwise-derived-not-
 stored, nonlinear-plugin claim guard, duplicate/unknown/cross-target/exhaustion
 rejection, no-bulk-oracle, held-outcome isolation, logical-not-physical isolation,
 corrected gate, unsupported-budget INPUT_UNAVAILABLE, frozen-gate immutability.
-Pilot: taxonomy completeness, classifier covers all five labels, and the five
-known-truth scenarios classify as expected across seeds.
+Pilot: taxonomy completeness, classifier covers all five labels (incl. the
+per-cohort Simpson demotion), S4 is a genuine target-tail failure, S5's low
+target top-1 with high near-opt, and the five known-truth scenarios classify as
+expected across the committed 20 seeds.
 
 ## 9. Files
 
