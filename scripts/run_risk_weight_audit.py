@@ -54,8 +54,18 @@ def main():
     ap.add_argument("--bundle-index", type=int, default=None)
     a = ap.parse_args()
     bundles = enumerate_bundles()
-    todo = [bundles[a.bundle_index]] if a.bundle_index is not None else bundles
     outd = Path(a.out_dir); outd.mkdir(parents=True, exist_ok=True)
+    if a.bundle_index is not None:                                          # ---- SLURM array: one cell -> own file ----
+        ds, subj, seed = bundles[a.bundle_index]
+        s, r = _audit_bundle(ds, subj, seed, a.device, a.cache_dir, a.verify_from)
+        stem = f"cell_{a.bundle_index:03d}_{ds}_sub{subj}_seed{seed}"
+        (outd / "wcells").mkdir(exist_ok=True)
+        (outd / "wcells" / f"{stem}.json").write_text(json.dumps(dict(summary=s, rows=r), default=float))
+        (outd / "wcells" / f"{stem}.done").write_text(s["status"] + "\n")
+        print(f"[rw-audit-cell {a.bundle_index}] {ds} sub{subj} s{seed}: status={s['status']} eff_support={s['effective_weight_support']:.1f} "
+              f"top_subj_share={s['top_subject_share']:.2f} true!=perm={s['true_vs_perm_loss_diff']:.4f}", flush=True)
+        return
+    todo = bundles
     summaries, rows, comp = [], [], []
     for ds, subj, seed in todo:
         try:
