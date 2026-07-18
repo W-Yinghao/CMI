@@ -24,7 +24,7 @@ EFFECTIVE_MANIFEST_V3 = REPORT_DIR / "C86_ACTIVE_TESTING_EFFECTIVE_PROGRAM_MANIF
 
 PROTOCOL_COMMIT = "0da4ec39f26ac4bc0d89035e9ad951f452217f05"
 PROTOCOL_SHA256 = "2e88e2fef7500b12ca8b3c5b19e6aab06df5a7f388781855b73793a1fe75df92"
-IMPLEMENTATION_COMMIT = "IMPLEMENTATION_COMMIT_PENDING"
+IMPLEMENTATION_COMMIT = "ccc1807479a2f3b3273991f6b3ca0ab5514184f1"
 CREATED_AT_UTC = "2026-07-18T03:24:00Z"
 
 ADULT_THRESHOLD_YEARS = 18
@@ -57,6 +57,42 @@ CATALOG_SNAPSHOTS: tuple[dict[str, Any], ...] = (
         "bytes": 721760,
         "records": 824,
         "safe_candidate_records": 71,
+    },
+    {
+        "catalog_id": "NEMAR_PUBLIC_CATALOG_C86R2_PAGE_0",
+        "source": "NEMAR_dataset_API_page",
+        "identity": "https://nemar.org/api/datasets?limit=200&offset=0",
+        "sha256": "965abe63b5b237747c42f751a24b83a2a04da99edfd22cae8ab52c1ea56e0eee",
+        "bytes": 277224,
+        "records": 200,
+        "safe_candidate_records": "IN_COMBINED_SCREEN",
+    },
+    {
+        "catalog_id": "NEMAR_PUBLIC_CATALOG_C86R2_PAGE_200",
+        "source": "NEMAR_dataset_API_page",
+        "identity": "https://nemar.org/api/datasets?limit=200&offset=200",
+        "sha256": "108314d6b1d3995bceef2ce7b903d60c60fdf19e9a2cc4af15c47b568e5d898c",
+        "bytes": 274957,
+        "records": 200,
+        "safe_candidate_records": "IN_COMBINED_SCREEN",
+    },
+    {
+        "catalog_id": "NEMAR_PUBLIC_CATALOG_C86R2_PAGE_400",
+        "source": "NEMAR_dataset_API_page",
+        "identity": "https://nemar.org/api/datasets?limit=200&offset=400",
+        "sha256": "ef9aacfc13aa1ccb6a1a3e4e0985d2aca4fe8fb5b8d5a413c09e937287411afc",
+        "bytes": 257454,
+        "records": 200,
+        "safe_candidate_records": "IN_COMBINED_SCREEN",
+    },
+    {
+        "catalog_id": "NEMAR_PUBLIC_CATALOG_C86R2_PAGE_600",
+        "source": "NEMAR_dataset_API_page",
+        "identity": "https://nemar.org/api/datasets?limit=200&offset=600",
+        "sha256": "046ac81f50139c3f5d43a447c3527c27c99eb04090faccb98098a569d8b2a6f9",
+        "bytes": 169737,
+        "records": 160,
+        "safe_candidate_records": "IN_COMBINED_SCREEN",
     },
     {
         "catalog_id": "NEMAR_PUBLIC_CATALOG_C86R2",
@@ -199,6 +235,7 @@ def _yang_audit_rows() -> list[dict[str, Any]]:
             "participants_tsv_sha256": "1b4a41957d6bb6ebfec66df7d740b5c3f05a80384cf0fbd47c8e0a969d1b62f9",
             "primary_article_sha256": "0fa7fca9ea8648fce7a74941f8bc411739aaaab1e0abc74e76d5198fc0325c9b",
             "supplement_sha256": "f78c1ddfc9c3ae952887fea374dbf581cf5ee76e72adff64e6baab5af8aa5af1",
+            "public_source_urls": "https://www.nature.com/articles/s41597-025-04826-y|https://github.com/nemarDatasets/nm000348",
         }
     ]
 
@@ -232,6 +269,7 @@ def _kumar_audit_rows() -> list[dict[str, Any]]:
             "retained_role": "AGE_UNCERTAIN_STRESS_TRACK_ONLY",
             "participants_tsv_sha256": "1596034e5ba33af6df6870ec82bc17cf4cfd5198d91ffb35daf22e7674410bcd",
             "README_sha256": "42b1d38790300854b0746eaad1a9f385e6887211b2ec3c6e1c478e54c52a986f",
+            "public_source_urls": "https://academic.oup.com/pnasnexus/article/3/2/pgae076/7609232|https://github.com/nemarDatasets/nm000177",
         }
     ]
 
@@ -330,12 +368,13 @@ def _external_eligibility_rows(catalog_rows: Sequence[Mapping[str, Any]]) -> lis
             "healthy_participant_evidence": int(decision == "PASS_REGISTERED_INTERFACE"),
             "adult_subject_evidence": int(decision == "PASS_REGISTERED_INTERFACE"),
             "verified_adult_targets": 16 if native == "Brandl2020" else 0,
-            "minimum_trials_per_subject": 200 if native == "Brandl2020" else 0,
+            "minimum_trials_per_subject": 504 if native == "Brandl2020" else 0,
             "compatible_channel_count": 11 if native == "Brandl2020" else 0,
             "usable_event_seconds": 3 if native == "Brandl2020" else 0,
             "public_repository_and_license": int(bool(item["license"])),
             "untouched_target_status": int(native == "Brandl2020"),
             "common_interface_status": "PASS" if native == "Brandl2020" else "NOT_REACHED_AFTER_FAIL_CLOSED_GATE",
+            "public_metadata_identity": str(item["catalog_id"]),
             "decision": decision,
             "selected_primary": int(decision == "PASS_REGISTERED_INTERFACE"),
             "outcome_fields_present": 0,
@@ -364,6 +403,7 @@ def _external_eligibility_rows(catalog_rows: Sequence[Mapping[str, Any]]) -> lis
             "public_repository_and_license": 1,
             "untouched_target_status": 1,
             "common_interface_status": "PASS",
+            "public_metadata_identity": "https://openneuro.org/datasets/ds007221|https://ww2.nemar.org/dataset/on007221",
             "decision": decision,
             "selected_primary": int(passed),
             "outcome_fields_present": 0,
@@ -392,10 +432,10 @@ def _final_cohort_rows() -> list[dict[str, Any]]:
             "subject_registry_sha256": subject_registry_sha256(BRANDL_SUBJECT_IDS),
             "adult_count": 16,
             "task_events": "left_hand|right_hand",
-            "minimum_trials_per_subject": 200,
+            "minimum_trials_per_subject": 504,
             "channels_interface": "C86_C84SOURCE_TARGET_11CH_160HZ_0_3S_V3",
             "license": "CC-BY-NC-ND-4.0",
-            "loader_or_BIDS_identity": "MOABB_BI2015a_via_Brandl2020_loader_identity",
+            "loader_or_BIDS_identity": "MOABB_Brandl2020_brandl2020.py_sha256_313c912ac42ea89d0a176a7baa972330067b6ca559cdef81acde074757416edd",
             "historical_access_status": "CERTIFIABLY_UNTOUCHED_TARGET_OUTCOMES",
             "role": "PRIMARY_UNTOUCHED_CONFIRMATION",
             "decision_reason": "PASSES_ALL_LOCKED_ADULT_AND_INTERFACE_RULES",
@@ -594,6 +634,7 @@ def _build_manifest(table_hashes: Mapping[str, str]) -> dict[str, Any]:
             "C86R2_protocol_commit": PROTOCOL_COMMIT,
             "C86R2_protocol_sha256": PROTOCOL_SHA256,
             "C86R2_implementation_commit": IMPLEMENTATION_COMMIT,
+            "C86R2_implementation_byte_sha256": sha256_file(Path(__file__)),
             "C86_effective_program_manifest_V2_sha256": "c19ca4090b64dec3cc98971e44cbf09f7a1367e4a754535529d972b691c7ca65",
             "C86_synthetic_operationalization_V2_sha256": "3413f8f13d7e11657823120b386acd7659f291d927617aa97d141b3981147862",
             "ds007221_public_metadata": dict(DS007221_PUBLIC_IDENTITIES),

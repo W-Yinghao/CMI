@@ -1,0 +1,3 @@
+interface_variant,passes_all_locked_criteria,included_primary_confirmation,post_screen_cap_applied,excluded_after_pass,at_least_two_rule_count,at_least_two_rule
+Brandl2020_CANONICAL_ADULT_V1,1,1,0,0,2,PASS
+OpenNeuro_ds007221_HYBRID_ADULT_V1,1,1,0,0,2,PASS

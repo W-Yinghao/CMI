@@ -1,0 +1,3 @@
+interface_variant,target_subject_clusters,minimum_clusters_required,cluster_count_pass,exact_sign_configurations,registered_maxT_draws,plus_one_min_p,favorable_75pct_targets,LOTO_fits,scientific_unit
+Brandl2020_CANONICAL_ADULT_V1,16,12,1,65536,65536,1/65537,12,16,target_subject
+OpenNeuro_ds007221_HYBRID_ADULT_V1,37,12,1,137438953472,65536,1/65537,28,37,target_subject

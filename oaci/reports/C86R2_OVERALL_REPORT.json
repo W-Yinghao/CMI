@@ -1,0 +1,88 @@
+{
+  "schema_version": "c86r2_overall_report_v1",
+  "milestone": "C86R2",
+  "generated_at_utc": "2026-07-18T03:24:00Z",
+  "status": "COMPLETE",
+  "identities": {
+    "protocol_commit": "0da4ec39f26ac4bc0d89035e9ad951f452217f05",
+    "protocol_sha256": "2e88e2fef7500b12ca8b3c5b19e6aab06df5a7f388781855b73793a1fe75df92",
+    "implementation_commit": "ccc1807479a2f3b3273991f6b3ca0ab5514184f1",
+    "effective_program_manifest_V2_sha256": "c19ca4090b64dec3cc98971e44cbf09f7a1367e4a754535529d972b691c7ca65",
+    "effective_program_manifest_V3_sha256": "c6b7e490e0f78f74f820428cee138782caff1dc0033422723593a7d8e3c5f77e"
+  },
+  "historical_preservation": {
+    "C86R_blocker_was_correct": true,
+    "historical_roles_rewritten": false,
+    "Yang2025_2C_role": "AGE_MIXED_STRESS_TRACK_ONLY",
+    "Kumar2024_role": "AGE_UNCERTAIN_STRESS_TRACK_ONLY",
+    "Dreyer2023_role": "DEVELOPMENT_ONLY_HISTORICAL_ACCESS"
+  },
+  "adult_rule": {
+    "age_basis": "age_at_recording",
+    "threshold_years": 18,
+    "minimum_subjects_per_interface": 12,
+    "aggregate_age_summary_sufficient": false,
+    "unknown_age_included": false
+  },
+  "catalog_replay": {
+    "MOABB_rows": 53,
+    "EEGDash_rows": 824,
+    "NEMAR_rows": 760,
+    "external_catalog_candidate_rows": 149,
+    "external_native_candidate_datasets": 79,
+    "external_interface_decisions": 82,
+    "outcome_fields": 0
+  },
+  "primary_adult_interfaces": [
+    {
+      "interface": "Brandl2020_CANONICAL_ADULT_V1",
+      "adult_targets": 16,
+      "subject_registry_sha256": "cd5cb9fb5ac3c4f4007e8b41d117da21622439cd05c1728f3e82f90e4f869dad"
+    },
+    {
+      "interface": "OpenNeuro_ds007221_HYBRID_ADULT_V1",
+      "adult_targets": 37,
+      "subject_registry_sha256": "26520d5b53cfdb76915b552f4e3ac8d918deb584a430a6d03c4ac804fefa203c"
+    }
+  ],
+  "field_metadata": {
+    "interface": "C86_C84SOURCE_TARGET_11CH_160HZ_0_3S_V3",
+    "target_subjects": 53,
+    "target_contexts": 424,
+    "candidate_context_slices": 34344,
+    "candidate_units": 648,
+    "unit_cohort_artifacts": 1296,
+    "same_zoo_across_cohorts": true,
+    "target_in_own_training": false
+  },
+  "preserved_failed_attempts": [
+    {
+      "stage": "initial_readiness_generation",
+      "observed": "expected_89_native_candidates_but_frozen_projection_contains_79",
+      "protected_access": 0,
+      "publication": false,
+      "resolution": "corrected_exact_deduplication_count_without_changing_cohort_decisions"
+    }
+  ],
+  "protected_counters": {
+    "new_EEG_downloaded_or_opened": 0,
+    "new_target_labels_opened": 0,
+    "candidate_outputs_opened": 0,
+    "active_acquisition_executed": 0,
+    "new_candidate_training_or_forward": 0,
+    "registered_C86_synthetic_results": 0,
+    "GPU": 0
+  },
+  "authorization": {
+    "C86LP": false,
+    "C86L": false,
+    "C86D": false,
+    "C86C_F": false,
+    "C86H": false,
+    "C87": false,
+    "real_data_execution_lock": false,
+    "authorization_record": false,
+    "manuscript": false
+  },
+  "final_gate": "C86_ADULT_UNTOUCHED_MULTI_COHORT_ELIGIBILITY_RESOLVED_READY_FOR_C86LP_PROTOCOL_REVIEW"
+}

@@ -1,0 +1,8 @@
+catalog_id,source,identity,sha256,bytes,records,safe_candidate_records,captured_after_protocol_commit,safe_projection_only,EEG_or_label_payload,catalog_scope_frozen_before_screen
+MOABB_INSTALLED_IMAGERY_CATALOG_C86R2,installed_MOABB_summary_imagery,/home/infres/yinwang/anaconda3/envs/c84c-eeg2025-v3-exact/lib/python3.13/site-packages/moabb/datasets/summary_imagery.csv,5d7b3abca6f56c83ce90a90d3e0c252783a24f04e237d8d09b11f3862f0ce7e4,2331,53,53,1,1,0,1
+EEGDASH_PUBLIC_CATALOG_C86R2,EEGDash_chart_data_API,https://data.eegdash.org/api/eegdash/datasets/chart-data,ff12eabbe4832e7303a2289acce0384a69dc478231e5949fad68d4772784760f,721760,824,71,1,1,0,1
+NEMAR_PUBLIC_CATALOG_C86R2_PAGE_0,NEMAR_dataset_API_page,https://nemar.org/api/datasets?limit=200&offset=0,965abe63b5b237747c42f751a24b83a2a04da99edfd22cae8ab52c1ea56e0eee,277224,200,IN_COMBINED_SCREEN,1,1,0,1
+NEMAR_PUBLIC_CATALOG_C86R2_PAGE_200,NEMAR_dataset_API_page,https://nemar.org/api/datasets?limit=200&offset=200,108314d6b1d3995bceef2ce7b903d60c60fdf19e9a2cc4af15c47b568e5d898c,274957,200,IN_COMBINED_SCREEN,1,1,0,1
+NEMAR_PUBLIC_CATALOG_C86R2_PAGE_400,NEMAR_dataset_API_page,https://nemar.org/api/datasets?limit=200&offset=400,ef9aacfc13aa1ccb6a1a3e4e0985d2aca4fe8fb5b8d5a413c09e937287411afc,257454,200,IN_COMBINED_SCREEN,1,1,0,1
+NEMAR_PUBLIC_CATALOG_C86R2_PAGE_600,NEMAR_dataset_API_page,https://nemar.org/api/datasets?limit=200&offset=600,046ac81f50139c3f5d43a447c3527c27c99eb04090faccb98098a569d8b2a6f9,169737,160,IN_COMBINED_SCREEN,1,1,0,1
+NEMAR_PUBLIC_CATALOG_C86R2,NEMAR_dataset_API_complete_four_page_snapshot,"https://nemar.org/api/datasets?limit=200&offset=0,200,400,600",5b6f4c3cca54a6a466a0549f9e21a48220e6e515881abd0306376c53d0afbfdf,1169143,760,78,1,1,0,1
