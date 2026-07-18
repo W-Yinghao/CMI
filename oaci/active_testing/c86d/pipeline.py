@@ -95,11 +95,14 @@ class HeldEvaluator:
                 "n_contexts": len(ctx_regret)}
 
 
-def execute(authorization: str | None = None, **kwargs):
+def execute(authorization: str | None = None, output_root: str = "", **kwargs):
     """Real C86D active-policy execution — REFUSES without a direct '授权 C86D'."""
     if authorization != AUTHORIZATION_PHRASE:
         raise C86DNotAuthorized(
             "C86D real execution requires a separate direct '授权 C86D'; the protocol/"
             "client-server implementation does not authorize it"
         )
-    raise NotImplementedError("authorized C86D execution body runs only under 授权 C86D")
+    if not output_root:
+        raise ValueError("authorized C86D execution requires an output_root")
+    from .run import run_c86d
+    return run_c86d(output_root)

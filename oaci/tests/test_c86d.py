@@ -154,6 +154,7 @@ def test_execute_refuses_without_authorization():
         execute(authorization="nope")
 
 
-def test_execute_body_gated_on_phrase():
-    with pytest.raises(NotImplementedError):
+def test_execute_authorized_requires_output_root():
+    # with the phrase the guard passes; the real run still needs an explicit output_root
+    with pytest.raises(ValueError):
         execute(authorization=AUTHORIZATION_PHRASE)
