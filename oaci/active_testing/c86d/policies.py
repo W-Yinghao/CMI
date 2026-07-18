@@ -46,23 +46,37 @@ def _entropy(probs):               # [81,2] -> [81]  (non-negative Shannon entro
 
 
 def acquisition_score(target_pool: dict, method: str) -> dict:
-    """Per-trial target-level acquisition score (equal-weight over the 8 contexts)."""
+    """Per-trial target-level acquisition score (equal-weight over the 8 contexts).
+
+    A1 (locked): mean over candidates of EXPECTED NLL under the equal-weight candidate
+    predictive MIXTURE p̄ = (1/K)Σ_k p_k:  s = Σ_y p̄(y) · (1/K) Σ_k (−log p_k(y)).
+    A2H (locked): Σ_{k<k'} E_π |NLL_k − NLL_k'| with π = p̄.
+    """
     scores = {}
     for trial, ctxs in target_pool.items():
         vals = []
         for probs in ctxs.values():
-            if method == "A1":                         # mean expected candidate NLL = mean entropy
-                vals.append(float(np.mean(_entropy(probs))))
-            elif method == "A2H":                      # Σ_{k<k'} E_π|NLL_k − NLL_k'|
-                p_ref = probs.mean(axis=0)
-                nll = _nll(probs)
-                s = sum(p_ref[y] * 0.5 * np.abs(nll[:, y][:, None] - nll[:, y][None, :]).sum()
+            p_bar = probs.mean(axis=0)                  # [2] equal-weight candidate mixture
+            nll = _nll(probs)                           # [81,2]
+            if method == "A1":
+                s = sum(p_bar[y] * nll[:, y].mean() for y in (0, 1))
+                vals.append(float(s))
+            elif method == "A2H":
+                s = sum(p_bar[y] * 0.5 * np.abs(nll[:, y][:, None] - nll[:, y][None, :]).sum()
                         for y in (0, 1))
                 vals.append(float(s))
             else:
                 raise ValueError(method)
         scores[trial] = float(np.mean(vals))
     return scores
+
+
+def budget_available(budget, n_pool: int) -> bool:
+    """A finite budget larger than the physical pool is INPUT_UNAVAILABLE (no
+    replacement / substitution / target deletion). FULL is always available."""
+    if budget == "FULL":
+        return True
+    return int(budget) <= n_pool
 
 
 def _avg_rank(x):
@@ -150,17 +164,20 @@ def _lure_weights(q_seq, n_pool):
 
 
 def acquisition_path(target_pool, method, seed, rho=0.05):
-    """ONE full without-replacement path (warm start + active); returns (order, q_seq)."""
+    """ONE full without-replacement path (warm start + active); returns (order, q_seq).
+
+    ALL methods (incl. P0) use the same sequential without-replacement loop and the
+    same target-bound RNG stream, so a shared (target, chain) seed gives paired
+    common random numbers: the first WARM_START picks are identical across P0/A1/A2H,
+    and later steps share the same underlying uniforms under different distributions.
+    """
     trials = sorted(target_pool)
     N = len(trials)
     rng = np.random.default_rng(seed)
-    if method == "P0":
-        order = list(rng.permutation(trials))
-        return order, [1.0 / (N - m) for m in range(N)]
-    scores = acquisition_score(target_pool, method)
+    scores = acquisition_score(target_pool, method) if method in ("A1", "A2H") else None
     remaining = list(trials); order, q_seq = [], []
     for step in range(N):
-        if step < WARM_START or not remaining:
+        if method == "P0" or step < WARM_START:
             p = np.ones(len(remaining)) / len(remaining)
         else:
             s = np.array([max(scores[t], 0.0) for t in remaining])

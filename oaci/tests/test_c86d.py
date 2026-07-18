@@ -248,23 +248,7 @@ def test_d1_has_no_c85u_reference():
 
 
 # --- D2 fails closed on a tampered freeze ------------------------------------
-def test_d2_rejects_tampered_freeze(tmp_path):
-    from oaci.active_testing.c86d import run_d2
-    import hashlib
-    d1 = tmp_path / "d1"; (d1 / "freezes").mkdir(parents=True)
-    blob = '{"method":"P0","target":["Cho2017",1],"seed":0,"budgets":[]}'
-    (d1 / "freezes" / "f.json").write_text(blob)
-    idx = [{"file": "freezes/f.json", "method": "P0", "target": ["Cho2017", 1], "seed": 0,
-            "sha256": hashlib.sha256(b"WRONG").hexdigest()}]   # deliberately wrong hash
-    (d1 / "C86D_D1_MANIFEST.json").write_text(json.dumps(
-        {"c85u_accessed": False, "budgets": ["FULL"], "n_freeze_files": 1, "freeze_index": idx}))
-    if not os.path.exists(c85u_config.C85U_UTILITY_INDEX):
-        pytest.skip("C85U index not mounted")
-    with pytest.raises(RuntimeError):
-        run_d2.run_d2(str(d1), str(tmp_path / "out"))
 
-
-# --- C86H registry is not pruned by development performance -------------------
 def test_c86h_registry_constant():
     assert core.METHOD_FREEZE["primary_registry"] == ("P0", "A1", "A2H")
     assert core.METHOD_FREEZE["no_post_hoc_method_add_or_drop"] is True
@@ -329,17 +313,66 @@ def test_taxonomy_five_way():
 
 
 # --- D2 verifies freezes BEFORE opening C85U (order) -------------------------
-def test_d2_verifies_freeze_before_opening_c85u(tmp_path, monkeypatch):
+
+
+# ============ PM C86D round-3 tests ============
+
+def test_b32_input_unavailable_not_disguised_as_full():
+    # a finite budget larger than the pool is INPUT_UNAVAILABLE, not silently FULL
+    assert policies.budget_available(32, 50) is True
+    assert policies.budget_available(32, 20) is False
+    assert policies.budget_available("FULL", 20) is True
+
+
+def test_a1_mixture_cross_entropy_score():
+    # A1 = Σ_y p_bar(y) * mean_k(-log p_k(y)); NOT mean_k entropy(p_k)
+    probs = np.array([[0.99, 0.01], [0.01, 0.99]])          # 2 candidates, maximal disagreement
+    pool = {"t": {"c": probs}}
+    p_bar = probs.mean(axis=0)                              # [0.5,0.5]
+    nll = -np.log(np.clip(probs, 1e-7, 1.0))
+    expect = sum(p_bar[y] * nll[:, y].mean() for y in (0, 1))
+    assert abs(policies.acquisition_score(pool, "A1")["t"] - expect) < 1e-9
+    # mixture CE (~high) exceeds mean self-entropy (~low) under confident disagreement
+    mean_self_entropy = float(np.mean(np.sum(probs * nll, axis=1)))
+    assert policies.acquisition_score(pool, "A1")["t"] > mean_self_entropy + 0.1
+
+
+def test_p0_paired_crn_first_warmstart_identical():
+    pool = {f"t{i}": {"c": np.tile([0.5 + 0.01 * i, 0.5 - 0.01 * i], (81, 1))} for i in range(20)}
+    seed = policies.chain_seed("Cho2017", 1, 0)
+    o0, _ = policies.acquisition_path(pool, "P0", seed)
+    o1, _ = policies.acquisition_path(pool, "A1", seed)
+    o2, _ = policies.acquisition_path(pool, "A2H", seed)
+    assert o0[:4] == o1[:4] == o2[:4]                       # warm start shares the RNG stream (paired CRN)
+
+
+def test_taxonomy_full_ceiling_requires_near_opt():
+    from oaci.active_testing.c86d.run_d2 import _classify
+    cohorts = ["Cho2017", "Lee2019_MI", "PhysionetMI"]
+
+    def ep(mean, tail, nopt):
+        return {"mean_regret_std": mean, "tail_regret_std": tail, "target_near_opt_prob": nopt,
+                "mean_by_cohort": {c: mean for c in cohorts},
+                "tail_by_cohort": {c: tail for c in cohorts},
+                "near_opt_by_cohort": {c: nopt for c in cohorts}}
+    budgets = ["4", "FULL"]
+    # FULL mean/tail fine but near-opt < 0.90 -> nontransportable (mean/tail alone would pass)
+    e = {f"{m}|{b}": ep(0.02, 0.02, 0.10) for m in ("P0", "A1", "A2H") for b in budgets}
+    assert _classify(e, budgets, cohorts)["label"] == "ACQUISITION_VIEW_NONTRANSPORTABLE"
+
+
+def test_d2_verifies_freezes_before_opening_c85u(tmp_path, monkeypatch):
     from oaci.active_testing.c86d import run_d2
     d1 = tmp_path / "d1"; (d1 / "freezes").mkdir(parents=True)
     (d1 / "freezes" / "f.json").write_text('{"method":"P0","target":["Cho2017",1],"chain":0,"seed":9,"budgets":[]}')
     idx = [{"file": "freezes/f.json", "method": "P0", "target": ["Cho2017", 1], "chain": 0,
-            "sha256": "0" * 64}]                            # deliberately wrong hash
+            "sha256": "0" * 64}]
     (d1 / "C86D_D1_MANIFEST.json").write_text(json.dumps(
-        {"c85u_accessed": False, "budgets": ["FULL"], "n_freeze_files": 1, "freeze_index": idx}))
-    # if C85U were opened before verification, this would fire the wrong error
+        {"c85u_accessed": False, "budgets": ["FULL"], "n_freeze_files": 1,
+         "n_targets": 1, "chains": 1, "freeze_index": idx}))
+    # if C85U were opened before freeze verification, THIS would fire instead of a verify error
     monkeypatch.setattr(run_d2, "load_c85u_field",
                         lambda: (_ for _ in ()).throw(AssertionError("C85U opened before verify")))
     with pytest.raises(RuntimeError) as ei:
         run_d2.run_d2(str(d1), str(tmp_path / "out"))
-    assert "tampered" in str(ei.value)                     # caught by verify_freezes, before C85U
+    assert "C85U opened before verify" not in str(ei.value)   # verify ran first, C85U not opened

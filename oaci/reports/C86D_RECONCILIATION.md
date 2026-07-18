@@ -101,3 +101,37 @@ Second PM review; same C86D scope; tested (37 tests), NOT rerun (needs fresh
     `target_raw_gap_diagnostic`, explicitly not the primary risk).
 
 37 C86D tests pass. Corrected D1→D2 run performed only under a fresh `授权 C86D`.
+
+---
+
+## Round 3 — budget availability / A1 identity / freeze completeness / taxonomy
+
+Third PM review; same C86D scope; tested (40 tests), NOT rerun.
+
+1. **B32 INPUT_UNAVAILABLE (no min-budget substitution).** `budget_available`: a
+   finite budget > physical pool is INPUT_UNAVAILABLE; D1 emits a status freeze with
+   no selected action (never disguised as FULL); D2 excludes any budget with an
+   unavailable cohort cell from the cross-cohort CROSSED/WEAKENED gate.
+2. **A1 = locked mixture expected-NLL.** `s_A1 = Σ_y p̄(y)·(1/K)Σ_k(−log p_k(y))`
+   with p̄ the equal-weight candidate mixture — not mean self-entropy. Test: matches
+   the mixture formula and exceeds mean self-entropy under confident disagreement.
+3. **Complete freeze verifier (before C85U).** `verify_freezes` now checks: exact
+   count 3×n_targets×n_chains, each (method,target,chain) once, index==internal
+   identity, seed==target-bound chain_seed, full/unique budget set, per available
+   freeze exactly 8 canonical contexts, selected∈[0,80], query/q/weight/receipt
+   lengths, no duplicate query trials, nested-prefix identity, composite length 81,
+   selected==first argmax, and valid INPUT_UNAVAILABLE status.
+4. **FULL ceiling gains a near-opt gate** (per cohort mean≤0.05 AND tail≤0.05 AND
+   near-opt≥0.90). **Chain-level paired MC SE** (per chain: target-equal active−P0
+   effect; SD/√n_chains) — named distinctly from target heterogeneity.
+5. **Paired common random numbers.** P0 now uses the same sequential
+   without-replacement loop as A1/A2H; a shared (target,chain) seed makes the first
+   WARM_START picks identical across P0/A1/A2H. Test confirms it.
+6. **FULL positive control per target×context×chain.** D2 reports
+   `full_invariant_within_group` and `full_invariant_across_chains`.
+7. **C86L acceptance replay requires `acceptance_ok=true` + the exact accepted gate**
+   before any query.
+8. **bAcc/NLL/ECE component SHA persisted** per context in each D1 freeze (composite
+   alone is insufficient to diagnose component failure).
+
+40 C86D tests pass. Corrected D1→D2 run only under a fresh `授权 C86D`.

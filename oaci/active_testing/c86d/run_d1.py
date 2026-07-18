@@ -30,9 +30,20 @@ ACCEPTANCE_MANIFEST = os.path.join(os.path.dirname(__file__),
 _PLUGIN_FIELDS = ("nll", "correct", "confidence", "conf_bin")
 
 
+_C86L_ACCEPTED_GATE = ("C86L_DEVELOPMENT_FIELD_CONTENT_ADDRESSED_AND_FULLY_REPLAYED_"
+                       "READY_FOR_C86D_PROTOCOL")
+
+
 def replay_c86l_acceptance():
-    """Re-hash the C86L field artifacts against the accepted content-addressed manifest."""
+    """Re-hash the C86L field artifacts against the accepted content-addressed manifest.
+
+    Requires the recorded acceptance to be a PASS at the exact accepted gate.
+    """
     man = json.load(open(ACCEPTANCE_MANIFEST))
+    if man.get("acceptance_ok") is not True:
+        raise RuntimeError("C86L acceptance manifest is not acceptance_ok=true")
+    if man.get("gate") != _C86L_ACCEPTED_GATE:
+        raise RuntimeError(f"C86L acceptance gate mismatch: {man.get('gate')}")
     inv = man["output_artifact_hashes"]
     checked = 0
     for a in inv:
@@ -48,7 +59,10 @@ def replay_c86l_acceptance():
 
 
 def _freeze_budget(queried, order, q_seq, budget):
-    from .policies import budget_prefix, composite_select
+    from .policies import budget_available, budget_prefix, composite_select
+    if not budget_available(budget, len(order)):
+        return {"budget": str(budget), "status": "INPUT_UNAVAILABLE",
+                "pool_size": len(order)}          # no selected action; not disguised as FULL
     pre, w = budget_prefix(order, q_seq, len(order), budget)
     full = (budget == "FULL")
     per_ctx = {}
@@ -59,15 +73,19 @@ def _freeze_budget(queried, order, q_seq, budget):
             d["labels"].append(label)
             for f in _PLUGIN_FIELDS:
                 d[f].append(np.asarray(row[f]))
-    selected, comp = {}, {}
+    selected, comp, comp_sha = {}, {}, {}
     for ctx, d in per_ctx.items():
         contribs = {f: np.array(d[f]) for f in _PLUGIN_FIELDS}
         sel, metrics = composite_select(d["labels"], contribs, w, full=full, n_pool=len(order))
         selected[ctx] = int(sel); comp[ctx] = metrics["composite"].tolist()
-    return {"budget": str(budget), "query_sequence": list(pre),
+        blob = (metrics["balanced_accuracy"].tobytes() + metrics["nll"].tobytes()
+                + metrics["ece"].tobytes())
+        comp_sha[ctx] = hashlib.sha256(blob).hexdigest()   # bAcc/NLL/ECE component identity
+    return {"budget": str(budget), "status": "AVAILABLE", "query_sequence": list(pre),
             "q_seq": [q_seq[i] for i in range(len(pre))], "lure_weights": w.tolist(),
             "receipts": [[t, queried[t][0]] for t in pre],
-            "selected_by_context": selected, "composite_by_context": comp}
+            "selected_by_context": selected, "composite_by_context": comp,
+            "component_sha_by_context": comp_sha}
 
 
 def _d1_worker(conn, pool_root, fdir, methods, budgets, chains):
