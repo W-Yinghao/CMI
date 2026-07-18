@@ -65,7 +65,8 @@ def test_execute_refuses_without_authorization():
         execute(_ready_binding(), authorization="please")
 
 
-def test_execute_body_deferred_even_with_phrase():
-    # the guard passes the phrase, but the real body is not implemented until authorized for real
-    with pytest.raises(NotImplementedError):
+def test_execute_authorized_requires_output_root():
+    # with the phrase the guard passes; the real build still needs an explicit output_root
+    from oaci.active_testing.c86l_production import C86LContractError
+    with pytest.raises(C86LContractError):
         execute(_ready_binding(), authorization=AUTHORIZATION_PHRASE)

@@ -105,7 +105,8 @@ def validate_readiness(binding: C86LInputBinding) -> dict:
     }
 
 
-def execute(binding: C86LInputBinding, authorization: str | None = None):
+def execute(binding: C86LInputBinding, authorization: str | None = None,
+            output_root: str = ""):
     """Run the real C86L production stage — REFUSES without a valid direct authorization.
 
     This never runs today: no ``authorization`` equal to the exact trigger phrase
@@ -116,9 +117,8 @@ def execute(binding: C86LInputBinding, authorization: str | None = None):
         raise C86LNotAuthorized(
             "C86L execution requires a separate direct '授权 C86L'; C86LP does not authorize it"
         )
-    # Authorized real execution (opening construction labels / target predictions,
-    # building the sealed field, freezing the contribution field + result manifest)
-    # is intentionally not implemented until that authorization exists.
-    raise NotImplementedError(
-        "authorized C86L execution body is deferred until '授权 C86L' is issued"
-    )
+    if not output_root:
+        raise C86LContractError("authorized C86L execution requires an output_root")
+    # Authorized real build against the verified inputs; fail-closed inside.
+    from .c86l_build import build
+    return build(output_root)
