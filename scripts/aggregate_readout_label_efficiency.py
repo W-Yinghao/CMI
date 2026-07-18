@@ -122,9 +122,15 @@ def main():
         bias_ge_map = all(ci["dU_MAP_bias"][k]["lo"] <= 0 for k in BUDGETS)   # MAP never significantly beats bias
         full_frozen_pos = ci["dU_MAP_frozen"]["Full"]["lo"] > 0
         both_few = kU in FEW and kA in FEW                                    # SAME dataset: MAP>frozen AND MAP>fresh few-shot
-        harm = any(ci["dU_MAP_fresh"][k]["hi"] < 0 for k in FEW)             # MAP significantly WORSE than from-scratch at few-shot
+        # NO-HARM gate must include harm vs the FROZEN head (the deployable reference): if few-shot adaptation hurts
+        # on average vs just keeping the source head, it is not deployable there. (dU_MAP_fresh harm alone is a
+        # strawman -- a from-scratch head is trivially bad at 1-2 labels, so it never triggers.) Directional (mean)
+        # because a NEGATIVE mean few-shot utility is a deploy risk even if the CI crosses 0.
+        harm_vs_fresh = any(ci["dU_MAP_fresh"][k]["hi"] < 0 for k in FEW)
+        harm_vs_frozen = min(ci["dU_MAP_frozen"]["1"]["mean"], ci["dU_MAP_frozen"]["2"]["mean"]) < -0.005
         stats[ds] = dict(kU=kU, kA=kA, specific_any_k=specific_any, bias_ge_map=bias_ge_map,
-                         full_frozen_pos=full_frozen_pos, both_few=both_few, harm=harm)
+                         full_frozen_pos=full_frozen_pos, both_few=both_few,
+                         harm=(harm_vs_fresh or harm_vs_frozen), harm_vs_frozen=harm_vs_frozen)
         per_ds.append(dict(dataset=ds, role=("dev" if ds in DEV else "confirmatory"), n_subjects=ci["dU_MAP_frozen"]["Full"]["n"],
                            kstar_utility=kU, kstar_anchor=kA, subspace_specific_any_k=specific_any,
                            bias_sufficient=bias_ge_map, full_cal_frozen_positive=full_frozen_pos,

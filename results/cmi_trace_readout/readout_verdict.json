@@ -634,11 +634,8 @@
     }
   ],
   "routing": {
-    "verdict": "R-A_MAP_WINS_FEWSHOT_LABEL_EFFICIENT",
-    "confirm_both": [
-      "Lee2019_MI"
-    ],
-    "next": "source-anchored MAP beats frozen AND fresh at k<=8 on every dev + >=1 confirmatory (same dataset), no harm -> real deployable readout-adaptation direction; fix source-prior adaptation, add stronger few-shot baselines, test bias-only vs full-direction"
+    "verdict": "R-D_READOUT_SHIFT_GENERIC_SUBSPACE_NOT_CAUSAL",
+    "next": "MAP anchoring beats from-scratch (readout adaptation is real) but dGh_specific not LCB>0 on >=2 datasets -> the readout shift is GENERIC; subspace erasure is NOT causal; pursue readout label-efficiency, not subspace surgery"
   },
   "n_cells": 252,
   "skipped": {},
