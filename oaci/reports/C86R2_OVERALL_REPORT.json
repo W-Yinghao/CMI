@@ -84,5 +84,13 @@
     "authorization_record": false,
     "manuscript": false
   },
+  "validation": {
+    "focused": "51_passed",
+    "C65_cumulative": "1103_passed_1_skipped_12_deselected",
+    "C23_cumulative": "1514_passed_1_skipped_12_deselected",
+    "full_OACI": "2489_passed_1_skipped_12_deselected",
+    "accepted_stderr_bytes_each": 0,
+    "no_C86R2_test_deselected": true
+  },
   "final_gate": "C86_ADULT_UNTOUCHED_MULTI_COHORT_ELIGIBILITY_RESOLVED_READY_FOR_C86LP_PROTOCOL_REVIEW"
 }

@@ -34,6 +34,16 @@ The V3 common field has 53 target subjects, 424 contexts, 34,344
 candidate-context slices, 648 shared candidate units, and 1,296 unit-cohort
 artifacts. These are metadata planning quantities, not execution results.
 
+## Validation
+
+```text
+focused C86P/C86R/C86R2: 51 passed
+C65 cumulative: 1,103 passed / 1 skipped / 12 deselected
+C23 cumulative: 1,514 passed / 1 skipped / 12 deselected
+full OACI: 2,489 passed / 1 skipped / 12 deselected
+accepted stderr: 0 bytes for every suite
+```
+
 ## Identities
 
 ```text
@@ -45,6 +55,9 @@ C86R2 protocol SHA-256:
 
 C86R2 implementation/count-reconciliation commit:
   ccc1807479a2f3b3273991f6b3ca0ab5514184f1
+
+accepted regression evidence commit:
+  b6c331d79ec9fae38dbc6c9379c19ef9ecac72a4
 
 effective program V3 SHA-256:
   c6b7e490e0f78f74f820428cee138782caff1dc0033422723593a7d8e3c5f77e
