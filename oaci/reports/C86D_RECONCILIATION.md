@@ -135,3 +135,32 @@ Third PM review; same C86D scope; tested (40 tests), NOT rerun.
    alone is insufficient to diagnose component failure).
 
 40 C86D tests pass. Corrected D1→D2 run only under a fresh `授权 C86D`.
+
+---
+
+## Round 4 — last-rerun fail-closed preflight
+
+Fourth PM review; same C86D scope; tested (42 tests), NOT rerun.
+
+1. **Truly path-blind worker.** The selection worker moved to
+   `c86d/selection_worker.py`, which defines and imports NO oracle/contribution/
+   field path. The launcher (`run_d1`) keeps the sealed paths and spawns the worker
+   with only the pipe + the client-visible pool. Test: the worker module and its
+   namespace contain no sealed path.
+2. **Freeze verifier is now externally bound and blocking.** Before any C85U open,
+   `verify_freezes` requires: the freeze target set == the accepted C86L target
+   registry (derived from `C86L_CONTEXT_INDEX.json`), `n_targets==118`, method set
+   `=={P0,A1,A2H}`, chain set `=={0..7}`, exact Cartesian count `2832`, exactly 5
+   unique budget rows per freeze, each `q_m` finite in `(0,1]`, each LURE weight
+   finite `≥0`, receipts equal to the query sequence with binary labels, FULL length
+   == the target's physical pool size, `INPUT_UNAVAILABLE.pool_size` == that size,
+   `component_sha_by_context` over exactly the 8 canonical contexts, each
+   `target×context×chain` FULL carrying all three methods, and **FULL acquisition
+   invariance (within group AND across chains) as a BLOCKING assertion** — any
+   failure halts before `load_c85u_field()`.
+3. **C86L acceptance count.** Replay now requires `len(output_artifact_hashes) ==
+   1891` and `checked == 1891` (in addition to `acceptance_ok=true` + exact gate).
+
+42 C86D tests pass. Expected next gate on acceptance:
+`C86D_CORRECTED_LAST_DEVELOPMENT_RERUN_READY`; the corrected D1→D2 run then executes
+only under a fresh `授权 C86D`.

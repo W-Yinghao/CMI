@@ -1,25 +1,24 @@
-"""C86D Stage D1 — SELECTION only. No C85U import anywhere in this process tree.
+"""C86D Stage D1 — SELECTION launcher. No C85U import anywhere in this tree.
 
-Architecture (path separation):
-  launcher  : replays the accepted C86L content-addressed manifest, holds the sealed
-              oracle/contribution paths, starts the server process, and spawns a
-              PATH-BLIND worker with only the pipe handle + the (client-visible) pool.
-  server    : separate process, owns the sealed oracle/contribution.
-  worker    : separate spawned process, no sealed paths; runs P0/A1/A2H with
-              target-bound chain seeds and persists SHA-hashed selection freezes.
+The launcher replays the accepted C86L content-addressed manifest, derives the
+externally-bound target registry + per-target pool sizes from the accepted field,
+holds the sealed oracle/contribution paths, starts the server process, and spawns
+the PATH-BLIND worker (``selection_worker``) with only the pipe + the client-visible
+pool. The worker module defines no sealed path.
 """
 from __future__ import annotations
 
+import collections
+import csv
 import hashlib
 import json
 import multiprocessing as mp
 import os
 import time
 
-import numpy as np
-
-from .core import BUDGET_GRID, METHOD_FREEZE           # no C85U names here
+from .core import BUDGET_GRID, METHOD_FREEZE            # no C85U names here
 from .server import start_server_process
+from . import selection_worker
 
 FIELD_ROOT = "/projects/EEG-foundation-model/yinghao/oaci-c86l-development-field-v1"
 POOL_ROOT = os.path.join(FIELD_ROOT, "acquisition_unlabeled_pool")
@@ -27,24 +26,20 @@ ORACLE_ROOT = os.path.join(FIELD_ROOT, "acquisition_label_oracle")
 CONTRIB_ROOT = os.path.join(FIELD_ROOT, "query_contribution_store")
 ACCEPTANCE_MANIFEST = os.path.join(os.path.dirname(__file__),
                                    "../../reports/C86L_ACCEPTANCE_MANIFEST.json")
-_PLUGIN_FIELDS = ("nll", "correct", "confidence", "conf_bin")
-
-
-_C86L_ACCEPTED_GATE = ("C86L_DEVELOPMENT_FIELD_CONTENT_ADDRESSED_AND_FULLY_REPLAYED_"
-                       "READY_FOR_C86D_PROTOCOL")
+_ACCEPTED_GATE = ("C86L_DEVELOPMENT_FIELD_CONTENT_ADDRESSED_AND_FULLY_REPLAYED_"
+                  "READY_FOR_C86D_PROTOCOL")
+_ACCEPTED_INVENTORY = 1891
 
 
 def replay_c86l_acceptance():
-    """Re-hash the C86L field artifacts against the accepted content-addressed manifest.
-
-    Requires the recorded acceptance to be a PASS at the exact accepted gate.
-    """
     man = json.load(open(ACCEPTANCE_MANIFEST))
     if man.get("acceptance_ok") is not True:
-        raise RuntimeError("C86L acceptance manifest is not acceptance_ok=true")
-    if man.get("gate") != _C86L_ACCEPTED_GATE:
+        raise RuntimeError("C86L acceptance not acceptance_ok=true")
+    if man.get("gate") != _ACCEPTED_GATE:
         raise RuntimeError(f"C86L acceptance gate mismatch: {man.get('gate')}")
     inv = man["output_artifact_hashes"]
+    if len(inv) != _ACCEPTED_INVENTORY:
+        raise RuntimeError(f"C86L inventory {len(inv)} != {_ACCEPTED_INVENTORY}")
     checked = 0
     for a in inv:
         p = os.path.join(FIELD_ROOT, a["path"])
@@ -55,73 +50,25 @@ def replay_c86l_acceptance():
         if h.hexdigest() != a["sha256"]:
             raise RuntimeError(f"C86L acceptance replay mismatch: {a['path']}")
         checked += 1
+    if checked != _ACCEPTED_INVENTORY:
+        raise RuntimeError(f"C86L artifacts checked {checked} != {_ACCEPTED_INVENTORY}")
     return {"c86l_acceptance_gate": man["gate"], "artifacts_replayed": checked}
 
 
-def _freeze_budget(queried, order, q_seq, budget):
-    from .policies import budget_available, budget_prefix, composite_select
-    if not budget_available(budget, len(order)):
-        return {"budget": str(budget), "status": "INPUT_UNAVAILABLE",
-                "pool_size": len(order)}          # no selected action; not disguised as FULL
-    pre, w = budget_prefix(order, q_seq, len(order), budget)
-    full = (budget == "FULL")
-    per_ctx = {}
-    for trial in pre:
-        label, contexts = queried[trial]
-        for ctx, row in contexts.items():
-            d = per_ctx.setdefault(ctx, {"labels": [], **{f: [] for f in _PLUGIN_FIELDS}})
-            d["labels"].append(label)
-            for f in _PLUGIN_FIELDS:
-                d[f].append(np.asarray(row[f]))
-    selected, comp, comp_sha = {}, {}, {}
-    for ctx, d in per_ctx.items():
-        contribs = {f: np.array(d[f]) for f in _PLUGIN_FIELDS}
-        sel, metrics = composite_select(d["labels"], contribs, w, full=full, n_pool=len(order))
-        selected[ctx] = int(sel); comp[ctx] = metrics["composite"].tolist()
-        blob = (metrics["balanced_accuracy"].tobytes() + metrics["nll"].tobytes()
-                + metrics["ece"].tobytes())
-        comp_sha[ctx] = hashlib.sha256(blob).hexdigest()   # bAcc/NLL/ECE component identity
-    return {"budget": str(budget), "status": "AVAILABLE", "query_sequence": list(pre),
-            "q_seq": [q_seq[i] for i in range(len(pre))], "lure_weights": w.tolist(),
-            "receipts": [[t, queried[t][0]] for t in pre],
-            "selected_by_context": selected, "composite_by_context": comp,
-            "component_sha_by_context": comp_sha}
-
-
-def _d1_worker(conn, pool_root, fdir, methods, budgets, chains):
-    """PATH-BLIND worker: only the pipe + the client-visible pool. No sealed paths."""
-    from .policies import acquisition_path, chain_seed, load_pool
-    from .server import QueryClientHandle
-    client = QueryClientHandle(conn, None)
-    pool = load_pool(pool_root)
-    index = []
-    for tgt in sorted(pool):
-        for chain in chains:
-            seed = chain_seed(tgt[0], tgt[1], chain)           # target-bound; shared across methods
-            for method in methods:
-                order, q_seq = acquisition_path(pool[tgt], method, seed)
-                attempt = client.open_attempt(tgt, "FULL")
-                queried = {}
-                for trial in order:
-                    label, contexts = client.query(attempt, trial)
-                    queried[trial] = (int(label),
-                                      {ctx: {f: np.asarray(row[f]).tolist() for f in _PLUGIN_FIELDS}
-                                       for ctx, row in contexts.items()})
-                rec = {"method": method, "target": list(tgt), "chain": int(chain),
-                       "seed": int(seed),
-                       "budgets": [_freeze_budget(queried, order, q_seq, b) for b in budgets]}
-                name = f"{method}__{tgt[0]}__{tgt[1]}__c{chain}.json"
-                blob = json.dumps(rec, sort_keys=True)
-                open(os.path.join(fdir, name), "w").write(blob)
-                index.append({"file": f"freezes/{name}", "method": method, "target": list(tgt),
-                              "chain": int(chain), "sha256": hashlib.sha256(blob.encode()).hexdigest()})
-    client.close()
-    json.dump(index, open(os.path.join(os.path.dirname(fdir), "worker_index.json"), "w"))
+def _expected_targets_and_pools():
+    """Target registry (from the accepted context index) + per-target construction pool size."""
+    ctx_index = json.load(open(os.path.join(FIELD_ROOT, "C86L_CONTEXT_INDEX.json")))
+    targets = sorted({(c["dataset"], int(c["subject"])) for c in ctx_index})
+    pools = collections.defaultdict(int)
+    for r in csv.DictReader(open(os.path.join(ORACLE_ROOT, "labels.csv"))):
+        pools[(r["dataset"], int(r["target_subject_id"]))] += 1
+    return [list(t) for t in targets], {f"{t[0]}|{t[1]}": pools[t] for t in targets}
 
 
 def run_d1(output_root: str) -> dict:
     t0 = time.time()
     accept = replay_c86l_acceptance()
+    targets, pool_sizes = _expected_targets_and_pools()
     methods = list(METHOD_FREEZE["primary_registry"])
     budgets = list(BUDGET_GRID)
     chains = list(METHOD_FREEZE["seed_schedule"])
@@ -129,12 +76,11 @@ def run_d1(output_root: str) -> dict:
     fdir = os.path.join(staging, "freezes")
     os.makedirs(fdir, exist_ok=True)
 
-    # launcher holds sealed paths, starts server, hands the worker only the pipe + pool
     conn, server_proc = start_server_process(ORACLE_ROOT, CONTRIB_ROOT)
     ctx = mp.get_context("spawn")
-    worker = ctx.Process(target=_d1_worker, args=(conn, POOL_ROOT, fdir, methods, budgets, chains))
-    worker.start()
-    worker.join()
+    worker = ctx.Process(target=selection_worker.run_worker,
+                         args=(conn, POOL_ROOT, fdir, methods, budgets, chains))
+    worker.start(); worker.join()
     try:
         server_proc.terminate()
     except Exception:
@@ -145,12 +91,12 @@ def run_d1(output_root: str) -> dict:
     index = json.load(open(os.path.join(staging, "worker_index.json")))
     manifest = {
         "stage": "C86D_D1_SELECTION",
-        "c85u_accessed": False, "held_utility_opened": False,
-        "path_blind_worker": True,
+        "c85u_accessed": False, "held_utility_opened": False, "path_blind_worker": True,
         "c86l_field_root": FIELD_ROOT, **accept,
-        "methods": methods, "budgets": [str(b) for b in budgets],
-        "n_targets": len({(e["target"][0], e["target"][1]) for e in index}),
-        "chains": len(chains), "warm_start": 4,
+        "methods": methods, "budgets": [str(b) for b in budgets], "chain_ids": [int(c) for c in chains],
+        "expected_targets": targets, "n_targets": len(targets),
+        "target_pool_sizes": pool_sizes,
+        "expected_freeze_count": len(methods) * len(targets) * len(chains),
         "seed_binding": "low64(SHA256(C86_ACTIVE_CHAIN_V1|dataset|subject|chain))",
         "n_freeze_files": len(index), "freeze_index": index,
         "d1_seconds": round(time.time() - t0, 1),
@@ -159,7 +105,8 @@ def run_d1(output_root: str) -> dict:
         json.dump(manifest, fh, indent=2)
     os.replace(staging, output_root)
     return {k: manifest[k] for k in ("stage", "n_freeze_files", "n_targets", "c85u_accessed",
-                                     "path_blind_worker", "c86l_acceptance_gate")}
+                                     "path_blind_worker", "c86l_acceptance_gate",
+                                     "expected_freeze_count")}
 
 
 if __name__ == "__main__":

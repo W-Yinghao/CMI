@@ -369,10 +369,27 @@ def test_d2_verifies_freezes_before_opening_c85u(tmp_path, monkeypatch):
             "sha256": "0" * 64}]
     (d1 / "C86D_D1_MANIFEST.json").write_text(json.dumps(
         {"c85u_accessed": False, "budgets": ["FULL"], "n_freeze_files": 1,
-         "n_targets": 1, "chains": 1, "freeze_index": idx}))
+         "n_targets": 1, "chain_ids": [0], "expected_targets": [["Cho2017", 1]],
+         "target_pool_sizes": {"Cho2017|1": 40}, "freeze_index": idx}))
     # if C85U were opened before freeze verification, THIS would fire instead of a verify error
     monkeypatch.setattr(run_d2, "load_c85u_field",
                         lambda: (_ for _ in ()).throw(AssertionError("C85U opened before verify")))
     with pytest.raises(RuntimeError) as ei:
         run_d2.run_d2(str(d1), str(tmp_path / "out"))
     assert "C85U opened before verify" not in str(ei.value)   # verify ran first, C85U not opened
+
+
+def test_selection_worker_is_path_blind():
+    # the worker module must define/import no sealed oracle/contribution path
+    from oaci.active_testing.c86d import selection_worker
+    src = open(selection_worker.__file__).read()
+    assert "ORACLE_ROOT" not in src and "CONTRIB_ROOT" not in src and "FIELD_ROOT" not in src
+    assert "acquisition_label_oracle" not in src and "query_contribution_store" not in src
+    for a in dir(selection_worker):
+        assert "oracle" not in a.lower() and "contrib" not in a.lower()
+
+
+def test_c86l_acceptance_replay_requires_count_and_ok():
+    from oaci.active_testing.c86d import run_d1
+    assert run_d1._ACCEPTED_INVENTORY == 1891
+    assert run_d1._ACCEPTED_GATE.endswith("READY_FOR_C86D_PROTOCOL")

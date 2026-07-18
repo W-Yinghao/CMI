@@ -35,17 +35,28 @@ def _require(c, m):
 
 
 def verify_freezes(d1_root):
-    """FULL freeze verification BEFORE any C85U access. Returns validated actions."""
+    """FULL freeze verification BEFORE any C85U access. Returns validated actions.
+
+    Binds against the externally-derived C86L target registry / methods / chains and
+    enforces per-freeze validity; FULL acquisition invariance is a BLOCKING assertion.
+    """
     d1 = json.load(open(os.path.join(d1_root, "C86D_D1_MANIFEST.json")))
     _require(d1["c85u_accessed"] is False, "D1 manifest claims C85U access")
     idx = d1["freeze_index"]
     _require(len(idx) == d1["n_freeze_files"], "freeze count vs manifest mismatch")
-    methods = ("P0", "A1", "A2H"); n_chains = d1["chains"]; n_targets = d1["n_targets"]
-    _require(len(idx) == len(methods) * n_targets * n_chains,
-             f"expected {len(methods)*n_targets*n_chains} freezes, got {len(idx)}")
+    exp_targets = {(t[0], t[1]) for t in d1["expected_targets"]}
+    _require(len(exp_targets) == 118, f"target registry {len(exp_targets)} != 118")
+    exp_methods = {"P0", "A1", "A2H"}
+    exp_chains = set(int(c) for c in d1["chain_ids"])
+    _require(exp_chains == set(range(8)), f"chain set {sorted(exp_chains)} != 0..7")
+    pool_size = {(k.rsplit("|", 1)[0], int(k.rsplit("|", 1)[1])): v
+                 for k, v in d1["target_pool_sizes"].items()}
+    expected_count = len(exp_methods) * len(exp_targets) * len(exp_chains)
+    _require(len(idx) == expected_count == 2832, f"expected {expected_count} freezes, got {len(idx)}")
+
     seen = set()
-    actions = []                     # (method,target,chain,budget,selected|None,status)
-    full_by_ctx_chain = collections.defaultdict(dict)   # (target,ctx,chain) -> {method: sel}
+    actions = []
+    full_by_ctx_chain = collections.defaultdict(dict)
     for e in idx:
         path = os.path.join(d1_root, e["file"])
         _require(os.path.exists(path), f"missing freeze {e['file']}")
@@ -56,27 +67,38 @@ def verify_freezes(d1_root):
         method = rec["method"]; tgt = (rec["target"][0], rec["target"][1]); chain = rec["chain"]
         _require(method == e["method"] and list(tgt) == e["target"] and chain == e["chain"],
                  f"index/internal identity mismatch {e['file']}")
+        _require(method in exp_methods and tgt in exp_targets and chain in exp_chains,
+                 f"unexpected method/target/chain {e['file']}")
         key = (method, tgt, chain)
         _require(key not in seen, f"duplicate freeze {key}"); seen.add(key)
         _require(rec["seed"] == chain_seed(tgt[0], tgt[1], chain), f"seed not target-bound {key}")
-        bmap = {bf["budget"]: bf for bf in rec["budgets"]}
-        _require(set(bmap) == BUDGET_SET, f"incomplete budget set {key}: {set(bmap)}")
+        blist = rec["budgets"]
+        _require(len(blist) == 5 and {bf["budget"] for bf in blist} == BUDGET_SET,
+                 f"budget rows not 5-unique {key}")
+        bmap = {bf["budget"]: bf for bf in blist}
+        psize = pool_size[tgt]
         avail_seqs = {}
         for budget, bf in bmap.items():
             if bf.get("status") == "INPUT_UNAVAILABLE":
-                _require(budget != "FULL" and bf["pool_size"] < int(budget),
+                _require(budget != "FULL" and int(budget) > psize and bf["pool_size"] == psize,
                          f"invalid INPUT_UNAVAILABLE {key} {budget}")
                 actions.append((method, tgt, chain, budget, None, "INPUT_UNAVAILABLE"))
                 continue
             _require(bf.get("status") == "AVAILABLE", f"bad status {key} {budget}")
             sel = bf["selected_by_context"]; comp = bf["composite_by_context"]
-            _require(set(sel) == CANON_CTX, f"contexts != 8 canonical {key} {budget}")
-            qs = bf["query_sequence"]
-            M = len(qs)
-            _require(M == (int(budget) if budget != "FULL" else M), f"bad prefix len {key} {budget}")
+            _require(set(sel) == CANON_CTX == set(bf["component_sha_by_context"]),
+                     f"contexts != 8 canonical {key} {budget}")
+            qs = bf["query_sequence"]; M = len(qs)
+            _require(M == (psize if budget == "FULL" else int(budget)), f"bad prefix len {key} {budget}")
             _require(len(bf["q_seq"]) == M and len(bf["lure_weights"]) == M
                      and len(bf["receipts"]) == M, f"length mismatch {key} {budget}")
             _require(len(set(qs)) == M, f"duplicate query trial {key} {budget}")
+            for q in bf["q_seq"]:
+                _require(np.isfinite(q) and 0.0 < q <= 1.0, f"bad q_m {key} {budget}")
+            for w in bf["lure_weights"]:
+                _require(np.isfinite(w) and w >= 0.0, f"bad LURE weight {key} {budget}")
+            for i, (rt, rl) in enumerate(bf["receipts"]):
+                _require(rt == qs[i] and rl in (0, 1), f"bad receipt {key} {budget} {i}")
             for ctx in CANON_CTX:
                 _require(0 <= sel[ctx] <= 80, f"selected out of range {key} {budget} {ctx}")
                 cv = np.asarray(comp[ctx])
@@ -87,19 +109,21 @@ def verify_freezes(d1_root):
             if budget == "FULL":
                 for ctx in CANON_CTX:
                     full_by_ctx_chain[(tgt, ctx, chain)][method] = sel[ctx]
-        # nested-prefix among AVAILABLE budgets (4 ⊂ 8 ⊂ 16 ⊂ 32 ⊂ FULL)
         ordered = [b for b in ("4", "8", "16", "32", "FULL") if b in avail_seqs]
         for a, b in zip(ordered, ordered[1:]):
-            _require(avail_seqs[a] == avail_seqs[b][:len(avail_seqs[a])],
-                     f"non-nested prefix {key} {a}->{b}")
-    # FULL acquisition invariance per (target,context,chain) AND across chains
-    per_group = all(len(set(ms.values())) == 1 for ms in full_by_ctx_chain.values())
+            _require(avail_seqs[a] == avail_seqs[b][:len(avail_seqs[a])], f"non-nested prefix {key}")
+    # Cartesian completeness
+    _require(seen == {(m, t, c) for m in exp_methods for t in exp_targets for c in exp_chains},
+             "freeze Cartesian product incomplete")
+    # each (target,context,chain) FULL has exactly the 3 methods; BLOCKING FULL invariance
+    for k, ms in full_by_ctx_chain.items():
+        _require(set(ms) == exp_methods, f"FULL missing a method at {k}")
+        _require(len(set(ms.values())) == 1, f"FULL not acquisition-invariant at {k}")
     by_ctx = collections.defaultdict(set)
     for (tgt, ctx, chain), ms in full_by_ctx_chain.items():
         by_ctx[(tgt, ctx)].update(ms.values())
-    cross_chain = all(len(v) == 1 for v in by_ctx.values())
-    return d1, actions, {"full_invariant_within_group": bool(per_group),
-                         "full_invariant_across_chains": bool(cross_chain)}
+    _require(all(len(v) == 1 for v in by_ctx.values()), "FULL not invariant across chains")
+    return d1, actions, {"full_invariant_within_group": True, "full_invariant_across_chains": True}
 
 
 def load_c85u_field():
