@@ -42,19 +42,27 @@ def _route(ds_stats):
     failure to source-only SELECTABILITY, not to the objective's oracle utility."""
     dsl = list(ds_stats)
     def lcb(ds, k): return ds_stats[ds][k]["lo"]
+    def oracle_lcb(ds, k): return ds_stats[ds].get("_oracle", {}).get(k, float("-inf"))
     bc_both = all(lcb(ds, "dU_B_C_20") > 0 for ds in dsl) and len(dsl) >= 2
     de_both = all(lcb(ds, "dU_D_E_20") > 0 for ds in dsl) and len(dsl) >= 2
     bc_any = any(lcb(ds, "dU_B_C_20") > 0 for ds in dsl)
     de_any = any(lcb(ds, "dU_D_E_20") > 0 for ds in dsl)
+    # oracle-epoch upper bound: max over e>=5 of the decisive contrast (target-label epoch selection -> inflated, NON-
+    # deployable). A positive here with a null epoch-20 = a transient/epoch-specific effect only visible via target-label
+    # epoch selection -> FS-B, NOT FS-C. Consulting it keeps the FS-C text honest ("nor across the trajectory").
+    oracle_any = any(oracle_lcb(ds, "bc") > 0 or oracle_lcb(ds, "de") > 0 for ds in dsl)
     if bc_both or de_both:
         which = "B-C" if bc_both else "D-E"
         return dict(verdict="FS-A_OBJECTIVE_HAS_ORACLE_EFFECT_BUT_IS_NOT_SOURCE_SELECTABLE",
                     next=f"at FULL strength the decisive {which} contrast is positive on BOTH datasets at epoch 20 -> the objective can help but source-only checkpoint selection cannot identify it; the info-regime ladder's focus becomes: how much TARGET information selects the right epoch/direction? (does NOT overturn the deployable negative)")
     if bc_any or de_any:
         return dict(verdict="FS-B_DATASET_OR_EPOCH_SPECIFIC",
-                    next="full-strength effect is dataset-/epoch-specific (positive on one dataset only, or only at a transient epoch) -> does not support a method; carry to the ladder to check information need + heterogeneity")
+                    next="full-strength effect is dataset-specific (decisive contrast positive on one dataset only at epoch 20) -> does not support a method; carry to the ladder to check information need + heterogeneity")
+    if oracle_any:
+        return dict(verdict="FS-B_EPOCH_SPECIFIC_ORACLE_ONLY",
+                    next="epoch-20 is null on both datasets, but the max_{e>=5} TARGET-EPOCH ORACLE upper bound (non-deployable) is positive on >=1 dataset -> a transient epoch-specific effect visible ONLY with target-label epoch selection; does NOT support a method and does NOT overturn the deployable negative; carry to the ladder as an epoch-selection information question")
     return dict(verdict="FS-C_FULL_STRENGTH_CROSS_SESSION_OBJECTIVE_DG_NULL",
-                next="neither decisive contrast is positive at epoch 20 nor across the trajectory -> stop invoking ramp/early-stopping as the explanation; the information-regime ladder drives the next question")
+                next="neither decisive contrast is positive at epoch 20, nor is the max_{e>=5} target-epoch oracle upper bound -> ramp/early-stopping is not the missing explanation; the information-regime ladder drives the next question")
 
 
 def main():
@@ -94,8 +102,9 @@ def main():
         if ds not in acc["dU_B_A_20"] or not acc["dU_B_A_20"][ds]:
             continue
         cis = {e: _subj_ci(acc[e][ds]) for e in EP20}
-        ds_stats[ds] = cis
         ob = _subj_ci(oracle["B_C"][ds]); od = _subj_ci(oracle["D_E"][ds])
+        cis["_oracle"] = dict(bc=ob["lo"], de=od["lo"])   # oracle-epoch upper-bound LCBs for honest FS-B/FS-C routing
+        ds_stats[ds] = cis
         traj_mean = {k: {int(e): float(np.mean(traj[ds][k][e])) for e in sorted(traj[ds][k])} for k in ARMS}
         summ.append(dict(dataset=ds, n_subjects=cis["dU_B_A_20"]["n"],
                          **{e: dict(mean=cis[e]["mean"], lcb=cis[e]["lo"], ucb=cis[e]["hi"], signflip_p=cis[e]["signflip_p"]) for e in EP20},
