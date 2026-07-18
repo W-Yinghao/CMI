@@ -78,24 +78,27 @@ def select_tau_budget_matched(Zs_std, ys, ds, sess_s, C, k, n_draws, source_cent
 
 def source_gate(Zs_std, ys, ds, sess_s, C, k, tau_s, n_draws, rng_fn):
     """H4 gate g_k = 1[mean delta - SE(delta) > 0], delta_d = U_H2 - U_H0 on the source pseudo-target (bAcc), budget-
-    matched. SOURCE-ONLY (never sees target). Returns (g_k, diag)."""
+    matched. SOURCE-ONLY (never sees target). INFERENCE UNIT = pseudo-SUBJECT: average the n_draws per pseudo-subject
+    FIRST, then compute mean +/- SE across pseudo-subjects (draws are NOT independent samples)."""
     early, later = _early_later(sess_s); ds = np.asarray(ds)
     subs = [d for d in np.unique(ds)
             if ((ds == d) & early).sum() >= C and ((ds == d) & later).sum() >= C
             and len(np.unique(ys[(ds == d) & later])) >= 2 and len(np.unique(ys[ds != d])) == C]
-    deltas = []
+    per_subj = []
     for d in subs:
         Ws, bs = fit_head(Zs_std[ds != d], ys[ds != d], C)      # source head (anchor + H0 reference)
         cal_pool = np.where((ds == d) & early)[0]; qy = np.where((ds == d) & later)[0]; ycd = ys[cal_pool]
         u0 = balanced_accuracy_score(ys[qy], (Zs_std[qy] @ Ws.T + bs).argmax(1))
+        dd = []
         for di in range(n_draws):
             drw = cal_pool[balanced_draw(ycd, k, rng_fn(d, di))] if k != "Full" else cal_pool
             W, b, _ = fit_ridge_map(Zs_std[drw], ys[drw], C, Ws, bs, tau_s)
-            deltas.append(balanced_accuracy_score(ys[qy], (Zs_std[qy] @ W.T + b).argmax(1)) - u0)
-    if not deltas:
-        return 0, dict(reason="NO_PSEUDO", n=0)
-    m = float(np.mean(deltas)); se = float(np.std(deltas, ddof=1) / np.sqrt(len(deltas))) if len(deltas) > 1 else 1.0
-    return int(m - se > 0), dict(mean=m, se=se, n=len(deltas))
+            dd.append(balanced_accuracy_score(ys[qy], (Zs_std[qy] @ W.T + b).argmax(1)) - u0)
+        per_subj.append(float(np.mean(dd)))                     # average draws within the pseudo-subject FIRST
+    if len(per_subj) < 2:
+        return 0, dict(reason="INSUFFICIENT_PSEUDO_SUBJECTS", n=len(per_subj))
+    m = float(np.mean(per_subj)); se = float(np.std(per_subj, ddof=1) / np.sqrt(len(per_subj)))
+    return int(m - se > 0), dict(mean=m, se=se, n_subjects=len(per_subj))
 
 
 def _nll(W, b, Zq, yq):
