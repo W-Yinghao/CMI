@@ -87,5 +87,36 @@ DEVELOPMENT_ONLY_BOUNDARY = (
     "predictions, Q0 shards, C84S result tables, or C85U utility values"
 )
 
+# Isolation is LOGICAL/API only at C86LP: the three stores live in one Python
+# object and the server holds it via name mangling.  Real C86L would use separate
+# processes and filesystem roots.  Do not call C86LP "physical isolation".
+ISOLATION_LEVEL = "logical_api_mock"
+
+# --- Gate (corrected) ---------------------------------------------------------
+# The prior gate ("...IMPLEMENTED_AND_LOCKED_READY_FOR_PI_AUTHORIZATION") was
+# semantically false once the lock/authorization apparatus was dropped.  What
+# actually exists is a shadow instrument whose probe criteria need PM review.
+GATE_INSTRUMENT = "C86LP_SHADOW_QUERY_INSTRUMENT_IMPLEMENTED_PROBE_CRITERIA_REVIEW_REQUIRED"
+GATE_RECONCILIATION = (
+    "C86L_CONSTRUCTION_VIEW_PREDICTION_ALIGNMENT_QUERY_INTERFACE_OR_"
+    "PROVENANCE_RECONCILIATION_REQUIRED"
+)
+
+# --- Pre-registered probe taxonomy (boundary decision rules) ------------------
+# Applied to a FUTURE real-data probe; frozen here BEFORE any real query.  The
+# last outcome is explicitly NOT a universal information-impossibility claim.
+BOUNDARY_TAXONOMY = (
+    "BOUNDARY_OPERATIONALLY_CROSSED",       # same active policy, same total budget, both cohorts:
+                                            #   improves mean regret AND tail risk AND near-optimal prob
+    "BOUNDARY_WEAKENED_NOT_ROBUST",         # mean/near-opt improve but tail/cohort/composition gate fails
+    "POLICY_LIMITED",                       # ceiling shows info is cheaply exploitable, registered policy can't
+    "ACQUISITION_VIEW_NONTRANSPORTABLE",    # even FULL construction info -> weak/heterogeneous held actionability
+    "NO_REGISTERED_ACTIVE_GAIN",            # no registered active policy beats passive P0 (NOT impossibility)
+)
+
+# Operational thresholds for the taxonomy classifier (pre-registered).
+TAU_CEILING_REGRET = 0.05     # FULL-budget mean regret at/under this => acquisition view transports
+TAU_REGRET_MARGIN = 0.02      # an "improvement" must beat the comparator by at least this
+
 CONFIDENCE_BINS = 15
 PROB_FLOOR = 1e-7

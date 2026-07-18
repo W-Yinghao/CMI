@@ -1,9 +1,12 @@
-"""The production query-server contract.
+"""The production query-server contract (Semantics B).
 
-One query reveals exactly one construction trial's label + linear contribution
-row and nothing else.  The bulk label oracle and contribution store are never
-exposed.  This is the interface a future C86D active dispatcher must use; C86LP
-implements and shadow-tests it but runs no registered active policy.
+One query names one *physical* construction trial.  It reveals that trial's single
+label and its per-context linear contribution rows (one per context the trial
+belongs to) — nothing about any other trial.  The budget counts physical labels
+per target, so a label is billed once regardless of how many contexts it informs.
+The bulk label / contribution store is never exposed.  This is the interface a
+future C86D active dispatcher must use; C86LP implements and shadow-tests it but
+runs no registered active policy in production.
 """
 from __future__ import annotations
 
@@ -15,7 +18,7 @@ from .field import DevelopmentField
 
 
 class C86LPQueryError(RuntimeError):
-    """Raised on an invalid query (duplicate / unknown / budget-exhausted)."""
+    """Raised on an invalid query (duplicate / unknown / budget-exhausted / cross-target)."""
 
 
 class C86LPInputUnavailable(RuntimeError):
@@ -28,30 +31,37 @@ class QueryReceipt:
     target: str
     trial_id: str
     budget: int | str
-    query_index: int                         # 1-based within the attempt
+    query_index: int                         # 1-based physical-label index within the attempt
 
 
 @dataclass(frozen=True)
 class QueryResponse:
     trial_id: str
     true_label: int
-    contribution: ContributionRow
+    contributions: dict[str, ContributionRow]  # context -> linear contribution row
 
 
 class QueryServer:
-    """Serves one queried row at a time against a sealed development field.
+    """Serves one physical-label query at a time against a sealed development field.
 
     ``budget_availability`` maps (target, budget) -> available bool.  An
     unsupported cell raises ``C86LPInputUnavailable`` at ``open_attempt`` time;
     there is no replacement sampling, budget substitution, or target deletion.
+    ``budget`` is a per-target PHYSICAL-LABEL count (``"FULL"`` = every construction
+    trial of the target).
     """
 
     def __init__(self, field: DevelopmentField, budget_availability: dict[tuple[str, object], bool]):
-        # Name-mangled so the client handle cannot reach the bulk stores.
+        # Name-mangled so the client handle cannot reach the bulk stores.  (This is
+        # logical/API isolation, not a process/filesystem boundary.)
         self.__field = field
         self.__availability = dict(budget_availability)
         self.__attempts: dict[str, dict] = {}
         self.__receipts: list[QueryReceipt] = []
+
+    def _target_trials(self, target: str) -> list[str]:
+        return [t for t in self.__field.construction_trial_ids
+                if self.__field._target_of.get(t) == target]
 
     # --- attempt lifecycle ----------------------------------------------------
     def open_attempt(self, attempt_id: str, target: str, budget: int | str) -> str:
@@ -64,24 +74,20 @@ class QueryServer:
             )
         if attempt_id in self.__attempts:
             raise C86LPQueryError(f"attempt {attempt_id!r} already open")
-        pool_trials = [t for t in self.__field.construction_trial_ids
-                       if self.__field._oracle.get(t) and self.__field._oracle[t].target == target]
-        cap = len(pool_trials) if budget == "FULL" else int(budget)
+        cap = len(self._target_trials(target)) if budget == "FULL" else int(budget)
         self.__attempts[attempt_id] = {
             "target": target, "budget": budget, "cap": cap, "queried": set(), "n": 0,
         }
         return attempt_id
 
-    # --- the single query -----------------------------------------------------
+    # --- the single physical-label query --------------------------------------
     def query(self, attempt_id: str, trial_id: str) -> QueryResponse:
         attempt = self.__attempts.get(attempt_id)
         if attempt is None:
             raise C86LPQueryError(f"unknown attempt {attempt_id!r}")
-        oracle = self.__field._oracle.get(trial_id)
-        contrib = self.__field._contrib.get(trial_id)
-        if oracle is None or contrib is None:
+        if trial_id not in self.__field._labels:
             raise C86LPQueryError(f"unknown trial {trial_id!r}")
-        if oracle.target != attempt["target"]:
+        if self.__field._target_of.get(trial_id) != attempt["target"]:
             raise C86LPQueryError(f"trial {trial_id!r} is not in target {attempt['target']!r}")
         if trial_id in attempt["queried"]:
             raise C86LPQueryError(f"duplicate query for trial {trial_id!r}")
@@ -95,7 +101,11 @@ class QueryServer:
             attempt_id=attempt_id, target=attempt["target"], trial_id=trial_id,
             budget=attempt["budget"], query_index=attempt["n"],
         ))
-        return QueryResponse(trial_id=trial_id, true_label=oracle.label, contribution=contrib)
+        return QueryResponse(
+            trial_id=trial_id,
+            true_label=self.__field._oracle_label(trial_id),
+            contributions=dict(self.__field._contrib[trial_id]),
+        )
 
     # --- read-only introspection (no bulk data escapes) -----------------------
     def remaining(self, attempt_id: str) -> int:
