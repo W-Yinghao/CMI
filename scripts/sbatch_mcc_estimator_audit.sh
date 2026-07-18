@@ -6,7 +6,7 @@
 #   sbatch --array=0-62 scripts/sbatch_mcc_estimator_audit.sh
 #   # after 63/63: python scripts/aggregate_mcc_estimator_audit.py --from-dir results/cmi_trace_mcc_estimator_audit --expect 63
 #SBATCH --job-name=mcc-audit
-#SBATCH --partition=A100,V100,V100-32GB,A40,P100
+#SBATCH --partition=A100,V100,V100-32GB,A40,H100
 #SBATCH --gres=gpu:1
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=32G
@@ -22,8 +22,13 @@ PY=/home/infres/yinwang/anaconda3/envs/icml/bin/python
 OUTDIR="results/cmi_trace_mcc_estimator_audit"
 IDX="${SLURM_ARRAY_TASK_ID:-${1:?need a bundle index}}"
 echo "host=$(hostname) branch=$(git rev-parse --abbrev-ref HEAD) commit=$(git rev-parse --short HEAD) bundle=$IDX"
-if ! "$PY" -c "import torch,sys; sys.exit(0 if torch.cuda.is_available() else 1)"; then
-  echo "FATAL: CUDA not available on $(hostname); refusing CPU." >&2; exit 1
+# real GPU-op sanity: torch.cuda.is_available() is True even on P100 (sm_60) where cu128 has no kernel image.
+# Run an actual kernel; if it errors (unsupported arch), requeue onto a compatible GPU instead of failing silently.
+if ! "$PY" -c "import torch,sys
+try: (torch.ones(8,device='cuda')@torch.ones(8,device='cuda')).item(); sys.exit(0)
+except Exception as e: print('GPU kernel test failed:',e); sys.exit(1)"; then
+  echo "GPU on $(hostname) cannot run torch kernels (arch mismatch) -> requeue" >&2
+  scontrol requeue "${SLURM_JOB_ID}" 2>/dev/null || true; exit 1
 fi
 BUNDLE=$("$PY" -c "from tos_cmi.train.run_mcc_arms import enumerate_bundles as e; ds,s,sd=e()[$IDX]; print(f'{ds}_sub{s}_seed{sd}')")
 if compgen -G "$OUTDIR/cell_$(printf '%03d' "$IDX")_*.done" > /dev/null; then echo "bundle $IDX ($BUNDLE) already done -> skip"; exit 0; fi

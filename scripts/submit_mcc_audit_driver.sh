@@ -1,26 +1,28 @@
 #!/bin/bash
-# Submit the MCC 63-bundle GPU array in chunks under the QOS submit cap. Advances a cursor; fail-resumable (the
-# sbatch skips any bundle whose .done exists, so re-touching is harmless). Exits when all 63 bundles have .done.
+# Self-healing submit driver for the MCC estimator-audit 63-cell array. Each loop computes the MISSING bundle
+# indices (0-62 without a .done) and submits up to (CAP - my_jobs) of them as a comma-list array. Resubmits cells
+# that failed (e.g. a bad GPU) instead of stalling on a cursor. Exits when all 63 .done. The sbatch skips .done.
 set -uo pipefail
 cd "${SLURM_SUBMIT_DIR:-$(pwd)}"
 CAP=28
 OUTDIR="results/cmi_trace_mcc_estimator_audit"
-next=0
 while :; do
   done_n=$(ls "$OUTDIR"/cell_*.done 2>/dev/null | wc -l)
-  echo "[mcc-driver] done=$done_n/63 next=$next $(date -u +%H:%M:%S)"
-  [ "$done_n" -ge 63 ] && { echo "[mcc-driver] all 63 bundles done"; break; }
-  if [ "$next" -le 62 ]; then
-    mine=$(squeue -u "$USER" -h 2>/dev/null | wc -l)
-    room=$((CAP - mine))
-    if [ "$room" -ge 1 ]; then
-      end=$((next + room - 1)); [ "$end" -ge 62 ] && end=62
-      if sbatch --array=${next}-${end} scripts/sbatch_mcc_estimator_audit.sh >/tmp/mcc_sb.$$ 2>&1; then
-        echo "[mcc-driver] submitted array ${next}-${end} ($(cat /tmp/mcc_sb.$$))"; next=$((end + 1))
+  echo "[audit-driver] done=$done_n/63 $(date -u +%H:%M:%S)"
+  [ "$done_n" -ge 63 ] && { echo "[audit-driver] all 63 cells done"; break; }
+  havedone=$(ls "$OUTDIR"/cell_*.done 2>/dev/null | grep -oE 'cell_0*[0-9]+_' | grep -oE '[0-9]+' | sort -n | uniq)
+  missing=$(comm -23 <(seq 0 62 | sort -n) <(echo "$havedone" | sort -n) | sort -n)
+  mine=$(squeue -u "$USER" -h 2>/dev/null | grep -c mcc-audit || true)
+  room=$((CAP - mine))
+  if [ "$room" -ge 1 ] && [ -n "$missing" ]; then
+    chunk=$(echo "$missing" | head -n "$room" | paste -sd, -)
+    if [ -n "$chunk" ]; then
+      if sbatch --array="$chunk" scripts/sbatch_mcc_estimator_audit.sh >/tmp/audit_sb.$$ 2>&1; then
+        echo "[audit-driver] submitted missing [$chunk] ($(cat /tmp/audit_sb.$$))"
       else
-        echo "[mcc-driver] submit ${next}-${end} refused: $(cat /tmp/mcc_sb.$$)"
+        echo "[audit-driver] submit refused: $(cat /tmp/audit_sb.$$)"
       fi
     fi
   fi
-  sleep 120
+  sleep 90
 done
