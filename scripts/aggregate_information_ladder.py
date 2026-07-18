@@ -72,7 +72,7 @@ def _route(ds_stats):
                     next="only RF (all cal labels) beats identity -> task strongly subject-specific; large calibration needed; not near-calibration-free DG")
     if head_pos:
         return dict(verdict="IL-C_HEAD_CALIBRATION_NOT_SUBSPACE",
-                    next="selection-only null but head-only few-shot calibration positive -> the DG bottleneck is the target-specific P(Y|Z) readout, not a deletable subspace")
+                    next="selection-only null at every info level, but a fresh P(Y|Z) readout refit on the FULL calibration session beats the frozen source head (few-shot 1/2/4-label heads are WORSE than the frozen source head -> the lever is FULL-cal, NOT near-label-free) AND the benefit is GENERIC (it survives deleting the informed subspace; deletion never adds) -> the DG bottleneck is the target-specific readout, not a deletable subspace; owner: study head label-efficiency, not subspace selection")
     return dict(verdict="IL_NULL_NO_REGIME_HELPS",
                 next="no information regime yields a replicable subspace-selection gain and head calibration does not rescue it -> the action family is wrong / earlier target-hindsight was selection optimism (OWNER decides next line)")
 
@@ -103,7 +103,8 @@ def main():
     spec = {reg: defaultdict(lambda: defaultdict(list)) for reg in INFO_ORDER}
     orc = defaultdict(lambda: defaultdict(list)); orc_rand = defaultdict(lambda: defaultdict(list))
     ho_selnat = {reg: defaultdict(lambda: defaultdict(list)) for reg in LABEL_REGIMES}   # selected - native
-    ho_natsrc = {reg: defaultdict(lambda: defaultdict(list)) for reg in LABEL_REGIMES}   # native - source_identity
+    ho_natsrc = {reg: defaultdict(lambda: defaultdict(list)) for reg in LABEL_REGIMES}   # native - source_identity (readout refit benefit)
+    ho_selsrc = {reg: defaultdict(lambda: defaultdict(list)) for reg in LABEL_REGIMES}   # selected - source_identity (informed-deleted refit vs source)
     skipped = defaultdict(int)
     for c in cells:
         r = json.loads(Path(c).read_text())
@@ -119,6 +120,7 @@ def main():
             if h and all(np.isfinite(h.get(k, np.nan)) for k in ("native", "selected", "source_identity")):
                 ho_selnat[reg][ds][subj].append(h["selected"] - h["native"])
                 ho_natsrc[reg][ds][subj].append(h["native"] - h["source_identity"])
+                ho_selsrc[reg][ds][subj].append(h["selected"] - h["source_identity"])
 
     per_ds = []; ds_stats = {}
     for ds in DATASETS:
@@ -132,7 +134,8 @@ def main():
         recov = {reg: (regci[reg]["dU"]["mean"] / regci["RF"]["dU"]["mean"]) if rf_lcb > 0 and abs(regci["RF"]["dU"]["mean"]) > 1e-9 else None
                  for reg in INFO_ORDER}
         oc = _subj_ci(orc[ds]); ocr = _subj_ci(orc_rand[ds])
-        hs = {reg: dict(sel_minus_native=_subj_ci(ho_selnat[reg][ds]), native_minus_source=_subj_ci(ho_natsrc[reg][ds])) for reg in LABEL_REGIMES}
+        hs = {reg: dict(sel_minus_native=_subj_ci(ho_selnat[reg][ds]), native_minus_source=_subj_ci(ho_natsrc[reg][ds]),
+                        selected_minus_source=_subj_ci(ho_selsrc[reg][ds])) for reg in LABEL_REGIMES}
         headcase = _head_case(hs["RF"])
         ds_stats[ds] = {**{reg: {"dU": regci[reg]["dU"], "spec": regci[reg]["spec"]} for reg in INFO_ORDER},
                         "_headcase": headcase, "_rf_lcb": rf_lcb}
@@ -142,7 +145,10 @@ def main():
                            minimal_info_level=kstar, subspace_specific_threshold=kspec,
                            recovery={reg: recov[reg] for reg in INFO_ORDER},
                            crossfit_oracle=dict(delta=oc["mean"], lcb=oc["lo"], random=ocr["mean"]),
-                           head_only_case=headcase, head_only_sel_minus_native={reg: hs[reg]["sel_minus_native"]["mean"] for reg in LABEL_REGIMES},
+                           head_only_case=headcase,
+                           head_readout_native_minus_source={reg: dict(mean=hs[reg]["native_minus_source"]["mean"], lcb=hs[reg]["native_minus_source"]["lo"]) for reg in LABEL_REGIMES},
+                           head_selected_minus_source={reg: dict(mean=hs[reg]["selected_minus_source"]["mean"], lcb=hs[reg]["selected_minus_source"]["lo"]) for reg in LABEL_REGIMES},
+                           head_only_sel_minus_native={reg: hs[reg]["sel_minus_native"]["mean"] for reg in LABEL_REGIMES},
                            skipped=dict(skipped)))
     route = _route(ds_stats) if len(ds_stats) >= 1 else dict(verdict="NO_DATA", next="no ok cells")
     out = dict(per_dataset=per_ds, routing=route, n_cells=len(cells), skipped=dict(skipped),
@@ -155,6 +161,9 @@ def main():
         print("    dU      : " + " ".join(f"{reg}={s['dU'][reg]['mean']:+.4f}[{s['dU'][reg]['lcb']:+.4f}]" for reg in INFO_ORDER))
         print("    specific: " + " ".join(f"{reg}={s['specific'][reg]['mean']:+.4f}[{s['specific'][reg]['lcb']:+.4f}]" for reg in INFO_ORDER))
         print(f"    oracle-ceiling delta={s['crossfit_oracle']['delta']:+.4f}[{s['crossfit_oracle']['lcb']:+.4f}] vs random {s['crossfit_oracle']['random']:+.4f}")
+        hn = s['head_readout_native_minus_source']; hsel = s['head_selected_minus_source']
+        print("    head native-source (readout refit vs frozen): " + " ".join(f"{reg}={hn[reg]['mean']:+.3f}[{hn[reg]['lcb']:+.3f}]" for reg in LABEL_REGIMES))
+        print("    head selected-source (informed-DELETED refit): " + " ".join(f"{reg}={hsel[reg]['mean']:+.3f}[{hsel[reg]['lcb']:+.3f}]" for reg in LABEL_REGIMES))
     print(f"  -> {route['verdict']} : next = {route['next']}")
 
 

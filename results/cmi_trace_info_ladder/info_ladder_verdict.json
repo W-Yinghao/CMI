@@ -77,6 +77,42 @@
         "random": -0.01325323339212228
       },
       "head_only_case": "B_head_only",
+      "head_readout_native_minus_source": {
+        "R1": {
+          "mean": -0.09955632716049384,
+          "lcb": -0.15488683127572014
+        },
+        "R2": {
+          "mean": -0.06683384773662551,
+          "lcb": -0.10616014017489711
+        },
+        "R4": {
+          "mean": -0.03024048353909465,
+          "lcb": -0.061233281893004095
+        },
+        "RF": {
+          "mean": 0.12538580246913578,
+          "lcb": 0.09580761316872428
+        }
+      },
+      "head_selected_minus_source": {
+        "R1": {
+          "mean": -0.09941486625514404,
+          "lcb": -0.15488040123456787
+        },
+        "R2": {
+          "mean": -0.06700102880658436,
+          "lcb": -0.10653372556584362
+        },
+        "R4": {
+          "mean": -0.03195087448559672,
+          "lcb": -0.06332947530864197
+        },
+        "RF": {
+          "mean": 0.10969650205761317,
+          "lcb": 0.082690329218107
+        }
+      },
       "head_only_sel_minus_native": {
         "R1": 0.00014146090534980214,
         "R2": -0.00016718106995884297,
@@ -162,6 +198,42 @@
         "random": -0.00841468253968254
       },
       "head_only_case": "B_head_only",
+      "head_readout_native_minus_source": {
+        "R1": {
+          "mean": -0.11025694444444444,
+          "lcb": -0.17450772569444448
+        },
+        "R2": {
+          "mean": -0.04978472222222222,
+          "lcb": -0.10918871527777772
+        },
+        "R4": {
+          "mean": -0.0016215277777777651,
+          "lcb": -0.060017795138888864
+        },
+        "RF": {
+          "mean": 0.13458333333333333,
+          "lcb": 0.06861111111111114
+        }
+      },
+      "head_selected_minus_source": {
+        "R1": {
+          "mean": -0.1034895833333333,
+          "lcb": -0.16002265625
+        },
+        "R2": {
+          "mean": -0.04000347222222223,
+          "lcb": -0.09617855902777776
+        },
+        "R4": {
+          "mean": -0.0026770833333333243,
+          "lcb": -0.0570387152777778
+        },
+        "RF": {
+          "mean": 0.11340277777777778,
+          "lcb": 0.049303819444444466
+        }
+      },
       "head_only_sel_minus_native": {
         "R1": 0.006767361111111113,
         "R2": 0.00978124999999999,
@@ -173,7 +245,7 @@
   ],
   "routing": {
     "verdict": "IL-C_HEAD_CALIBRATION_NOT_SUBSPACE",
-    "next": "selection-only null but head-only few-shot calibration positive -> the DG bottleneck is the target-specific P(Y|Z) readout, not a deletable subspace"
+    "next": "selection-only null at every info level, but a fresh P(Y|Z) readout refit on the FULL calibration session beats the frozen source head (few-shot 1/2/4-label heads are WORSE than the frozen source head -> the lever is FULL-cal, NOT near-label-free) AND the benefit is GENERIC (it survives deleting the informed subspace; deletion never adds) -> the DG bottleneck is the target-specific readout, not a deletable subspace; owner: study head label-efficiency, not subspace selection"
   },
   "n_cells": 63,
   "skipped": {},
