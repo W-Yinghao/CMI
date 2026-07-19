@@ -80,3 +80,27 @@ registered Option-C conditions verbatim: "data unavailable in the permitted envi
 "license / institutional policy does not permit internal compute". Not a scientific outcome; the
 frozen code (b40e3b10) remains authorization-ready and would run if ds007221 access is granted
 (an OpenNeuro API token configured) — a decision only the PI/institution can make.
+
+## PM decision 2026-07-20 — C86H SUSPENDED, cross-modal C87P program opened
+
+```text
+C86H_REGISTERED_EEG_CONFIRMATION : SUSPENDED_EXTERNAL_COHORT_ACCESS_BLOCKER
+C86H_SCIENTIFIC_RESULT           : NOT RUN
+POST_HOC_EEG_COHORT_SUBSTITUTION : FORBIDDEN (no Kumar/Yang/Dreyer/new-EEG swap for ds007221)
+BRANDL_ONLY_FULL_SCIENTIFIC_RUN  : NOT PRIORITIZED (keep frozen code b40e3b10; at most a small
+                                   engineering canary; wait on whether ds007221 access is restored)
+C87P_CROSS_MODAL_TEMPORAL_MODEL_SELECTION_PROGRAM : GO (protocol/metadata/literature freeze only)
+C87_REAL_DATA_EXECUTION          : NOT YET AUTHORIZED
+C87_AFTER_COMPLETION             : NO AUTOMATIC C88
+```
+
+Rationale (PI): crossing to ECG / general temporal is *more* scientific than post-hoc-swapping an
+EEG cohort to patch C86H. ECG is NOT a substitute for ds007221 — it is an independent external test
+of the project's general object: **Measurement–Control Separation under Extreme Action Selection and
+Conditional Nontransportability** (association/reliability ≠ prediction ≠ transport ≠ actionability;
+does finite-label candidate *measurement* suffice to produce correct extreme-action *control*). The
+"no automatic C87 after C86H" rule existed to stop the system self-extending; an explicit PI decision
+to open C87 is a legitimate design act, not auto-expansion. C87P freeze is authored under
+`oaci/reports/C87P_*` (see C87P_FROZEN.md). Data accessibility PRE-VERIFIED public (PhysioNet
+Challenge-2021 + PTB-XL, CC BY 4.0, downloadable without credentials; 2.3 TB headroom) — the C87
+program will not repeat the ds007221 access wall.
