@@ -68,6 +68,24 @@ Inference unit = **target subject** (draw→seed→subject); subject-cluster boo
 3. **CPU matrix** — 525 cells, stable enumeration, launched only after all 273 dumps land + `enumerate_cells==525`.
 4. **Aggregate → adversarially verify → report.** No post-hoc estimand change; verdict is whatever `_route` returns.
 
+## Pre-results code red-team (adversarial; BEFORE any target-utility number)
+A 5-lens adversarial review (firewall / session-split / matched-τ arm-curve / routing / cache-label-encoding) with
+independent refutation of each finding was run before the matrix. Outcome:
+- **Firewall = CLEAN** (2-agent CONFIRMED): no target-QUERY label/feature reaches the whitener, standardization, the
+  source head, τ0/τs selection, the H4 gate, any cal-adapted head, the specificity MATCHING criterion, or `_route`.
+  Query enters only the final `session_macro_bacc` utility + three reporting-only `_headroom` diagnostics (never routed).
+- **Session-split & cache/label-encoding = REFUTED** (no bug): Stieger masks (numeric 1 | 2–7 | 8–11) mutually
+  exclusive; generic Shin/existing-4 split unchanged; per-subject-assembly LabelEncoder consistent with `dump_fold`.
+- **ONE verdict-changing bug FIXED** (commit 139b2b67): the aggregator's "refuse partial" gate counted `.done`
+  markers, but skipped/failed cells also write a `.done` — a dump regression dropping the session axis could pass the
+  525 gate and route on a biased subset (`_cluster_ci` has no min-n floor). Now: gate on `status==ok` count; REFUSE on
+  any skip (exit 4), on `usable<expect` (exit 2), on solver-fail (exit 3), and on a lockbox below its subject floor
+  (Stieger≥60 / Shin≥28, exit 5). All refuse paths unit-tested.
+- **Deferred hygiene footgun** (not verdict-affecting): the Stieger `(0.0,3.0)` epoch window is not centralized in
+  `DATASET_DEFAULTS`; the committed dumper `gpu_dump_one.py` passes it explicitly so no on-disk cache/result is wrong,
+  but a generic runner could silently re-epoch a different window. To be centralized as post-fleet hygiene (touching
+  the loader mid-fleet is avoided per the stale-code discipline).
+
 ## Holds (unchanged)
 New erasure / target-X selector / source proxy / mechanism-consistency loss / learned projector / TTE — all PARKED.
 Manuscript FROZEN.
