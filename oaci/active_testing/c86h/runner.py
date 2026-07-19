@@ -270,6 +270,9 @@ def run_confirmation(field_root, out_dir, target_cohort, cohort_dataset,
             raise RuntimeError(f"real cohort set {set(cohort_dataset)} != registered {set(K.COHORTS)}")
         if len(target_cohort) != K.N_TARGETS:
             raise RuntimeError(f"real target count {len(target_cohort)} != registered {K.N_TARGETS}")
+        # H1 MUST NOT start before the F2 real-field manifest fully validates (fail-closed C86-E)
+        from . import f1f2
+        f1f2.validate_real_field_manifest(field_root)
     if chains is None:
         chains = list(range(K.ACTIVE_CHAINS))
     elif not synthetic:

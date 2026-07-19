@@ -12,9 +12,17 @@ NOT reimplement training; it names what runs and the artifact it must produce.
 """
 from __future__ import annotations
 
+import json
+import os
+
 from . import contract as K
 
 AUTHORIZATION_TOKEN = "授权 C86H"
+REAL_FIELD_MANIFEST_NAME = "C86H_REAL_FIELD_MANIFEST.json"
+
+
+class C86EError(RuntimeError):
+    """Real dataset / field violates a locked assumption -> C86-E blocker."""
 
 # Exact existing entrypoints the authorized F1 build orchestrates (bound, not forked).
 F1_TRAINING_ENTRYPOINTS = {
@@ -67,6 +75,53 @@ def real_field_manifest_schema() -> dict:
             "loader_or_bids_identity (per cohort)",
         ],
     }
+
+
+def validate_real_field_manifest(field_root: str) -> dict:
+    """Fail-closed validation of the F2 real-field manifest BEFORE H1 may start. Enforces the
+    locked cardinalities, the content-addressed identities, the label-blind split disjointness +
+    class support, and construction/evaluation overlap == 0. Any violation is a C86-E blocker."""
+    path = os.path.join(field_root, REAL_FIELD_MANIFEST_NAME)
+    if not os.path.isfile(path):
+        raise C86EError("real-field manifest absent; H1 must not start")
+    man = json.load(open(path))
+    p = []
+    if man.get("interface_id") != K.COMMON_INTERFACE_ID:
+        p.append("interface_id")
+    if man.get("field_training_manifest_sha256") != K.FIELD_TRAINING_MANIFEST_SHA256:
+        p.append("field_training_manifest_sha256")
+    if man.get("n_targets") != K.N_TARGETS:
+        p.append("n_targets")
+    if man.get("n_contexts") != K.TARGET_CONTEXTS:
+        p.append("n_contexts")
+    if man.get("n_candidates_per_context") != K.CANDIDATES_PER_CONTEXT:
+        p.append("n_candidates_per_context")
+    if man.get("n_candidate_context_slices") != K.TARGET_CONTEXTS * K.CANDIDATES_PER_CONTEXT:
+        p.append("n_candidate_context_slices")
+    zoo = man.get("zoo", {})
+    if zoo.get("n_models") != K.UNIQUE_TRAINED_MODELS:
+        p.append("zoo.n_models")
+    if len(zoo.get("weight_sha256", {})) != K.UNIQUE_TRAINED_MODELS:
+        p.append("zoo.weight_count")
+    if len(man.get("prediction_context_sha256", {})) != K.TARGET_CONTEXTS:
+        p.append("prediction_context_count")
+    if man.get("construction_evaluation_overlap") != 0:
+        p.append("construction_evaluation_overlap")
+    split = man.get("split", {})
+    if len(split) != K.N_TARGETS:
+        p.append("split.n_targets")
+    for t, sp in split.items():
+        if set(sp.get("pool", [])) & set(sp.get("held", [])):
+            p.append(f"split_overlap[{t}]")
+    for t, cs in man.get("class_support", {}).items():
+        for view in ("pool", "held"):
+            for c in ("0", "1"):
+                if int(cs.get(view, {}).get(c, 0)) < K.MIN_CLASS_SUPPORT:
+                    p.append(f"class_support[{t}|{view}|{c}]")
+    if p:
+        raise C86EError(f"real-field manifest invalid (C86-E): {p[:10]}"
+                        + (" ..." if len(p) > 10 else ""))
+    return man
 
 
 def _require_auth(authorization: str) -> None:

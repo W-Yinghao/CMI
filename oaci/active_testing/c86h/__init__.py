@@ -7,6 +7,7 @@ separately authorized field generation. See ``oaci/reports/C86H_CONTRACT.md``.
 """
 from . import (analysis, batch_h1, contract, entrypoint, f1f2,  # noqa: F401
                field_spec, held_eval, runner)
+# f1f2_field imports torch/mne lazily; expose it but don't hard-require at package import
 
 __all__ = ["analysis", "batch_h1", "contract", "entrypoint", "f1f2",
            "field_spec", "held_eval", "runner"]
