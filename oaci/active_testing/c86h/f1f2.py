@@ -163,7 +163,9 @@ def validate_real_field_manifest(field_root: str, contract: dict = None,
                 break
     if len(man.get("field_file_sha256", {})) != nT * 8 * 3:      # pool+contrib+held per context
         p.append("field_file_count")
-    if zoo_root is not None:                                     # re-hash every weight file
+    if zoo_root is not None:
+        from . import field_spec, f1f2_train
+        # re-hash every weight file
         wfs = zoo.get("weight_file_sha256", {})
         if len(wfs) != nModels:
             p.append("weight_file_count")
@@ -175,6 +177,32 @@ def validate_real_field_manifest(field_root: str, contract: dict = None,
                 replayed += 1
                 if replayed > 5:
                     break
+        # EXACT candidate-ID/order replay: recompute each ID from its recorded genealogy
+        zpath = os.path.join(zoo_root, "C86H_ZOO_MANIFEST.json")
+        if not os.path.isfile(zpath):
+            p.append("zoo_manifest_absent")
+        else:
+            zman = json.load(open(zpath))
+            bad = 0
+            for cid, e in zman.get("candidates", {}).items():
+                epoch = f1f2_train._canonical_epoch(e["regime"], int(e["trajectory_order"]))
+                if epoch != int(e["canonical_epoch"]):
+                    p.append(f"candidate_epoch[{cid}]"); bad += 1
+                exp = field_spec.c86_candidate_id(
+                    K.COMMON_INTERFACE_ID, K.FIELD_TRAINING_MANIFEST_SHA256,
+                    e["panel"], int(e["seed"]), int(e["level"]), e["regime"], epoch)
+                if exp != cid:
+                    p.append(f"candidate_id_replay[{cid}]"); bad += 1
+                if bad > 6:
+                    break
+            if cbc != zman.get("candidate_ids_by_context"):
+                p.append("candidate_ids_by_context_mismatch")
+        # source raw identities present and well-formed
+        srf = man.get("source_raw_file_sha256", {})
+        if not srf:
+            p.append("source_raw_file_sha256_absent")
+        elif any(not (isinstance(v, str) and len(v) == 64) for v in srf.values()):
+            p.append("source_raw_file_sha256_malformed")
     if p:
         raise C86EError(f"real-field manifest invalid (C86-E): {p[:12]}"
                         + (" ..." if len(p) > 12 else ""))
@@ -195,19 +223,23 @@ def _assemble_source(panel, level, per_dataset_loader):
     panels, applying the REGISTERED level intervention per dataset (level 1 = the locked left_hand
     cell deletion -> 23-cell graph) and a contiguous cross-dataset domain remap. Returns
     (X[n,11,480], y[n], domain[n])."""
+    import hashlib
     from oaci.multidataset import c84f_dual_level_training as _f
     from oaci.multidataset import c84l1_intervention as _itv
-    Xs, ys, subs = [], [], []
+    Xs, ys, subs, sids, grps, raw = [], [], [], [], [], {}
     for name in _SOURCE_DATASETS:
         train_ids, _audit = _f._source_subject_contract(name, panel)     # locked 12 (+4 audit)
-        loaded = per_dataset_loader(name, list(train_ids))               # {subj: (X, y)}
-        subjects, labels, tids, Xstack = [], [], [], []
-        for subj, (Xi, yi) in loaded.items():
-            yi = np.asarray(yi).astype(int)
-            Xstack.append(np.asarray(Xi))
+        loaded = per_dataset_loader(name, list(train_ids))               # {subj: (X, y, tids, groups)}
+        subjects, labels, tids, groups_all, Xstack = [], [], [], [], []
+        for subj, tup in loaded.items():
+            Xi, yi, ti, gi = tup
+            yi = np.asarray(yi).astype(int); Xi = np.asarray(Xi)
+            Xstack.append(Xi)
+            raw[f"{name}|s{subj}"] = hashlib.sha256(          # REAL content digest of the subject's data
+                np.ascontiguousarray(Xi).tobytes() + yi.astype(np.int64).tobytes()).hexdigest()
             for i in range(len(yi)):
                 subjects.append(int(subj)); labels.append(int(yi[i]))
-                tids.append(f"{name}|s{subj}|t{i}")
+                tids.append(str(ti[i])); groups_all.append(str(gi[i]))
         Xcat = np.concatenate(Xstack)
         app = _itv.apply_level_intervention(dataset=name, panel=panel, level=int(level),
                                             source_subjects=subjects, source_labels=labels,
@@ -215,12 +247,15 @@ def _assemble_source(panel, level, per_dataset_loader):
         keep = list(app.keep_indices)
         Xs.append(Xcat[keep]); ys.append(np.asarray(labels)[keep])
         subs.append([(name, subjects[k]) for k in keep])
+        sids.append([tids[k] for k in keep]); grps.append([groups_all[k] for k in keep])
     X = np.concatenate(Xs); y = np.concatenate(ys)
     flat = [s for group in subs for s in group]
     domain_names = sorted(set(flat))                                     # contiguous domain remap
     dmap = {s: i for i, s in enumerate(domain_names)}
     domain = np.array([dmap[s] for s in flat], dtype=int)
-    return X, y, domain
+    sample_ids = [t for g in sids for t in g]                           # REAL trial ids
+    groups = [t for g in grps for t in g]                              # REAL dataset|subject|session|run
+    return X, y, domain, sample_ids, groups, raw
 
 
 def _real_source_provider():
@@ -234,13 +269,15 @@ def _real_source_provider():
 def _real_target_provider():
     """Yield (cohort, target_int, X, y, trial_ids, raw_sha) for the 53 registered targets via the
     real Brandl MOABB + ds007221 BIDS adapters. Real-data violations -> C86-E."""
+    import hashlib
     from . import f1f2_field
     def gen():
         brandl = f1f2_field.load_moabb_dataset("Brandl2020", list(range(1, 17)))
-        for subj, (X, y) in brandl.items():
-            tids = [f"Brandl2020|s{subj}|t{i}" for i in range(len(y))]
+        for subj, (X, y, tids, _groups) in brandl.items():
+            raw = hashlib.sha256(np.ascontiguousarray(X).tobytes()          # REAL content digest
+                                 + np.asarray(y).astype(np.int64).tobytes()).hexdigest()
             yield ("Brandl2020_CANONICAL_ADULT_V1", int(subj), np.asarray(X),
-                   np.asarray(y).astype(int), tids, f"brandl_{subj}")
+                   np.asarray(y).astype(int), tids, raw)
         for sub in f1f2_field.DS007221_SUBJECTS:
             X, y, tids, sha = f1f2_field.load_ds007221_bids(DS007221_BIDS_ROOT, sub)
             yield ("OpenNeuro_ds007221_HYBRID_ADULT_V1", int(sub.split("-")[-1]),
@@ -250,12 +287,22 @@ def _real_target_provider():
 
 def f1_train_zoo(authorization: str, output_root: str, preset=None, source_provider=None,
                  cell_trainer=None):
-    """Train the fresh 11-channel 648-model candidate zoo via the frozen engine. Auth-gated; under
-    authorization it trains on the real MOABB legacy sources, else refuses. Not a stub."""
+    """Train the fresh 11-channel 648-model candidate zoo via the frozen engine. Auth-gated; the
+    production FAITHFUL path binds CUDA and fail-closes before any large-scale training (the frozen
+    campaign has no CPU fallback). Not a stub."""
     _require_auth(authorization)
+    import torch
     from . import f1f2_train
     preset = preset or f1f2_train.FAITHFUL
     provider = source_provider or _real_source_provider()
+    if cell_trainer is None and preset is f1f2_train.FAITHFUL:
+        if not torch.cuda.is_available():
+            raise C86EError("C86H FAITHFUL production training requires CUDA; fail-closed before "
+                            "any large-scale training (no CPU fallback for the frozen campaign)")
+        device = torch.device("cuda:0")
+
+        def cell_trainer(X, y, d, seed, preset):
+            return f1f2_train.train_cell(X, y, d, seed, preset, device=device)
     return f1f2_train.f1_train_zoo(provider, output_root, preset=preset, cell_trainer=cell_trainer)
 
 

@@ -60,10 +60,13 @@ def build_synthetic_source(n_domains: int = 2, per_cell: int = 8, seed: int = 0,
             np.asarray(ys, dtype=int), np.asarray(ds, dtype=int))
 
 
-def train_cell(X, y, domain, seed: int, preset: dict = TINY, device=None) -> list:
+def train_cell(X, y, domain, seed: int, preset: dict = TINY, device=None,
+               sample_ids=None, groups=None) -> list:
     """Train one cell and return 81 (or preset) candidate records
     ``[(regime, CheckpointRecord, trajectory_order), ...]`` in canonical order (ERM, OACI, SRC)
-    via the frozen engine with the 11-channel model."""
+    via the frozen engine with the 11-channel model. ``sample_ids``/``groups`` carry the REAL
+    per-trial identity (trial ids + ``dataset|subject|session|run`` groups) into TrainingData on
+    the production path; when omitted (TINY synthetic path) deterministic synthetic ids are used."""
     import torch
     from oaci.train.data import TrainingData, population_signature_hash
     from oaci.train.engine import EngineConfig, train_stage1, train_stage2, InvocationRegistry
@@ -86,8 +89,14 @@ def train_cell(X, y, domain, seed: int, preset: dict = TINY, device=None) -> lis
     remap = {d: i for i, d in enumerate(uniq)}
     domain = np.array([remap[int(d)] for d in domain], dtype=int)
     n = len(y)
-    sample_ids = tuple(f"syn|d{int(domain[i])}|c{int(y[i])}|r{i}" for i in range(n))
-    groups = tuple(f"g{int(domain[i])}" for i in range(n))
+    if sample_ids is None:                               # TINY synthetic path
+        sample_ids = tuple(f"syn|d{int(domain[i])}|c{int(y[i])}|r{i}" for i in range(n))
+        groups = tuple(f"g{int(domain[i])}" for i in range(n))
+    else:                                                # production: REAL trial ids + groups
+        sample_ids = tuple(str(s) for s in sample_ids)
+        groups = tuple(str(g) for g in groups)
+        if len(sample_ids) != n or len(groups) != n or len(set(sample_ids)) != n:
+            raise ValueError("sample_ids/groups must be per-trial and unique")
     mass = np.ones(n)
     data = TrainingData(
         X=torch.as_tensor(X, dtype=torch.float32),
@@ -156,10 +165,18 @@ def f1_train_zoo(source_provider, out_root, preset: dict = TINY, cell_trainer=No
     contexts = contexts or [(p, s, lv) for p in K.PANELS for s in K.TRAINING_SEEDS
                             for lv in K.LEVELS]
     os.makedirs(out_root, exist_ok=True)
-    zoo, by_context = {}, {}
+    zoo, by_context, source_raw = {}, {}, {}
     for (panel, seed, level) in contexts:
-        X, y, domain = source_provider(panel, seed, level)
-        cands = trainer(X, y, domain, seed=int(seed), preset=preset)
+        out = source_provider(panel, seed, level)
+        sids = groups = None
+        if isinstance(out, tuple) and len(out) >= 5:     # (X, y, domain, sample_ids, groups[, raw])
+            X, y, domain, sids, groups = out[0], out[1], out[2], out[3], out[4]
+            if len(out) >= 6 and out[5]:
+                source_raw.update(out[5])
+        else:
+            X, y, domain = out
+        cands = trainer(X, y, domain, seed=int(seed), preset=preset,
+                        sample_ids=sids, groups=groups)
         ck = f"panel={panel}|seed={seed}|level={level}"
         ids = []
         for (regime, rec, order) in cands:
@@ -183,7 +200,8 @@ def f1_train_zoo(source_provider, out_root, preset: dict = TINY, cell_trainer=No
     manifest = {"schema": "c86h_zoo_manifest_v1", "n_models": len(zoo),
                 "interface_id": K.COMMON_INTERFACE_ID,
                 "field_training_manifest_sha256": K.FIELD_TRAINING_MANIFEST_SHA256,
-                "candidate_ids_by_context": by_context, "candidates": zoo}
+                "candidate_ids_by_context": by_context, "candidates": zoo,
+                "source_raw_sha256": source_raw}
     with open(os.path.join(out_root, "C86H_ZOO_MANIFEST.json"), "w") as fh:
         json.dump(manifest, fh, indent=2)
     return manifest
@@ -308,6 +326,7 @@ def f2_generate_predictions(zoo_manifest, zoo_root, target_provider, field_root)
            "prediction_context_sha256": pred_shas, "field_file_sha256": field_file_sha,
            "construction_evaluation_overlap": 0, "split": split_m, "class_support": support,
            "trial_coverage": trial_coverage, "target_raw_sha256": target_shas,
+           "source_raw_file_sha256": zoo_manifest.get("source_raw_sha256", {}),
            "loader_identities": loader_ids, "targets": targets_list}
     with open(os.path.join(field_root, REAL_FIELD_MANIFEST_NAME), "w") as fh:
         json.dump(rfm, fh, indent=2)

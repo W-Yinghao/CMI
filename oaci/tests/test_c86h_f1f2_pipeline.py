@@ -2,6 +2,7 @@
 mock producing real untrained 11-ch weights), F2 generates the field + real-field manifest, and
 the batch H1 consumes it. Validated on synthetic data only — no real EEG/label.
 """
+import os
 import types
 
 import numpy as np
@@ -24,7 +25,7 @@ def test_train_cell_real_frozen_engine_tiny():
     assert [c[1].epoch for c in cands if c[0] == "OACI"] == [4, 9]     # cadence
 
 
-def _mock_cell(X, y, domain, seed, preset):
+def _mock_cell(X, y, domain, seed, preset, sample_ids=None, groups=None):
     """Fast cell: real (untrained) 11-ch weights, no training — for pipeline structure tests."""
     def rec(order):
         m = build_c86h_model()
@@ -35,8 +36,15 @@ def _mock_cell(X, y, domain, seed, preset):
 
 
 def _synth_source(panel, seed, level):
-    return f1f2_train.build_synthetic_source(n_domains=2, per_cell=4,
-                                             seed=hash((panel, seed, level)) % 1000)
+    """(X, y, domain, sample_ids, groups, source_raw) — carries synthetic population identity +
+    a source-raw ledger so the content-addressed manifest replay has all required objects."""
+    X, y, d = f1f2_train.build_synthetic_source(n_domains=2, per_cell=4,
+                                                seed=abs(hash((panel, seed, level))) % 1000)
+    n = len(y)
+    sids = [f"SRC|{panel}|se{seed}|lv{level}|t{i}" for i in range(n)]
+    groups = [f"SRC|subject={int(d[i])}|session=0|run=0" for i in range(n)]
+    raw = {f"SRC|{panel}|s{int(v)}": "0" * 64 for v in sorted(set(d.tolist()))}
+    return X, y, d, sids, groups, raw
 
 
 def _target_provider():
@@ -143,6 +151,61 @@ def test_registered_source_contract_and_level_intervention_replay():
     X, y, d = _synthetic_registered_source("A", 5, 1)
     assert sorted(set(d.tolist())) == list(range(int(d.max()) + 1))       # contiguous
     assert f1f2_train.FAITHFUL["deterministic"] is True                   # frozen training identity
+
+
+def _synth_moabb_loader(name, subs):
+    rng = np.random.default_rng(abs(hash(name)) % 1000)
+    out = {}
+    for s in subs:
+        y = np.array([0, 1] * 10)
+        X = rng.standard_normal((20, 11, 480)) + y[:, None, None] * 0.3
+        tids = [f"{name}|s{s}|sess0|run0|t{i}" for i in range(20)]
+        groups = [f"{name}|subject={s}|session=0|run=0" for _ in range(20)]
+        out[s] = (X, y, tids, groups)
+    return out
+
+
+def test_residual_population_identity_cuda_and_candidate_replay(tmp_path, monkeypatch):
+    from oaci.active_testing.c86h import f1f2
+    import glob
+    import json
+    import torch
+    # (item 3 residual) _assemble_source yields REAL trial ids + dataset|subject|session|run groups
+    # + real source-raw digests, and train_cell uses them (not syn|.../g...)
+    X, y, d, sids, groups, raw = f1f2._assemble_source("A", 1, _synth_moabb_loader)
+    assert sids and not any(str(s).startswith("syn|") for s in sids)
+    assert all("subject=" in g and "session=" in g and "run=" in g for g in groups)
+    assert all(g.startswith(("Lee2019_MI|", "Cho2017|", "PhysionetMI|")) for g in groups)
+    assert raw and all(isinstance(v, str) and len(v) == 64 for v in raw.values())
+    # train_cell ACCEPTS real-style trial ids + groups (small source so the frozen engine is fast)
+    Xs, ys, ds = f1f2_train.build_synthetic_source(2, 4, seed=1)
+    m = len(ys)
+    r_sids = [f"Lee2019_MI|s{int(ds[i])}|sess0|run0|t{i}" for i in range(m)]
+    r_groups = [f"Lee2019_MI|subject={int(ds[i])}|session=0|run=0" for i in range(m)]
+    cands = f1f2_train.train_cell(Xs, ys, ds, seed=5, preset=f1f2_train.TINY,
+                                  sample_ids=r_sids, groups=r_groups)
+    assert len(cands) == 5                                # frozen engine accepts real identity
+    # (item 4 residual) production FAITHFUL fail-closes without CUDA (no CPU fallback)
+    monkeypatch.setattr(torch.cuda, "is_available", lambda: False)
+    with pytest.raises(f1f2.C86EError):
+        f1f2.f1_train_zoo("授权 C86H", str(tmp_path / "zc"), source_provider=lambda p, s, l: None)
+    # (item 5 residual) exact candidate-ID/order replay + source-raw registry
+    zoo_root = str(tmp_path / "zoo")
+    zoo = f1f2_train.f1_train_zoo(_synth_source, zoo_root, preset=f1f2_train.TINY,
+                                  cell_trainer=_mock_cell)
+    field_root = str(tmp_path / "field")
+    f1f2_train.f2_generate_predictions(zoo, zoo_root, _target_provider, field_root)
+    contract = {"target_cohort": {("SYN_A", 1): "SYN_A", ("SYN_A", 2): "SYN_A"},
+                "n_targets": 2, "n_candidates_per_context": 5, "n_models": 8 * 5, "n_contexts": 16}
+    assert f1f2.validate_real_field_manifest(field_root, contract=contract, zoo_root=zoo_root)
+    # tamper a candidate's recorded panel -> recomputed c86_candidate_id != stored id -> C86-E
+    zpath = os.path.join(zoo_root, "C86H_ZOO_MANIFEST.json")
+    zman = json.load(open(zpath))
+    cid = next(iter(zman["candidates"]))
+    e = zman["candidates"][cid]; e["panel"] = "B" if e["panel"] == "A" else "A"
+    json.dump(zman, open(zpath, "w"))
+    with pytest.raises(f1f2.C86EError):
+        f1f2.validate_real_field_manifest(field_root, contract=contract, zoo_root=zoo_root)
 
 
 def test_f1f2_gated_not_stub(tmp_path):

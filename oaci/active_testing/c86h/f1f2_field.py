@@ -115,8 +115,9 @@ def load_ds007221_bids(bids_root: str, subject: str) -> tuple:
 # --------------------------------------------------------------- MOABB source/Brandl adapter
 def load_moabb_dataset(dataset_name: str, subjects, loader=None) -> dict:
     """Load MOABB source (Lee2019_MI/Cho2017/PhysionetMI) or Brandl2020 to the 11-ch interface.
-    ``loader`` may be injected for testing (returns {subject: mne.Epochs}); default uses the real
-    MOABB MotorImagery paradigm on the 11 interface channels."""
+    Returns {subject: (X[n,11,480], y[n], trial_ids[n], groups[n])}, where groups carry the real
+    ``dataset|subject|session|run`` identity. ``loader`` may be injected for testing (returns
+    {subject: mne.Epochs} or {subject: (X, y)} or {subject: (X, y, metadata_df)})."""
     if loader is None:
         def loader(name, subs):
             import moabb.datasets as md
@@ -128,25 +129,38 @@ def load_moabb_dataset(dataset_name: str, subjects, loader=None) -> dict:
                                 channels=list(K.INTERFACE_CHANNELS), resample=K.INTERFACE_SFREQ_HZ)
             out = {}
             for s in subs:
-                Xs, ys, _ = para.get_data(dataset=ds, subjects=[s], return_epochs=False)
-                out[s] = (Xs, ys)
+                Xs, ys, meta = para.get_data(dataset=ds, subjects=[s], return_epochs=False)
+                out[s] = (Xs, ys, meta)              # meta: DataFrame with subject/session/run
             return out
+
+    def _interface_XY(Xarr, ylabels):
+        X = np.asarray(Xarr, dtype=np.float64)
+        if X.shape[1] != IN_CHANS or X.shape[2] < IN_TIMES:
+            raise C86EError(f"{dataset_name}: shape {X.shape} != (*,{IN_CHANS},{IN_TIMES})")
+        X = X[:, :, :IN_TIMES]
+        mu = X.mean(2, keepdims=True); sd = X.std(2, keepdims=True) + 1e-7
+        y = np.array([EVENT_ID[str(v)] if str(v) in EVENT_ID else int(v) for v in ylabels], dtype=int)
+        return (X - mu) / sd, y
+
     raw = loader(dataset_name, list(subjects))
     result = {}
     for s, val in raw.items():
+        sess = run = None
         if hasattr(val, "get_data"):                 # mne.Epochs -> interface
             X, y = interface_epochs(val)
-        else:                                        # (X,y) already on the interface
-            X, ylabels = val
-            X = np.asarray(X, dtype=np.float64)
-            if X.shape[1] != IN_CHANS or X.shape[2] < IN_TIMES:
-                raise C86EError(f"{dataset_name} sub {s}: shape {X.shape} != (*,{IN_CHANS},{IN_TIMES})")
-            X = X[:, :, :IN_TIMES]
-            mu = X.mean(2, keepdims=True); sd = X.std(2, keepdims=True) + 1e-7
-            X = (X - mu) / sd
-            y = np.array([EVENT_ID[str(v)] if str(v) in EVENT_ID else int(v)
-                          for v in ylabels], dtype=int)
-        result[s] = (X, y)
+        elif isinstance(val, tuple) and len(val) >= 3 and hasattr(val[2], "columns"):
+            X, y = _interface_XY(val[0], val[1])      # (X, y, metadata DataFrame)
+            meta = val[2]
+            sess = [str(v) for v in meta["session"]] if "session" in meta else None
+            run = [str(v) for v in meta["run"]] if "run" in meta else None
+        else:                                        # (X, y) already on the interface
+            X, y = _interface_XY(val[0], val[1])
+        n = len(y)
+        sess = sess or ["0"] * n
+        run = run or ["0"] * n
+        trial_ids = [f"{dataset_name}|s{s}|sess{sess[i]}|run{run[i]}|t{i}" for i in range(n)]
+        groups = [f"{dataset_name}|subject={s}|session={sess[i]}|run={run[i]}" for i in range(n)]
+        result[s] = (X, y, trial_ids, groups)
     return result
 
 

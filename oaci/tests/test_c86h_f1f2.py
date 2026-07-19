@@ -82,8 +82,10 @@ def test_moabb_adapter_with_mock_loader():
                     ["left_hand", "right_hand"] * 10) for s in subs}
     r = F.load_moabb_dataset("Lee2019_MI", [1, 2], loader=mock)
     assert set(r) == {1, 2}
-    X, y = r[1]
+    X, y, tids, groups = r[1]                             # richer: real per-trial identity
     assert X.shape == (20, 11, 480) and set(y.tolist()) <= {0, 1}
+    assert len(tids) == len(y) == len(groups) and len(set(tids)) == len(tids)
+    assert all(g.startswith("Lee2019_MI|subject=1|") for g in groups)
 
 
 def test_real_field_manifest_content_addressed_replay(tmp_path):
@@ -95,14 +97,18 @@ def test_real_field_manifest_content_addressed_replay(tmp_path):
     from oaci.active_testing.c86h import f1f2, f1f2_train
     from oaci.active_testing.c86h.f1f2_field import build_c86h_model
 
-    def mock_cell(X, y, d, seed, preset):
+    def mock_cell(X, y, d, seed, preset, sample_ids=None, groups=None):
         def rec(o):
             return types.SimpleNamespace(model_state=build_c86h_model().state_dict(),
                                          model_hash="", epoch=o)
         return [("ERM", rec(0), 0), ("OACI", rec(1), 1)]      # 2 candidates/context
 
     def src(panel, seed, level):
-        return f1f2_train.build_synthetic_source(2, 4, seed=abs(hash((panel, seed, level))) % 1000)
+        X, y, d = f1f2_train.build_synthetic_source(2, 4, seed=abs(hash((panel, seed, level))) % 1000)
+        n = len(y)
+        return (X, y, d, [f"SRC|{panel}|t{i}" for i in range(n)],
+                [f"SRC|subject={int(d[i])}|session=0|run=0" for i in range(n)],
+                {f"SRC|s{int(v)}": "0" * 64 for v in sorted(set(d.tolist()))})
 
     zoo_root = str(tmp_path / "zoo")
     zoo = f1f2_train.f1_train_zoo(src, zoo_root, preset=f1f2_train.TINY, cell_trainer=mock_cell)
