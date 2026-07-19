@@ -73,8 +73,33 @@ def load(name, subjects=None, tmin=0.5, tmax=3.5, resample=128,
         return z["X"], z["y"], meta, list(z["classes"])
 
     ds = construct_dataset(name)
+    all_subs = [int(x) for x in ds.subject_list]
+    # ASSEMBLE from per-subject caches (populated in PARALLEL by a pre-cache array) -> the expensive epoching fans out
+    # across SLURM instead of grinding serially, and every LOSO fold reads the assembled result.
+    def _psub_path(s):
+        return os.path.join(_CACHE_DIR, "per_subject", f"{name}_{ckey}_sub{s}.npz")
+    if cache and subjects is None and all(os.path.exists(_psub_path(s)) for s in all_subs):
+        Xs, ystr, subj, sess, run = [], [], [], [], []
+        for s in all_subs:
+            z = np.load(_psub_path(s), allow_pickle=True)
+            Xs.append(z["X"]); ystr.append(z["y_str"].astype(str)); subj.append(z["m_subject"]); sess.append(z["m_session"]); run.append(z["m_run"])
+        X = np.concatenate(Xs); ys_all = np.concatenate(ystr)
+        le = LabelEncoder(); y = le.fit_transform(ys_all).astype("int64")   # consistent encoding across subjects
+        meta = pd.DataFrame(dict(subject=np.concatenate(subj), session=np.concatenate(sess), run=np.concatenate(run)))
+        classes = list(le.classes_)
+        # bank the CONSOLIDATED full-dataset cache once, so subsequent LOSO folds hit the single-file fast path
+        # (line ~70) instead of re-assembling 62 per-subject npz every fold — avoids the redundant re-load the PM flagged.
+        if not os.path.exists(cpath):
+            os.makedirs(_CACHE_DIR, exist_ok=True)
+            tmp = cpath + f".tmp{os.getpid()}.npz"   # MUST end .npz: np.savez auto-appends .npz otherwise -> replace fails
+            np.savez_compressed(tmp, X=X.astype("float32"), y=y, classes=np.array(classes),
+                                m_subject=meta["subject"].to_numpy(),
+                                m_session=meta["session"].astype(str).to_numpy(),
+                                m_run=meta["run"].astype(str).to_numpy())
+            os.replace(tmp, cpath)               # atomic; concurrent folds converge to identical content
+        return X, y, meta, classes
     if subjects is None:
-        subjects = ds.subject_list
+        subjects = all_subs
     # Paradigm selection. Default reproduces the original behaviour EXACTLY: binary -> LeftRightImagery,
     # else MotorImagery (all classes). A dataset may set paradigm="motor" (+ optional events/n_classes)
     # to force MotorImagery even when binary — required for BNCI2015_001 (right_hand vs feet), which
@@ -103,12 +128,48 @@ def load(name, subjects=None, tmin=0.5, tmax=3.5, resample=128,
     meta = meta.reset_index(drop=True); classes = list(le.classes_)
     if cache and subjects is None:           # bank the full-dataset epoching for reuse across folds/seeds
         os.makedirs(_CACHE_DIR, exist_ok=True)
-        tmp = cpath + f".tmp{os.getpid()}"
+        tmp = cpath + f".tmp{os.getpid()}.npz"   # MUST end .npz: np.savez auto-appends .npz otherwise -> replace fails
         np.savez_compressed(tmp, X=X, y=y, classes=np.array(classes),
                             m_subject=meta["subject"].to_numpy(), m_session=meta["session"].astype(str).to_numpy(),
                             m_run=meta["run"].astype(str).to_numpy() if "run" in meta else np.array([""] * len(y)))
         os.replace(tmp, cpath)               # atomic
     return X, y, meta, classes
+
+
+def precache_subject(name, s, tmin=0.5, tmax=3.5, resample=128, normalize="trial_zscore"):
+    """Epoch ONE subject and bank it to the per-subject cache (string labels, encoded consistently at assembly). Run in
+    PARALLEL (one SLURM task per subject) so the expensive MOABB epoching fans out instead of grinding serially."""
+    from moabb.paradigms import MotorImagery, LeftRightImagery
+    d = DATASET_DEFAULTS.get(name, dict(binary=False, fmin=4, fmax=38))
+    channels = d.get("channels")
+    ckey = _cache_key(name, tmin, tmax, resample, normalize, channels)
+    out = os.path.join(_CACHE_DIR, "per_subject", f"{name}_{ckey}_sub{s}.npz")
+    if os.path.exists(out):
+        return out
+    ds = construct_dataset(name)
+    base_kw = dict(fmin=d["fmin"], fmax=d["fmax"], tmin=tmin, tmax=tmax, resample=resample)
+    if channels:
+        base_kw["channels"] = list(channels)
+    kind = d.get("paradigm", "left_right" if d["binary"] else "motor")
+    if kind == "left_right":
+        para = LeftRightImagery(**base_kw)
+    else:
+        mkw = dict(base_kw)
+        if d.get("events"): mkw["events"] = list(d["events"])
+        if d.get("n_classes"): mkw["n_classes"] = int(d["n_classes"])
+        para = MotorImagery(**mkw)
+    X, y, meta = para.get_data(ds, subjects=[int(s)])
+    X = X.astype("float32")
+    if normalize == "trial_zscore":
+        m = X.mean(axis=2, keepdims=True); sd = X.std(axis=2, keepdims=True) + 1e-7; X = (X - m) / sd
+    meta = meta.reset_index(drop=True)
+    os.makedirs(os.path.join(_CACHE_DIR, "per_subject"), exist_ok=True)
+    tmp = out + f".tmp{os.getpid()}.npz"   # MUST end .npz: np.savez auto-appends .npz otherwise -> replace fails
+    np.savez_compressed(tmp, X=X, y_str=np.asarray(y).astype(str),
+                        m_subject=meta["subject"].to_numpy(), m_session=meta["session"].astype(str).to_numpy(),
+                        m_run=meta["run"].astype(str).to_numpy() if "run" in meta else np.array([""] * len(y)))
+    os.replace(tmp, out)
+    return out
 
 
 def paradigm_info(name):
