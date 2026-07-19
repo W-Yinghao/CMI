@@ -34,12 +34,14 @@ def _canonical_epoch(regime: str, order: int) -> int:
         return 199
     return _REGIME_EPOCHS[order - 1]
 
-# Faithful preset -> 81 candidates (matches the registered EngineConfig + cadence).
+# Faithful preset -> 81 candidates (matches the registered EngineConfig + cadence). The
+# registered training identity requires deterministic_algorithms=True (a GPU/deterministic env).
 FAITHFUL = dict(S1_EP=200, S2_EP=200, SPE=20, WU=60, CS=5, PC=8, MB=256, ACC=4, BS=256,
-                m=8, checkpoint_every=5)
-# Tiny preset -> 5 candidates; exercises the whole engine/objective/plan path in seconds.
+                m=8, checkpoint_every=5, deterministic=True)
+# Tiny preset -> 5 candidates; exercises the whole engine/objective/plan path in seconds on CPU
+# (deterministic_algorithms=True is unavailable for some ops on CPU, so the path test uses False).
 TINY = dict(S1_EP=2, S2_EP=10, SPE=2, WU=4, CS=2, PC=2, MB=256, ACC=None, BS=16,
-            m=1, checkpoint_every=5)
+            m=1, checkpoint_every=5, deterministic=False)
 
 
 def build_synthetic_source(n_domains: int = 2, per_cell: int = 8, seed: int = 0,
@@ -78,6 +80,11 @@ def train_cell(X, y, domain, seed: int, preset: dict = TINY, device=None) -> lis
     device = device or torch.device("cpu")
     X = np.asarray(X, dtype=np.float64); y = np.asarray(y, dtype=int)
     domain = np.asarray(domain, dtype=int)
+    # contiguous dense domain remap 0..n_domains-1 (matches materialize_training_bundle), so the
+    # support graph / SRC objective get the true domain count (no empty slots from raw subject ids)
+    uniq = sorted(set(int(d) for d in domain))
+    remap = {d: i for i, d in enumerate(uniq)}
+    domain = np.array([remap[int(d)] for d in domain], dtype=int)
     n = len(y)
     sample_ids = tuple(f"syn|d{int(domain[i])}|c{int(y[i])}|r{i}" for i in range(n))
     groups = tuple(f"g{int(domain[i])}" for i in range(n))
@@ -120,8 +127,8 @@ def train_cell(X, y, domain, seed: int, preset: dict = TINY, device=None) -> lis
         lr_stage1=0.005, lr_encoder=0.01, lr_critic=0.01, dual_lr=0.5,
         lambda_init=0.3, lambda_max=20.0, lambda_floor=0.0,
         gradient_clip=0.0, critic_gradient_clip=0.0,
-        deterministic_algorithms=False, stage2_bn_mode="frozen_erm_running_stats",
-        base_seed=seed)
+        deterministic_algorithms=bool(P.get("deterministic", False)),
+        stage2_bn_mode="frozen_erm_running_stats", base_seed=seed)
 
     factory = build_c86h_model
     with forked_rng(derive_seed(seed, "c86h", "model_init"), device):
@@ -231,9 +238,16 @@ def f2_generate_predictions(zoo_manifest, zoo_root, target_provider, field_root)
     n_cands = len(by_ctx[contexts[0]])
 
     label_rows, split_m, support, pred_shas, target_shas = [], {}, {}, {}, {}
+    field_file_sha, trial_coverage, targets_list = {}, {}, []
+
+    def _file_sha(path):
+        with open(path, "rb") as fh:
+            return hashlib.sha256(fh.read()).hexdigest()
+
     for cohort, target, X, y, tids, raw_sha in target_provider():
         ds, subj = cohort, int(target)
         y = np.asarray(y).astype(int)
+        targets_list.append([cohort, subj])
         target_shas[f"{cohort}|{subj}"] = raw_sha
         pool_ids, held_ids = canonical_trial_split(ds, str(subj), list(tids), salt=K.SPLIT_SALT)
         idx = {t: i for i, t in enumerate(tids)}
@@ -251,14 +265,20 @@ def f2_generate_predictions(zoo_manifest, zoo_root, target_provider, field_root)
             ph = np.stack([_predict_model(m, X[hj]) for m in ctx_models[ck]], axis=1)
             meta = json.dumps({"dataset": ds, "subject": subj, **cm})
             tag = f"{ds}__{subj}__p{cm['panel']}_s{cm['seed']}_l{cm['level']}"
-            np.savez(os.path.join(pool_root, tag + ".npz"), meta=meta,
-                     trial_ids=np.array(pool_ids), probabilities=pp)
+            p_pool = os.path.join(pool_root, tag + ".npz")
+            p_contrib = os.path.join(contrib_root, tag + ".npz")
+            p_held = os.path.join(held_root, tag + ".npz")
+            np.savez(p_pool, meta=meta, trial_ids=np.array(pool_ids), probabilities=pp)
             pc = field_spec._contribs(pp, y[pj])
-            np.savez(os.path.join(contrib_root, tag + ".npz"), meta=meta,
-                     trial_ids=np.array(pool_ids), true_label=y[pj], **pc)
-            np.savez(os.path.join(held_root, tag + ".npz"), meta=meta,
-                     trial_ids=np.array(held_ids), probabilities=ph, true_label=y[hj])
+            np.savez(p_contrib, meta=meta, trial_ids=np.array(pool_ids), true_label=y[pj], **pc)
+            np.savez(p_held, meta=meta, trial_ids=np.array(held_ids),
+                     probabilities=ph, true_label=y[hj])
             pred_shas[f"{ds}|{subj}|{ck}"] = hashlib.sha256(pp.tobytes() + ph.tobytes()).hexdigest()
+            field_file_sha[f"acquisition_unlabeled_pool/{tag}.npz"] = _file_sha(p_pool)
+            field_file_sha[f"query_contribution_store/{tag}.npz"] = _file_sha(p_contrib)
+            field_file_sha[f"held_evaluation_field/{tag}.npz"] = _file_sha(p_held)
+        trial_coverage[tkey] = {"n_pool": len(pool_ids), "n_held": len(held_ids),
+                                "n_total": len(tids)}
         for t in pool_ids:
             label_rows.append({"dataset": ds, "target_subject_id": subj,
                                "target_trial_id": t, "canonical_class_label": int(y[idx[t]])})
@@ -267,6 +287,14 @@ def f2_generate_predictions(zoo_manifest, zoo_root, target_provider, field_root)
                                            "target_trial_id", "canonical_class_label"])
         w.writeheader(); w.writerows(label_rows)
 
+    # weight FILE shas (content-address the actual .pt files, not just the state-hash)
+    weight_file_sha = {}
+    for cid, e in zoo_manifest["candidates"].items():
+        wp = e.get("weight_path")
+        weight_file_sha[cid] = _file_sha(os.path.join(zoo_root, wp)) if wp else None
+    loader_ids = {c: K.COHORTS.get(c, {}).get("loader_or_bids_identity",
+                  K.COHORTS.get(c, {}).get("native", c)) for c in
+                  {ck.split("_", 1)[1].rsplit("_", 1)[0] for ck in split_m}}
     rfm = {"schema": "c86h_real_field_manifest_v1", "interface_id": K.COMMON_INTERFACE_ID,
            "field_training_manifest_sha256": K.FIELD_TRAINING_MANIFEST_SHA256,
            "n_targets": len(split_m), "n_contexts": len(split_m) * len(contexts),
@@ -274,9 +302,13 @@ def f2_generate_predictions(zoo_manifest, zoo_root, target_provider, field_root)
            "n_candidate_context_slices": len(split_m) * len(contexts) * n_cands,
            "zoo": {"n_models": zoo_manifest["n_models"],
                    "weight_sha256": {c: e["weight_sha256"]
-                                     for c, e in zoo_manifest["candidates"].items()}},
-           "prediction_context_sha256": pred_shas, "construction_evaluation_overlap": 0,
-           "split": split_m, "class_support": support, "target_raw_sha256": target_shas}
+                                     for c, e in zoo_manifest["candidates"].items()},
+                   "weight_file_sha256": weight_file_sha,
+                   "candidate_ids_by_context": zoo_manifest["candidate_ids_by_context"]},
+           "prediction_context_sha256": pred_shas, "field_file_sha256": field_file_sha,
+           "construction_evaluation_overlap": 0, "split": split_m, "class_support": support,
+           "trial_coverage": trial_coverage, "target_raw_sha256": target_shas,
+           "loader_identities": loader_ids, "targets": targets_list}
     with open(os.path.join(field_root, REAL_FIELD_MANIFEST_NAME), "w") as fh:
         json.dump(rfm, fh, indent=2)
     return rfm

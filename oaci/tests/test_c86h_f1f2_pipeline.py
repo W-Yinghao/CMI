@@ -75,6 +75,76 @@ def test_f1_f2_h1_pipeline_e2e(tmp_path):
     assert len(sel) == 2 * 3 * 2                          # targets x methods x chains
 
 
+def test_integrated_execute_wiring_with_injected_real_providers(tmp_path):
+    """runner.execute truly completes F1 -> F2 -> content-addressed manifest replay -> H1..H4
+    (not calling the lower helpers directly)."""
+    from oaci.active_testing.c86h import runner
+    contract = {"target_cohort": {("SYN_A", 1): "SYN_A", ("SYN_A", 2): "SYN_A"},
+                "cohort_dataset": {"SYN_A": "SYN_A"}, "cohorts": {"SYN_A"},
+                "n_targets": 2, "n_candidates_per_context": 5, "n_models": 8 * 5, "n_contexts": 16}
+    m = runner.execute("授权 C86H", str(tmp_path / "camp"),
+                       source_provider=_synth_source, target_provider=_target_provider,
+                       preset=f1f2_train.TINY, chains=(0, 1), cell_trainer=_mock_cell,
+                       contract=contract)
+    assert m["stage"] == "C86H_H4_TERMINAL_RESULT"
+    assert m["classification"]["formal_gate"] in K.FORMAL_GATE
+    assert m["held_opened_after_freeze_verification"] is True
+    # execute refuses without the token, and a re-run into the same attempt root is refused
+    with pytest.raises(SystemExit):
+        runner.execute("", str(tmp_path / "camp2"))
+    with pytest.raises(RuntimeError):                     # fresh-attempt-root guard
+        runner.execute("授权 C86H", str(tmp_path / "camp"),
+                       source_provider=_synth_source, target_provider=_target_provider,
+                       preset=f1f2_train.TINY, chains=(0, 1), cell_trainer=_mock_cell,
+                       contract=contract)
+
+
+def _synthetic_registered_source(panel, seed, level):
+    """Multi-source (X,y,domain) built from synthetic_source_panel (passes the registered
+    intervention) + row-aligned synthetic X, with contiguous cross-dataset domains."""
+    from oaci.multidataset import c84l1_intervention as itv
+    Xs, ys, subs = [], [], []
+    for name in ("Lee2019_MI", "Cho2017", "PhysionetMI"):
+        fx = itv.synthetic_source_panel(name, panel, rows_per_cell=8)
+        labels = list(fx["labels"]); subjects = list(fx["subjects"]); tids = list(fx["trial_ids"])
+        rng = np.random.default_rng(abs(hash((name, panel, seed, level))) % 10000)
+        X = rng.standard_normal((len(labels), 11, 480)) + np.array(labels)[:, None, None] * 0.4
+        app = itv.apply_level_intervention(dataset=name, panel=panel, level=int(level),
+                                           source_subjects=subjects, source_labels=labels,
+                                           source_trial_ids=tids)
+        keep = list(app.keep_indices)
+        Xs.append(X[keep]); ys.append(np.array(labels)[keep])
+        subs.append([(name, subjects[k]) for k in keep])
+    X = np.concatenate(Xs); y = np.concatenate(ys)
+    flat = [s for g in subs for s in g]
+    dn = sorted(set(flat)); dmap = {s: i for i, s in enumerate(dn)}
+    return X, y, np.array([dmap[s] for s in flat], dtype=int)
+
+
+def test_registered_source_contract_and_level_intervention_replay():
+    from oaci.multidataset import c84f_dual_level_training as f
+    from oaci.multidataset import c84l1_intervention as itv
+    from oaci.multidataset import c84l1_protocols as proto
+    # exact hash-locked 12 train + 4 audit, disjoint
+    train, audit = f._source_subject_contract("Lee2019_MI", "A")
+    assert len(train) == 12 and len(audit) == 4 and not (set(train) & set(audit))
+    # level 0 = full 24-cell graph ; level 1 = registered left_hand deletion -> exactly 23 cells
+    fx = itv.synthetic_source_panel("Lee2019_MI", "A", rows_per_cell=8)
+    a0 = itv.apply_level_intervention(dataset="Lee2019_MI", panel="A", level=0,
+                                      source_subjects=fx["subjects"], source_labels=fx["labels"],
+                                      source_trial_ids=fx["trial_ids"])
+    a1 = itv.apply_level_intervention(dataset="Lee2019_MI", panel="A", level=1,
+                                      source_subjects=fx["subjects"], source_labels=fx["labels"],
+                                      source_trial_ids=fx["trial_ids"])
+    assert len(a0.post_cell_counts) == 24 and len(a1.post_cell_counts) == 23
+    assert a1.deleted_source_subject == proto.DELETED_SUBJECTS[("Lee2019_MI", "A")]
+    assert a1.deleted_class == "left_hand" and len(a1.deleted_indices) >= 8
+    # the registered multi-source builds CONTIGUOUS domains (0..n-1), and the frozen identity is deterministic
+    X, y, d = _synthetic_registered_source("A", 5, 1)
+    assert sorted(set(d.tolist())) == list(range(int(d.max()) + 1))       # contiguous
+    assert f1f2_train.FAITHFUL["deterministic"] is True                   # frozen training identity
+
+
 def test_f1f2_gated_not_stub(tmp_path):
     # gated entrypoints refuse without the token (SystemExit)
     with pytest.raises(SystemExit):

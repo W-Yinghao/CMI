@@ -280,6 +280,14 @@ def run_confirmation(field_root, out_dir, target_cohort, cohort_dataset,
                            "range(2048); caller-reduced chains are forbidden")
     else:
         chains = list(chains)
+    return _run_batch_pipeline(field_root, out_dir, target_cohort, cohort_dataset, chains, t0)
+
+
+def _run_batch_pipeline(field_root, out_dir, target_cohort, cohort_dataset, chains, t0=None):
+    """H1a -> H1b -> H2 -> H4 over an existing field; the atomic immutable terminal result.
+    Shared by run_confirmation (real/synthetic guards) and execute (contract-validated campaign)."""
+    if t0 is None:
+        t0 = time.time()
     os.makedirs(out_dir, exist_ok=True)
     pre = f0_preflight(field_root)
     if not pre["bindings"]["ok"]:
@@ -293,34 +301,24 @@ def run_confirmation(field_root, out_dir, target_cohort, cohort_dataset,
     h1_dir = os.path.join(out_dir, "h1")
     exp = sorted(target_cohort)
 
-    # H1a: label-free batch order generation in a CAPABILITY-ISOLATED spawned process
-    # (only the unlabeled pool + orders_dir; no sealed roots reach it)
     _spawn_recv(_h1a_worker, (pool_root, orders_dir, methods, chains))
-    # H1b: SEALED spawned process (labels in, selections out)
     h1_manifest = _spawn_recv(_h1b_worker,
                               (orders_dir, oracle_root, contrib_root, h1_dir, methods, chains))
-    # H2: separate spawned process (no server/oracle capability); verify + RECONCILE against the
-    # label-free H1a orders BEFORE opening held
     result = _spawn_recv(_h2_batch_worker,
                          (h1_dir, orders_dir, held_root, exp, methods, chains,
                           target_cohort, cohort_dataset))
 
-    # H4: complete + atomic immutable terminal result (fresh attempt root, staging + rename)
     manifest = {
         "stage": "C86H_H4_TERMINAL_RESULT", "confirmatory": True,
         "held_opened_after_freeze_verification": True,
         "method_registry": methods, "n_chains": len(chains),
         "h1_files": h1_manifest["n_files"],
-        "classification": result["classification"],
-        "endpoints": result["endpoints"],
-        "full_ceiling": result["full_ceiling"],
-        "active_gain": result["active_gain"],
+        "classification": result["classification"], "endpoints": result["endpoints"],
+        "full_ceiling": result["full_ceiling"], "active_gain": result["active_gain"],
         "inference_detail": result.get("inference_detail"),
-        "materiality_margin": K.MATERIALITY_MARGIN,
-        "maxt_draws": K.MAXT_DRAWS,
+        "materiality_margin": K.MATERIALITY_MARGIN, "maxt_draws": K.MAXT_DRAWS,
         "pooled_dataset_pvalue": K.POOLED_DATASET_PVALUE,
-        "h1_manifest_files": h1_manifest["file_sha256"],
-        "bindings": pre["bindings"],
+        "h1_manifest_files": h1_manifest["file_sha256"], "bindings": pre["bindings"],
         "stop_rule": "terminal: one field, one confirmation, one audit, stop; no auto-C87",
         "seconds": round(time.time() - t0, 2),
     }
@@ -340,21 +338,47 @@ def run_confirmation(field_root, out_dir, target_cohort, cohort_dataset,
     return manifest
 
 
-# --------------------------------------------------------------------- gated real path
-def execute(authorization: str, output_root: str | None = None):
+# --------------------------------------------------------------------- gated integrated campaign
+def _registered_contract() -> dict:
+    """The locked C86H population contract: registered targets/cohorts + cardinalities."""
+    return {"target_cohort": _registered_target_cohort(),
+            "cohort_dataset": _registered_cohort_dataset(),
+            "n_targets": K.N_TARGETS, "n_candidates_per_context": K.CANDIDATES_PER_CONTEXT,
+            "n_models": K.UNIQUE_TRAINED_MODELS, "n_contexts": K.TARGET_CONTEXTS,
+            "cohorts": set(K.COHORTS)}
+
+
+def execute(authorization: str, output_root: str | None = None, *, source_provider=None,
+            target_provider=None, preset=None, chains=None, cell_trainer=None, contract=None):
+    """One integrated terminal campaign: F0 -> F1 (train zoo) -> F2 (field + real-field manifest)
+    -> content-addressed manifest replay -> H1a/H1b/H2 -> H4. Refuses without 授权 C86H. Providers
+    default to the real MOABB/BIDS adapters; tests inject synthetic providers + a contract."""
     if authorization != AUTHORIZATION_TOKEN:
         raise SystemExit("C86H requires authorization '授权 C86H'; this build is prep only")
     bindings = K.verify_bindings()
     if not bindings["ok"]:
         raise RuntimeError(f"C86H binding verification failed: {bindings['mismatches']}")
-    from . import f1f2
-    if not os.path.isdir(REAL_FIELD_ROOT):
-        f1f2.f1_train_zoo(authorization, REAL_FIELD_ROOT)     # F1 -> raises (authorized step)
-        f1f2.f2_generate_predictions(authorization, REAL_FIELD_ROOT)  # F2 -> raises
-    # Under authorization the flow is: F1 train zoo -> F2 predictions+split -> run_confirmation.
-    return run_confirmation(REAL_FIELD_ROOT, output_root or (REAL_FIELD_ROOT + ".run"),
-                            _registered_target_cohort(), _registered_cohort_dataset(),
-                            authorization=authorization, synthetic=False)
+    from . import f1f2, f1f2_train
+    contract = contract or _registered_contract()
+    root = output_root or (REAL_FIELD_ROOT + ".campaign")
+    if os.path.exists(root):                                # fresh attempt root (no reuse/mix)
+        raise RuntimeError(f"C86H campaign attempt root exists ({root}); use a fresh attempt root")
+    os.makedirs(root)
+    zoo_root = os.path.join(root, "zoo")
+    field_root = os.path.join(root, "field")
+    run_dir = os.path.join(root, "run")
+    preset = preset or f1f2_train.FAITHFUL
+    # F1: train the 648-model 11-ch zoo
+    zoo = f1f2.f1_train_zoo(authorization, zoo_root, preset=preset,
+                            source_provider=source_provider, cell_trainer=cell_trainer)
+    # F2: predict + label-blind split + real-field manifest
+    f1f2.f2_generate_predictions(authorization, zoo, zoo_root, field_root,
+                                 target_provider=target_provider)
+    # H1 MUST NOT start before the real-field manifest content-addressed replay validates
+    f1f2.validate_real_field_manifest(field_root, contract=contract, zoo_root=zoo_root)
+    chains = list(chains) if chains is not None else list(range(K.ACTIVE_CHAINS))
+    return _run_batch_pipeline(field_root, run_dir, contract["target_cohort"],
+                               contract["cohort_dataset"], chains)
 
 
 # --------------------------------------------------------------- synthetic e2e (no real data)

@@ -40,7 +40,9 @@ def preflight() -> dict:
         "stage": "C86H_PREFLIGHT",
         "authorization_present": False,
         "bindings": bindings,
-        "field_present": os.path.isdir(FIELD_ROOT),
+        # a real field is present only if its content-addressed manifest exists (an empty stray
+        # directory is not a field), so an accidental mkdir does not read as a generated field
+        "field_present": os.path.isfile(os.path.join(FIELD_ROOT, "C86H_REAL_FIELD_MANIFEST.json")),
         "method_registry": list(K.METHOD_REGISTRY),
         "active_maxt_family_size": len(K.ACTIVE_METHODS) * len(K.FINITE_BUDGETS),
         "active_chains": K.ACTIVE_CHAINS,
