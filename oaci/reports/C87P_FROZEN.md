@@ -109,6 +109,67 @@ scope and do not require ratification.
 
 ---
 
+## FREEZE v3 — PM ratification addendum (2026-07-20, BINDING)
+
+PM-RATIFY #1/#2/#3 are **RATIFIED with the modifications below**; these OVERRIDE any conflicting v2 wording
+and are written into the specs (SPEC 4.A / 4.B, §4.1, DoF-lock). C87 synthetic-control implementation +
+execution is **GO** once this addendum is committed. C87E real-data download/training/outcome-access and
+C88 remain **NOT AUTHORIZED**.
+
+```text
+1. PRIMARY LOSS + PRIMARY INFORMATION-VIEW PIN [ratifies #1]
+   Primary query returns ONLY the single §2 selected-task binary label y_task ∈ {0,1}. The primary
+   selector (P0 / LURE / MODEL SELECTOR / CODA) may NOT read any other SNOMED label. Full multi-hot
+   SNOMED response = SECONDARY robustness path only; it cannot alter primary query order, primary
+   selected action, or the primary gate. (Else the object drifts to "value of multi-task auxiliary
+   information", not the EEG→ECG-comparable binary information regime.) The synthetic generator still
+   emits prediction objects; the primary MODEL SELECTOR/CODA path uses their BINARY PROJECTION.
+   [written into P-21, §4.1, §6.1]
+
+2. s_e SCALE — TERMINOLOGY + COMPUTATION [ratifies #2; τ_G=0.25·s_e ACCEPTED]
+   Rename s_e the "candidate-loss dispersion standardizer" (candidate-spread SD) — NOT "robust
+   standardizer" (plain SD is not robust in the strict sense; it is only less sensitive to a single
+   extreme candidate than the max-min range). s_e is computed on the COMPLETE fixed 648-candidate action
+   set, from held patient-level mean losses, as ONE cohort-specific scale shared across all
+   policies/budgets/seeds, after the held view opens, never re-selecting a candidate subset from any
+   policy result. Each candidate is a pre-frozen fixed function ⇒ estimating its held loss needs NO
+   cross-fit; winner's curse enters ONLY at the subsequent argmin/argmax. Report raw NLL gain + G/s_e +
+   D_e-scaled secondary + budget-equivalence factor. [written into SPEC 4.A/4.B]
+
+3. CROSS-FIT = held-SELECTION reference, NOT an oracle [ratifies #3 principle; OVERRIDES v2 oracle wording]
+   The 5-fold patient-level cross-fit estimates the generalization loss of a "select on 4/5 held patients,
+   evaluate on 1/5" held-SELECTION PROCEDURE — NOT the population risk of a single a*H and NOT an unbiased
+   oracle minimum. Folds may pick different candidates; a policy's fixed pick can beat the finite-sample
+   held selector out-of-fold ⇒ cross-fitted excess loss MAY BE NEGATIVE.
+     â^H_{e,-f}       = argmin_{a∈A_e} L_{e,H\H_f}(a)                    (select on the OTHER folds)
+     L^{H,CF}_{e,ref} = (1/F) Σ_f L_{e,H_f}(â^H_{e,-f})                  (cross-fitted held reference)
+     T^CF_e           = (1/F) Σ_f [ L_{e,H_f}(a^C_e)         − L_{e,H_f}(â^H_{e,-f}) ]
+     R^CF_{e,π,B}     = (1/F) Σ_f [ L_{e,H_f}(â_{e,π,B})     − L_{e,H_f}(â^H_{e,-f}) ]   (MAY be < 0)
+     G_{e,π,B}        = R^CF_{e,P0,B} − R^CF_{e,π,B}       (reference cancels; paired on same held patients)
+   CLAIM DISCIPLINE: never "unbiased best-held loss" / "single held-optimal action" / "R_CF ≥ 0"; say
+   "cross-fitted held-selection reference", "cross-fitted excess loss", "R_CF may be negative". E4 renamed
+   "probability of being within ε of the cross-fitted held-selection reference".
+   SECONDARY finite-held oracle (descriptive; C86D / extreme-action alignment; NOT in the primary gate):
+     a^{H,fin}_e = argmin_a L^H_e(a), realized finite-held regret (non-negative but OPTIMISTIC for
+     population generalization); D^fin_e = max_a L^H_e(a) − min_a L^H_e(a) = secondary range/degeneracy
+     diagnostic (no cross-fit "worst oracle"). [written into SPEC 4.A/4.B]
+   DUAL REPORTING: cross-fitted reference → PRIMARY population estimand; in-sample finite argmin →
+     SECONDARY realized extreme-action geometry; s_e SD → PRIMARY scale; D^fin_e range → SECONDARY diagnostic.
+
+TWO METADATA PRE-CONDITIONS FOR C87E (do NOT block synthetic controls; must close before real training):
+  (i)  Support-level-1 deletion vs final task: before any real training, emit a SIGNED metadata manifest
+       {selected task, registered deletion cell, source support before/after, all 8 contexts trainable};
+       failure → C87-E / DEV_STOP (no changing task / deletion cell / support threshold).
+  (ii) Scored-class count 26 vs 30: mechanically produce ONE scored-class registry + hash from the
+       Challenge equivalence-merge before any multi-label secondary head / CODA mapping / synthetic
+       fidelity object is load-bearing (no 26-vs-30 implementation freedom).
+
+STATUS: C87P_V2_RATIFIED_CONTROL_PIPELINE_GO ; C87_CONTROL_PASS not yet produced ;
+        C87E real execution NOT authorized ; C88 NOT authorized.
+```
+
+---
+
 **Scientific object (fixed; not redefined here).** Measurement–Control Separation: association / reliability ≠ prediction ≠ transport ≠ actionability. The concrete extreme-action control problem is: *per target COHORT, select the single deployment-best model from a large candidate zoo under a small target-label budget.* C87 asks whether the C86D EEG finding — even FULL acquisition-view labels did not identify the deployment-optimal model (FULL nontransportability), and non-adaptive prediction-driven active acquisition gave ≈0 gain over uniform — **reproduces on a different modality (12-lead ECG) once a genuinely label-ADAPTIVE method is added to the registry.**
 
 ---
@@ -171,17 +232,18 @@ P-19  Training engine                        OACI/SRC/ERM byte-identical to froz
 P-20  Patient-level split                    key=SHA-256("C87_TARGET_SPLIT_V1"|cohort|patient_id),    [§5]
                                              sort asc, lower floor(n/2) → ACQUISITION, rest → HELD;
                                              held-eval SEALED until selection freeze; 1 query = 1 rec
-P-21  Primary loss [v2 / PM-RATIFY #1]        patient-level mean binary NLL on the SINGLE §2-selected   [§4]
-                                             binary task (label axis PINNED; D-24 deleted); secondary
-                                             (reported) = multi-label-S NLL + Hamming@0.5 (robustness)
-P-22  Per-cohort estimands [v2]              T_e=L^H(a*C_e)−L^H(a*H_e) (=R at B=0); R_{e,π,B}=        [§4]
-                                             L^H(â)−L^H(a*H_e); G_{e,π,B}=R_{P0,B}−R_{π,B}; held optima
-                                             a*H_e/a#_e/T_e/D_e via HELD-VIEW CROSS-FIT (anti-winner's-
-                                             curse, PM-RATIFY #3); span D_e=L^H(a#)−L^H(a*H_e) (diagnostic);
-                                             PRIMARY spread s_e=SD_a L^H (robust standardizer, PM-RATIFY #2)
-P-23  Endpoints [v2]                         E1 R~=R/s_e; E2 L^H(â); E3 CVaR_0.10; E4 P(ε-near-opt),   [§4]
-                                             ε_e=0.25·s_e; E5a G~=G/s_e / E5b ρ; E6 T_e/T~_e=T_e/s_e
-                                             (all standardized by robust s_e, one consistent scale)
+P-21  Primary loss + query view [v3/RATIFY#1] patient-level binary NLL on the SINGLE §2-selected task     [§4]
+                                             (D-24 deleted); PRIMARY QUERY returns ONLY y_task∈{0,1} — the
+                                             selector may not read other SNOMED labels; multi-label-S NLL /
+                                             Hamming = SECONDARY robustness only
+P-22  Per-cohort estimands [v3/RATIFY#3]     held ref via 5-fold held-SELECTION cross-fit â^H_{e,-f}=      [§4]
+                                             argmin_a L_{e,H\f}; T^CF/R^CF = mean_f[L_{e,H_f}(·)−L_{e,H_f}
+                                             (â^H_{e,-f})] (R^CF MAY be <0; NOT an oracle); G=R^CF_{P0}−R^CF_π;
+                                             SECONDARY finite oracle a^{H,fin}=argmin_a L^H (regret≥0,
+                                             optimistic); D^fin_e=max−min L^H (diagnostic)
+P-23  Endpoints [v3/RATIFY#2]                E1 R~=R^CF/s_e; E2 L^H(â); E3 CVaR_0.10; E4 P(R^CF<=ε_e)     [§4]
+                                             within cross-fit reference; ε_e=0.25·s_e; E5a G~=G/s_e / E5b ρ;
+                                             E6 T^CF/s_e; s_e=candidate-loss DISPERSION SD (not "robust")
 P-24  Budget ladder (single authoritative)   B ∈ {0,8,16,32,64,128,256,512} held record-labels/cohort [§4; RECONCILED]
                                              (§3, §6 REFERENCE this ladder verbatim)
 P-25  Thresholds + inference [v2]             τ_G=0.25 (in s_e units, PM-RATIFY #2); τ_T=0.05·s_e;     [§4]
@@ -610,6 +672,13 @@ All quantities are **frozen as formulas/rules**. No value is read from any targe
 ### 4.1 Views, loss, per-cohort estimands
 Two disjoint **patient** partitions of each target cohort `e`: **View C** (acquisition/construction; fully-labeled reference, no query cost) and **View H** (held/deployment; sealed; labels revealed only through the `B` paid queries). Unit = patient; every record of a patient in exactly one view; cost per record, split/inference per patient.
 
+**PRIMARY QUERY RESPONSE (information-view pin) [v3/PM-RATIFY #1].** A primary paid query on a held record `r`
+returns ONLY the single §2 selected-task **binary** label `y_task(r) ∈ {0,1}`. The primary selector
+(P0 / LURE / MODEL SELECTOR / CODA) may NOT read any other SNOMED label of `r`. The full multi-hot SNOMED
+response is a SECONDARY robustness path only and cannot alter the primary query order, the primary selected
+action, or the primary gate. This keeps the object the EEG→ECG-comparable *single-task* information regime,
+not "value of multi-task auxiliary information".
+
 ```text
 SPEC 4.A — LOSS AND PER-COHORT ESTIMANDS (frozen)
 ------------------------------------------------------------
@@ -630,24 +699,37 @@ Patient loss:  lbar(a,j) = (1/|R_j|) Σ_{r in R_j} l(a,r)
 View loss:     L^V_e(a)  = (1/|P^V_e|) Σ_{j in P^V_e} lbar(a,j)     (V ∈ {C,H})
 Acq optimum:   a*C_e = argmin_a L^C_e(a)   (View C fully labeled; out-of-sample vs View H ⇒ unbiased)
 
-HELD-VIEW CROSS-FIT of the held optima/ceiling [v2/M1/PM-RATIFY #3] — removes winner's-curse:
+HELD-VIEW CROSS-FIT — held-SELECTION reference [v3/PM-RATIFY #3; OVERRIDES v2 "oracle" wording]:
+  This estimates the generalization loss of a "select on 4/5 held patients, evaluate on 1/5" held-SELECTION
+  PROCEDURE — NOT the population risk of a single a*H and NOT an unbiased oracle minimum. Folds may pick
+  different candidates; a policy's fixed pick can beat the finite-sample held selector out-of-fold, so the
+  cross-fitted excess loss MAY BE NEGATIVE. Removes the winner's-curse bias of a naive same-sample argmin.
   Partition held patients P^H_e into F=5 folds (deterministic, salt "C87_HELD_XFIT_V1"|cohort|patient_id).
-  For fold f:  select on the OTHER 4 folds  ĥ_f = argmin_a L^{H\f}_e(a) ,  ŵ_f = argmax_a L^{H\f}_e(a);
-               evaluate on the HELD-OUT fold f:  L^H_e(ĥ_f)|_f , L^H_e(ŵ_f)|_f.
-  Cross-fit estimates:  L^H_e(a*H_e) := (1/F) Σ_f L^H_e(ĥ_f)|_f  (unbiased best-held loss);
-                        L^H_e(a#_e)  := (1/F) Σ_f L^H_e(ŵ_f)|_f  (unbiased worst-held loss).
-  (a*H_e / a#_e identities are reported per fold; the load-bearing quantity is the cross-fit LOSS.)
-Span:          D_e   = L^H_e(a#_e) - L^H_e(a*H_e)   (>0; degeneracy diagnostic + secondary scale)
-Spread (PRIMARY standardizer, robust) [v2/M2/PM-RATIFY #2]:  s_e = SD_a L^H_e(a) over candidate held losses
+  For fold f:  â^H_{e,-f} = argmin_a L_{e,H\f}(a)   (select on the OTHER 4 folds).
+  Cross-fitted held reference loss:  L^{H,CF}_{e,ref} = (1/F) Σ_f L_{e,H_f}( â^H_{e,-f} ).
+Spread — PRIMARY standardizer [v2/M2/PM-RATIFY #2; v3 terminology]:
+  s_e = SD_{a∈A_e} L^H_e(a) = "candidate-loss dispersion standardizer" (candidate-spread SD; NOT called
+  "robust" — plain SD is only less sensitive to a single extreme candidate than max-min). Computed on the
+  COMPLETE fixed 648-candidate set, from held patient-level mean losses, ONE cohort scale shared across all
+  policies/budgets/seeds, after the held view opens; NO cross-fit (each candidate is a pre-frozen fixed
+  function — winner's curse enters only at argmin/argmax), never re-selecting a subset from a policy result.
 Policy pick:   â_{π,B,e}; CONVENTION at B=0 deploy the acquisition-view pick a*C_e.
 
-Transport gap: T_e        = L^H_e(a*C_e) - L^H_e(a*H_e)          ( = R at B=0 ; L^H via cross-fit )
-Held regret:   R_{e,π,B}  = L^H_e(â_{π,B,e}) - L^H_e(a*H_e)      ( >= 0 )
-Active gain:   G_{e,π,B}  = R_{e,P0,B} - R_{e,π,B}
-Standardized (ONE consistent robust scale s_e):  R~=R/s_e ; T~=T_e/s_e ; G~=G/s_e   (D_e-scaled versions
-             reported as a secondary robustness view; ε_e=0.25·s_e and τ_G=0.25 share the s_e scale).
+Transport gap: T^CF_e        = (1/F) Σ_f [ L_{e,H_f}(a*C_e)      − L_{e,H_f}(â^H_{e,-f}) ]   ( = R at B=0 )
+Held regret:   R^CF_{e,π,B}  = (1/F) Σ_f [ L_{e,H_f}(â_{π,B,e})  − L_{e,H_f}(â^H_{e,-f}) ]   ( MAY be < 0 )
+Active gain:   G_{e,π,B}     = R^CF_{e,P0,B} − R^CF_{e,π,B}   (reference term cancels; paired difference on
+                              the SAME held patients).
+Standardized (ONE cohort scale s_e):  R~=R^CF/s_e ; T~=T^CF_e/s_e ; G~=G/s_e   (ε_e=0.25·s_e and τ_G=0.25
+              share the s_e scale; the D^fin_e-scaled versions are a SECONDARY robustness view).
 
-DEGENERACY GUARD [v2/B1]: if s_e (and D_e) is not bounded away from 0 relative to the patient-cluster
+SECONDARY finite-held oracle [v3; descriptive; C86D / extreme-action alignment; NOT in the primary gate]:
+  a^{H,fin}_e = argmin_a L^H_e(a) (in-sample finite argmin) with its realized finite-held regret
+  L^H_e(â_{π,B,e}) − L^H_e(a^{H,fin}_e) ≥ 0 — NON-NEGATIVE but OPTIMISTIC for population generalization.
+  D^fin_e = max_a L^H_e(a) − min_a L^H_e(a) = SECONDARY range / degeneracy diagnostic (no cross-fit
+  "worst oracle"). DUAL REPORTING: cross-fitted reference = PRIMARY population estimand; in-sample finite
+  argmin = SECONDARY realized extreme-action geometry.
+
+DEGENERACY GUARD [v2/B1]: if s_e (and D^fin_e) is not bounded away from 0 relative to the patient-cluster
 bootstrap SE of L^H (all candidates within held-loss noise), cohort e is VACUOUS = "no selection signal".
 A vacuous cohort counts as NON-PASS for the all-cohorts IUT and CAPS the program verdict at WITH-CAVEAT /
 INCONCLUSIVE — it may only DOWNGRADE, never be silently dropped (reconciles D-20 metadata-inclusion with
@@ -661,13 +743,13 @@ SPEC 4.B — ENDPOINT REGISTRY (frozen; PRIMARY = E1 & E5a)
 E1  Cohort-level standardized selection regret  R~_{e,π,B} = R_{e,π,B}/s_e  (curve over budget)   PRIMARY
 E2  Patient-level held loss of the pick          L^H_e(â_{π,B,e})
 E3  Patient-tail CVaR of the pick                CVaR_{0.10}[ lbar(â,j) : j in P^H_e ]  (worst-decile)
-E4  Prob. of ε-near-optimal selection            P_near = Pr_{seeds}[ L^H(â)-L^H(a*H_e) <= ε_e ],
-                                                 ε_e = 0.25 * s_e     (M=1 split; over K policy seeds)
+E4  Prob. within ε of the CROSS-FIT held-        P_near = Pr_{seeds}[ R^CF_{e,π,B} <= ε_e ],  [v3 rename]
+    selection reference (NOT "near-optimal")     ε_e = 0.25 * s_e     (M=1 split; over K policy seeds)
 E5  Active-minus-passive label efficiency
    (a) G~_{e,π,B} = G_{e,π,B}/s_e                                                                   PRIMARY
    (b) Budget-equivalence factor  ρ_{e,π,B} = min{ B'/B : R_{e,P0,B'} <= R_{e,π,B} }
-E6  FULL acquisition-view ceiling                T_e and T~_e = T_e/s_e  ( = R~ at B=0 )  [C86D reproduction]
-    (all standardized by the robust s_e [v2/M2]; D_e-scaled versions reported secondarily)
+E6  FULL acquisition-view ceiling                T^CF_e and T~_e = T^CF_e/s_e  ( = R~ at B=0 )  [C86D repro]
+    (standardized by the candidate-dispersion s_e [v3]; D^fin_e-scaled version reported secondarily)
 ```
 
 ### 4.3 Budget ladder (pre-registered from label-cost realism)
@@ -952,7 +1034,7 @@ Sampling rate, window, normalization, lead order, zoo cardinality/structure, can
 **Purpose.** Before C87E reads any real target outcome, the *exact same* selection/estimation/inference code is exercised on synthetic worlds with known ground truth. Three controls: **POS** (must *detect* success), **NEG** (must *not manufacture* success), **CALIB** (estimators unbiased + patient-cluster bootstrap at nominal coverage). All three must pass; a failure is an **engineering blocker, never a scientific result about ECG.** No control parameter depends on any real model outcome.
 
 ### 6.0 What is validated / why it is leak-free
-The controls validate the machinery producing `a*C_e, a*H_e, T_e, R_{e,π,B}, G_{e,π,B}` and their patient-clustered CIs on data where answers are known a priori. They run on a **synthetic loss tensor** from frozen constants; they never touch PhysioNet fields, never train a model, never read a real target outcome. A real NULL is credible only if the pipeline provably can detect a planted positive (POS/CALIB) and provably does not invent one (NEG).
+The controls validate the machinery producing `a*C_e`, the cross-fit held-selection reference, `T^CF_e, R^CF_{e,π,B}, G_{e,π,B}` and their patient-clustered CIs on data where answers are known a priori. They run on **synthetic prediction+label objects** (losses DERIVED from them, per §6.1) from frozen constants; they never touch PhysioNet fields, never train a model, never read a real target outcome. A real NULL is credible only if the pipeline provably can detect a planted positive (POS/CALIB) and provably does not invent one (NEG).
 
 ### 6.1 Shared synthetic generator (one simulator, three parameterizations) [v2/B4]
 The generator emits, per (candidate a, record r), a full **PREDICTION object** together with a KNOWN true
@@ -979,6 +1061,11 @@ GENERATIVE MODEL (frozen skeleton; per-world settings in 6.2/6.3/6.4)
     candidate's (p_{H,a,r}, yhat_{H,a,r}) on that record; plus the cost-free acquisition-view proxy a*C_e.
     It NEVER sees un-queried held labels/losses. Competence structure {q,g} is planted per world (6.2/6.3).
 ```
+**[v3/PM-RATIFY #1]** This is the PRIMARY single-task binary generator: the true label `y(r)∈{0,1}` is the
+selected §2 task and a primary query returns ONLY `y_task(r)` (the primary MODEL SELECTOR/CODA path consumes
+the BINARY projection `yhat_{H,a,r}` / `p_{H,a,r}`, never other SNOMED labels). Held references, T^CF, R^CF, G
+are computed by the SPEC 4.A held-SELECTION cross-fit (R^CF may be negative). A multi-hot SNOMED generator is
+a SECONDARY robustness parameterization only and never drives the primary controls or gate.
 Structural params matching C87E (via 6.5, not any outcome): candidate cardinality `A`, cohorts `E`, budget grid, patients-per-cohort, records-per-patient. Effect/correlation constants (`phi, rho, kappa`, separations, transport magnitudes) are frozen a priori. `phi` creates genuine label-efficiency structure (only D=1 records distinguish candidates); equal `mu_{H,a}` removes it (null); `rho, kappa` make clustering matter.
 
 ### 6.2 POS — recover positive transport-consistency AND positive active gain
