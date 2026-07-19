@@ -49,7 +49,7 @@ DISPATCHER_FILE_SHA256 = {
     "selection_worker.py": "e69e112c91a59656769a4d64c2dd8516eb39cc10bfa9c72ace28d695ab29e57f",
 }
 FIELD_TRAINING_MANIFEST_SHA256 = (
-    "710864fd7f923dd4c788774aa7d56e7f043cc8867e5acfc0e1a7ca520bf7147a"
+    "c3995450b38d90c7a808052f15bc9f72757ed2bbab307f820028d3e2e5e9b20f"
 )
 METHOD_REGISTRY = ("P0", "A1", "A2H")   # no add, no delete
 ACTIVE_METHODS = ("A1", "A2H")          # realized max-T family = ACTIVE_METHODS x FINITE_BUDGETS

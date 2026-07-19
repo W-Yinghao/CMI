@@ -116,7 +116,7 @@ def evaluate(freezes: Mapping, held_field: Mapping, target_cohort: Mapping,
 
     active = list(K.ACTIVE_METHODS)
     finite = list(K.FINITE_BUDGETS)
-    endpoints, per_cohort, full_ceiling = {}, {}, {}
+    endpoints, per_cohort, full_ceiling, inference_detail = {}, {}, {}, {}
 
     def cohort_stat(method, budget, c_targets):
         tr = per[(method, budget)]["target_regret"]
@@ -176,7 +176,30 @@ def evaluate(freezes: Mapping, held_field: Mapping, target_cohort: Mapping,
                 stab_q[(am, b)] = AN.stability_qualification(eff)["qualified"]
                 p0_vals = [per[("P0", b)]["target_regret"][t] for t in common]
                 a_vals = [per[(am, b)]["target_regret"][t] for t in common]
-                tail_q[(am, b)] = AN.tail_qualification(p0_vals, a_vals)["qualified"]
+                tq = AN.tail_qualification(p0_vals, a_vals)
+                tail_q[(am, b)] = tq["qualified"]
+                # complete inference detail frozen for independent re-derivation of the gate
+                hyp = maxt.get("hypotheses", {}).get((am, b), {})
+                inference_detail[f"{cohort}|{am}|{b}"] = {
+                    "observed_t": hyp.get("observed"),
+                    "adjusted_maxt_p": hyp.get("adjusted_p"),
+                    "critical": maxt.get("critical"),
+                    "maxt_seed": maxt.get("seed"), "sign_mode": maxt.get("sign_mode"),
+                    "n_signs": maxt.get("n_signs"), "family": maxt.get("family"),
+                    "family_sha256": maxt.get("family_sha256"),
+                    "mean_effect": float(eff.mean()),
+                    "favorable_fraction": AN.favorable_fraction(eff),
+                    "worst_target": AN.worst_target(eff),
+                    "cell_effects": [float(c) for c in cell_means],
+                    "loto": AN.loto_preservation(eff),
+                    "tail_effects": {str(a): float(v) for a, v in tq["tail_effects"].items()},
+                    "mean_qualified": mean_q[(am, b)], "tail_qualified": tail_q[(am, b)],
+                    "stability_qualified": stab_q[(am, b)], "n_targets": int(len(eff)),
+                    # raw cluster so max-T (observed_t / adjusted_maxt_p) is recomputable from the
+                    # committed artifact alone (the whole cohort family shares `common_targets`)
+                    "effect_vector": [float(x) for x in eff],
+                    "common_targets": [list(t) for t in common],
+                }
 
         per_cohort[cohort] = {"mean": mean_q, "tail": tail_q, "stability": stab_q}
 
@@ -214,5 +237,5 @@ def evaluate(freezes: Mapping, held_field: Mapping, target_cohort: Mapping,
     classification = AN.classify(per_cohort, full_ceiling, active_gain, blocker=blocker)
     return {"endpoints": endpoints, "per_cohort_qualification": per_cohort,
             "full_ceiling": full_ceiling, "active_gain": active_gain,
-            "classification": classification,
+            "classification": classification, "inference_detail": inference_detail,
             "materiality_margin": K.MATERIALITY_MARGIN, "maxt_draws": K.MAXT_DRAWS}

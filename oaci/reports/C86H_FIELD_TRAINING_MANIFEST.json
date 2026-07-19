@@ -31,7 +31,8 @@
     "checkpoint_cadence": {"epochs": "range(4,200,5)", "count_per_stage2_regime": 40,
                            "checkpoint_every": 5, "stage2_epochs": 200,
                            "erm_checkpoint": "epoch 199 (single)"},
-    "candidate_id_rule": "c84_ + SHA256(canonical_json{milestone:C84,dataset,panel,seed,level,regime,epoch})[:24]",
+    "candidate_id_rule": "c86_ + SHA256(interface_id | field_training_manifest_sha256 | panel | seed | level | regime | epoch)[:24]",
+    "candidate_id_namespace": "C86-specific; the fresh 11-channel weights are disjoint from the historical c84_ 20-channel candidate-ID namespace; the SAME candidate ID is used for a candidate across BOTH untouched cohorts",
     "canonical_candidate_index": "0=ERM ; 1..40=OACI (epochs 4,9,...,199) ; 41..80=SRC (epochs 4,9,...,199)",
     "tie_rule": "first_canonical_candidate_index",
     "unique_trained_models": 648,
@@ -64,7 +65,14 @@
                              "events": ["left_hand", "right_hand"]},
     "candidate_retention_from_C84_outcomes": false,
     "fresh_training_required": true,
-    "fresh_training_note": "C86 re-declares the SAME 81-candidate zoo STRUCTURE on the 11-channel source+target common montage and does NOT reuse C84's 20-channel trained outcomes; the C86H field is trained FRESH on the 11-channel interface"
+    "fresh_training_note": "C86 re-declares the SAME 81-candidate zoo STRUCTURE on the 11-channel source+target common montage and does NOT reuse C84's 20-channel trained outcomes; the C86H field is trained FRESH on the 11-channel interface",
+    "eleven_channel_retarget_requirements": [
+      "shallow_convnet in_chans 20 -> 11 in every _model_factory (training-build + checkpoint-load-for-instrumentation)",
+      "MOABB MotorImagery paradigm channels = the 11 INTERFACE_CHANNELS (not the 20-ch EXPECTED_CHANNELS)",
+      "all shape guards (array.shape[1]==20 in _epochs_array_and_interface / target instrumentation) -> 11",
+      "regenerate montage_sha256, model-init hashes, and INTERFACE_ID-derived identities for 11 channels",
+      "ds007221 has NO MOABB class -> requires a new OpenNeuro/NEMAR BIDS (mne-bids) adapter to the 11-ch interface; Brandl2020 is native MOABB and reuses the MotorImagery path"
+    ]
   },
 
   "targets": {

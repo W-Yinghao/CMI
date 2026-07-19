@@ -27,12 +27,26 @@ from ..c86d.server import start_server_process
 from ..c86d import selection_worker
 from ..c86d.policies import chain_seed
 from . import contract as K
-from . import field_spec, held_eval
+from . import batch_h1, field_spec, held_eval
 
 AUTHORIZATION_TOKEN = "授权 C86H"
 REAL_FIELD_ROOT = ("/projects/EEG-foundation-model/yinghao/"
                    "oaci-c86h-untouched-confirmation-field-v1")
 _CANON_CTX = field_spec.field_context_keys()
+
+
+def _registered_target_cohort() -> dict:
+    """The registered 53-target mapping (interface_name, int_subject) -> cohort."""
+    tc = {}
+    for cohort, spec in K.COHORTS.items():
+        for subj in spec["subjects"]:
+            n = int(subj) if str(subj).isdigit() else int(str(subj).split("-")[-1])
+            tc[(cohort, n)] = cohort
+    return tc
+
+
+def _registered_cohort_dataset() -> dict:
+    return {cohort: cohort for cohort in K.COHORTS}
 
 
 # ---------------------------------------------------------------------------- F0
@@ -167,14 +181,42 @@ def _load_and_verify_freezes(fdir, index, chains, methods, expected_targets) -> 
     return freezes
 
 
-# ---------------------------------------------------------------------------- H2/H3
-def _h2_worker(conn, held_root, fdir, index, chains, methods, expected_targets,
-               target_cohort, cohort_dataset):
-    """Runs in a FRESH spawned process with NO query-server / sealed-oracle capability.
-    Verifies every freeze BEFORE opening the held-evaluation field, then evaluates."""
+# ------------------------------------------------------- batch H1 (label-independent) / H2
+def _h1a_worker(conn, pool_root, orders_dir, methods, chains):
+    """LABEL-FREE process: capability-isolated order generation (only the unlabeled pool +
+    orders_dir; NO oracle/contribution path is passed to this process)."""
     try:
-        freezes = _load_and_verify_freezes(fdir, index, chains, methods, expected_targets)
-        held = field_spec.load_held_field(held_root)      # opened only after verify returns
+        pool_sizes = batch_h1.run_h1a(pool_root, orders_dir, methods, list(chains))
+        conn.send(("ok", {str(k): v for k, v in pool_sizes.items()}))
+    except Exception:
+        import traceback
+        conn.send(("err", traceback.format_exc()))
+    finally:
+        conn.close()
+
+
+def _h1b_worker(conn, orders_dir, oracle_root, contrib_root, out_dir, methods, chains):
+    """SEALED process: read the label-free orders + acquisition labels/contributions once and
+    batch-evaluate the composite selections; emit selections + content hashes only."""
+    try:
+        man = batch_h1.run_h1b_sealed(orders_dir, oracle_root, contrib_root, out_dir,
+                                      methods, list(chains))
+        conn.send(("ok", man))
+    except Exception:
+        import traceback
+        conn.send(("err", traceback.format_exc()))
+    finally:
+        conn.close()
+
+
+def _h2_batch_worker(conn, freeze_dir, orders_dir, held_root, expected_targets, methods,
+                     chains, target_cohort, cohort_dataset):
+    """H2 process (no server/oracle capability): verify every H1 freeze AND reconcile it
+    against the label-free H1a orders BEFORE opening held; then evaluate."""
+    try:
+        batch_h1.verify_h1(freeze_dir, orders_dir, expected_targets, methods, list(chains))
+        freezes = batch_h1.load_selections(freeze_dir, methods, expected_targets, list(chains))
+        held = field_spec.load_held_field(held_root)
         result = held_eval.evaluate(freezes, held, target_cohort, cohort_dataset)
         conn.send(("ok", result))
     except Exception:
@@ -184,19 +226,20 @@ def _h2_worker(conn, held_root, fdir, index, chains, methods, expected_targets,
         conn.close()
 
 
-def _run_h2_evaluate(field_root, fdir, index, chains, methods, expected_targets,
-                     target_cohort, cohort_dataset) -> dict:
-    held_root = os.path.join(field_root, "held_evaluation_field")
+def _spawn_recv(target, args):
     ctx = mp.get_context("spawn")
     parent, child = ctx.Pipe()
-    proc = ctx.Process(target=_h2_worker,
-                       args=(child, held_root, fdir, index, chains, methods,
-                             expected_targets, target_cohort, cohort_dataset))
+    proc = ctx.Process(target=target, args=(child,) + tuple(args))
     proc.start()
-    status, payload = parent.recv()
+    child.close()                       # so parent.recv() EOFs if the worker dies before send()
+    try:
+        status, payload = parent.recv()
+    except EOFError:
+        proc.join()
+        raise RuntimeError(f"C86H worker died before sending a result (exit {proc.exitcode})")
     proc.join()
     if status == "err":
-        raise RuntimeError(f"C86H H2 evaluation failed: {payload}")
+        raise RuntimeError(payload)
     return payload
 
 
@@ -227,35 +270,70 @@ def run_confirmation(field_root, out_dir, target_cohort, cohort_dataset,
             raise RuntimeError(f"real cohort set {set(cohort_dataset)} != registered {set(K.COHORTS)}")
         if len(target_cohort) != K.N_TARGETS:
             raise RuntimeError(f"real target count {len(target_cohort)} != registered {K.N_TARGETS}")
-    chains = list(range(K.ACTIVE_CHAINS)) if chains is None else list(chains)
+    if chains is None:
+        chains = list(range(K.ACTIVE_CHAINS))
+    elif not synthetic:
+        raise RuntimeError("real confirmation must use the full registered chain schedule "
+                           "range(2048); caller-reduced chains are forbidden")
+    else:
+        chains = list(chains)
     os.makedirs(out_dir, exist_ok=True)
     pre = f0_preflight(field_root)
     if not pre["bindings"]["ok"]:
         raise RuntimeError(f"C86H F0 binding failure: {pre['bindings']['mismatches']}")
-    methods, budgets = list(K.METHOD_REGISTRY), list(K.BUDGET_GRID)
-    fdir, index = _run_h1_selection(field_root, out_dir, methods, budgets, chains)
-    # H2 runs in a separate spawned process (no server/oracle capability); it verifies every
-    # freeze BEFORE opening the held split (§3 / §13.2 three-stage isolation).
-    result = _run_h2_evaluate(field_root, fdir, index, chains, methods,
-                              sorted(target_cohort), target_cohort, cohort_dataset)
+    methods = list(K.METHOD_REGISTRY)
+    pool_root = os.path.join(field_root, "acquisition_unlabeled_pool")
+    oracle_root = os.path.join(field_root, "acquisition_label_oracle")
+    contrib_root = os.path.join(field_root, "query_contribution_store")
+    held_root = os.path.join(field_root, "held_evaluation_field")
+    orders_dir = os.path.join(out_dir, "orders")
+    h1_dir = os.path.join(out_dir, "h1")
+    exp = sorted(target_cohort)
+
+    # H1a: label-free batch order generation in a CAPABILITY-ISOLATED spawned process
+    # (only the unlabeled pool + orders_dir; no sealed roots reach it)
+    _spawn_recv(_h1a_worker, (pool_root, orders_dir, methods, chains))
+    # H1b: SEALED spawned process (labels in, selections out)
+    h1_manifest = _spawn_recv(_h1b_worker,
+                              (orders_dir, oracle_root, contrib_root, h1_dir, methods, chains))
+    # H2: separate spawned process (no server/oracle capability); verify + RECONCILE against the
+    # label-free H1a orders BEFORE opening held
+    result = _spawn_recv(_h2_batch_worker,
+                         (h1_dir, orders_dir, held_root, exp, methods, chains,
+                          target_cohort, cohort_dataset))
+
+    # H4: complete + atomic immutable terminal result (fresh attempt root, staging + rename)
     manifest = {
         "stage": "C86H_H4_TERMINAL_RESULT", "confirmatory": True,
         "held_opened_after_freeze_verification": True,
         "method_registry": methods, "n_chains": len(chains),
-        "n_freezes": len(index),
+        "h1_files": h1_manifest["n_files"],
         "classification": result["classification"],
         "endpoints": result["endpoints"],
         "full_ceiling": result["full_ceiling"],
         "active_gain": result["active_gain"],
+        "inference_detail": result.get("inference_detail"),
         "materiality_margin": K.MATERIALITY_MARGIN,
         "maxt_draws": K.MAXT_DRAWS,
         "pooled_dataset_pvalue": K.POOLED_DATASET_PVALUE,
+        "h1_manifest_files": h1_manifest["file_sha256"],
+        "bindings": pre["bindings"],
         "stop_rule": "terminal: one field, one confirmation, one audit, stop; no auto-C87",
         "seconds": round(time.time() - t0, 2),
     }
-    staging = out_dir + ".result.json"
+    result_path = os.path.join(out_dir, "C86H_TERMINAL_RESULT.json")
+    if os.path.exists(result_path):                        # immutability: C86H is one-shot
+        raise RuntimeError(f"C86H terminal result already exists at {result_path}; refusing to "
+                           "overwrite (terminal: one field, one confirmation, one audit, stop)")
+    blob = json.dumps(manifest, indent=2, ensure_ascii=False, sort_keys=True)
+    digest = hashlib.sha256(blob.encode()).hexdigest()
+    staging = result_path + ".staging"
     with open(staging, "w") as fh:
-        json.dump(manifest, fh, indent=2, ensure_ascii=False)
+        fh.write(blob)
+    os.replace(staging, result_path)                       # atomic finalize
+    with open(result_path + ".sha256", "w") as fh:         # persisted integrity digest (sidecar)
+        fh.write(digest + "  C86H_TERMINAL_RESULT.json\n")
+    manifest["result_sha256"] = digest
     return manifest
 
 
@@ -266,15 +344,14 @@ def execute(authorization: str, output_root: str | None = None):
     bindings = K.verify_bindings()
     if not bindings["ok"]:
         raise RuntimeError(f"C86H binding verification failed: {bindings['mismatches']}")
+    from . import f1f2
     if not os.path.isdir(REAL_FIELD_ROOT):
-        raise RuntimeError(
-            "C86H untouched confirmation field not generated. Fresh 11-channel zoo training "
-            "on Lee2019_MI/Cho2017/PhysionetMI, target-unlabeled predictions on "
-            "Brandl2020/ds007221, and the label-blind split are a separately authorized "
-            "step (real EEG/label access), not built in this preparation package.")
-    raise RuntimeError(
-        "C86H F1/F2 real field generation is wired to the authorized training modules under "
-        "the authorized-execution build after the §13 pre-execution review; not in prep.")
+        f1f2.f1_train_zoo(authorization, REAL_FIELD_ROOT)     # F1 -> raises (authorized step)
+        f1f2.f2_generate_predictions(authorization, REAL_FIELD_ROOT)  # F2 -> raises
+    # Under authorization the flow is: F1 train zoo -> F2 predictions+split -> run_confirmation.
+    return run_confirmation(REAL_FIELD_ROOT, output_root or (REAL_FIELD_ROOT + ".run"),
+                            _registered_target_cohort(), _registered_cohort_dataset(),
+                            authorization=authorization, synthetic=False)
 
 
 # --------------------------------------------------------------- synthetic e2e (no real data)

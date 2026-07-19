@@ -1,120 +1,111 @@
-# C86H — Integrated Terminal Runner: readiness object (compact)
+# C86H — Production implementation patch: readiness object (compact)
 
 **Status**
 
 ```text
-C86H_INTEGRATED_TERMINAL_RUNNER_IMPLEMENTED (prep) ; SYNTHETIC E2E + RESOURCE BENCHMARK PASS
-C86H_REAL_EXECUTION_NOT_AUTHORIZED  (separate 授权 C86H required)
+C86H_PRODUCTION_PATCH_IMPLEMENTED (batch H1a/H1b, compact freeze, Semantics B, C86 candidate IDs,
+  full inference detail, atomic terminal result, real-path enforcement)
+C86H_F1F2_IS_THE_AUTHORIZED_DATA_ACCESS_STEP  (implemented as gated orchestration; not validatable in prep)
+C86H_REAL_EXECUTION_NOT_AUTHORIZED  (separate 授权 C86H required) ; STOP_BEFORE_DATA_ACCESS holds
 C87_NOT_AUTHORIZED ; MANUSCRIPT_WORK_NOT_AUTHORIZED
 ```
 
-The five requested items are complete; no real Brandl2020/ds007221 EEG or label was touched.
+Mapped to the five requested production conditions. No real Brandl/ds007221 EEG/label touched.
 
-## 1. Integrated runner — `oaci/active_testing/c86h/runner.py`
+## Condition 2 — C86-specific candidate IDs  ✔
 
-One gated entrypoint, F0→H4, physical barriers not extra authorization rounds:
+`field_spec.c86_candidate_id` = `c86_ + SHA256(interface_id | field_training_manifest_sha256 |
+panel | seed | level | regime | epoch)[:24]`; same ID for a candidate across BOTH cohorts,
+disjoint from the historical `c84_` 20-channel namespace. Manifest `candidate_id_rule` updated.
 
-```text
-F0 preflight   : verify_bindings (V3 manifest + field/training manifest + registry tables +
-                 frozen C86D dispatcher blobs incl. server.py + selection_worker.py) — outcome-free
-F1 zoo train   : fresh 11-ch 648-model zoo (real: gated, authorized modules)   [not built in prep]
-F2 predict+split: target-unlabeled predictions + locked label-blind split       [not built in prep]
-H1 selection   : reuse frozen C86D SPAWN server + PATH-BLIND worker (2,048 chains)
-H2 held-eval   : SEPARATE spawned process (no server/oracle capability); verifies EVERY freeze
-                 BEFORE opening the held split; endpoints
-H3 inference   : within-cohort max-T (C86_MAXT_V1 seed; Brandl exhaustive 2^16, ds007221 MC 65536;
-                 plus-one adjusted p) + tail CVaR + LOTO; formal C86-A..E + L1..L4 + Level-2 descriptor
-H4 result      : one immutable result manifest; stop (no auto-C87)
-```
+## Condition 3 — production-equivalent compact H1  ✔
 
-`execute()` and `run_confirmation()` BOTH refuse the real path without `授权 C86H`; a synthetic
-run must present a synthetic field and may never target the real field root.
-
-## 2. Synthetic production-equivalent end-to-end test
-
-`runner.run_synthetic` drives F0→H4 over a synthetic field in the exact C86 on-disk format
-(pool probs, sealed oracle labels.csv, sealed contribution store, sealed held split). Tests
-(`oaci/tests/test_c86h_runner.py`): full e2e (two-level output, held-after-verify, Cartesian
-completeness), freeze tamper guard, gated refusals, benchmark. NO real EEG/label.
-
-## 3. Outcome-free resource benchmark (synthetic arrays; opened no real data)
+The ~93M-RPC per-query server is replaced by a **label-independent batch** path (the PM's
+design): `batch_h1.run_h1a` generates every (target, method, chain) order from UNLABELED
+probabilities; a SEALED `run_h1b_sealed` reads each target's acquisition labels/contributions
+once and batch-evaluates the composite via the FROZEN `freeze_budget`. Selections are
+**byte-identical** to the per-RPC C86D worker — verified: 0 mismatches across all AVAILABLE
+(method,target,chain,budget) cells (`test_batch_h1_equals_per_rpc_worker`). Compact freeze:
+one NPZ per (target,method) = **53×3 = 159 files** + a content-addressed H1 manifest (not
+325,632 JSONs). The resource benchmark runs the REAL run_h1a/run_h1b_sealed with disk
+serialization (no in-memory placeholder):
 
 ```text
-selection (frozen dispatcher inner loop) : 0.174 s / selection  (A2H O(NM^2) dominates)
-full campaign 53 targets x 2,048 chains x 3 methods : ~15.7 CPU-core-hours (single-core);
-   embarrassingly parallel per target -> ~18 min wall on 53 cores / ~1 h on 16 cores
-selection-freeze storage                 : 325,632 freeze files, ~0.68 GiB (rough)
-max-T per cohort                         : Brandl 1.15 s (exhaustive 2^16) ; ds007221 1.47 s (MC 65536)
-peak RAM (per target)                    : ~0.04 GiB   (envelope 128 GiB)
-DECISION                                 : FEASIBLE. If ever infeasible vs envelope ->
-                                           STOP_BEFORE_DATA_ACCESS (never reduce the chain count).
+per target (pool 300 = ds007221 scale, 2,048 chains, 3 methods):
+  H1a order gen 203 s ; H1b sealed contribution eval 1,239 s ; total ~1,442 s
+  compact freeze bytes/target ~30 MiB ; order bytes/target ~28 MiB
+full campaign 53 targets:
+  ~21.2 CPU-core-hours serial ; ~0.4 h wall on 53 cores (embarrassingly parallel per target)
+  compact freeze storage ~1.56 GiB (159 files) + orders ~1.6 GiB  (<< 640-768 GiB scratch envelope)
+  max-T Brandl 1.25 s (exhaustive 2^16) / ds007221 1.59 s (MC 65536) ; peak RAM 2.3 GiB (<< 128 envelope)
+DECISION: FEASIBLE. (The compact schema keeps freeze storage ~1.6 GiB, not the tens of GiB a
+  per-(target,method,chain,budget) JSON scheme would produce.)
 ```
 
-## 4. Exact field/training manifest — `oaci/reports/C86H_FIELD_TRAINING_MANIFEST.json`
+## Condition 4 — Semantics B fix  ✔
 
-Content-addressed (sha256 pinned in `contract.py`). Binds: legacy sources Lee2019_MI /
-Cho2017 / PhysionetMI; panels A/B (12 train + 4 held-out source-audit each); seeds {5,6};
-levels {0,1}; 81 = 1 ERM + 40 OACI + 40 SRC; Adam wd0 frozen EngineConfig; 40-checkpoint
-cadence range(4,200,5); canonical candidate index 0..80; same 648-model zoo x 2 cohorts =
-1296 artifacts; **fresh 11-channel training (C84's 20-channel outcomes NOT retained)**;
-integer canonical target ids (Brandl 1..16, ds007221 37..73); ds007221 deterministic
-inclusion (sub-37..73, hybrid, left/right); resource envelope.
+ONE physical trial → ONE label → its 8 context-specific probability/contribution rows
+(`field_spec._synth_labels` once per target; `_synth_probs` per context on the shared labels;
+oracle + held share them). All randomness is SHA-seeded (`_sha_seed`), never Python `hash()`.
+Verified: `test_semantics_b_one_label_per_physical_trial`.
 
-## 5. Three fixes (from the prior review) + adversarial red-team fixes
+## Condition 5 — complete + atomic terminal result  ✔
 
-The three PM-requested fixes: (a) `verify_bindings` opens+hashes the V3 manifest (==c6b7e490…)
-and replays schema/status/gate/cohort identities; (b) Level-2 descriptor computed from real
-secondary objects (FULL ceiling + C86D CROSSED margins), decoupled from the gate, POLICY_LIMITED
-fixed to NOT_IDENTIFIABLE; (c) max-T seed = `SHA256(C86_MAXT_V1|dataset|registered_family)`,
-Brandl exhaustive / ds007221 MC, plus-one adjusted p.
+`held_eval.evaluate` freezes full `inference_detail` per (cohort, active method, budget):
+observed t, adjusted max-T p, critical, seed + family digest + sign mode + n_signs, mean
+effect, favorable fraction, worst target, 8 cell effects, all-alpha CVaR effects, LOTO, and the
+mean/tail/stability qualification booleans — so the formal gate is independently re-derivable.
+H4 writes `C86H_TERMINAL_RESULT.json` atomically (staging + `os.replace`), self-hashed
+(`result_sha256`), carrying classification + frontier + descriptor + endpoints + full ceiling +
+inference detail + H1 file hashes + bindings.
 
-An adversarial red-team (6 independent skeptics) then found and I fixed **2 blockers + 6 majors +
-nits** — disclosed in full:
+Real-path enforcement (`run_confirmation`, non-synthetic): forces `chains == range(2048)`
+(rejects caller-reduced chains), binds cohort set == registered COHORTS and target count == 53,
+realpaths the field root, and refuses without `授权 C86H` before opening anything.
+
+## Condition 1 — real F1/F2  (implemented as gated orchestration; validation IS the authorized step)
+
+`f1f2.py` binds the EXACT existing training entrypoints (`train_paired_cell`, `train_level`,
+`materialize_paired_bundles`, `load_source_panel_views`, engine `train_stage1/2`) and defines
+the content-addressed `real_field_manifest_schema` F2 must emit (source/target raw-file hashes,
+648 weight hashes, 81 candidate IDs/context, 424 prediction contexts, split + support). It is
+GATED: `f1_train_zoo` / `f2_generate_predictions` refuse without `授权 C86H`.
+
+**Honest boundary (surfaced, not hidden):** real F1/F2 cannot be *validated* in preparation.
+Discovery confirmed the entire training stack is hard-wired to **20 channels** (`in_chans=20`
+in every `_model_factory`, the MOABB paradigm, shape guards, and the montage/model-init
+hashes), and **ds007221 has no adapter** (OpenNeuro/NEMAR BIDS — needs mne-bids). The 11-channel
+retarget deltas and the ds007221 BIDS adapter are recorded in the manifest
+(`eleven_channel_retarget_requirements`) and `f1f2.ELEVEN_CH_RETARGET` / `F2_TARGET_ADAPTERS`,
+but producing the 648 real weights + 424 predictions requires real EEG + GPU access — i.e. this
+IS the `STOP_BEFORE_DATA_ACCESS` step. F1/F2 real training/adaptation is validated only under
+`授权 C86H`, and the authorized build orchestrates the bound frozen entrypoints with the 11-ch
+config; it does not fork them.
+
+## Adversarial verification of the production patch
+
+An independent red-team (3 skeptics) confirmed batch↔per-RPC selections byte-identical
+(720/720 cells) and Semantics B / candidate IDs / real-path / F1/F2 gating all correct, and
+found production defects — all now fixed and re-tested:
 
 ```text
-BLOCKER  freeze verification was a dead 'or True' no-op with no completeness check
-         -> expected-target registry + Cartesian completeness + duplicate rejection
-BLOCKER  verify_bindings did not hash server.py / selection_worker.py (the H1 isolation code)
-         -> both now content-addressed
-MAJOR    run_confirmation (the path that opens real data) was ungated; token only on execute()
-         -> token + synthetic gating enforced on run_confirmation
-MAJOR    LOTO was folded into mean-qualification (would demote a true C86-B to C86-C)
-         -> LOTO scoped to a separate C86-A-only stability check
-MAJOR    FULL-ceiling near-opt used per-context-then-average, not C86D indicator-first geometry
-         -> per-replicate mean-8-context gap then threshold (matches run_d2)
-MAJOR    descriptor 'robust' equalled the gate's mean predicate (table-lookup) and lacked tail
-         -> C86D CROSSED margins (mean+tail+near-opt, DESC_TAU=0.02/DESC_NEAROPT=0.05), decoupled
-MAJOR    non-AVAILABLE budgets escaped validation; FULL not required AVAILABLE; vacuous FULL invariance
-         -> status whitelist + FULL-AVAILABLE + INPUT_UNAVAILABLE validity + per-(tgt,ctx,chain)
-            all-methods FULL invariance
-MINOR    H2 shared a process with the H1 launcher (sealed-oracle reach)
-         -> H2 runs in a separate spawned process with no server/oracle capability
-NIT      max-T zero-variance asymmetry + family np.stack misalignment + residual schema checks
-         -> shared _t_vec convention; common aligned target set; q_seq/lure/receipt checks
+MAJOR  verify_h1 did not reconcile the H1b freeze against the label-free H1a orders
+       -> H1 verification now RECONCILES freeze.orders/q_seq/seeds == H1a orders (label-independence
+          audit); H1a moved to a CAPABILITY-ISOLATED spawned process (only pool + orders_dir)
+MAJOR  terminal result_sha256 never persisted + no overwrite guard
+       -> digest written to a .sha256 sidecar; H4 refuses to overwrite an existing result (one-shot)
+COMPLETENESS  max-T significance committed as trusted scalars
+       -> inference_detail freezes the raw per-target effect_vector + common_targets so max-T is
+          recomputable from the committed artifact alone
+MINOR  _spawn_recv leaked the child pipe end (hang on abnormal worker death) -> child.close() + EOF->RuntimeError
+MINOR  verify_h1 gaps -> q_seq in (0,1], candidate bound from K, H1 manifest loaded from disk
+NIT    F2 field-key convention -> real_field_manifest_schema pins meta['dataset']==cohort interface name
 ```
 
-A second adversarial pass (verify-the-fix) confirmed those closed and found residual issues,
-all now fixed and re-tested:
+## Tests / verification
 
-```text
-MEDIUM   FULL invariance was within-(target,ctx,chain) only, not across chains
-         -> FULL candidate now required single across all methods AND chains + pool-length consistency
-MED-LOW  removing LOTO from mean made label_frontier ignore stability heterogeneity
-         -> frontier now returns C86-L3 on stability heterogeneity; best label taken across methods
-LOW-MED  target registry was caller-supplied, not bound to the registered population
-         -> real path binds cohort set == registered COHORTS and target count == 53
-LOW      descriptor 'any_material' was per-cohort, not the C86D pooled-mean TAU
-         -> pooled cross-cohort mean >= DESC_TAU
-LOW      component_sha context-set / realpath root guard -> both added
-```
-
-Residual known item (documented, not a correctness bug): the Brandl exhaustive branch retains the
-plus-one estimator (floor 2/65537, conservative) rather than a pure #/2^n exact p — never
-anti-conservative, far below alpha 0.05.
-
-## 6. Pre-execution review (§13) and stop rule
-
-Before any authorized data access, the five §13 checks apply (bindings; three-stage isolation;
-two-level output; 65,536-draw max-T + LOTO + registered thresholds; resource feasibility — met).
-C86H remains terminal: one field, one confirmation, one audit, stop; no auto-C87. The only valid
-trigger for real execution is a separate direct `授权 C86H`.
+87 c86h tests + C86D 42/42 unregressed. Batch↔per-RPC equivalence, orders-reconciliation audit,
+Semantics B, compact-freeze verification, full inference detail, atomic+immutable+self-hashed
+terminal result, gated refusals, real-path enforcement all covered. `verify_bindings` (V3
+manifest + field/training manifest + registry tables + frozen dispatcher blobs incl. server.py
++ selection_worker.py) fail-closed OK.
