@@ -83,13 +83,14 @@ def main():
         print(f"[lb-agg] INCOMPLETE {len(done)}/{a.expect} -> REFUSING."); raise SystemExit(2)
     aulc = {e: defaultdict(lambda: defaultdict(list)) for e in AULC_EP}
     full_center = defaultdict(lambda: defaultdict(list)); nmatch = defaultdict(list); solver_fail = 0; skipped = defaultdict(int)
-    hr = defaultdict(lambda: defaultdict(list))
+    hr = defaultdict(lambda: defaultdict(list)); n_ok = 0
     for c in sorted(glob.glob(str(d / "cells" / "*.json"))):
         r = json.loads(Path(c).read_text())
         if r.get("status") == "failed_solver":
             solver_fail += 1; continue
         if r.get("status") != "ok":
             skipped[r.get("reason", "?")] += 1; continue
+        n_ok += 1
         ds, subj = r["dataset"], r["subject"]
         for e in AULC_EP:
             aulc[e][ds][subj].append(_aulc(r["endpoints"], e))
@@ -99,8 +100,16 @@ def main():
             nmatch[ds].append(sp.get("n_matched", 0))
         for kk, vv in r.get("headroom", {}).items():
             hr[ds][kk].append(vv)
+    # REFUSE on any non-usable cell: a .done is written even for status=skipped/failed_solver, so counting .done
+    # markers does NOT guarantee 525 USABLE cells. Gate on status==ok reaching stats, and treat ANY skip (a dump that
+    # lost its session axis) as a hard refuse -- else a degraded run routes the verdict on a biased subject subset.
     if solver_fail:
         print(f"[lb-agg] {solver_fail} cells FAILED SOLVER -> REFUSING (fix optimiser)."); raise SystemExit(3)
+    if sum(skipped.values()):
+        print(f"[lb-agg] {sum(skipped.values())} cells SKIPPED {dict(skipped)} -> REFUSING (dump regression: a .done was "
+              f"written but the cell was unusable; the .done count is NOT a usability guarantee)."); raise SystemExit(4)
+    if n_ok < a.expect:
+        print(f"[lb-agg] only {n_ok}/{a.expect} USABLE (status=ok) cells -> REFUSING."); raise SystemExit(2)
 
     per_ds = []; stats = {}
     for ds in DATASETS:
@@ -113,8 +122,15 @@ def main():
                            n_matched_random=(float(np.mean(nmatch[ds])) if nmatch[ds] else 0),
                            AULC={e: dict(mean=ci[e]["mean"], lcb=ci[e]["lo"], p=ci[e]["signflip_p"]) for e in AULC_EP},
                            headroom_mean={kk: float(np.mean(vv)) for kk, vv in hr[ds].items()}))
+    # per-lockbox minimum-subject guard (defense-in-depth: _cluster_ci has no min-n floor, so a tiny biased subset
+    # would still yield a finite LCB; a lockbox that routes the verdict MUST carry ~all its subjects).
+    LOCKBOX_MIN_SUBJ = {"Stieger2021": 60, "Shin2017A": 28}
+    for ds, floor in LOCKBOX_MIN_SUBJ.items():
+        n = stats.get(ds, {}).get("dU_center", {}).get("n", 0)
+        if n < floor:
+            print(f"[lb-agg] lockbox {ds} has only {n} subjects (< {floor}) -> REFUSING (verdict must not route on a biased subset)."); raise SystemExit(5)
     route = _route(stats) if stats else dict(verdict="NO_DATA")
-    out = dict(per_dataset=per_ds, routing=route, n_cells=len(done), solver_failed=solver_fail, skipped=dict(skipped),
+    out = dict(per_dataset=per_ds, routing=route, n_cells=len(done), n_usable=n_ok, solver_failed=solver_fail, skipped=dict(skipped),
                primary_lockbox=PRIMARY_LOCKBOX, confirmatory_lockbox=CONFIRM_LOCKBOX,
                discipline="low-shot AULC (k in 1,2,4,8) primary; Full = posterior washout (not failure); matched-tau isolates "
                           "center from shrinkage-strength; routing driven by the 2 untouched lockboxes; manuscript FROZEN")
