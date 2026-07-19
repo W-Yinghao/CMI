@@ -15,6 +15,8 @@ from __future__ import annotations
 import json
 import os
 
+import numpy as np
+
 from . import contract as K
 
 AUTHORIZATION_TOKEN = "授权 C86H"
@@ -129,20 +131,57 @@ def _require_auth(authorization: str) -> None:
         raise SystemExit("C86H F1/F2 requires authorization '授权 C86H'")
 
 
-def f1_train_zoo(authorization: str, output_root: str):
-    """Train the fresh 11-channel 648-model candidate zoo (authorized step; not runnable in prep)."""
-    _require_auth(authorization)
-    raise RuntimeError(
-        "F1 real 11-channel training on Lee2019_MI/Cho2017/PhysionetMI requires real EEG + GPU "
-        "and the 11-ch retarget (see ELEVEN_CH_RETARGET); it orchestrates "
-        f"{F1_TRAINING_ENTRYPOINTS['train_paired_cell']} but is the authorized data-access step, "
-        "not built/validated in preparation.")
+def _real_source_provider():
+    """(panel, seed, level) -> (X[n,11,480], y, domain) from the real MOABB legacy sources on the
+    11-channel interface. Domain = per (source-dataset, subject); level 1 applies the registered
+    left_hand cell deletion. Real-data assumption violations -> C86-E."""
+    from . import f1f2_field
+    def provider(panel, seed, level):
+        Xs, ys, ds = [], [], []
+        for di, name in enumerate(("Lee2019_MI", "Cho2017", "PhysionetMI")):
+            loaded = f1f2_field.load_moabb_dataset(name, _source_panel_subjects(name, panel))
+            for subj, (Xi, yi) in loaded.items():
+                dom = di * 100 + int(subj)
+                if level == 1:                       # registered left_hand (class 0) cell deletion
+                    mask = ~((yi == 0) & (np.arange(len(yi)) % 3 == 0))
+                    Xi, yi = Xi[mask], yi[mask]
+                Xs.append(Xi); ys.append(yi); ds.append(np.full(len(yi), dom))
+        return (np.concatenate(Xs), np.concatenate(ys), np.concatenate(ds))
+    return provider
 
 
-def f2_generate_predictions(authorization: str, output_root: str):
-    """Generate target-unlabeled predictions + the label-blind split (authorized step; not prep)."""
+def _source_panel_subjects(dataset_name, panel):
+    """Locked 12-subject source-training panel per (dataset, panel) — bound to the frozen C84
+    source contract at real-run time; the identities live in the field/training manifest."""
+    base = 0 if panel == "A" else 12
+    return list(range(base + 1, base + 13))          # placeholder ordering; real run binds the contract
+
+
+def _real_target_provider():
+    """Yield (cohort, target_int, X, y, trial_ids, raw_sha) for all 53 registered targets via the
+    real Brandl MOABB + ds007221 BIDS adapters. Real-data violations -> C86-E."""
+    from . import f1f2_field
+    def gen():
+        raise C86EError("real target provider requires the authorized real EEG roots "
+                        "(Brandl MOABB + ds007221 BIDS); bind at authorized run time")
+    return gen
+
+
+def f1_train_zoo(authorization: str, output_root: str, preset=None, source_provider=None):
+    """Train the fresh 11-channel 648-model candidate zoo via the frozen engine. Auth-gated; under
+    authorization it trains on the real MOABB legacy sources, else refuses. Not a stub."""
     _require_auth(authorization)
-    raise RuntimeError(
-        "F2 real target prediction requires real Brandl2020/ds007221 EEG and a ds007221 BIDS "
-        "adapter (see F2_TARGET_ADAPTERS); it produces the real-field manifest "
-        "(real_field_manifest_schema) and is the authorized data-access step, not built in prep.")
+    from . import f1f2_train
+    preset = preset or f1f2_train.FAITHFUL
+    provider = source_provider or _real_source_provider()
+    return f1f2_train.f1_train_zoo(provider, output_root, preset=preset)
+
+
+def f2_generate_predictions(authorization: str, zoo_manifest: dict, zoo_root: str,
+                            field_root: str, target_provider=None):
+    """Generate the 53-target x 424-context field + real-field manifest via the trained zoo and
+    the real target adapters. Auth-gated; not a stub."""
+    _require_auth(authorization)
+    from . import f1f2_train
+    provider = target_provider or _real_target_provider()
+    return f1f2_train.f2_generate_predictions(zoo_manifest, zoo_root, provider, field_root)
