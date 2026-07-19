@@ -78,14 +78,17 @@ def _session_split_policy(ds, session_target, y_target, seed):
     st = np.asarray(session_target).astype(str)
     if ds == "Stieger2021":
         present = set(st.tolist())
-        cal = np.isin(st, ["1"])                                   # calibration = session 1 (earliest)
-        q_primary = ["2", "3", "4", "5", "6", "7"]                 # primary query (numeric order)
-        q_long = ["8", "9", "10", "11"]                            # long-horizon (only 11-session subjects)
+        # cal = session "1" (all 62 subjects have it, verified); fall back to the earliest PRESENT session if a
+        # subject were ever missing "1", so cal is never empty. cal_sessions reports the ACTUAL session used.
+        cal_sess = "1" if "1" in present else sorted(present, key=int)[0]
+        cal = np.isin(st, [cal_sess])
+        q_primary = [s for s in ["2", "3", "4", "5", "6", "7"] if s != cal_sess]   # never overlap cal
+        q_long = [s for s in ["8", "9", "10", "11"] if s != cal_sess]              # long-horizon (11-session subj)
         qry = np.isin(st, q_primary); lh = np.isin(st, q_long)
-        info = dict(cal_sessions=["1"], query_sessions=[q for q in q_primary if q in present],
+        info = dict(cal_sessions=[cal_sess], query_sessions=[q for q in q_primary if q in present],
                     long_horizon_sessions=[q for q in q_long if q in present],
                     n_cal=int(cal.sum()), n_query=int(qry.sum()), n_long_horizon=int(lh.sum()),
-                    fallback_used=False)
+                    fallback_used=bool(cal_sess != "1"))
         return cal, qry, lh, info
     cal, qry, info = session_split(session_target, y_target, seed)  # generic (existing datasets + Shin)
     info["long_horizon_sessions"] = []
