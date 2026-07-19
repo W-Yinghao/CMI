@@ -208,6 +208,53 @@ def test_residual_population_identity_cuda_and_candidate_replay(tmp_path, monkey
         f1f2.validate_real_field_manifest(field_root, contract=contract, zoo_root=zoo_root)
 
 
+def test_production_cuda_wrapper_forwards_identity(tmp_path, monkeypatch):
+    """The FAITHFUL production CUDA wrapper must forward sample_ids/groups to train_cell (else the
+    real path TypeErrors after opening real EEG) and bind cuda:0 — verified with a train_cell spy,
+    no real data / no real training."""
+    from oaci.active_testing.c86h import f1f2, f1f2_train
+    import torch
+    monkeypatch.setattr(torch.cuda, "is_available", lambda: True)
+    calls = []
+
+    def spy(X, y, d, seed, preset=None, device=None, sample_ids=None, groups=None):
+        calls.append({"device": str(device), "sids": sample_ids, "groups": groups})
+        m = build_c86h_model()
+        return [("ERM", types.SimpleNamespace(model_state=m.state_dict(), model_hash="", epoch=0), 0)]
+
+    monkeypatch.setattr(f1f2_train, "train_cell", spy)
+    f1f2.f1_train_zoo("授权 C86H", str(tmp_path / "z"), source_provider=_synth_source)
+    assert calls, "production CUDA cell_trainer never called"
+    assert calls[0]["device"] == "cuda:0"                 # bound to GPU
+    assert calls[0]["sids"] is not None and calls[0]["groups"] is not None   # identity forwarded
+
+
+def test_validator_catches_canonical_order_permutation(tmp_path):
+    from oaci.active_testing.c86h import f1f2
+    import json
+    zoo_root = str(tmp_path / "zoo")
+    zoo = f1f2_train.f1_train_zoo(_synth_source, zoo_root, preset=f1f2_train.TINY,
+                                  cell_trainer=_mock_cell)
+    field_root = str(tmp_path / "field")
+    f1f2_train.f2_generate_predictions(zoo, zoo_root, _target_provider, field_root)
+    contract = {"target_cohort": {("SYN_A", 1): "SYN_A", ("SYN_A", 2): "SYN_A"},
+                "n_targets": 2, "n_candidates_per_context": 5, "n_models": 8 * 5, "n_contexts": 16}
+    assert f1f2.validate_real_field_manifest(field_root, contract=contract, zoo_root=zoo_root)
+    # permute two candidate IDs within a context in BOTH manifests (genealogy unchanged) -> C86-E
+    zpath = os.path.join(zoo_root, "C86H_ZOO_MANIFEST.json")
+    zman = json.load(open(zpath))
+    ctx = next(iter(zman["candidate_ids_by_context"]))
+    lst = zman["candidate_ids_by_context"][ctx]
+    lst[0], lst[1] = lst[1], lst[0]                        # swap ERM and OACI-order-1 positions
+    json.dump(zman, open(zpath, "w"))
+    fpath = os.path.join(field_root, f1f2.REAL_FIELD_MANIFEST_NAME)
+    fman = json.load(open(fpath))
+    fman["zoo"]["candidate_ids_by_context"][ctx] = lst    # keep field == zoo so only order breaks
+    json.dump(fman, open(fpath, "w"))
+    with pytest.raises(f1f2.C86EError):
+        f1f2.validate_real_field_manifest(field_root, contract=contract, zoo_root=zoo_root)
+
+
 def test_f1f2_gated_not_stub(tmp_path):
     # gated entrypoints refuse without the token (SystemExit)
     with pytest.raises(SystemExit):

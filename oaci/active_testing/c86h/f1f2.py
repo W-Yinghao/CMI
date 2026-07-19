@@ -197,6 +197,23 @@ def validate_real_field_manifest(field_root: str, contract: dict = None,
                     break
             if cbc != zman.get("candidate_ids_by_context"):
                 p.append("candidate_ids_by_context_mismatch")
+            # canonical candidate ORDER per context: the list must be in genealogy order
+            # (ERM, OACI 1..40, SRC 1..40); a within-context permutation changes the selector
+            # action identity (first-index tie / selected action / held regret) and must fail closed
+            rank = {"ERM": 0, "OACI": 1, "SRC": 2}
+            cands = zman.get("candidates", {})
+            for ctx, ids in zman.get("candidate_ids_by_context", {}).items():
+                try:
+                    ordered = sorted(ids, key=lambda c: (rank[cands[c]["regime"]],
+                                                         cands[c]["trajectory_order"]))
+                except KeyError:
+                    p.append(f"candidate_order_meta[{ctx}]"); continue
+                if list(ids) != ordered:
+                    p.append(f"candidate_order[{ctx}]")
+                if nCand == K.CANDIDATES_PER_CONTEXT:      # full production -> exact canonical 0..80
+                    m = field_spec._ctx_meta(ctx)
+                    if list(ids) != field_spec.canonical_candidate_ids(m["panel"], m["seed"], m["level"]):
+                        p.append(f"canonical_order[{ctx}]")
         # source raw identities present and well-formed
         srf = man.get("source_raw_file_sha256", {})
         if not srf:
@@ -301,8 +318,9 @@ def f1_train_zoo(authorization: str, output_root: str, preset=None, source_provi
                             "any large-scale training (no CPU fallback for the frozen campaign)")
         device = torch.device("cuda:0")
 
-        def cell_trainer(X, y, d, seed, preset):
-            return f1f2_train.train_cell(X, y, d, seed, preset, device=device)
+        def cell_trainer(X, y, d, seed, preset, sample_ids=None, groups=None):
+            return f1f2_train.train_cell(X, y, d, seed, preset, device=device,
+                                         sample_ids=sample_ids, groups=groups)
     return f1f2_train.f1_train_zoo(provider, output_root, preset=preset, cell_trainer=cell_trainer)
 
 
