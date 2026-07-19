@@ -1,0 +1,63 @@
+# Readout Prior LOCKBOX round -- FROZEN pre-registration config (frozen BEFORE target-utility results).
+# Manuscript FROZEN; no amendment; only the owner stops/redirects the line.
+name: cmi_trace_readout_prior_lockbox
+branch: agent/cmi-trace-readout-prior-lockbox
+base_commit: da835d8c
+supersedes_contract: notes/READOUT_PRIOR_DECOMPOSITION_CONTRACT.md   # inherits arms/objective/tau/firewall unchanged
+question: does the matched-tau source-head CENTER effect (a genuine low-shot readout PRIOR) hold on UNTOUCHED
+          natural multi-session MI datasets, or is it a dev-only artifact of the 4 method-development datasets?
+
+# ---- what is NEW vs the decomposition round ----
+protocol_fixes_applied: 8            # (already in runner) N_TAU_DRAWS 10->50, full-source val (P0.4), matched-tau
+                                     # ridge_ts/map_t0, fail-loud solver gate (P0.2), full tau-curve saved (P0.5),
+                                     # source_gate averages draws per pseudo-subject first (P0.3), etc.
+new_lockboxes:
+  Stieger2021:                       # PRIMARY lockbox (natural longitudinal 4-class MI, 62 subj, 7 or 11 sessions)
+    role: primary
+    epoch: [0.0, 3.0]                # PM-frozen
+    channels: 60 common (uniform across all 62 subjects; probed, pinned in loader)
+    cal_session: "1"                 # earliest
+    primary_query: ["2","3","4","5","6","7"]     # session-macro; THE verdict query
+    long_horizon: ["8","9","10","11"]            # SEPARATE readout; EXCLUDED from L-A..L-D verdict; only 11-session subj
+  Shin2017A:                         # CONFIRMATORY lockbox (natural 3-session binary L/R MI, 29 subj)
+    role: confirmatory
+    epoch: [0.5, 3.5]
+    cal_session: earliest of 3       # generic split (unchanged)
+    query: other 2 sessions
+
+context_datasets: [BNCI2014_001, BNCI2015_001, Lee2019_MI, BNCI2014_004]   # RERUN with fixes; reported as context only
+
+# ---- matrix ----
+matrix_cells: 525                    # BNCI2014_001 27 + BNCI2015_001 36 + Lee2019_MI 162 + BNCI2014_004 27
+                                     #  + Stieger2021 186 + Shin2017A 87   (subjects x 3 seeds; erm lam0)
+backbone: EEGNet ; method: erm ; seeds: [0,1,2] ; epochs: 300 ; domain_mode: subject   # uniform, NO amendment
+feature_dump: frozen Z (z_dim=16) + logits + session axis, LOSO leave-one-SUBJECT-out per (dataset,subject,seed)
+
+# ---- PRIMARY endpoint + inference ----
+primary_endpoint: LOW-SHOT AULC over k in {1,2,4,8} of the matched-tau CENTER contrasts    # Full = posterior washout
+  dU_center_t0(k): U_H2@tau0 - U_H1@tau0    # pure center (matched tau)  -- PRIMARY
+  dU_center_ts(k): U_H2@taus - U_H1@taus    # pure center (matched tau)  -- PRIMARY
+  dU_center(k):    U_H2@taus - U_H1@tau0    # policy (mixes center + shrinkage-strength selection)
+  dU_MAP_frozen(k):U_H2 - U_H0              # deployable adapt-vs-frozen
+  dU_gate_frozen(k):U_H4 - U_H0             # safe gated policy
+inference_unit: target subject (draw->seed->subject) ; subject-cluster bootstrap + exact sign-flip ; LCB95
+
+# ---- FROZEN decision rule (pre-registered; implemented verbatim in scripts/aggregate_readout_prior_lockbox.py::_route)
+routing:
+  L-D_SOURCE_ANCHORED_TARGET_READOUT_IMPROVES_LABEL_EFFICIENCY:
+    when: some lockbox LCB(dU_MAP_frozen)>0 AND no clear harm on the other (mean>-0.005) AND a center effect holds
+  L-A_SOURCE_HEAD_CENTER_IMPROVES_LOW_LABEL_ESTIMATION:
+    when: LCB(dU_center_t0)>0 AND LCB(dU_center_ts)>0 on Stieger2021 (PRIMARY)
+          AND same-direction no-harm on Shin2017A (mean>0 both, LCB>-0.01 both)
+  LONGITUDINAL_FEEDBACK_REGIME_DEPENDENT:
+    when: center holds on Stieger2021 but NOT Shin2017A
+  L-C_SOURCE_PRIOR_PREVENTS_LOW_SHOT_OVERFIT_NO_ADAPTATION_HEADROOM:
+    when: a center effect exists but no lockbox clears frozen (H2-H0 ~ 0)
+  L-B_SOURCE_CENTERED_POLICY_OUTPERFORMS_CENTER_NOT_ISOLATED:
+    when: policy dU_center LCB>0 on primary but matched-tau contrasts NOT both LCB>0
+  NO_EXTERNAL_CENTER_EFFECT_LOW_SHOT_ADVANTAGE_NOT_STABLE:
+    when: neither lockbox shows a matched-tau center effect -> dev advantage not externally stable
+
+refuse_conditions: incomplete (<525 cells) OR any cell status=failed_solver   # aggregator raises SystemExit
+firewall: target QUERY only in the final utility ; cal Y only adapts heads ; tau + gate source-only ; NO re-inference
+holds: new erasure / target-X selector / source proxy / mechanism-consistency loss / learned projector / TTE ; manuscript FROZEN
