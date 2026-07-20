@@ -1,0 +1,11 @@
+claim_or_score,uses_any_target_label,same_cell_label_use,other_cell_label_use,split_label_use,diagnostic_only,artifact,note
+best_strict_source,0,0,0,0,0,C52/C55 replay,
+best_key_only,0,0,0,0,1,C52/C55 replay,
+target_unlabeled_geometry,0,0,0,0,1,C52,tested diagnostic ladder; did not close residual
+conditioned_local_ceiling,0,0,0,0,1,C48-C50,
+C52_trajectory_centered_diagnostic,1,0,1,0,1,C52,
+C53_scalar_endpoint,1,1,0,0,1,C53,
+C54_same_cell_endpoint_oracle,1,1,0,0,1,C54,
+C55_template_only_best,1,0,1,0,1,C55,does not read held-out endpoint scalar but is trained from other-cell target labels
+C55_endpoint_scalar_transfer,1,0,1,0,1,C55,full closure requires held-out candidate target endpoint scalar
+split_label_constructed_endpoint_template,1,0,0,1,1,C53-C55,required split-label input is missing; split_label_budget_available=false

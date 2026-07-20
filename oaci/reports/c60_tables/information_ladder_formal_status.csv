@@ -1,0 +1,10 @@
+information_class,hit,formal_status,source_only,label_content
+I0_random_or_tie,0.4297233780360411,finite_population_baseline,1,0
+I1_strict_source,0.5061728395061729,weak_empirical_signal_not_sufficient,1,0
+I1b_source_scalarization,0.5740740740740741,best_registered_source_family_below_reliability,1,0
+I2_key_only,0.4876543209876543,key_only_insufficient_not_screening,0,0
+I3_target_unlabeled,,not_available_for_closure,0,0
+I5_split_label_or_few_label,,future_unresolved_missing_cache,0,1
+I6_label_diagnostic,0.8127572016460904,diagnostic_partial_boundary_like,0,1
+I6b_template_only,0.7037037037037037,cross_cell_partial_transfer_not_sufficient,0,1
+I7_same_label_endpoint,0.9444444444444444,same_label_oracle_boundary_diagnostic_only,0,1

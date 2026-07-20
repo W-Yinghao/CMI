@@ -1,0 +1,13 @@
+{
+  "C80_authorized": false,
+  "P2_training_seed_gate_heterogeneity": true,
+  "all_registered_effect_directions_concordant": true,
+  "checks_passed": 17,
+  "checks_total": 17,
+  "passed": true,
+  "primary_taxonomy": "C79-E_seed4_does_not_replicate_either_core_pattern",
+  "same_label_oracle_accessed": false,
+  "schema_version": "c79e_scientific_result_red_team_v1",
+  "target_population_confirmation": false,
+  "unregistered_cross_seed_pooling": false
+}

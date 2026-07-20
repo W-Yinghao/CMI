@@ -1,0 +1,5 @@
+view,process,labels_visible,released_before_selection_freeze,overlap_with_held_evaluation
+target_unlabeled_acquisition_pool,ACTIVE_CLIENT,0,1,0
+target_acquisition_label_oracle,LABEL_SERVER,QUERIED_ONLY,ONE_ROW_PER_QUERY,0
+target_held_evaluation_label_view,HELD_EVALUATOR,1,0,SELF
+same_label_oracle_view,SEALED_ORACLE,0,0,0

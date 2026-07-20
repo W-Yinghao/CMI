@@ -1,0 +1,14 @@
+contract_id,scope,locked_value,fail_closed_condition
+RNG01,bit_generator,numpy.random.PCG64DXSM,any generator drift
+RNG02,seed,C85_SYNTHETIC_V1|scenario_id|replicate_id SHA256 low64,seed drift
+RNG03,byte_order,little_endian,byte-order drift
+RNG04,replicate_ids,0..4095,missing duplicate or extra replicate
+RNG05,array_dtype,float64 unless exact rational,dtype drift
+RNG06,reduction,canonical replicate order and no parallel nondeterministic reduction,reduction drift
+RNG07,S6_S7_draw,one standard-normal vector length M in canonical action order,draw-count or order drift
+RNG08,S6_S7_scale,pairwise_sigma/sqrt(2),scale drift
+RNG09,S9_draw,51 L Rademacher then 46 H Rademacher from one generator,draw-count or order drift
+RNG10,S9_passive_prefix,first 51 L and first 13 H,prefix drift
+RNG11,S9_neyman_prefix,first 18 L and first 46 H,prefix drift
+RNG12,Rademacher_mapping,integer 0 maps -1 and 1 maps +1,mapping drift
+RNG13,C85TL_boundary,only SHADOW identifiers are callable without authorization,registered stream accessed before C85T authorization

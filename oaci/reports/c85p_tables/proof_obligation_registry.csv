@@ -1,0 +1,8 @@
+obligation_id,theorem_id,assumptions,required_work,status,proof_artifact
+PO1,T1,common spaces|Markov kernel|all measurable randomized rules,construct composed rule and compare risks,OPEN,C85T_REQUIRED
+PO2,T2,finite exact channels|non-nested registered classes,enumerate all states/observations/actions and risks,OPEN,C85T_REQUIRED
+PO3,T3,almost-sure action equality|common loss,prove pointwise loss equality then integrate,OPEN,C85T_REQUIRED
+PO4,T4,two states|equal prior|action separation|TV convention,prove reduction to binary testing and exact constant,OPEN,C85T_REQUIRED
+PO5,T5,finite packing|loss separation|information control,prove Fano specialization or leave open,OPEN,C85T_REQUIRED
+PO6,T6,finite groups|common group masses|symbolic alpha intervals,enumerate mean/worst/CVaR inequalities,OPEN,C85T_REQUIRED
+PO7,T7,sub-Gaussian pairwise errors|gap definitions,prove outside-set event inclusion and valid probability bound,OPEN,C85T_REQUIRED

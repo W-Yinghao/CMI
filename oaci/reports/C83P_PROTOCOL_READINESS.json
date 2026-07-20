@@ -1,0 +1,61 @@
+{
+  "schema_version": "c83p_aaai_evidence_freeze_readiness_v1",
+  "milestone": "C83P",
+  "final_gate": "C83_AAAI_EVIDENCE_CLAIM_FIGURE_TABLE_FREEZE_READY_FOR_MANUSCRIPT_AUTHORIZATION",
+  "C82_base_head": "34ae76a4a588059ab5a6d82b8116088a14af4ad5",
+  "C82_PM_addendum_commit": "5cee693132bc950d7e0ad9c3c9028e7cb1fcfcf7",
+  "evidence_freeze_commit": "c927b3a80bc1b75ed4d9ec0d7d2460342574ffe2",
+  "scientific_identity": {
+    "historical_C81_gate": "C81-E_protocol_input_implementation_or_provenance_blocker",
+    "C82_gate": "C82-D_zero_label_comparison_training_seed_method_identity_or_target_heterogeneous",
+    "seed3_category": "B",
+    "seed4_category": "C",
+    "A_method_intersection": [],
+    "B_method_intersection": [],
+    "global_method_aware_LOTO_preserved": 7,
+    "global_method_aware_LOTO_total": 16,
+    "global_method_aware_LOTO_threshold": 12
+  },
+  "freeze": {
+    "supported_claims": 10,
+    "forbidden_expansions": 10,
+    "authoritative_numbers": 928,
+    "authoritative_numbers_replayed": 928,
+    "main_figures": 4,
+    "publication_figures_rendered": 0,
+    "main_tables": 3,
+    "baseline_reference_fidelity_rows": 34,
+    "reviewer_risks": 17,
+    "metadata_checks_passed": 20,
+    "metadata_checks_total": 20,
+    "final_red_team_passed": 52,
+    "final_red_team_total": 52
+  },
+  "protected_state": {
+    "new_real_data_statistics": 0,
+    "EEG_or_label_view_accesses": 0,
+    "selection_recomputation": 0,
+    "new_methods_or_retuning": 0,
+    "target4_primary_rows": 0,
+    "same_label_oracle_accesses": 0,
+    "training_forward_GPU": 0,
+    "manuscript_sections_drafted": 0
+  },
+  "regression": {
+    "focused_C83P": {"job_id": 895253, "passed": 26, "failed": 0, "skipped": 0, "deselected": 0},
+    "C65_C83P": {"job_id": 895254, "passed": 486, "failed": 0, "skipped": 1, "deselected": 3},
+    "C23_C83P": {"job_id": 895255, "passed": 897, "failed": 0, "skipped": 1, "deselected": 3},
+    "full_OACI": {"job_id": 895256, "passed": 1821, "failed": 0, "skipped": 1, "deselected": 3},
+    "all_stderr_empty": true,
+    "GPU": 0
+  },
+  "scope": {
+    "manuscript_drafting_authorized": false,
+    "new_experiment_authorized": false,
+    "C84_authorized": false,
+    "seed5_authorized": false,
+    "BNCI2014_004_authorized": false,
+    "active_acquisition_authorized": false,
+    "same_label_oracle_authorized": false
+  }
+}

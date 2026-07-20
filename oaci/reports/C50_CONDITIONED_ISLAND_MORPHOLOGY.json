@@ -1,0 +1,119 @@
+{
+  "config_hash": "664007686afb520f",
+  "decision": {
+    "fragmentation_material": true,
+    "max_mean_underuse_gap": 0.4308510638297872,
+    "outcome": "C50-C_mixed_fragmentation_plus_underuse",
+    "target_actionability_fail_fraction": 0.0,
+    "target_min_coverage": 1.0,
+    "target_min_hit": 1.0,
+    "trajectory_actionability_fail_fraction": 0.43209876543209874,
+    "trajectory_min_coverage": 1.0,
+    "trajectory_min_hit": 0.0,
+    "underuse_material": true
+  },
+  "diagnostic_only_non_deployable": true,
+  "locked_witness": {
+    "c49_coverage": 1.0,
+    "c49_covered_base_rate": 0.42378127071295635,
+    "c49_enrichment": 2.3597078708023864,
+    "c49_hit": 1.0,
+    "c49_mean_neighbor_count": 53.25221499477471,
+    "condition_scope": "within_target",
+    "epsilon_radius": 3.2532662364835945,
+    "inherited_from_c49_commit": "b0d7831",
+    "label": "primary_joint_good",
+    "min_neighbor_count": 1,
+    "neighborhood": "eps_q20",
+    "neighborhood_kind": "epsilon",
+    "source_space": "all_source_objectives"
+  },
+  "n_candidate_rows": 3804,
+  "n_trajectories": 162,
+  "no_selector_artifact_gate": [
+    {
+      "check": "config_hash_unchanged",
+      "passed": true
+    },
+    {
+      "check": "c49_witness_locked_not_grid_search",
+      "passed": true
+    },
+    {
+      "check": "read_only_committed_artifacts",
+      "passed": true
+    },
+    {
+      "check": "no_training_no_gpu_no_reinference",
+      "passed": true
+    },
+    {
+      "check": "no_bnci2014_004_no_seeds_3_4",
+      "passed": true
+    },
+    {
+      "check": "no_selector_checkpoint_artifact",
+      "passed": true
+    },
+    {
+      "check": "target_labels_diagnostic_only",
+      "passed": true
+    },
+    {
+      "check": "coverage_actionability_definitions_frozen_from_c49",
+      "passed": true
+    },
+    {
+      "check": "compact_json_no_row_level_payload",
+      "passed": true
+    }
+  ],
+  "red_team": [
+    {
+      "check": "self_neighbor_excluded",
+      "finding": "Locked epsilon neighborhoods inherit C48 distance matrices with diagonal set to infinity.",
+      "passed": 1
+    },
+    {
+      "check": "query_row_excluded_from_own_neighborhood",
+      "finding": "Per-query morphology was audited against masks where the query row is excluded.",
+      "passed": 1
+    },
+    {
+      "check": "target_labels_quarantined",
+      "finding": "Target endpoint labels appear only as diagnostic labels and report fields carry quarantine flags.",
+      "passed": 1
+    },
+    {
+      "check": "group_conditioned_baselines_reported",
+      "finding": "Same-group random, locked local-Bayes, and source-score baselines are emitted by group type.",
+      "passed": 1
+    },
+    {
+      "check": "reason_coded_failure_ledger_emitted",
+      "finding": "Failed actionability groups carry predeclared reason codes.",
+      "passed": 1
+    },
+    {
+      "check": "no_selector_or_checkpoint_recommendation",
+      "finding": "Tables omit selector-facing identifiers and checkpoint recommendations.",
+      "passed": 1
+    },
+    {
+      "check": "no_deployable_claim",
+      "finding": "Report language is diagnostic-only and non-deployable.",
+      "passed": 1
+    }
+  ],
+  "self_neighbor_excluded": true,
+  "table_row_counts": {
+    "actionability_failure_ledger": 70,
+    "baseline_sanity": 18,
+    "existing_score_underuse": 752,
+    "existing_score_underuse_summary": 4,
+    "group_fragmentation": 188,
+    "island_morphology": 3804,
+    "locked_witness": 1,
+    "reason_code_counts": 5
+  }
+}

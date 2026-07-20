@@ -1,0 +1,4 @@
+counterexample_id,scenario_id,enumeration_space_locked,exhaustive_execution,algebraic_proof,status
+CE_T2,S1,1,0,0,NOT_EXECUTED_C85T_REQUIRED
+CE_T2_GAP,S10,1,0,0,NOT_EXECUTED_C85T_REQUIRED
+CE_T6,S5,1,0,0,NOT_EXECUTED_C85T_REQUIRED

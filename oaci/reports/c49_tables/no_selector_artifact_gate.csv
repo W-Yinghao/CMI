@@ -1,0 +1,17 @@
+check,passed
+config_hash_unchanged,1
+read_only_committed_artifacts,1
+no_training_no_gpu_no_reinference,1
+fixed_source_spaces_no_feature_selection,1
+fixed_neighborhood_grid,1
+fixed_min_neighbor_grid,1
+fixed_coverage_thresholds,1
+self_neighbor_excluded,1
+coverage_neighbor_empty_reported,1
+group_conditioned_random_baselines,1
+target_labels_diagnostic_only,1
+no_target_labels_in_source_space_construction,1
+no_bnci2014_004_no_seeds_3_4,1
+no_selected_checkpoint_artifact,1
+compact_json_no_row_level_payload,1
+diagnostic_only_non_deployable,1

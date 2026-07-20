@@ -1,0 +1,3 @@
+design,formula,exact_variance,decimal_variance,below_passive,universal_superiority_claim,status
+passive_proportional,sum_h p_h^2*sigma_h^2/n_h,1327/10359375,0.00012809653092006034,NA_REFERENCE,0,SEMANTICALLY_VALIDATED_NOT_SCIENTIFICALLY_EXECUTED
+Neyman_p_times_sigma,sum_h p_h^2*sigma_h^2/n_h,317/6468750,4.9004830917874396e-05,1,0,SEMANTICALLY_VALIDATED_NOT_SCIENTIFICALLY_EXECUTED

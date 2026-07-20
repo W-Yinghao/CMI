@@ -1,0 +1,11 @@
+subagent_id,role,scope,integration_status
+SA1,Formal Problem Specifier,sigma-field ladder and selector measurability,launched_integrated
+SA2,Empirical Finite-Population Bayes-Bound Agent,finite population bound table,launched_integrated
+SA3,Le Cam Two-Point Witness Agent,two-point witness audit,launched_integrated
+SA4,Fano/Assouad Packing Agent,packing and MI proxy audit,launched_integrated
+SA5,Conditional Sufficiency/Markov-Boundary Agent,conditional sufficiency ladder,launched_integrated
+SA6,Counterexample/Escape-Hatch Adversary,source-observable escape hatch attack,launched_integrated
+SA7,Synthetic Rank-Gauge Theorem Model Agent,synthetic model scaffold,launched_integrated
+SA8,Existing Artifact Sufficiency Auditor,artifact sufficiency and missing instrumentation,launched_integrated
+SA9,Instrumented Real-EEG Training Gate Agent,training gate and protocol,launched_integrated
+SA10,Red-Team/Integration Agent,hard-gate verification,launched_integrated

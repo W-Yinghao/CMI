@@ -1,0 +1,4 @@
+budget,status,within_target_centered_spearman,pairwise_order_accuracy,top1_hit,topk_hit,enrichment,continuous_regret,coverage,measurement_control_separation
+8,actual_t3_ho,0.30747,0.606066,0.050749,0.123617,0.456741,0.056633,0.099392,1
+64,actual_t3_ho,0.55075,0.703111,0.236762,0.290885,2.130858,0.036392,0.434028,1
+full-construction,actual_t3_ho,0.557457,0.704981,0.222222,0.333333,1.999998,0.036904,0.444444,1

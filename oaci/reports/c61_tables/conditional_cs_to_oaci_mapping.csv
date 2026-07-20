@@ -1,0 +1,8 @@
+paper_component,oaci_mapping,c61_status,caveat
+formal conditional divergence,"COD(X2|X1;Y)=D_cond(P(Y|X1),P(Y|X1,X2))",implemented_as_diagnostic,"finite frozen universe, not distribution theorem"
+faithfulness/zero iff equal conditionals,zero plug-in COD means no observed change in binary endpoint distribution proxy,diagnostic_analogue,not a causal or population faithfulness proof
+KDE/Gram estimator,conditional CS-style estimator status and bandwidth ledger,not_primary_from_summary_artifacts,raw conditional samples unavailable
+conditional independence special case,screening-off tests: key/template/endpoint after source,implemented_as_finite_population_screening,"empirical, not theorem-grade CI test"
+synthetic validation,rank-gauge synthetic COD grid,implemented,model-bound validation only
+application-style audit,C50-C60 frozen EEG information ladder,implemented_read_only,no re-inference or training
+limitations,availability/oracle/training gates,implemented,endpoint scalar remains same-label oracle

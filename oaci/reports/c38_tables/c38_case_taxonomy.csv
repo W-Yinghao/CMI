@@ -1,0 +1,11 @@
+case,established,evidence
+L1_point_leakage_drives_ucl_preference,1,point_dominant_fraction=0.9736842105263158
+L2_uncertainty_width_drives_ucl_preference,0,uncertainty_driven_count=0
+L3_cell_concentrated_leakage_advantage,0,atom-level class/domain/support contribution table unavailable
+L4_broad_leakage_advantage,0,broad cell-level claim blocked by unavailable leakage atoms
+L5_selection_audit_leakage_inversion,1,selection_ucl_to_audit_inversion_rate=0.4473684210526316
+L6_source_rational_target_wrong,1,source_rational_target_wrong_fraction=1
+L7_leakage_target_gauge_conflict,1,leakage_target_gauge_conflict_fraction=0.9210526315789473
+L8_leakage_endpoint_decoupled,1,UCL prefers selected for all pairs while source endpoint majority is split selected/better/flat=54/57/3
+L9_support_or_estimability_artifact,0,regime_invariant_pair_keys=38
+L10_trace_atom_insufficient,1,exact UCL recovered but atom-level decomposition not persisted

@@ -1,0 +1,6 @@
+category,count,fraction
+adjacent_near_miss,21,0.12962962962962962
+scarcity_no_joint_good,9,0.05555555555555555
+selected_joint_good,72,0.4444444444444444
+source_rank_not_enriched_enough,20,0.12345679012345678
+source_top5_available_selection_missed,40,0.24691358024691357

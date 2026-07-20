@@ -1,0 +1,236 @@
+{
+  "schema_version": "c85v_independent_proof_review_protocol_v1",
+  "milestone": "C85VP",
+  "created_at_utc": "2026-07-17T10:43:49Z",
+  "status": "PROTOCOL_LOCKED_BEFORE_PROOF_CANDIDATE_TEXT_ACCESS_OR_VALIDATOR_IMPLEMENTATION",
+  "starting_identity": {
+    "head": "ae79e8c51905feba89aed761a37df00e7e6374d0",
+    "origin_oaci": "ae79e8c51905feba89aed761a37df00e7e6374d0",
+    "branch": "oaci",
+    "c85t_execution_authorization_head": "b26b21f6b8378188dd59890c5701944c41fad823",
+    "c85t_v3_lock_commit": "b1a5ba3aca002de7e302fc375298cc69c1ed82a8",
+    "c85t_v3_lock_sha256": "3ee51a994969ebaaad9c1228d52df76e5222284c38eadbc77a50ce6178cdc8a9",
+    "c85t_result_sha256": "ecaff65e942dbb81d93a3bdb61589fa9f1f6590f7188947688e6b30617140cec",
+    "c85t_result_manifest_sha256": "a727beebcb45598ea0f92f37bed8ef32369b1c793ecad9efc2f5d9941bd5bb0e",
+    "c85t_semantic_replay_sha256": "735edf13a24c074cb3c18e56d168ebd905b3a7bcb29e3c273b3652bb1b7dcc6e",
+    "c85t_completion_receipt_sha256": "418f74e4c3cf60847b11bf18a890ffebf870ed8adee1a75d304b01075646e65d"
+  },
+  "bound_protocols": {
+    "c85p_sha256": "af4c2cb35a6b6555d6c9ded3105eb7ad4f061ba237d3e8cc3ed6f5a18aede006",
+    "c85r_sha256": "e37bb444fdd174ba4ca1f95e91d9193378f11dd0ef2aeac3e03cbf6249a34b68",
+    "c85tl_sha256": "6543d6ebbfccb8158f8f48a4fe6409c6243a708bbb0358d350932dd249e6b7c2",
+    "c85tr1_sha256": "9c0a7084a7ddd83ef96b8d7f95faf89138829729c0acc5c3d6baeb0ef87ab13d",
+    "c85tr2_sha256": "f9a1db908f34818b7551c0d4f8de65fa7a11e71c41b8e5fe28824f042904a844"
+  },
+  "chronology": {
+    "c85t_outcomes_known_before_protocol": true,
+    "candidate_disposition_categories_known_before_protocol": true,
+    "proof_candidate_hashes_known_before_protocol": true,
+    "proof_candidate_text_opened_for_review_before_protocol": false,
+    "candidate_generation_code_opened_for_review_before_protocol": false,
+    "stage_a_derivations_before_protocol": 0,
+    "stage_b_comparisons_before_protocol": 0,
+    "formal_status_transitions_before_protocol": 0,
+    "monte_carlo_reruns_before_protocol": 0,
+    "protocol_precedes_validator_implementation": true,
+    "protocol_precedes_candidate_text_access": true
+  },
+  "frozen_c85t_bundle": {
+    "absolute_root": "/projects/EEG-foundation-model/yinghao/oaci-c85t-synthetic-v3/c85t-v3-3ee51a994969ebaa-9ec012bedbf24f1f",
+    "exact_scenario_results": 11,
+    "s6_s7_logical_replicate_rows": 8192,
+    "s9_logical_design_rows": 8192,
+    "s9_int64_raw_draw_digest_rows": 4096,
+    "proof_candidates": 7,
+    "formal_open_statuses": 7,
+    "monte_carlo_role": "FROZEN_EXECUTION_EVIDENCE_NOT_PROOF_AND_NOT_RERUNNABLE_BY_C85V"
+  },
+  "theorem_statements": {
+    "source": "oaci/reports/C85T_PROOF_AND_SYNTHETIC_EXECUTION_OPERATIONALIZATION_PROTOCOL.json",
+    "hash_definition": "SHA256 of the exact UTF-8 proof_statements value with no newline",
+    "T1": "c6a5a5c30422b8e84d99642e3e61b6fc9b33fb452f1f66cc0a469e313419259d",
+    "T2": "34d0a35de8f20c0e0ced7edd4f7e25a54d59883a86f0e323b9c4a34d34720ecc",
+    "T3": "d3a1392bd79762ec6b11462af83345dec3b1c7b86134e0d1b6f1c45d902c7654",
+    "T4": "ae175775fe57e8c709a8c49f25162ef29756f1d09b92ab892cc453b6d971ebdf",
+    "T5": "413217283047286736bfa4e589702b32eddb5316a11d3dcaeae1fc8109f2c9b5",
+    "T6": "69756ca0cf40f7dc5801dbe97d9a64aadd80ed15f8dfc71677a1e6d35792abee",
+    "T7": "d90311e73d91749cffb6878970366dde75f291f0de12742fbe820853ee61e2df"
+  },
+  "proof_candidate_identities": {
+    "text_access_policy": "HASH_AND_RELATIVE_PATH_BOUND_NOW; CONTENT_AVAILABLE_ONLY_AFTER_THIS_PROTOCOL_IS_COMMITTED",
+    "T1": {"relative_path": "c85t_proof_candidates/T1_blackwell_monotonicity.md", "sha256": "57ef99b65846ff62dc1471de311433c8a605774721bd0dbaf89c8a1bd0de98cf", "known_disposition": "PROPOSED_PROOF"},
+    "T2": {"relative_path": "c85t_proof_candidates/T2_restricted_policy_counterexamples.md", "sha256": "417a7496bebff41a8ca1c0240c5a5c7d690124b8fe33c49194d4c51458f2b6fc", "known_disposition": "PROPOSED_COUNTEREXAMPLE"},
+    "T3": {"relative_path": "c85t_proof_candidates/T3_policy_collapse.md", "sha256": "cdeda8e9feae09a13617dabc82735633fe39affe7fcd7b9a3aca628e957088d1", "known_disposition": "PROPOSED_PROOF"},
+    "T4": {"relative_path": "c85t_proof_candidates/T4_two_state_lecam_regret_bound.md", "sha256": "9238f914c1bb5efbf5980050b02e0e72e20c934ea30f1287967f2ecc70755d03", "known_disposition": "PROPOSED_PROOF"},
+    "T5": {"relative_path": "c85t_proof_candidates/T5_fano_extension.md", "sha256": "a6a38358dc3bf1bc2b39e1fda8bdece0a2a416b7627bb16bd671047724d90188", "known_disposition": "INCOMPLETE_OPEN"},
+    "T6": {"relative_path": "c85t_proof_candidates/T6_mean_tail_counterexample.md", "sha256": "d9325fab96d634b5164a3528c0bb9da484d4b20714116027f5bb39d5826b917f", "known_disposition": "PROPOSED_COUNTEREXAMPLE"},
+    "T7": {"relative_path": "c85t_proof_candidates/T7_near_optimal_union_bound.md", "sha256": "1316236128ae0389f681459ff28dfa99a248b3ad73357208821bb3220476a857", "known_disposition": "PROPOSED_PROOF"}
+  },
+  "independence_definition": {
+    "claim": "INDEPENDENT_OF_C85T_CANDIDATE_GENERATOR_AND_INTERNAL_CHECKS_NOT_BLINDED_HUMAN_OR_CRYPTOGRAPHIC_INDEPENDENCE",
+    "reviewer_A": "candidate-blind constructive derivation from frozen statements, assumptions, exact finite laws and primary literature",
+    "reviewer_B": "post-Stage-A candidate comparison plus adversarial boundary and counterexample audit",
+    "adjudicator": "deterministic application of the prospective verdict contract to frozen A and B artifacts",
+    "separate_hashes_required": true,
+    "candidate_text_withheld_until_stage_A_manifest_freeze": true,
+    "majority_vote": false
+  },
+  "stage_A": {
+    "name": "CANDIDATE_BLIND_INDEPENDENT_DERIVATION",
+    "allowed_inputs": [
+      "frozen theorem statements and statement hashes",
+      "frozen assumption and proof-obligation registries",
+      "primary literature metadata and sources",
+      "exact finite scenario law where theorem-specific review requires it"
+    ],
+    "forbidden_inputs": [
+      "proof-candidate Markdown paths or bytes",
+      "candidate-generation source code",
+      "Monte Carlo arrays or summaries as proof",
+      "candidate text beyond the already known disposition category"
+    ],
+    "required_per_theorem": [
+      "normalized statement",
+      "assumption list",
+      "constructive derivation or attempted derivation",
+      "boundary cases",
+      "primary-source attribution map",
+      "tentative non-formal assessment",
+      "unresolved gaps"
+    ],
+    "freeze_manifest": "C85V_STAGE_A_DERIVATION_MANIFEST.json",
+    "freeze_sidecar": "C85V_STAGE_A_DERIVATION_MANIFEST.sha256",
+    "stage_B_release_condition": "exact Stage-A manifest replay for seven separately hashed derivations"
+  },
+  "stage_B": {
+    "name": "CANDIDATE_COMPARISON_AND_ADVERSARIAL_AUDIT",
+    "allowed_inputs": [
+      "frozen Stage-A derivation manifest and derivations",
+      "seven exact proof-candidate files after hash replay",
+      "exact_scenario_results.json for exact finite identities only"
+    ],
+    "forbidden_inputs": [
+      "Monte Carlo dispatcher or rerun",
+      "candidate-generation helpers",
+      "real project data",
+      "formal status mutation"
+    ],
+    "required_per_theorem": [
+      "statement identity comparison",
+      "assumption comparison",
+      "proof-step map",
+      "measurability integrability decoder and boundary audit as applicable",
+      "analytic or finite counterexample attempt",
+      "constant and convention audit",
+      "candidate gap label"
+    ],
+    "gap_labels": [
+      "NONE",
+      "EXPOSITION_ONLY",
+      "MISSING_ASSUMPTION_BUT_STATEMENT_SUFFICIENT",
+      "MISSING_ASSUMPTION_STATEMENT_INSUFFICIENT",
+      "INVALID_STEP",
+      "FALSE_STATEMENT",
+      "INCOMPLETE_OPEN"
+    ],
+    "freeze_required_before_adjudication": true
+  },
+  "adjudication": {
+    "inputs": "frozen Stage-A and Stage-B artifacts plus frozen verdict contract",
+    "allowed_statuses": {
+      "T1": ["PROVED", "PROVED_FINITE_MODEL_ONLY", "OPEN", "INVALIDATED"],
+      "T2": ["COUNTEREXAMPLE", "OPEN", "INVALIDATED"],
+      "T3": ["PROVED", "PROVED_FINITE_MODEL_ONLY", "OPEN", "INVALIDATED"],
+      "T4": ["PROVED", "PROVED_FINITE_MODEL_ONLY", "OPEN", "INVALIDATED"],
+      "T5": ["PROVED", "PROVED_FINITE_MODEL_ONLY", "OPEN", "INVALIDATED"],
+      "T6": ["COUNTEREXAMPLE", "OPEN", "INVALIDATED"],
+      "T7": ["PROVED", "PROVED_FINITE_MODEL_ONLY", "OPEN", "INVALIDATED"]
+    },
+    "PROVED": "complete proof of the frozen general statement under its frozen assumptions",
+    "PROVED_FINITE_MODEL_ONLY": "exact proof only for the registered finite scenario or finite class",
+    "COUNTEREXAMPLE": "an exact frozen construction satisfies the frozen counterexample statement",
+    "OPEN": "candidate or frozen statement is incomplete but not disproved",
+    "INVALIDATED": "the frozen statement is false or contradicted by a valid counterexample",
+    "T5_fail_closed_rule": "If decoder, distinct or disjoint optimum, information identity, Fano constants or K>2 conditions are absent and cannot be derived from the frozen statement, retain OPEN without repairing the statement.",
+    "dissent_retained": true,
+    "theorem_specific_reasons_required": true
+  },
+  "theorem_specific_obligations": {
+    "T1": ["common state/action/loss spaces", "state-independent garbling kernel", "composition of randomized Markov kernels", "statewise action-law and risk equality", "Tonelli/Fubini conditions", "infimum direction", "no restricted-class extension"],
+    "T2": ["independent S1 and S10 rederivation", "Blackwell garbling", "coarse registered risk", "rich unrestricted risk", "rich registered risk", "strict reversal", "S10 exact values 11/40,0,3/5,13/40"],
+    "T3": ["action-kernel equality P_theta^E-almost surely for every state", "not one coupled action draw", "same state/action loss", "statewise risk equality", "prior and group aggregation"],
+    "T4": ["action-to-state decoder", "decoder error implication", "all nonoptimal regret at least Delta", "equal-prior binary testing bound", "TV convention and factor one-half", "randomized rules", "disjoint optimum sets", "Delta=0 and TV=1 boundaries"],
+    "T5": ["state decoder from selected actions", "state-specific distinct or disjoint optima", "I(J;Z) identity", "Fano constants and logarithm convention", "regret-to-error reduction", "K>2"],
+    "T6": ["exact ten-group law", "upper-loss CVaR convention", "reference and policy mean/worst/CVaR", "piecewise policy CVaR", "strict alpha region", "alpha=13/20 equality", "alpha=1 excluded"],
+    "T7": ["fixed optimal action or valid optimal-action choice", "selection-event inclusion", "Chernoff optimization and constants", "sigma_i=0", "Delta_i=0", "empty outside set", "first-index ties", "no independence", "cap at one"]
+  },
+  "literature_discipline": {
+    "primary_sources_required": true,
+    "citation_is_not_project_proof": true,
+    "statement_to_source_assumption_match_required": true,
+    "TV_and_CVaR_conventions_must_be_reconciled": true,
+    "attribution_from_memory_alone": false,
+    "registry": "oaci/reports/c85vp_tables/primary_literature_registry.csv"
+  },
+  "implementation_isolation": {
+    "recommended_modules": [
+      "oaci/theory/c85v_statement_registry.py",
+      "oaci/theory/c85v_stage_a_derivation.py",
+      "oaci/theory/c85v_stage_b_candidate_audit.py",
+      "oaci/theory/c85v_adjudication.py",
+      "oaci/theory/c85v_result_manifest.py",
+      "oaci/theory/c85v_execute.py"
+    ],
+    "forbidden_import_fragments": [
+      "c85t_proofs",
+      "c85t_registered_v3",
+      "c85t_monte_carlo",
+      "multidataset",
+      "train",
+      "torch"
+    ],
+    "stage_A_candidate_path_argument": false,
+    "monte_carlo_callable": false,
+    "real_data_callable": false,
+    "permitted_computation": ["read-only rational arithmetic", "symbolic finite enumeration", "source metadata replay", "frozen result and proof file replay"]
+  },
+  "future_result_bundle": {
+    "required_objects": [
+      "seven Stage-A independent derivations",
+      "Stage-A derivation manifest and sidecar",
+      "seven Stage-B candidate comparisons",
+      "seven adversarial audit records",
+      "seven adjudicator verdicts",
+      "formal theorem-status registry",
+      "proof-candidate retention ledger",
+      "primary literature registry",
+      "result manifest",
+      "lifecycle and completion receipts"
+    ],
+    "proof_candidates_overwritten": false,
+    "atomic_publication": true,
+    "all_candidate_hashes_replayed": true
+  },
+  "future_execution_lock": {
+    "path": "oaci/reports/C85V_EXECUTION_LOCK.json",
+    "sidecar": "oaci/reports/C85V_EXECUTION_LOCK.sha256",
+    "status": "LOCKED_READY_FOR_DIRECT_PI_AUTHORIZATION_NOT_AUTHORIZED",
+    "future_authorization_record_path": "oaci/reports/C85V_PI_AUTHORIZATION_RECORD.json",
+    "future_direct_statement_exact": "授权 C85V",
+    "current_C85V_authorized": false
+  },
+  "validation_boundary": {
+    "fixtures": "SHADOW_STATEMENTS_AND_SHADOW_CANDIDATES_ONLY",
+    "registered_candidate_review_execution": false,
+    "formal_status_change": false,
+    "monte_carlo_rerun": false,
+    "real_data_access": false,
+    "active_acquisition": false,
+    "C85E": false,
+    "manuscript": false
+  },
+  "final_gates": {
+    "success": "C85V_INDEPENDENT_PROOF_REVIEW_IMPLEMENTED_AND_LOCKED_READY_FOR_PI_AUTHORIZATION",
+    "failure": "C85V_STATEMENT_ASSUMPTION_REVIEW_INDEPENDENCE_OR_VERDICT_CONTRACT_RECONCILIATION_REQUIRED"
+  }
+}

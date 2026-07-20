@@ -1,0 +1,9 @@
+check,expected,observed,passed,notes
+c67_commit,9f8c829,9f8c829,1,C68 starts after committed C67
+c67_final_gate,C67_DUAL_MODE_MICROCACHE_VALID_BUT_UNDERPOWERED_FOR_SPLIT_LABEL_CS,C67_DUAL_MODE_MICROCACHE_VALID_BUT_UNDERPOWERED_FOR_SPLIT_LABEL_CS,1,C67 underpowered microcache gate
+no_auth_forward,0,0,1,C66 no-auth guard evidence
+no_auth_cache_rows,0,0,1,C66 no-auth guard evidence
+authorized_forward,1,1,1,C66 authorized microcampaign evidence
+authorized_cache_rows,3456,3456,1,C66 authorized microcache rows
+authorized_cache_sha256,aaef9df53eed0c4ac2a38aa701f35f345958722ae9180ae3838084986a4c5e0d,aaef9df53eed0c4ac2a38aa701f35f345958722ae9180ae3838084986a4c5e0d,1,external cache hash replay
+raw_cache_git_tracked,0,0,1,raw C66 cache remains external

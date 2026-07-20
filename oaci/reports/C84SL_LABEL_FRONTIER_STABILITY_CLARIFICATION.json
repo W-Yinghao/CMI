@@ -1,0 +1,42 @@
+{
+  "schema_version": "c84sl_label_frontier_stability_clarification_v1",
+  "milestone": "C84SL",
+  "created_at_utc": "2026-07-16T03:29:22Z",
+  "status": "LOCKED_BEFORE_IMPLEMENTATION_COMMIT_NOT_AUTHORIZED",
+  "purpose": "mechanically define the already-registered level and target heterogeneity clause for C84-L3",
+  "frozen_inputs": {
+    "scientific_protocol_v3_sha256": "bf6c7f718413b4b2ac2ad9786aa2e47dc045a536e7237d5d8c0464b6598130b8",
+    "operationalization_protocol_sha256": "abf56676901bd7e5f484ffe4f4bb49de625d5c7b87cc34c0e3ab2bdb39361c5e",
+    "end_to_end_repair_protocol_sha256": "b2d52a3bfdcb89b8a8db5d1a5501fb7b24a22ad860dbe1d6da2c5e6d77ca189c",
+    "primary_budget_grid": [1, 2, 4, 8, "FULL"],
+    "qualification_and_closure_changed": false
+  },
+  "level_rule": {
+    "compute_level0_Bstar": "same registered target-cluster qualification and closure using the four panel-by-seed cells at level 0",
+    "compute_level1_Bstar": "same registered target-cluster qualification and closure using the four panel-by-seed cells at level 1",
+    "heterogeneity": "level0_Bstar differs from level1_Bstar, including one absent and one present"
+  },
+  "target_composition_rule": {
+    "operation": "omit each target and recompute the complete primary budget curve and Bstar without changing any budget or threshold",
+    "preservation": "LOTO Bstar equals the full-panel dataset Bstar exactly",
+    "minimum_preserved": {
+      "Lee2019_MI": 17,
+      "Cho2017": 15,
+      "PhysionetMI": 57
+    },
+    "heterogeneity": "preservation count is below the dataset minimum"
+  },
+  "label_taxonomy_binding": {
+    "C84-L1": "unchanged",
+    "C84-L2": "unchanged",
+    "C84-L3": "activated when the existing cross-dataset ordinal rule fails or any level/target-composition heterogeneity rule above is active",
+    "C84-L4": "unchanged and retains precedence when any full-panel dataset Bstar is absent"
+  },
+  "protected_state": {
+    "target_labels_read": 0,
+    "real_selector_scores": 0,
+    "scientific_statistics": 0,
+    "outcome_informed_choice": false,
+    "C84S_authorized": false
+  }
+}

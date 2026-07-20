@@ -1,0 +1,6 @@
+rung,pooled_auc
+raw_pooled,0.5431489798181415
+regime_centered,0.5433882235528942
+target_centered_oracle,0.6337666333998669
+target_rank_oracle,0.648321551341761
+within_target_ceiling,0.658600107451297

@@ -1,0 +1,6 @@
+label_source,allowed_for_cache_field,allowed_for_selection_rule,future_split_role,same_label_reuse_allowed,notes
+source_train_labels,1,0,construct_or_source_context,0,source labels are already part of frozen supervised training context
+source_audit_labels,1,0,source_diagnostic_eval,0,diagnostic only
+target_construct_labels,1,0,construct_split_label_feature,0,only after explicit cache campaign
+target_eval_labels,1,0,heldout_evaluation,0,never used to construct same evaluated feature
+same_candidate_endpoint_scalar,0,0,forbidden_oracle_boundary,0,same-label endpoint oracle remains unavailable

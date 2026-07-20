@@ -1,0 +1,4 @@
+regime,scored_rate,endpoint_nonestimable_rate,insufficient_finite_rate,endpoint_gate_nonestimable_rate
+S0_full_support,1.0,0.0,0.0,0.5102523659305994
+S2_rare_cells,1.0,0.0,0.0,0.5102523659305994
+S3_nonestimable_cells,1.0,0.0,0.0,0.5102523659305994

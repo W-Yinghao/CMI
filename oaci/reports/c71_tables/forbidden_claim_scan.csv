@@ -1,0 +1,16 @@
+pattern,total_hits,affirmative_hits,files,passed
+few-label sufficiency,0,0,,1
+deployable selector,0,0,,1
+checkpoint recommendation,1,0,oaci/reports/C71_T3_HO_HIERARCHICAL_CONFIRMATION.md,1
+source-only rescue,2,0,oaci/reports/C71_T3_HO_HIERARCHICAL_CONFIRMATION.md;oaci/reports/c71_tables/strict_source_adversary_summary.csv,1
+oaci rescue,0,0,,1
+target-population generalization established,0,0,,1
+full conditional-cs established,0,0,,1
+same-label endpoint scalar available at selection time,0,0,,1
+row-level iid,2,0,oaci/reports/C71_RED_TEAM_VERIFICATION.md;oaci/reports/C71_T3_HO_CONFIRMATORY_PROTOCOL.json,1
+new training is justified,0,0,,1
+gpu used,0,0,,1
+forward pass executed,0,0,,1
+re-inference executed,0,0,,1
+t3-ho outcome accessed,1,0,oaci/reports/C71_T3_HO_CONFIRMATORY_PROTOCOL.json,1
+manuscript drafting,0,0,,1

@@ -1,0 +1,7 @@
+score_name,uses_source_only_inputs,uses_key_only_inputs,uses_target_unlabeled_inputs,uses_target_label_diagnostic,uses_test_candidate_endpoint_scalar,uses_same_cell_target_labels,available_at_selection_time,diagnostic_only,reported_hit
+source_rank,1,0,0,0,0,0,1,0,0.5061728395061729
+key_only,0,1,0,0,0,0,0,1,0.4876543209876543
+matched_template,0,0,0,1,0,0,0,1,0.7037037037037037
+label_diagnostic,0,0,0,1,0,1,0,1,0.8127572016460904
+same_label_endpoint_scalar,0,0,0,1,1,1,0,1,0.9444444444444444
+endpoint_after_template_cod,0,0,0,1,1,1,0,1,0.9444444444444444

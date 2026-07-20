@@ -1,0 +1,4 @@
+split_seed,unit,checkpoint_count,construct_rule,eval_rule,stratified_by_class,notes
+20260709,checkpoint,6,C66 deterministic target_construct rows,C66 deterministic target_eval rows,0,microcache smoke uses fixed C66 split roles
+20260710,checkpoint,6,C66 deterministic target_construct rows,C66 deterministic target_eval rows,0,microcache smoke uses fixed C66 split roles
+20260711,checkpoint,6,C66 deterministic target_construct rows,C66 deterministic target_eval rows,0,microcache smoke uses fixed C66 split roles

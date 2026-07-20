@@ -1,0 +1,4 @@
+campaign,physical_units,equivalent_forward_units,trials_per_unit,estimated_rows,estimated_binary_bytes,estimated_GiB,planning_wall_seconds_low_48cpu,planning_wall_seconds_high_48cpu,runtime_basis,pilot_required_before_execution,CPU_high_feasible,GPU_required,sharding
+target_z_Wz,1268,1268,576,730368,2360549376,2.1984329223632812,26.416666666666668,264.1666666666667,unmeasured planning envelope 1-10 seconds per equivalent unit,1,1,0,checkpoint-target
+strict_source_logits_probs,1268,10144,4608,5842944,186974208,0.17413330078125,211.33333333333334,2113.3333333333335,unmeasured planning envelope 1-10 seconds per equivalent unit,1,1,0,checkpoint-source_subject
+strict_source_z_Wz,1268,10144,4608,5842944,19012939776,17.70718002319336,211.33333333333334,2113.3333333333335,unmeasured planning envelope 1-10 seconds per equivalent unit,1,1,0,checkpoint-source_subject

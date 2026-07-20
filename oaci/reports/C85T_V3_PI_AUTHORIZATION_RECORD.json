@@ -1,0 +1,17 @@
+{
+  "schema_version": "c85t_direct_pi_authorization_record_v3",
+  "direct_explicit_PI_authorization": true,
+  "direct_statement_exact": "授权 C85T",
+  "authorized_stage": "C85T",
+  "authorization_id": "9ec012be-dbf2-4f1f-ab99-a5406596c31c",
+  "execution_lock_sha256": "3ee51a994969ebaaad9c1228d52df76e5222284c38eadbc77a50ce6178cdc8a9",
+  "execution_lock_commit": "b1a5ba3aca002de7e302fc375298cc69c1ed82a8",
+  "output_root": "/projects/EEG-foundation-model/yinghao/oaci-c85t-synthetic-v3/c85t-v3-3ee51a994969ebaa-9ec012bedbf24f1f",
+  "consumption_ledger_path": "/projects/EEG-foundation-model/yinghao/oaci-c85t-authorization-consumption-v3/38b8c3f2111df926c388ba7ab60292aa43714b9f0dace1a2beaa978f30a918fc.json",
+  "C85V": false,
+  "C85E": false,
+  "active_acquisition": false,
+  "real_data": false,
+  "new_data_or_model_zoo": false,
+  "manuscript": false
+}

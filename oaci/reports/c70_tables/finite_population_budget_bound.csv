@@ -1,0 +1,13 @@
+budget,registered_pair_observations,random_subset_order_recovery_probability,median_eval_pair_margin,finite_population_scope
+0,156672,0.5,0.024306,fixed_C69_T2_targets_and_checkpoint_units
+1,156018,0.534121,0.024476,fixed_C69_T2_targets_and_checkpoint_units
+2,155898,0.564959,0.024648,fixed_C69_T2_targets_and_checkpoint_units
+4,155681,0.580492,0.025,fixed_C69_T2_targets_and_checkpoint_units
+8,155513,0.61399,0.025735,fixed_C69_T2_targets_and_checkpoint_units
+12,155437,0.626038,0.024621,fixed_C69_T2_targets_and_checkpoint_units
+16,155365,0.643449,0.025391,fixed_C69_T2_targets_and_checkpoint_units
+24,155167,0.663169,0.025,fixed_C69_T2_targets_and_checkpoint_units
+32,154934,0.674313,0.026786,fixed_C69_T2_targets_and_checkpoint_units
+48,154423,0.697173,0.026042,fixed_C69_T2_targets_and_checkpoint_units
+64,153652,0.699483,0.028125,fixed_C69_T2_targets_and_checkpoint_units
+full-construction,2484,0.708937,0.027661,fixed_C69_T2_targets_and_checkpoint_units

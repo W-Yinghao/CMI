@@ -1,0 +1,228 @@
+{
+  "class_conditioned": {
+    "class_conditioned_confidence_explains": true,
+    "full_r3": {
+      "auc_improve": 0.0444799290308272,
+      "gap_closed": 0.4908528004503232,
+      "loto_r2": -0.6463509412375366,
+      "perm_p": 0.023952095808383235,
+      "survives_permutation": true
+    },
+    "interaction_term_carries": false,
+    "note": "class-conditioned confidence (occupancy + conf_k) reproduces >=50%% of the full-R3 recovery and survives permutation -> the interaction is class-conditioned confidence (how confidently the model occupies each class)",
+    "occ_x_conf_interaction_only": {
+      "auc_improve": 0.007367210024395665,
+      "gap_closed": 0.08129994248583572,
+      "loto_r2": -2.073775215316105,
+      "perm_p": 0.3373253493013972,
+      "survives_permutation": false
+    },
+    "occupancy_plus_classcond_conf_margin": {
+      "auc_improve": 0.060296628964293664,
+      "gap_closed": 0.6653960523256527,
+      "loto_r2": -1.5557778423377822,
+      "perm_p": 0.011976047904191617,
+      "survives_permutation": true
+    },
+    "occupancy_plus_classcond_confidence": {
+      "auc_improve": 0.059822577068086025,
+      "gap_closed": 0.660164710777175,
+      "loto_r2": -1.184546067043955,
+      "perm_p": 0.00998003992015968,
+      "survives_permutation": true
+    }
+  },
+  "config_hash": "664007686afb520f",
+  "counterfactuals": {
+    "baseline_gap": 0.4908528004503232,
+    "destroyers": [
+      "class_bias_center",
+      "class_uniformize",
+      "confidence_shuffle",
+      "class_shuffle"
+    ],
+    "note": "interventions that destroy the offset recovery: class_bias_center, class_uniformize, confidence_shuffle, class_shuffle -> the recovery depends on the factor(s) they remove",
+    "per_intervention": {
+      "class_bias_center": {
+        "auc_improve": -0.0529962297626968,
+        "destroys_recovery": true,
+        "gap_closed": -0.5848333924791047,
+        "loto_r2": -2.582177069324146,
+        "perm_p": 0.8023952095808383,
+        "survives_permutation": false
+      },
+      "class_shuffle": {
+        "auc_improve": -0.08477267686848522,
+        "destroys_recovery": true,
+        "gap_closed": -0.9354984764864958,
+        "loto_r2": -2.675893659214843,
+        "perm_p": 0.9441117764471058,
+        "survives_permutation": false
+      },
+      "class_uniformize": {
+        "auc_improve": 0.0066248059436682105,
+        "destroys_recovery": true,
+        "gap_closed": 0.07310723332395147,
+        "loto_r2": 0.2832224940810123,
+        "perm_p": 0.4231536926147705,
+        "survives_permutation": false
+      },
+      "confidence_shuffle": {
+        "auc_improve": -0.03584858061654472,
+        "destroys_recovery": true,
+        "gap_closed": -0.39560261383521605,
+        "loto_r2": -2.472583134219864,
+        "perm_p": 0.8243512974051896,
+        "survives_permutation": false
+      },
+      "logit_norm_normalize": {
+        "auc_improve": 0.03479679529829227,
+        "destroys_recovery": false,
+        "gap_closed": 0.38399576597853574,
+        "loto_r2": -1.0060778663665793,
+        "perm_p": 0.0658682634730539,
+        "survives_permutation": false
+      },
+      "raw": {
+        "auc_improve": 0.0444799290308272,
+        "destroys_recovery": false,
+        "gap_closed": 0.4908528004503232,
+        "loto_r2": -0.6463509412375366,
+        "perm_p": 0.023952095808383235,
+        "survives_permutation": true
+      },
+      "temperature": {
+        "auc_improve": 0.04641550232867597,
+        "destroys_recovery": false,
+        "gap_closed": 0.5122125821412399,
+        "loto_r2": -0.539676533123316,
+        "perm_p": 0.013972055888223553,
+        "survives_permutation": true
+      }
+    }
+  },
+  "diagnostic_only_non_deployable": true,
+  "full_r3_id_accuracy": 0.669558359621451,
+  "full_r3_recovery": {
+    "auc_improve": 0.0444799290308272,
+    "gap_closed": 0.4908528004503232,
+    "loto_r2": -0.6463509412375366,
+    "perm_p": 0.023952095808383235,
+    "survives_permutation": true
+  },
+  "label_alignment": {
+    "alignment_destroyers": [
+      "class_bias_center"
+    ],
+    "coupled_interventions": [
+      "class_bias_center"
+    ],
+    "coupling_partial": true,
+    "decoupling_interventions": [
+      "class_uniformize"
+    ],
+    "note": "class_bias_center destroy(s) BOTH offset recovery and error-geometry alignment (coupled); BUT class_uniformize destroy(s) offset recovery while PRESERVING alignment -> coupling is PARTIAL, not clean (occupancy magnitude carries offset separably from error geometry)",
+    "offset_and_alignment_coupled": true,
+    "predmix_recall_corr_by_intervention": {
+      "class_bias_center": 0.4021871118230362,
+      "class_uniformize": 0.8583684822538247,
+      "logit_norm_normalize": 0.8812722661056602,
+      "raw": 0.8812722661056602,
+      "temperature": 0.8812722661056602
+    },
+    "raw_alignment": 0.8812722661056602
+  },
+  "mode": "in_regime",
+  "n_candidates": 1268,
+  "raw_pooled": 0.5431489798181415,
+  "sufficiency_necessity": [
+    {
+      "combo": "occupancy",
+      "gap_closed": 0.0031112715525154237,
+      "n_features": 4,
+      "perm_p": 0.42714570858283435,
+      "survives_permutation": false,
+      "target_id_accuracy": 0.6979495268138801
+    },
+    {
+      "combo": "global_confidence",
+      "gap_closed": -0.5610353773296293,
+      "n_features": 8,
+      "perm_p": 0.8922155688622755,
+      "survives_permutation": false,
+      "target_id_accuracy": 0.42586750788643535
+    },
+    {
+      "combo": "class_conditioned_confidence",
+      "gap_closed": 0.5238775560151255,
+      "n_features": 4,
+      "perm_p": 0.031936127744510975,
+      "survives_permutation": true,
+      "target_id_accuracy": 0.6648264984227129
+    },
+    {
+      "combo": "class_bias",
+      "gap_closed": -0.054727174830822546,
+      "n_features": 4,
+      "perm_p": 0.5269461077844312,
+      "survives_permutation": false,
+      "target_id_accuracy": 0.7941640378548895
+    },
+    {
+      "combo": "occ_x_conf_interaction",
+      "gap_closed": 0.08129994248583572,
+      "n_features": 4,
+      "perm_p": 0.3373253493013972,
+      "survives_permutation": false,
+      "target_id_accuracy": 0.6971608832807571
+    },
+    {
+      "combo": "occupancy+global_confidence",
+      "gap_closed": 0.4908528004503232,
+      "n_features": 12,
+      "perm_p": 0.023952095808383235,
+      "survives_permutation": true,
+      "target_id_accuracy": 0.669558359621451
+    },
+    {
+      "combo": "occupancy+class_conditioned_confidence",
+      "gap_closed": 0.660164710777175,
+      "n_features": 8,
+      "perm_p": 0.00998003992015968,
+      "survives_permutation": true,
+      "target_id_accuracy": 0.7886435331230284
+    },
+    {
+      "combo": "occupancy+class_conditioned_margin",
+      "gap_closed": 0.43213634528077977,
+      "n_features": 8,
+      "perm_p": 0.0718562874251497,
+      "survives_permutation": false,
+      "target_id_accuracy": 0.7791798107255521
+    }
+  ],
+  "target_centered_oracle": 0.6337666333998669,
+  "taxonomy": {
+    "class_conditioned_confidence_explains": true,
+    "destroyers": [
+      "class_bias_center",
+      "class_shuffle",
+      "class_uniformize",
+      "confidence_shuffle"
+    ],
+    "diagnostic_only_non_deployable": true,
+    "error_geometry_coupled": true,
+    "error_geometry_coupling_partial": true,
+    "established": [
+      "L1_class_conditioned_confidence_carries_interaction",
+      "L6_error_geometry_coupled",
+      "L5_identity_fingerprint_only"
+    ],
+    "full_id_accuracy": 0.669558359621451,
+    "full_recovery_survives": true,
+    "identity_entangled": true,
+    "interpretation": "the interaction is CLASS-CONDITIONED CONFIDENCE (how confidently the model occupies each predicted class): it is a SINGLE sufficient factor (recovers alone, survives permutation), which REVISES C26's 'irreducible synergy' -- the synergy was an artifact of class-agnostic global confidence being too coarse; global confidence SCALE is NOT necessary (temperature/logit-norm survive) while the class-specific structure + per-target occupancy-confidence coupling ARE. Still IDENTITY-ENTANGLED (the per-class confidence profile is also the target fingerprint) and only PARTIALLY error-geometry-coupled.",
+    "primary_case": "L1_class_conditioned_confidence_carries_interaction"
+  },
+  "within_target_ceiling": 0.658600107451297
+}

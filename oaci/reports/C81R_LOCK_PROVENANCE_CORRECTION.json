@@ -1,0 +1,21 @@
+{
+  "schema_version": "c81r_lock_provenance_correction_v1",
+  "status": "ADDITIVE_PRE_REAUTHORIZATION_PROVENANCE_CORRECTION",
+  "superseded_lock_commit": "6633fd75fead18889249b0e336790a8a65bba454",
+  "superseded_lock_sha256": "bea92b798d47c35cc11aa19d7619c60de0b899336577e354338a10d798ec13cc",
+  "root_cause": "historical_C81P_lock_contained_a_manual_full_commit_typo_for_the_d17ffa6_implementation_commit",
+  "invalid_recorded_commit": "d17ffa65a3e7cffeb5cac65292e7840787f6845d",
+  "correct_reachable_commit": "d17ffa62a63b929d36d03f74e4ce79794cd9601b",
+  "correct_commit_reachable": true,
+  "invalid_commit_reachable": false,
+  "synthetic_blob_sha256_unchanged": "bd9e69691917b9e57f2ceaa50c52addb8dd373b4c36f97ce4335cceb672bd6e3",
+  "historical_real_adapter_blob_sha256_unchanged": "f538fd9c930514dfb2c3a49cc0f916e083723de5c8c491cc1977e27dd4109af6",
+  "scientific_registry_changed": false,
+  "scientific_implementation_changed": false,
+  "evaluation_label_reads": 0,
+  "baseline_statistics": 0,
+  "selection_manifest_created": false,
+  "outcome_dependent_decision_introduced": false,
+  "correction": "replace_only_the_malformed_historical_implementation_commit_identity_in_the_final_repaired_lock_and_rehash",
+  "new_direct_PI_authorization_required_after_final_lock": true
+}

@@ -1,0 +1,4 @@
+payload,checkpoint_count,subject_count_estimate,trial_rows_estimate,bytes_estimate,store_in_git,notes
+minimal_logits_probs_metadata,6,3,3456,995328,0,compact external cache only if authorized
+optional_representation_z,6,3,3456,11059200,0,external path plus hash only
+report_manifest_only,6,3,0,50000,1,C66 current output

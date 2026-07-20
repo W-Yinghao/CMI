@@ -1,0 +1,7 @@
+case,expected,observed_shadow,security_claim
+direct constructor,FAIL,PASS,official-result governance
+generic mapping,FAIL,PASS,official-result governance
+copy/deepcopy/pickle,FAIL,PASS,official-result governance
+different attempt/root binding,FAIL,PASS,official-result governance
+receipt deletion/tamper,FAIL,PASS,official-result governance
+second O_EXCL consumption,FAIL,PASS,official-result governance

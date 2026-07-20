@@ -1,0 +1,7 @@
+gate,question,evidence_source,bnci001_outcome
+G0_integrity,"Are the artifacts deep-verified, target-isolated, replay-identical?",C8+C10,integrity_ok
+G1_selection_optimism,Does selection-time leakage reduction survive at the held-out audit split?,C10a,selection_optimism_present
+G2_heldout_leakage,Does held-out audit leakage reduction survive multiplicity (K1)?,C8,weak_nominal_nonmultiplicity_signal
+G3_endpoint_transfer,Does any leakage signal convert to reproducible worst-domain gain (K2)?,C8,stop_no_reproducible_gain
+G4_oracle_rescue,Can a source-audit ORACLE pick a target-winning checkpoint from the trajectory?,C10b,oracle_fails_to_rescue
+G5_source_target_transfer,"Does source endpoint improvement transfer, or anti-transfer, to target?",C12,source_target_antitransfer_detected

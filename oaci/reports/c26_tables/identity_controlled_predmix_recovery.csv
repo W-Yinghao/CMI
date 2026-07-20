@@ -1,0 +1,10 @@
+metric,value
+id_acc_predmix,0.7058359621451105
+id_acc_confidence,0.4242902208201893
+id_acc_full,0.6708727655099895
+chance,0.1111111111111111
+predmix_identity_separable,True
+nn_same_target_rate,1.0
+nn_perm_p,0.004975124378109453
+predmix_recovery_survives_permutation,False
+identity_fingerprint_dominant,True

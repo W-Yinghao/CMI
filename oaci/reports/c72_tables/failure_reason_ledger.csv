@@ -1,0 +1,9 @@
+reason,status,evidence,blocks_primary
+protocol_timing,pass,commit=11534dc;sha=72ef3a350ce8eea8eacb84688f81b012936d5b03c9c734b787407148178c94aa,0
+cache_identity,pass,T2=124416/216;T3-HO=605952/1052,0
+T2_T3_role_separation,pass,T2 calibrates;T3-HO evaluates locked options,0
+representation_intervention,unavailable_nonblocking,no representation or Wdotz cache fields,0
+strict_source_trial_path,unavailable_no_escape_hatch_test,C22 checkpoint summary available; strict source-domain trial logits absent,0
+target_population_generalization,unresolved,nine frozen BNCI2014_001 targets,0
+conditional_CS,proxy_only,linear conditional-observability proxy; no exact estimator claim,0
+new_training,not_justified,cache-only intervention evidence sufficient for current milestone,0

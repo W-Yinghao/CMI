@@ -1,0 +1,5 @@
+reason_code,n_trajectories,fraction_trajectories,mean_base_hit,mean_local_bayes_hit,mean_best_existing_source_score_hit,description,target_labels_diagnostic_only,no_selection_artifact
+KEY_ONLY_HAS_NO_WITHIN_TRAJECTORY_RANK,162,1.0,0.4297233780360411,0.808641975308642,0.6296296296296297,Target and trajectory keys tie all candidates under the frozen within-trajectory evaluation.,1,1
+SOURCE_SCORE_UNDERUSES_DIAGNOSTIC_ISLAND,34,0.20987654320987653,0.21075759302117578,1.0,0.0,A local diagnostic island exists but the best existing source score does not recover it.,1,1
+LOW_TRAJECTORY_LOCAL_BAYES,31,0.19135802469135801,0.08489770156190765,0.0,0.16129032258064516,The trajectory remains fragmented even under the locked local diagnostic ceiling.,1,1
+LABEL_DERIVED_DIAGNOSTIC_CLOSES_RESIDUAL,131,0.808641975308642,0.5113233472780115,1.0,0.7404580152671756,"Closing trajectories require label-derived local diagnostic content, not only the key.",1,1

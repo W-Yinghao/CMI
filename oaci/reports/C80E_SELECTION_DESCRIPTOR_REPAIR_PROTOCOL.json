@@ -1,0 +1,80 @@
+{
+  "schema_version": "c80e_selection_descriptor_repair_protocol_v1",
+  "created_at_utc": "2026-07-13T10:02:56Z",
+  "status": "ADDITIVE_REPAIR_LOCKED_BEFORE_EVALUATION_LABEL_ACCESS",
+  "failed_attempt": {
+    "slurm_job_id": 894641,
+    "exit_code": "1:0",
+    "runtime": "00:07:03",
+    "failure_stage": "selection_descriptor_verification_before_evaluation_view_open",
+    "stderr_sha256": "670da1e776c88c46e0df8778537137c0d35f5114ea0b19193930a3a93d1f487b"
+  },
+  "root_cause": {
+    "component": "c74_cache.verify_shard",
+    "assumption": "all_arrays_share_one_first_dimension",
+    "actual_registered_selection_schema": "32_cell_arrays_plus_7_budget_labels",
+    "observed_error": "row_count_lengths_7_and_32",
+    "scientific_failure": false,
+    "descriptor_ABI_failure": true
+  },
+  "protected_state": {
+    "selection_manifest_frozen": true,
+    "selection_manifest_file_sha256": "66494a66e24cb5cda2128b2e1ca3b11e8233ff7ca7c8587068c7c8f0b72f7530",
+    "selection_manifest_self_sha256": "b0c856b7ff88490a93c242048e17dae8666cb7bffe55a86ca7660312b9cf8c73",
+    "selection_payload_sha256": "a0bf1ae048afcff5ab78d79ea7a4bd6243ec05dd373d987b98af83994d8beda6",
+    "selection_payload_values_inspected": false,
+    "evaluation_label_value_reads": 0,
+    "evaluation_outcomes_computed": 0,
+    "same_label_oracle_accesses": 0,
+    "target4_primary_rows": 0
+  },
+  "locked_repair": {
+    "introduce_selection_specific_descriptor_verifier": true,
+    "required_fields_exact": [
+      "budget_labels",
+      "candidate_global_indices",
+      "cell_level",
+      "cell_seed",
+      "cell_target",
+      "construction_scores",
+      "full_class_counts",
+      "selected_top10",
+      "source_top10"
+    ],
+    "required_shapes": {
+      "budget_labels": [7],
+      "candidate_global_indices": [32, 81],
+      "cell_level": [32],
+      "cell_seed": [32],
+      "cell_target": [32],
+      "construction_scores": [32, 2048, 7, 81],
+      "full_class_counts": [32, 4],
+      "selected_top10": [32, 2048, 7, 10],
+      "source_top10": [32, 10]
+    },
+    "verify_content_hash_size_fields_dtypes_and_shapes": true,
+    "reuse_existing_selection_freeze_without_recomputation": true,
+    "evaluation_requires_selection_manifest_self_hash_replay": true,
+    "new_adapter_hash_required": true,
+    "new_analysis_lock_required": true
+  },
+  "scientific_invariance": {
+    "scientific_registry_changed": false,
+    "estimands_changed": false,
+    "budget_grid_changed": false,
+    "selector_changed": false,
+    "RNG_or_MC_changed": false,
+    "selection_values_changed": false,
+    "dependence_or_inference_changed": false,
+    "taxonomy_changed": false,
+    "outcome_dependent_decision_introduced": false
+  },
+  "authorization_policy": {
+    "direct_PI_C80E_authorization_remains_the_authority": true,
+    "magic_token_required": false,
+    "PI_hash_repetition_required": false,
+    "executor_must_auto_rebind_additive_non_scientific_lock_revision": true,
+    "scope_expansion": false
+  },
+  "resume_gate": "C80E_SELECTION_DESCRIPTOR_REPAIR_RELOCKED_RESUME_ALLOWED"
+}

@@ -1,0 +1,29 @@
+{
+  "schema_version": "c79_historical_protocol_supersession_v1",
+  "historical_protocol": {
+    "commit": "43a046c5ba6632de415bfdbaacfa524d82c5395e",
+    "content_identity_valid": true,
+    "path": "oaci/reports/C79_SEED4_LOCKED_CONFIRMATION_PROTOCOL.json",
+    "pre_C78S_confirmation_valid": false,
+    "seed4_execution_authority": false,
+    "sha256": "7732986513793725d58933d487f5bc8f4fc68bfad0857bb4734a450b41ca5dd4",
+    "superseded_for_future_execution": true
+  },
+  "preoutcome_skeleton": {
+    "commit": "23f549d73803bd23e435f7dae581de29bf62285f",
+    "path": "oaci/reports/C79_SEED4_LOCKED_CONFIRMATION_PROTOCOL_SKELETON.json",
+    "status": "SKELETON_ONLY_NOT_FINAL_NOT_AUTHORIZED"
+  },
+  "adaptive_generator": {
+    "commit": "e561a15865934036bdccbc1e3b2ff126ad84821f",
+    "hidden_postoutcome_code": false,
+    "selection": "active_after_Holm produced H3 H4 H5"
+  },
+  "replacement": {
+    "designed_after_C78S_outcomes": true,
+    "operative_path": "oaci/reports/C79_POST_SEED3_SEED4_REPLICATION_PROTOCOL.json",
+    "pre_C78S_confirmatory_protocol": false,
+    "prospective_to_seed4_checkpoint_outcomes": true
+  },
+  "history_rewritten": false
+}

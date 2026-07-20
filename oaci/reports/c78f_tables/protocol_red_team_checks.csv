@@ -1,0 +1,29 @@
+check,status,blocking,evidence
+C78F_protocol_hash,PASS,1,85aba93fe2e232f0434162b3c6c97a30cac02047228676951c25cbab805d3d84
+C78S_protocol_hash,PASS,1,df85699090a65d1e1766d754bcebd9eb5648cc13e4441d8074a3f4884487c7f8
+C78S_bound_to_C78F,PASS,1,"{'analysis_started_in_C78F': False, 'locked_before_remaining_target_outcome_access': True, 'path': 'oaci/reports/C78S_SEED3_SCIENTIFIC_ANALYSIS_PROTOCOL.json', 'sha256': 'df85699090a65d1e1766d754bcebd9eb5648cc13e4441d8074a3f4884487c7f8'}"
+direct_user_authorization,PASS,1,"{'PM_override': 'direct_explicit_authorization_supersedes_exact_token_ceremony_for_C78F_and_future_milestones_unless_PM_changes_it', 'accepted_channel': 'direct_user_statement_in_active_session', 'environment_or_prompt_scanning_allowed': False, 'evidence_sha256': '84591fc3dc99fa5cbc464e255a986a3b3c315304fb81e76fac5267462ea13e47', 'execution_requires_committed_scope_bound_lock': True, 'explicit_user_authorization_received': True, 'magic_token_required': False, 'mode': 'direct_explicit_user_authorization', 'required': True}"
+no_magic_token,PASS,1,removed
+execution_lock_required,PASS,1,True
+scope_1296_1458,PASS,1,"{'dataset': 'BNCI2014_001', 'expected_full_source_rows': 6718464, 'expected_full_target_unlabeled_rows': 839808, 'expected_remaining_source_rows': 5971968, 'expected_remaining_target_unlabeled_rows': 746496, 'full_seed3_units': 1458, 'levels': [0, 1], 'regimes': ['ERM', 'OACI', 'SRC'], 'remaining_contexts': 16, 'remaining_targets': [1, 2, 3, 5, 6, 7, 8, 9], 'remaining_training_phases': 48, 'remaining_units': 1296, 'seed': 3, 'target4_primary_science_excluded': True, 'target4_role': 'engineering_canary_descriptive_only'}"
+phase_count_48,PASS,1,48
+wave_A_exact,PASS,1,"[8, 9, 3, 6]"
+wave_B_exact,PASS,1,"[5, 2, 7, 1]"
+wave_continuation_engineering_only,PASS,1,Wave_A_engineering_only_no_target_scientific_outcome
+target4_primary_excluded,PASS,1,"{'new_target_population_claim_allowed': False, 'primary_targets': [1, 2, 3, 5, 6, 7, 8, 9], 'seed3': 'exploratory_replication_field', 'seed4': 'untouched_locked_confirmation_field', 'target4_canary': 'descriptive_only_excluded_from_all_primary_tests'}"
+seed4_untouched_contract,PASS,1,"{'caches': 0, 'checkpoints': 0, 'execution_access': 0, 'outcome_reads': 0, 'training_jobs': 0}"
+fixed_historical_regimes,PASS,1,"{'ERM': 'exact_historical_stage1_final_anchor', 'OACI': 'exact_historical_objective_40_fixed_cadence_checkpoints', 'SRC': 'exact_C11_historical_negative_control_commit_2555b36_smooth_temperature_0.1', 'SRC_smooth_temperature': 0.1, 'checkpoint_every_epochs': 5, 'outcome_blind_retention': True, 'retry_policy': 'engineering_failure_only_first_valid_success_retained', 'stage1_epochs': 200, 'stage2_epochs': 200, 'target_fit_rows': 0}"
+fixed_cadence,PASS,1,"{'ERM': 'exact_historical_stage1_final_anchor', 'OACI': 'exact_historical_objective_40_fixed_cadence_checkpoints', 'SRC': 'exact_C11_historical_negative_control_commit_2555b36_smooth_temperature_0.1', 'SRC_smooth_temperature': 0.1, 'checkpoint_every_epochs': 5, 'outcome_blind_retention': True, 'retry_policy': 'engineering_failure_only_first_valid_success_retained', 'stage1_epochs': 200, 'stage2_epochs': 200, 'target_fit_rows': 0}"
+physical_views_locked,PASS,1,"{'same_label_oracle_view': 'physically_separate_diagnostic_only', 'strict_source_trial_view': 'source_labels_allowed', 'target_construction_view': 'physically_separate_after_full_freeze', 'target_evaluation_view': 'physically_separate_after_full_freeze', 'target_unlabeled_trial_view': 'target_labels_forbidden'}"
+instrument_identity_tolerances,PASS,1,"{'Wz_plus_b_logits_abs': 1e-06, 'hook_z_abs': 1e-06, 'repeat_abs': 0.0, 'softmax_abs': 1e-07}"
+all_implementation_hashes,PASS,1,16
+all_historical_hashes,PASS,1,8
+no_top_level_torch_or_EEG_loader,PASS,1,"['argparse', 'json', 'numpy', 'os', 'time']"
+workers_require_runtime_authorization,PASS,1,guard present
+no_token_in_slurm,PASS,1,7
+GPU_partition_locked,PASS,1,V100
+cpu_high_48_core_instrument,PASS,1,cpu-high/48
+all_target_metadata_preflights,PASS,1,8
+storage_preflight,PASS,1,2994121736192
+risk_register_complete,PASS,1,25
+no_final_report_before_execution,PASS,1,absent

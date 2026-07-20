@@ -1,0 +1,17 @@
+pattern,total_hits,affirmative_hits,files,passed
+re-inference has been authorized,0,0,,1
+training has been authorized,0,0,,1
+few-label sufficiency is established,0,0,,1
+full conditional CS has been run on EEG trial samples,0,0,,1
+endpoint scalar is available at selection time,0,0,,1
+source dynamics rescues actionability,0,0,,1
+source-only selector found,0,0,,1
+OACI rescue,0,0,,1
+deployable checkpoint selector,0,0,,1
+EEG distribution theorem,0,0,,1
+minimax theorem,0,0,,1
+Le Cam theorem,0,0,,1
+Fano theorem,0,0,,1
+BNCI2014_004 used,0,0,,1
+"seeds [3,4] used",0,0,,1
+GPU required,0,0,,1

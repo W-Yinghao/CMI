@@ -1,0 +1,608 @@
+{
+  "schema_version": "c84f_overall_report_v1",
+  "milestone": "C84F",
+  "report_scope": "complete_dual_level_model_field_and_label_free_target_instrumentation_lifecycle",
+  "gate": "C84_MULTI_DATASET_DUAL_LEVEL_FIXED_ZOO_FIELD_EXECUTED_AND_MANIFESTED_ANALYSIS_NOT_STARTED",
+  "status": "COMPLETE_ENGINEERING_FIELD_SCIENTIFIC_ANALYSIS_NOT_STARTED",
+  "epistemic_status": {
+    "engineering_field_completion": true,
+    "latest_valid_scientific_result": "C82-D",
+    "new_C84_scientific_result": false,
+    "target_accuracy_available": false,
+    "selector_performance_available": false,
+    "Q1_Q2_available": false,
+    "label_budget_frontier_available": false,
+    "external_validity_established": false
+  },
+  "chronology": [
+    {
+      "milestone": "C84C",
+      "job_id": 895441,
+      "scope": "panel_A_seed5_level0_engineering_canary",
+      "units": 243,
+      "training_phases": 9,
+      "complete_manifest_sha256": "530471ef370d5fa13a88e7e53cf1add558b8444b66675496187aa192b0606f2b",
+      "disposition": "ACCEPTED_REUSABLE_MODEL_STATE_SOURCE_AUDIT"
+    },
+    {
+      "milestone": "C84L1C",
+      "job_id": 896066,
+      "scope": "panel_A_seed5_level1_engineering_canary",
+      "units": 243,
+      "training_phases": 9,
+      "complete_manifest_sha256": "3cf1366ccf40efc82a6bb2ffef56045e83c0f0e9670429973f23252371ad1c18",
+      "disposition": "ACCEPTED_REUSABLE_MODEL_STATE_SOURCE_AUDIT"
+    },
+    {
+      "milestone": "C84F_INITIAL",
+      "job_id": 896185,
+      "scope": "complete_model_field_then_target_registry",
+      "model_units_completed": 1944,
+      "training_phases_completed": 72,
+      "failure": "raw_dictionary_sort_TypeError",
+      "disposition": "MODEL_FIELD_ACCEPTED_TARGET_STAGE_FAILED_PRESERVED"
+    },
+    {
+      "milestone": "C84FR1",
+      "job_id": 896550,
+      "scope": "canonical_target_registry_and_target_instrumentation",
+      "target_subjects_frozen": 118,
+      "target_registry_rows_frozen": 9621,
+      "failure": "legacy_NumPy_float32_replay_2.193450927734375e-05_above_2e-05",
+      "disposition": "TARGET_REGISTRY_ACCEPTED_11_PARTIAL_OBJECTS_REJECTED"
+    },
+    {
+      "milestone": "C84FR2_EXECUTION",
+      "job_id": 897048,
+      "scope": "same_backend_exact_persistence_complete_target_stage",
+      "target_artifacts": 1944,
+      "context_digest_sidecars": 1944,
+      "candidate_context_slices": 76464,
+      "disposition": "COMPLETE_ATOMIC_FIELD_ACCEPTED"
+    }
+  ],
+  "identity": {
+    "readiness_head": "ed5314b0c2ff04810628408c01caa6b4f47bbc8f",
+    "repair_protocol_commit": "27fc479ecd4131ceb4f79982cb0890f517709d2e",
+    "repair_protocol_sha256": "4480530f05f0814b712edf23a51f08e64820ddea220d6b26f4dc7bb0f2a541bf",
+    "backend_diagnostic_commit": "6e727b80645c08362d75a98da5ef4ee52f2f1d9d",
+    "target_instrumentation_v2_commit": "b527b82950690d09e73e5f3468d994cf11b56413",
+    "target_instrumentation_v2_sha256": "2387b3a1a81dd061b7cc723820d41829e0237e5be0f243bc423422a173f72671",
+    "implementation_commit": "a64c6815ad512d0b8bc7158cd61ff2147f24948a",
+    "execution_lock_commit": "34eb5efad16f1f8a320b08435363939089c8037a",
+    "execution_lock_sha256": "f0c369ee273352b47e36ce426108d78a2d4193180afbf0aecfbbeb3d4980ba47",
+    "authorization_commit": "fc40914d104bde8522c82106b615f2e29ad38e9c",
+    "authorization_record_sha256": "b05ba5dd5c6a6393038d491a5b1407c7a973b0c20494963e44b91311b482a05b",
+    "authorization_consumption_sha256": "d25e8047a8245c85640b4c06e80c5d06a65fb3db39463a0a431dd08b74fab0e3",
+    "initial_result_commit": "d3eb1919eb29c028d4570f605fd6bc1c05bfbc5e",
+    "complete_manifest_sha256": "cfffcac1a55148941b809b69bed2c9a8957a94729ed7f2c2c29ed8d48c0134d8"
+  },
+  "protocol_bindings": {
+    "C84FR2": "4480530f05f0814b712edf23a51f08e64820ddea220d6b26f4dc7bb0f2a541bf",
+    "target_instrumentation_v2": "2387b3a1a81dd061b7cc723820d41829e0237e5be0f243bc423422a173f72671",
+    "C84FR1": "eb14721c9e78305f6c8e687e01a8f0951c192cc953b288b96c45c9cb1cdc1cd0",
+    "C84FL2": "2ac679a5308d5d972b14d38e01cbc0d875ca6c5e547b752945fc831e38081f62",
+    "field_v7": "9db0219befecb11cf72386b96e28ee9d9430c3df5d7947298f102492f072b737",
+    "full_field_v2": "dafc44dbc24ea5d4d1cea61207479cbd986c9f8129b111682a00f15a44b1d15d",
+    "external_v3": "cd338bf1b97180b27dd42471dd2a67768194b74ed9896275424591d17e970ce0",
+    "science_v3": "bf6c7f718413b4b2ac2ad9786aa2e47dc045a536e7237d5d8c0464b6598130b8",
+    "level1_intervention": "b9fed16afe9961d0d25f4801fa29859a8acb87c091e125ffe57e20e72ad00f35",
+    "level1_numerical_repair": "2e199f6f63dffd1b02c1e31102ed189e31bf6e4961465394230f8e9de1d4ddf0"
+  },
+  "authorization": {
+    "direct_explicit_PI_authorization": true,
+    "authorized_stage": "C84F_TARGET_STAGE_NUMERICAL_REPLAY_REPAIR",
+    "model_retraining": false,
+    "target_labels": false,
+    "scientific_metrics": false,
+    "same_label_oracle": false,
+    "C84S": false,
+    "historical_authorizations_reused": false
+  },
+  "runtime_lock": {
+    "bound_repository_objects": 38,
+    "implementation_files": 19,
+    "protocol_sidecars": 10,
+    "loader_source_files": 4,
+    "model_artifact_files": 7776,
+    "dual_canary_files": 2430,
+    "operative_unit_ids": 1944
+  },
+  "environment": {
+    "conda_prefix": "/home/infres/yinwang/anaconda3/envs/c84c-eeg2025-v3-exact",
+    "python": "3.13.7",
+    "torch": "2.6.0+cu124",
+    "moabb": "1.5.0",
+    "mne": "1.11.0",
+    "chardet": "5.2.0",
+    "CUBLAS_WORKSPACE_CONFIG": ":4096:8",
+    "PYTHONHASHSEED": "0",
+    "OMP_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1"
+  },
+  "interface": {
+    "id": "C84_LEFT_RIGHT_20CH_160HZ_0_3S_V2",
+    "task": [
+      "left_hand",
+      "right_hand"
+    ],
+    "channels": [
+      "FC5",
+      "FC3",
+      "FC1",
+      "FC2",
+      "FC4",
+      "FC6",
+      "C5",
+      "C3",
+      "C1",
+      "Cz",
+      "C2",
+      "C4",
+      "C6",
+      "CP5",
+      "CP3",
+      "CP1",
+      "CPz",
+      "CP2",
+      "CP4",
+      "CP6"
+    ],
+    "montage_sha256": "988e8f89c3001a5144172a10f3a8b30eb50c28d485b900210b91ed1a0cf04f04",
+    "sample_rate_hz": 160,
+    "epoch_half_open_seconds": [
+      0.0,
+      3.0
+    ],
+    "samples": 480,
+    "interpolation": false,
+    "Fz_substitution": false,
+    "zero_filling": false,
+    "dataset_specific_masks": false,
+    "Physionet_subject_88_excluded": true
+  },
+  "field_design": {
+    "datasets": [
+      "Lee2019_MI",
+      "Cho2017",
+      "PhysionetMI"
+    ],
+    "source_panels": [
+      "A",
+      "B"
+    ],
+    "source_training_subjects_per_panel": 12,
+    "source_audit_subjects_per_panel": 4,
+    "training_seeds": [
+      5,
+      6
+    ],
+    "levels": {
+      "0": "C84_LEVEL0_FULL_SOURCE_PANEL_V1",
+      "1": "C84_LEVEL1_FIXED_PANEL_LEFT_HAND_CELL_DELETION_V1"
+    },
+    "level1_deleted_subjects": {
+      "Lee2019_MI": {
+        "A": 31,
+        "B": 16
+      },
+      "Cho2017": {
+        "A": 17,
+        "B": 37
+      },
+      "PhysionetMI": {
+        "A": 103,
+        "B": 109
+      }
+    },
+    "level1_deleted_class": "left_hand",
+    "candidate_zoo": {
+      "ERM": 1,
+      "OACI": 40,
+      "SRC": 40,
+      "total": 81
+    },
+    "zoos": 24,
+    "training_phases": 72,
+    "candidate_units": 1944,
+    "units_per_level": 972,
+    "units_per_dataset": 648
+  },
+  "accepted_reuse": {
+    "C84C": {
+      "job_id": 895441,
+      "units": 243,
+      "phases": 9,
+      "manifest_sha256": "530471ef370d5fa13a88e7e53cf1add558b8444b66675496187aa192b0606f2b"
+    },
+    "C84L1C": {
+      "job_id": 896066,
+      "units": 243,
+      "phases": 9,
+      "manifest_sha256": "3cf1366ccf40efc82a6bb2ffef56045e83c0f0e9670429973f23252371ad1c18"
+    },
+    "combined_units": 486,
+    "combined_phases": 18,
+    "replayed_external_files": 2430,
+    "canary_target_artifacts_role": "replay_witness_only"
+  },
+  "model_field": {
+    "originating_job": 896185,
+    "manifest_sha256": "d8931b81a3d68f4b1e098ac6e3ede3cd44cdb6c70cdef9f18a76e0a8c62ecdb2",
+    "units": 1944,
+    "training_phases": 72,
+    "artifact_files": 7776,
+    "level_counts": {
+      "0": 972,
+      "1": 972
+    },
+    "reuse_counts": {
+      "C84C": 243,
+      "C84L1C": 243,
+      "C84F_new": 1458
+    },
+    "regime_counts": {
+      "ERM": 24,
+      "OACI": 960,
+      "SRC": 960
+    },
+    "training_target_rows": 0,
+    "training_target_labels": 0,
+    "source_audit_rows_used_in_training": 0,
+    "target_outcome_retention": 0,
+    "target_outcome_retry": 0,
+    "target_access_before_freeze": 0,
+    "historical_canary_context_exceptions": 6,
+    "historical_canary_values_affected_retention": false
+  },
+  "historical_failed_attempts": [
+    {
+      "job_id": 896185,
+      "failure_stage": "complete_target_unlabeled_registry_after_model_freeze",
+      "failure_type": "TypeError",
+      "failure_message": "'<' not supported between instances of 'dict' and 'dict'",
+      "model_field_reusable": true,
+      "target_artifacts_reusable": false,
+      "target_y_accesses": 0,
+      "scientific_metrics": 0,
+      "outcome_contamination": false
+    },
+    {
+      "job_id": 896550,
+      "failure_stage": "complete_target_unlabeled_instrumentation_no_training",
+      "failure_type": "C84FManifestError",
+      "failed_unit_id": "c84l1_00cb2c89efa87efe281dbb9229c63e53",
+      "observed_legacy_numpy_float32_error": 2.193450927734375e-05,
+      "historical_tolerance": 2e-05,
+      "complete_NPZ_files": 6,
+      "complete_context_indices": 5,
+      "partial_candidate_context_slices": 268,
+      "partial_objects_reused": false,
+      "target_y_accesses": 0,
+      "scientific_metrics": 0,
+      "outcome_contamination": false
+    }
+  ],
+  "preflight": {
+    "status": "PASS",
+    "head_equals_origin_oaci": true,
+    "preflight_head": "fc40914d104bde8522c82106b615f2e29ad38e9c",
+    "active_C84_jobs": 0,
+    "fresh_output_root_absent": true,
+    "available_output_bytes": 2866721849344,
+    "available_output_inodes": 5599065414,
+    "historical_partial_objects_replayed_and_rejected": 11,
+    "operator_summary_wrapper_failures": 2,
+    "wrapper_failure_authorization_consumed": false,
+    "wrapper_failure_real_data_access": 0,
+    "final_no_data_preflight_passed": true
+  },
+  "execution": {
+    "job_id": 897048,
+    "job_name": "c84fr2-target",
+    "partition": "V100",
+    "node": "node11",
+    "GPU_type": "V100",
+    "GPUs": 1,
+    "CPUs": 8,
+    "memory_GiB": 64,
+    "requested_wall": "05:00:00",
+    "start_utc": "2026-07-15T12:56:16.073594400Z",
+    "complete_utc": "2026-07-15T14:58:19.076017890Z",
+    "application_wall_seconds": 7322.999471096,
+    "application_complete_event": true,
+    "scheduler_terminal_state_claimed": false,
+    "scheduler_monitor": "squeue_plus_application_ledger",
+    "sacct_used": false,
+    "sharded": false,
+    "sharding_reason": "prospective_runtime_below_5_hours_and_actual_runtime_about_2_hours",
+    "alternate_GPU_not_used_reason": "execution_lock_bound_V100_and_cross_architecture_change_required_relock",
+    "stage_seconds": {
+      "guard_import_and_frozen_input_barrier": 12.452210921,
+      "target_X_and_registry_replay": 1240.043069406,
+      "complete_target_instrumentation": 5806.071385733,
+      "aggregate_and_atomic_manifest_publication": 264.432805036
+    }
+  },
+  "target_input_freeze": {
+    "raw_manifest_sha256": "9539747e903dfe67295ee04a97441b85c0bb2179c9ef1bd2177788865e0ba5fd",
+    "trial_registry_sha256": "52526aaf7d9bd941bac693a0947971dc35b9083c1c783619f97055926aceabb8",
+    "subjects": 118,
+    "trial_rows": 9621,
+    "raw_files": 672,
+    "raw_bytes": 31901156731,
+    "target_y_operations": 0,
+    "target_label_fields": 0,
+    "per_dataset": [
+      {
+        "dataset": "Lee2019_MI",
+        "subjects": 22,
+        "trial_rows": 2200,
+        "raw_files": 44,
+        "raw_bytes": 26461699033
+      },
+      {
+        "dataset": "Cho2017",
+        "subjects": 20,
+        "trial_rows": 4000,
+        "raw_files": 20,
+        "raw_bytes": 4082102946
+      },
+      {
+        "dataset": "PhysionetMI",
+        "subjects": 76,
+        "trial_rows": 3421,
+        "raw_files": 608,
+        "raw_bytes": 1357354752
+      }
+    ],
+    "cache_audit": {
+      "repeated_download_URLs_in_job_896185": 0,
+      "Lee_shared_cache_reused": true,
+      "Cho_shared_cache_reused": true,
+      "Physionet_shared_cache_readable_by_executor": false,
+      "Physionet_executor_cache_required_files": 864
+    }
+  },
+  "target_instrumentation": {
+    "schema_version": "c84f_target_unlabeled_v2",
+    "context_index_schema_version": "c84f_target_context_and_digest_index_v2",
+    "complete_manifest_schema_version": "c84f_complete_field_manifest_v2",
+    "target_artifacts": 1944,
+    "context_digest_sidecars": 1944,
+    "field_descriptors": 1944,
+    "target_contexts": 944,
+    "candidate_context_slices": 76464,
+    "canary_unit_witnesses": 486,
+    "registered_fields": [
+      "unit_id",
+      "dataset",
+      "panel",
+      "training_seed",
+      "level",
+      "level_intervention_id",
+      "regime",
+      "epoch",
+      "trajectory_order",
+      "target_subject_id",
+      "target_trial_id",
+      "session",
+      "run",
+      "logits",
+      "probabilities",
+      "z",
+      "Wz_plus_b",
+      "classifier_weight",
+      "classifier_bias",
+      "repeat_logits",
+      "repeat_z"
+    ],
+    "per_dataset": [
+      {
+        "dataset": "Lee2019_MI",
+        "candidate_units": 648,
+        "targets": 22,
+        "trial_rows_per_unit": 2200,
+        "contexts": 176,
+        "candidate_context_slices": 14256
+      },
+      {
+        "dataset": "Cho2017",
+        "candidate_units": 648,
+        "targets": 20,
+        "trial_rows_per_unit": 4000,
+        "contexts": 160,
+        "candidate_context_slices": 12960
+      },
+      {
+        "dataset": "PhysionetMI",
+        "candidate_units": 648,
+        "targets": 76,
+        "trial_rows_per_unit": 3421,
+        "contexts": 608,
+        "candidate_context_slices": 49248
+      }
+    ]
+  },
+  "numerical_identity": {
+    "same_backend_tolerance": 1e-06,
+    "same_backend_GPU_PyTorch_max_abs_error": 0,
+    "saved_Wz_plus_b_vs_logits_max_abs_error": 0,
+    "saved_softmax_max_abs_error": 1.1920928955078125e-07,
+    "repeat_logits_max_abs_error": 0,
+    "repeat_z_max_abs_error": 0,
+    "strict_replay_tolerance": 1e-06,
+    "runtime_tolerance_widened": false,
+    "cross_backend_diagnostic_only": true,
+    "cross_backend": {
+      "CPU_PyTorch_float32": {
+        "max": 4.57763671875e-05,
+        "max_p95": 1.0728836059570312e-05,
+        "max_p99": 1.621246337890625e-05
+      },
+      "NumPy_float32": {
+        "max": 4.1961669921875e-05,
+        "max_p95": 1.0967254638671875e-05,
+        "max_p99": 1.6689300537109375e-05
+      },
+      "NumPy_float64": {
+        "max": 1.1513513614502813e-05,
+        "max_p95": 3.5327511082261455e-06,
+        "max_p99": 5.1939440638593156e-06
+      }
+    }
+  },
+  "storage": {
+    "external_root": "/projects/EEG-foundation-model/yinghao/oaci-c84-full-field-target-replay-v2/lock_f0c369ee273352b47e36",
+    "target_artifact_files": 1944,
+    "target_artifact_bytes": 48018748054,
+    "context_sidecar_files": 1944,
+    "context_sidecar_bytes": 24209257,
+    "top_level_files": 8,
+    "top_level_bytes": 15727706,
+    "complete_root_files": 3896,
+    "complete_root_bytes": 48058685017,
+    "complete_manifest_bytes": 6334399,
+    "complete_manifest_sha256": "cfffcac1a55148941b809b69bed2c9a8957a94729ed7f2c2c29ed8d48c0134d8"
+  },
+  "artifact_identity": {
+    "authorization_consumption": {
+      "bytes": 1037,
+      "sha256": "d25e8047a8245c85640b4c06e80c5d06a65fb3db39463a0a431dd08b74fab0e3"
+    },
+    "attempt_ledger": {
+      "bytes": 6109,
+      "sha256": "1cb6bbcbeee6f9c958c8d67ed256d3f47c7a6313f9613b6a1d54fe052777ce2e"
+    },
+    "partial_artifact_manifest": {
+      "bytes": 684762,
+      "sha256": "323190163492751ffc53123a96bee0fe513452f6a8753709c4e65719982e56e6"
+    },
+    "raw_manifest": {
+      "bytes": 156940,
+      "sha256": "9539747e903dfe67295ee04a97441b85c0bb2179c9ef1bd2177788865e0ba5fd"
+    },
+    "target_trial_registry": {
+      "bytes": 8544261,
+      "sha256": "52526aaf7d9bd941bac693a0947971dc35b9083c1c783619f97055926aceabb8"
+    },
+    "complete_field_manifest": {
+      "bytes": 6334399,
+      "sha256": "cfffcac1a55148941b809b69bed2c9a8957a94729ed7f2c2c29ed8d48c0134d8"
+    }
+  },
+  "protected_counters": {
+    "model_retraining": 0,
+    "training_phases_started": 0,
+    "training_phases_completed": 0,
+    "source_EEG_arrays": 0,
+    "source_label_arrays_read": 0,
+    "target_y_operations": 0,
+    "target_label_fields": 0,
+    "target_construction_labels": 0,
+    "target_evaluation_labels": 0,
+    "same_label_oracle": 0,
+    "selector_scores": 0,
+    "scientific_statistics": 0,
+    "target_scientific_metrics": 0,
+    "C84S_authorized": false
+  },
+  "logs": {
+    "stdout_bytes": 59895,
+    "stdout_sha256": "d62ba398d3b15d5d7181bb7fa80c5de346d91fb79cde77a602e3cd33b1545b74",
+    "stderr_bytes": 1900,
+    "stderr_sha256": "460688ec39ffbe001d7e3fb2f710dabce78de43448ef3e9ed41aab2f78766700",
+    "explained_warning_lines": 20,
+    "warning_text": "Trials demeaned and stacked with zero buffer to create continuous data -- edge effects present",
+    "traceback_markers": 0,
+    "runtime_failure_markers": 0
+  },
+  "independent_replay": {
+    "status": "PASS",
+    "artifact_hashes_replayed": 1944,
+    "sidecar_hashes_replayed": 1944,
+    "registered_field_digests_replayed": true,
+    "exact_directory_membership": true,
+    "candidate_context_slices": 76464,
+    "canary_witnesses": 486,
+    "artifact_replay_ledger_sha256": "16c89c8b845383e27dc9787a02812b458495f237217d08d61bd38c22f9bee53f",
+    "bound_input_replay_status": "PASS",
+    "bound_input_replay_ledger_sha256": "1431fb2fb9dad7f6e1becc0cd8e92c6eaf350cf683ea681fa6672c2259fb61c2"
+  },
+  "validation": {
+    "readiness_synthetic": "9/9 PASS",
+    "readiness_red_team": "56/56 PASS",
+    "post_execution_final_report_red_team": "68/68 PASS",
+    "regressions": [
+      {
+        "suite": "focused",
+        "passed": 30,
+        "skipped": 0,
+        "deselected": 0,
+        "pytest_seconds": 1.48,
+        "stdout_sha256": "52704afc142e267b4ec1ade0a5a45c0b874feed9b31066b310afc673a9e43bd5",
+        "stderr_bytes": 0
+      },
+      {
+        "suite": "C65",
+        "passed": 758,
+        "skipped": 1,
+        "deselected": 3,
+        "pytest_seconds": 608.98,
+        "stdout_sha256": "89da21279d48e89445a26fdf20d79bbeb50b2e82cd7b2d587a98f5ad458febc0",
+        "stderr_bytes": 0
+      },
+      {
+        "suite": "C23",
+        "passed": 1169,
+        "skipped": 1,
+        "deselected": 3,
+        "pytest_seconds": 512.97,
+        "stdout_sha256": "b47c7ac22d5d16dfd8a34e770ae60487106640bab5027d3736798f4eb0454617",
+        "stderr_bytes": 0
+      },
+      {
+        "suite": "full",
+        "passed": 2093,
+        "skipped": 1,
+        "deselected": 3,
+        "pytest_seconds": 1634.05,
+        "stdout_sha256": "f4f282674bd8b78fe1b5e7cee90d1ecebe75a93563c1365bf8dd6a7819575d66",
+        "stderr_bytes": 0
+      }
+    ],
+    "conditional_skip": "C78F_already_passed_red_team_and_finalized",
+    "deselection_reason": "three_historical_C79_authorization_state_tests"
+  },
+  "repository_closeout": {
+    "initial_result_head": "d3eb1919eb29c028d4570f605fd6bc1c05bfbc5e",
+    "initial_result_head_equals_origin_oaci": true,
+    "operative_oaci_worktree_clean": true,
+    "active_C84_jobs": 0,
+    "C84S_lock_or_authorization_records": 0,
+    "tracked_files_over_50_MiB": 0,
+    "raw_EEG_weights_optimizer_or_NPZ_added_to_Git": false,
+    "outer_worktree_preexisting_untracked_material_preserved": true
+  },
+  "next_stage": {
+    "stage": "C84S",
+    "scientific_adapter_required": true,
+    "analysis_execution_lock_required": true,
+    "PM_review_required": true,
+    "fresh_direct_PI_authorization_required": true,
+    "authorization_inherited_from_C84F": false
+  },
+  "authoritative_report_set": [
+    "oaci/reports/C84F_OVERALL_REPORT.md",
+    "oaci/reports/C84F_OVERALL_REPORT.json",
+    "oaci/reports/C84F_OVERALL_REPORT.sha256",
+    "oaci/reports/C84F_MULTI_DATASET_DUAL_LEVEL_FIELD.md",
+    "oaci/reports/C84F_MULTI_DATASET_DUAL_LEVEL_FIELD.json",
+    "oaci/reports/C84FR2_EXECUTION_RESULT_IDENTITY.json",
+    "oaci/reports/C84F_FINAL_REPORT_RED_TEAM.md",
+    "oaci/reports/C84F_REGRESSION_VERIFICATION.md",
+    "oaci/reports/OACI_EEG_DG_PROJECT_MEMORY_THROUGH_C84F.md",
+    "oaci/OACI_CODEX_HANDOFF.md"
+  ]
+}

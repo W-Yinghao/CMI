@@ -1,0 +1,628 @@
+{
+  "boundary": {
+    "boundary_aligned_destroys_mirror_vs_random": false,
+    "note": "if S6 (boundary-aligned) collapses the source<->target mirror while S7 (random, severity-matched) preserves it, source-visible boundary structure depends on support coverage of the boundary-rotation classes.",
+    "per_regime": {
+      "S0_full_support": {
+        "boundary_source_visible": true,
+        "n_class_fold_points": 216,
+        "source_target_recall_delta_corr": 0.5465538970611915
+      },
+      "S1_label_marginal_skew": {
+        "boundary_source_visible": true,
+        "n_class_fold_points": 216,
+        "source_target_recall_delta_corr": 0.5465538970611915
+      },
+      "S2_rare_cells": {
+        "boundary_source_visible": true,
+        "n_class_fold_points": 216,
+        "source_target_recall_delta_corr": 0.47461497373351763
+      },
+      "S3_nonestimable_cells": {
+        "boundary_source_visible": true,
+        "n_class_fold_points": 216,
+        "source_target_recall_delta_corr": 0.4727902943653277
+      },
+      "S4_missing_cells": {
+        "boundary_source_visible": true,
+        "n_class_fold_points": 216,
+        "source_target_recall_delta_corr": 0.4657891761515076
+      },
+      "S5_block_class_by_domain": {
+        "boundary_source_visible": true,
+        "n_class_fold_points": 216,
+        "source_target_recall_delta_corr": 0.49647244468735646
+      },
+      "S6_boundary_aligned_mask": {
+        "boundary_source_visible": true,
+        "n_class_fold_points": 162,
+        "source_target_recall_delta_corr": 0.5110324718441439
+      },
+      "S7_random_matched_mask": {
+        "boundary_source_visible": true,
+        "n_class_fold_points": 195,
+        "source_target_recall_delta_corr": 0.46207633725439035
+      }
+    },
+    "s0_corr": 0.5465538970611915,
+    "s6_corr": 0.5110324718441439,
+    "s7_corr": 0.46207633725439035,
+    "scope": "SELECTED ERM/OACI checkpoints; source masked, target unmasked (support degradation is source-side)"
+  },
+  "boundary_classes": [
+    1,
+    3
+  ],
+  "diagnostic_only_non_deployable": true,
+  "gates": {
+    "G1_replay_identity": true,
+    "G2_c17_identity_probe": true,
+    "G3_static_columns_excluded_from_mask_claims": true,
+    "G4_target_labels_joined_after_source_generation": true,
+    "G5_finite_filter": true,
+    "G6_no_selector_artifact": true,
+    "all_gates_pass": true,
+    "c17_all_column_auc": 0.6023104389834069,
+    "c17_auc_target": 0.6023104389834069,
+    "no_strong_scalar": true,
+    "oracle_rho_reproduces": true,
+    "replay_identity_source": "C18_P0_SMOKE.json verdict=PASS identity=8/8 s0=42/42"
+  },
+  "identity_probe": {
+    "G1_s0_reproduces_case_iii": true,
+    "G2_auc_reproduces_0602": true,
+    "G3_oracle_rho_reproduces": true,
+    "G4_no_strong_scalar": true,
+    "beats_permutation": true,
+    "loto_auc": 0.6023104389834069,
+    "max_abs_accuracy_spearman": 0.23603865667990312,
+    "n_rows": 1268,
+    "n_strong": 0,
+    "n_weak": 3,
+    "oracle_spearman_bacc": 0.119523893328065,
+    "permutation_p": 0.008264462809917356,
+    "univariate_verdict": "weak_accuracy_needs_multivariate"
+  },
+  "leakage": {
+    "abstains_under_degradation": false,
+    "min_deleting_estimable_fraction": 1.0,
+    "note": "support-aware leakage reports non-estimability (abstains) as masked cell families lose their last comparable class; unsupported cells are never smoothed or imputed.",
+    "per_regime": {
+      "S0_full_support": {
+        "any_estimable": true,
+        "audit_estimable_fraction": 1.0,
+        "mean_audit_comparable_classes_lost": 0.0,
+        "mean_mass_removed_fraction": 0.0,
+        "mean_src_comparable_classes_lost": 0.0,
+        "mean_src_eligible_cells_removed": 0.0,
+        "n_fold_levels": 54,
+        "severity": 0,
+        "source_estimable_fraction": 1.0
+      },
+      "S1_label_marginal_skew": {
+        "any_estimable": true,
+        "audit_estimable_fraction": 1.0,
+        "mean_audit_comparable_classes_lost": 0.0,
+        "mean_mass_removed_fraction": 0.2554347826086956,
+        "mean_src_comparable_classes_lost": 0.0,
+        "mean_src_eligible_cells_removed": 0.0,
+        "n_fold_levels": 54,
+        "severity": 1,
+        "source_estimable_fraction": 1.0
+      },
+      "S2_rare_cells": {
+        "any_estimable": true,
+        "audit_estimable_fraction": 1.0,
+        "mean_audit_comparable_classes_lost": 0.0,
+        "mean_mass_removed_fraction": 0.0,
+        "mean_src_comparable_classes_lost": 0.0,
+        "mean_src_eligible_cells_removed": 0.0,
+        "n_fold_levels": 54,
+        "severity": 2,
+        "source_estimable_fraction": 1.0
+      },
+      "S3_nonestimable_cells": {
+        "any_estimable": true,
+        "audit_estimable_fraction": 1.0,
+        "mean_audit_comparable_classes_lost": 2.0,
+        "mean_mass_removed_fraction": 0.0,
+        "mean_src_comparable_classes_lost": 0.0,
+        "mean_src_eligible_cells_removed": 2.0,
+        "n_fold_levels": 54,
+        "severity": 3,
+        "source_estimable_fraction": 1.0
+      },
+      "S4_missing_cells": {
+        "any_estimable": true,
+        "audit_estimable_fraction": 1.0,
+        "mean_audit_comparable_classes_lost": 2.0,
+        "mean_mass_removed_fraction": 0.08514492753623193,
+        "mean_src_comparable_classes_lost": 0.0,
+        "mean_src_eligible_cells_removed": 2.0,
+        "n_fold_levels": 54,
+        "severity": 4,
+        "source_estimable_fraction": 1.0
+      },
+      "S5_block_class_by_domain": {
+        "any_estimable": true,
+        "audit_estimable_fraction": 1.0,
+        "mean_audit_comparable_classes_lost": 1.0,
+        "mean_mass_removed_fraction": 0.0,
+        "mean_src_comparable_classes_lost": 0.0,
+        "mean_src_eligible_cells_removed": 3.0,
+        "n_fold_levels": 54,
+        "severity": 4,
+        "source_estimable_fraction": 1.0
+      },
+      "S6_boundary_aligned_mask": {
+        "any_estimable": true,
+        "audit_estimable_fraction": 1.0,
+        "mean_audit_comparable_classes_lost": 2.0,
+        "mean_mass_removed_fraction": 0.1277173913043478,
+        "mean_src_comparable_classes_lost": 0.0,
+        "mean_src_eligible_cells_removed": 3.0,
+        "n_fold_levels": 54,
+        "severity": 3,
+        "source_estimable_fraction": 1.0
+      },
+      "S7_random_matched_mask": {
+        "any_estimable": true,
+        "audit_estimable_fraction": 1.0,
+        "mean_audit_comparable_classes_lost": 2.611111111111111,
+        "mean_mass_removed_fraction": 0.1277173913043478,
+        "mean_src_comparable_classes_lost": 0.0,
+        "mean_src_eligible_cells_removed": 3.0,
+        "n_fold_levels": 54,
+        "severity": 3,
+        "source_estimable_fraction": 1.0
+      }
+    },
+    "s0_source_estimable_fraction": 1.0
+  },
+  "mask_stress_by_regime": {
+    "S0_full_support": {
+      "accuracy_visibility": 0.07199395123539287,
+      "base_rate": 0.5555555555555556,
+      "beats_permutation": true,
+      "calibration_visibility": 0.17689737678497056,
+      "loso_auc": 0.5518588531821046,
+      "loto_auc": 0.5929636630959882,
+      "max_abs_accuracy_spearman": 0.119523893328065,
+      "n_features": 8,
+      "n_rows": 1268,
+      "n_used": 621,
+      "n_weak_accuracy": 0,
+      "permutation_mean_auc": 0.5450141776937618,
+      "permutation_p": 0.008264462809917356,
+      "regime": "S0_full_support",
+      "source_signals_calibration_biased": true,
+      "univariate_verdict": "calibration_identifiable_only"
+    },
+    "S1_label_marginal_skew": {
+      "accuracy_visibility": 0.07199395123539287,
+      "base_rate": 0.5555555555555556,
+      "beats_permutation": true,
+      "calibration_visibility": 0.17689737678497056,
+      "loso_auc": 0.5518588531821046,
+      "loto_auc": 0.5929636630959882,
+      "max_abs_accuracy_spearman": 0.119523893328065,
+      "n_features": 8,
+      "n_rows": 1268,
+      "n_used": 621,
+      "n_weak_accuracy": 0,
+      "permutation_mean_auc": 0.5450141776937618,
+      "permutation_p": 0.008264462809917356,
+      "regime": "S1_label_marginal_skew",
+      "source_signals_calibration_biased": true,
+      "univariate_verdict": "calibration_identifiable_only"
+    },
+    "S2_rare_cells": {
+      "accuracy_visibility": 0.06924145616327763,
+      "base_rate": 0.5555555555555556,
+      "beats_permutation": true,
+      "calibration_visibility": 0.15478601394020017,
+      "loso_auc": 0.5429741650913673,
+      "loto_auc": 0.6025939928586431,
+      "max_abs_accuracy_spearman": 0.132727302201131,
+      "n_features": 8,
+      "n_rows": 1268,
+      "n_used": 621,
+      "n_weak_accuracy": 0,
+      "permutation_mean_auc": 0.5375226668066931,
+      "permutation_p": 0.01652892561983471,
+      "regime": "S2_rare_cells",
+      "source_signals_calibration_biased": true,
+      "univariate_verdict": "calibration_identifiable_only"
+    },
+    "S3_nonestimable_cells": {
+      "accuracy_visibility": 0.06945073435106836,
+      "base_rate": 0.5555555555555556,
+      "beats_permutation": true,
+      "calibration_visibility": 0.15416017306369162,
+      "loso_auc": 0.5405166981726528,
+      "loto_auc": 0.5624133585381222,
+      "max_abs_accuracy_spearman": 0.11829331341850381,
+      "n_features": 8,
+      "n_rows": 1268,
+      "n_used": 621,
+      "n_weak_accuracy": 0,
+      "permutation_mean_auc": 0.4768356612756424,
+      "permutation_p": 0.008264462809917356,
+      "regime": "S3_nonestimable_cells",
+      "source_signals_calibration_biased": true,
+      "univariate_verdict": "calibration_identifiable_only"
+    },
+    "S4_missing_cells": {
+      "accuracy_visibility": null,
+      "base_rate": 0.47318611987381703,
+      "beats_permutation": false,
+      "calibration_visibility": 0.15315537925281023,
+      "loso_auc": 0.4706686626746507,
+      "loto_auc": 0.45972305389221557,
+      "max_abs_accuracy_spearman": 0.10645704087389031,
+      "n_features": 6,
+      "n_rows": 1268,
+      "n_used": 1268,
+      "n_weak_accuracy": 0,
+      "permutation_mean_auc": 0.4794450058216899,
+      "permutation_p": 0.9338842975206612,
+      "regime": "S4_missing_cells",
+      "source_signals_calibration_biased": false,
+      "univariate_verdict": "calibration_identifiable_only"
+    },
+    "S5_block_class_by_domain": {
+      "accuracy_visibility": 0.08790086924906446,
+      "base_rate": 0.5555555555555556,
+      "beats_permutation": false,
+      "calibration_visibility": 0.12730777975869473,
+      "loso_auc": 0.5196282293635791,
+      "loto_auc": 0.5772526780088216,
+      "max_abs_accuracy_spearman": 0.11091174082010936,
+      "n_features": 8,
+      "n_rows": 1268,
+      "n_used": 621,
+      "n_weak_accuracy": 0,
+      "permutation_mean_auc": 0.5423541097808583,
+      "permutation_p": 0.09917355371900827,
+      "regime": "S5_block_class_by_domain",
+      "source_signals_calibration_biased": true,
+      "univariate_verdict": "calibration_identifiable_only"
+    },
+    "S6_boundary_aligned_mask": {
+      "accuracy_visibility": null,
+      "base_rate": 0.47318611987381703,
+      "beats_permutation": false,
+      "calibration_visibility": 0.1304633156320496,
+      "loso_auc": 0.5295209580838324,
+      "loto_auc": 0.5137674650698603,
+      "max_abs_accuracy_spearman": 0.09303655865389802,
+      "n_features": 6,
+      "n_rows": 1268,
+      "n_used": 1268,
+      "n_weak_accuracy": 0,
+      "permutation_mean_auc": 0.48831376829673984,
+      "permutation_p": 0.0743801652892562,
+      "regime": "S6_boundary_aligned_mask",
+      "source_signals_calibration_biased": false,
+      "univariate_verdict": "calibration_identifiable_only"
+    },
+    "S7_random_matched_mask": {
+      "accuracy_visibility": null,
+      "base_rate": 0.47318611987381703,
+      "beats_permutation": false,
+      "calibration_visibility": 0.13300823282576021,
+      "loso_auc": 0.4394436127744511,
+      "loto_auc": 0.44802145708582836,
+      "max_abs_accuracy_spearman": 0.12044741586120732,
+      "n_features": 6,
+      "n_rows": 1268,
+      "n_used": 1268,
+      "n_weak_accuracy": 0,
+      "permutation_mean_auc": 0.37511551896207584,
+      "permutation_p": 0.008264462809917356,
+      "regime": "S7_random_matched_mask",
+      "source_signals_calibration_biased": false,
+      "univariate_verdict": "calibration_identifiable_only"
+    }
+  },
+  "n_folds": 27,
+  "observability_dropout": {
+    "is_primary": false,
+    "label": "secondary_observability_proxy_not_source_distribution_recompute",
+    "note": "SECONDARY proxy: drops columns that would become non-estimable under support degradation; does NOT recompute surviving columns under the masked source distribution. Compare against the genuine C18-P replay, never substitute for it.",
+    "per_regime": {
+      "S0_full_support": {
+        "beats_permutation": true,
+        "dropped_columns": [],
+        "loto_auc": 0.6023104389834069,
+        "n_dropped": 0,
+        "permutation_p": 0.008264462809917356,
+        "univariate_verdict": "weak_accuracy_needs_multivariate"
+      },
+      "S1_label_marginal_skew": {
+        "beats_permutation": true,
+        "dropped_columns": [],
+        "loto_auc": 0.6023104389834069,
+        "n_dropped": 0,
+        "permutation_p": 0.008264462809917356,
+        "univariate_verdict": "weak_accuracy_needs_multivariate"
+      },
+      "S2_rare_cells": {
+        "beats_permutation": true,
+        "dropped_columns": [
+          "selection_leakage_point"
+        ],
+        "loto_auc": 0.5915353917244276,
+        "n_dropped": 1,
+        "permutation_p": 0.008264462809917356,
+        "univariate_verdict": "weak_accuracy_needs_multivariate"
+      },
+      "S3_nonestimable_cells": {
+        "beats_permutation": true,
+        "dropped_columns": [
+          "selection_leakage_point",
+          "audit_leakage_point"
+        ],
+        "loto_auc": 0.563505566057551,
+        "n_dropped": 2,
+        "permutation_p": 0.008264462809917356,
+        "univariate_verdict": "weak_accuracy_needs_multivariate"
+      },
+      "S4_missing_cells": {
+        "beats_permutation": true,
+        "dropped_columns": [
+          "selection_leakage_point",
+          "audit_leakage_point",
+          "source_audit_worst_bacc",
+          "source_audit_worst_nll",
+          "source_audit_worst_ece"
+        ],
+        "loto_auc": 0.5583280823356438,
+        "n_dropped": 5,
+        "permutation_p": 0.008264462809917356,
+        "univariate_verdict": "weak_accuracy_needs_multivariate"
+      },
+      "S5_block_class_by_domain": {
+        "beats_permutation": true,
+        "dropped_columns": [
+          "selection_leakage_point",
+          "audit_leakage_point"
+        ],
+        "loto_auc": 0.563505566057551,
+        "n_dropped": 2,
+        "permutation_p": 0.008264462809917356,
+        "univariate_verdict": "weak_accuracy_needs_multivariate"
+      },
+      "S6_boundary_aligned_mask": {
+        "beats_permutation": true,
+        "dropped_columns": [
+          "selection_leakage_point",
+          "audit_leakage_point",
+          "source_audit_worst_bacc"
+        ],
+        "loto_auc": 0.5820205839109431,
+        "n_dropped": 3,
+        "permutation_p": 0.008264462809917356,
+        "univariate_verdict": "weak_accuracy_needs_multivariate"
+      },
+      "S7_random_matched_mask": {
+        "beats_permutation": true,
+        "dropped_columns": [
+          "selection_leakage_point",
+          "audit_leakage_point",
+          "source_audit_worst_bacc"
+        ],
+        "loto_auc": 0.5820205839109431,
+        "n_dropped": 3,
+        "permutation_p": 0.008264462809917356,
+        "univariate_verdict": "weak_accuracy_needs_multivariate"
+      }
+    }
+  },
+  "recomputable_features": [
+    "source_guard_worst_bacc",
+    "source_guard_worst_nll",
+    "source_guard_worst_ece",
+    "source_audit_worst_bacc",
+    "source_audit_worst_nll",
+    "source_audit_worst_ece",
+    "selection_leakage_point",
+    "audit_leakage_point"
+  ],
+  "severity_response": {
+    "boundary_corr_vs_severity_spearman": -0.6174722043424953,
+    "leakage_estimable_vs_severity_spearman": null,
+    "loto_auc_vs_severity_spearman": -0.6421710925161951,
+    "note": "keyed by regime; independent of computation order (test asserts permutation invariance).",
+    "order_invariant": true,
+    "severity_rows": [
+      {
+        "accuracy_visibility": 0.07199395123539287,
+        "beats_permutation": true,
+        "boundary_corr": 0.5465538970611915,
+        "calibration_visibility": 0.17689737678497056,
+        "leakage_source_estimable_fraction": 1.0,
+        "loto_auc": 0.5929636630959882,
+        "n_used": 621,
+        "permutation_p": 0.008264462809917356,
+        "regime": "S0_full_support",
+        "severity": 0
+      },
+      {
+        "accuracy_visibility": 0.07199395123539287,
+        "beats_permutation": true,
+        "boundary_corr": 0.5465538970611915,
+        "calibration_visibility": 0.17689737678497056,
+        "leakage_source_estimable_fraction": 1.0,
+        "loto_auc": 0.5929636630959882,
+        "n_used": 621,
+        "permutation_p": 0.008264462809917356,
+        "regime": "S1_label_marginal_skew",
+        "severity": 1
+      },
+      {
+        "accuracy_visibility": 0.06924145616327763,
+        "beats_permutation": true,
+        "boundary_corr": 0.47461497373351763,
+        "calibration_visibility": 0.15478601394020017,
+        "leakage_source_estimable_fraction": 1.0,
+        "loto_auc": 0.6025939928586431,
+        "n_used": 621,
+        "permutation_p": 0.01652892561983471,
+        "regime": "S2_rare_cells",
+        "severity": 2
+      },
+      {
+        "accuracy_visibility": 0.06945073435106836,
+        "beats_permutation": true,
+        "boundary_corr": 0.4727902943653277,
+        "calibration_visibility": 0.15416017306369162,
+        "leakage_source_estimable_fraction": 1.0,
+        "loto_auc": 0.5624133585381222,
+        "n_used": 621,
+        "permutation_p": 0.008264462809917356,
+        "regime": "S3_nonestimable_cells",
+        "severity": 3
+      },
+      {
+        "accuracy_visibility": null,
+        "beats_permutation": false,
+        "boundary_corr": 0.4657891761515076,
+        "calibration_visibility": 0.15315537925281023,
+        "leakage_source_estimable_fraction": 1.0,
+        "loto_auc": 0.45972305389221557,
+        "n_used": 1268,
+        "permutation_p": 0.9338842975206612,
+        "regime": "S4_missing_cells",
+        "severity": 4
+      },
+      {
+        "accuracy_visibility": 0.08790086924906446,
+        "beats_permutation": false,
+        "boundary_corr": 0.49647244468735646,
+        "calibration_visibility": 0.12730777975869473,
+        "leakage_source_estimable_fraction": 1.0,
+        "loto_auc": 0.5772526780088216,
+        "n_used": 621,
+        "permutation_p": 0.09917355371900827,
+        "regime": "S5_block_class_by_domain",
+        "severity": 4
+      },
+      {
+        "accuracy_visibility": null,
+        "beats_permutation": false,
+        "boundary_corr": 0.5110324718441439,
+        "calibration_visibility": 0.1304633156320496,
+        "leakage_source_estimable_fraction": 1.0,
+        "loto_auc": 0.5137674650698603,
+        "n_used": 1268,
+        "permutation_p": 0.0743801652892562,
+        "regime": "S6_boundary_aligned_mask",
+        "severity": 3
+      },
+      {
+        "accuracy_visibility": null,
+        "beats_permutation": false,
+        "boundary_corr": 0.46207633725439035,
+        "calibration_visibility": 0.13300823282576021,
+        "leakage_source_estimable_fraction": 1.0,
+        "loto_auc": 0.44802145708582836,
+        "n_used": 1268,
+        "permutation_p": 0.008264462809917356,
+        "regime": "S7_random_matched_mask",
+        "severity": 3
+      }
+    ]
+  },
+  "static_features": [
+    "R_src",
+    "balanced_err",
+    "train_surrogate",
+    "epoch"
+  ],
+  "support_graph_metrics": {
+    "base_mean_comparable_classes": 4.0,
+    "base_mean_eligible_cells": 23.5,
+    "n_fold_levels": 54,
+    "per_regime": {
+      "S0_full_support": {
+        "comp_lost": 0,
+        "elig_removed": 0,
+        "n": 54
+      },
+      "S1_label_marginal_skew": {
+        "comp_lost": 0,
+        "elig_removed": 0,
+        "n": 54
+      },
+      "S2_rare_cells": {
+        "comp_lost": 0,
+        "elig_removed": 0,
+        "n": 54
+      },
+      "S3_nonestimable_cells": {
+        "comp_lost": 0,
+        "elig_removed": 108,
+        "n": 54
+      },
+      "S4_missing_cells": {
+        "comp_lost": 0,
+        "elig_removed": 108,
+        "n": 54
+      },
+      "S5_block_class_by_domain": {
+        "comp_lost": 0,
+        "elig_removed": 162,
+        "n": 54
+      },
+      "S6_boundary_aligned_mask": {
+        "comp_lost": 0,
+        "elig_removed": 162,
+        "n": 54
+      },
+      "S7_random_matched_mask": {
+        "comp_lost": 0,
+        "elig_removed": 162,
+        "n": 54
+      }
+    }
+  },
+  "taxonomy": {
+    "case_label": "collapsed_by_accuracy_endpoint_nonestimability",
+    "diagnostic_only_non_deployable": true,
+    "evidence": {
+      "boundary_s6_corr": 0.5110324718441439,
+      "boundary_s7_corr": 0.46207633725439035,
+      "cell_deletion_endpoint_nonestimability_fraction": 1.0,
+      "cell_present_preserved_fraction": 0.6666666666666666,
+      "deleting_regimes_leakage_estimable_fraction": 1.0,
+      "deleting_regimes_with_comparable_remaining": 1.0,
+      "mean_accuracy_visibility_deleting": 0.07553101992113682,
+      "mean_calibration_visibility_deleting": 0.14214681574553442,
+      "regime_collapse_reason": {
+        "S0_full_support": "none",
+        "S1_label_marginal_skew": "implemented_noop",
+        "S2_rare_cells": "none",
+        "S3_nonestimable_cells": "none",
+        "S4_missing_cells": "endpoint_metric_nonestimability",
+        "S5_block_class_by_domain": "signal_loss",
+        "S6_boundary_aligned_mask": "endpoint_metric_nonestimability",
+        "S7_random_matched_mask": "endpoint_metric_nonestimability"
+      },
+      "s0_beats_permutation": true
+    },
+    "interpretation": "the weak signal SURVIVES cell-present stress (rare/nonestimable); it collapses only under cell DELETION, and there because the worst-domain accuracy ENDPOINT becomes non-estimable (a domain loses a class -> reference bAcc NaN), not because the model signal vanished. Support deletion destroys accuracy-observable availability before it forces leakage abstention.",
+    "next_science": "the limiter is estimator-level accuracy-endpoint availability under cell deletion, not signal loss; a pre-registered competence probe should use deletion-robust (calibration/leakage) observables + report endpoint estimability. Still diagnostic, NOT deployable.",
+    "regime_collapse_reason": {
+      "S0_full_support": "none",
+      "S1_label_marginal_skew": "implemented_noop",
+      "S2_rare_cells": "none",
+      "S3_nonestimable_cells": "none",
+      "S4_missing_cells": "endpoint_metric_nonestimability",
+      "S5_block_class_by_domain": "signal_loss",
+      "S6_boundary_aligned_mask": "endpoint_metric_nonestimability",
+      "S7_random_matched_mask": "endpoint_metric_nonestimability"
+    },
+    "summary": "weak signal survives cell-present stress; collapses under cell DELETION via accuracy-endpoint non-estimability"
+  }
+}

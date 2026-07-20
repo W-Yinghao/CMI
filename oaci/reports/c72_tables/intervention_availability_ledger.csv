@@ -1,0 +1,9 @@
+intervention,required_fields,available,representation_required,reason
+I0,logits;labels;split_role,1,0,frozen cache fields validated
+I1,utility vectors,1,0,mathematical identity
+I2,logits,1,0,all-class scalar identity
+I3,logits;construction labels,1,0,class-vector shifts supported
+I4,logits;construction labels,1,0,temperature supported
+I5,candidate logits;construction labels,1,0,candidate gradients supported
+I6,evaluation labels,1,0,locked until primary freeze
+I7,representation or Wdotz,0,1,fields absent; no representation inference from logits

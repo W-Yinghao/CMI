@@ -1,0 +1,6 @@
+public_evidence,decision,primary_role_allowed
+explicit_minimum_age_at_least_18,PASS,1
+explicit_inclusion_requires_age_at_least_18,PASS,1
+mean_and_SD_only,FAIL_CLOSED,0
+range_includes_17,FAIL_CLOSED,0
+subject_table_missing_or_invalid,FAIL_CLOSED,0

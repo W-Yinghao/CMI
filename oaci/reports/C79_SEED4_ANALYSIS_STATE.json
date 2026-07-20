@@ -1,0 +1,18 @@
+{"at_utc": "2026-07-11T19:51:11Z", "event": "C78S_started", "lock_sha256": "97a9b85be495c835a928a397575c0af9801b82d0b66cd9c704abe7d1f235e997", "target_label_payload_reads_before_lock": 0}
+{"at_utc": "2026-07-11T19:51:56Z", "event": "unlabeled_features_frozen", "target_labels_accessed": 0}
+{"at_utc": "2026-07-11T19:51:57Z", "event": "H1_complete"}
+{"at_utc": "2026-07-11T19:52:06Z", "event": "prediction_path_complete", "path": "strict_source_F2"}
+{"at_utc": "2026-07-11T19:52:19Z", "event": "prediction_path_complete", "path": "target_unlabeled_F4_geometry"}
+{"at_utc": "2026-07-11T19:52:36Z", "event": "prediction_path_complete", "path": "target_unlabeled_F4_full_mixed"}
+{"at_utc": "2026-07-11T19:52:55Z", "event": "prediction_path_complete", "path": "construction_F5_positive"}
+{"at_utc": "2026-07-11T19:53:11Z", "event": "krr_path_complete", "path": "strict_source"}
+{"at_utc": "2026-07-11T19:53:13Z", "event": "krr_path_complete", "path": "target_unlabeled"}
+{"at_utc": "2026-07-11T19:53:24Z", "event": "association_null_scheme_complete", "scheme": "target_block_permutation"}
+{"at_utc": "2026-07-11T19:53:33Z", "event": "association_null_scheme_complete", "scheme": "checkpoint_block_permutation"}
+{"at_utc": "2026-07-11T19:53:42Z", "event": "association_null_scheme_complete", "scheme": "trajectory_preserving_permutation"}
+{"at_utc": "2026-07-11T19:53:51Z", "event": "association_null_scheme_complete", "scheme": "candidate_within_target_regime_permutation"}
+{"at_utc": "2026-07-11T19:54:00Z", "event": "association_null_scheme_complete", "scheme": "identity_only_matched_null"}
+{"at_utc": "2026-07-11T19:54:08Z", "event": "association_null_scheme_complete", "scheme": "nested_bandwidth_null"}
+{"at_utc": "2026-07-11T19:54:08Z", "event": "H3_H4_H5_complete"}
+{"at_utc": "2026-07-11T19:54:09Z", "event": "H2_complete"}
+{"at_utc": "2026-07-11T19:54:29Z", "event": "C78S_primary_outputs_complete", "final_gate": "SEED3_MIXED_RESULTS_C79_PROTOCOL_REVIEW_REQUIRED", "red_team": "pending"}

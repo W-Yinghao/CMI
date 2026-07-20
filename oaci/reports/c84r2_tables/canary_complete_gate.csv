@@ -1,0 +1,5 @@
+component,required,replay_required,partial_completion_reusable,scientific_metric
+checkpoint_state_sidecar_units,243,1,0,0
+strict_source_audit_artifacts,243,1,0,0
+target_unlabeled_artifacts,243,1,0,0
+persisted_replay_units,243,1,0,0

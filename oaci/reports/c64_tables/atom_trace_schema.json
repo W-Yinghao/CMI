@@ -1,0 +1,10 @@
+{
+  "axes": [
+    "domain",
+    "class",
+    "checkpoint",
+    "split",
+    "atom"
+  ],
+  "identity_gate": "sum_atoms_equals_aggregate_leakage"
+}

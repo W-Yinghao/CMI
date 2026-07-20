@@ -1,0 +1,30 @@
+provenance_id,figure_id,figure_title,display_value
+K_C52_best_key_only_hit,F1,Problem and information ladder,0.488
+K_C52_best_label_derived_hit,F1,Problem and information ladder,0.813
+K_C55_endpoint_scalar_transfer,F1,Problem and information ladder,0.944
+K_C31_joint_good_rate,F2,Support-aware OACI and falsification battery,0.424
+K_C42_source_rank_top1_joint,F2,Support-aware OACI and falsification battery,0.506
+K_C31_joint_good_rate,F3,Good checkpoints exist; source control fails localization,0.424
+K_C42_random_base,F3,Good checkpoints exist; source control fails localization,0.430
+K_C42_source_rank_top1_joint,F3,Good checkpoints exist; source control fails localization,0.506
+K_C43_best_source_scalarization_top1,F3,Good checkpoints exist; source control fails localization,0.574
+K_C46_within_target_q10,F4,Rank-gauge decomposition,0.005
+K_C46_within_trajectory_q10,F4,Rank-gauge decomposition,0.133
+K_C46_cross_target_q10,F4,Rank-gauge decomposition,0.937
+K_C34_real_endpoint_regret_fraction,F5,Exact selector and local-regret mechanics,0.941
+K_C35_preference_robust_fraction,F5,Exact selector and local-regret mechanics,0.745
+K_C37_ucl_prefers_selected_fraction,F5,Exact selector and local-regret mechanics,1.000
+K_C38_point_dominant_fraction,F5,Exact selector and local-regret mechanics,0.974
+K_C48_local_ceiling_hit,F6,Conditioned diagnostic ceiling versus actionability,1.000
+K_C48_local_ceiling_enrichment,F6,Conditioned diagnostic ceiling versus actionability,2.360
+K_C50_trajectory_fail_fraction,F6,Conditioned diagnostic ceiling versus actionability,0.432
+K_C50_max_mean_underuse_gap,F6,Conditioned diagnostic ceiling versus actionability,0.431
+K_C52_best_key_only_hit,F7,Endpoint-label oracle boundary,0.488
+K_C53_best_scalar_endpoint_hit,F7,Endpoint-label oracle boundary,0.944
+K_C55_template_only_best,F7,Endpoint-label oracle boundary,0.704
+K_C55_max_null_p95,F7,Endpoint-label oracle boundary,0.771
+K_C55_endpoint_scalar_transfer,F7,Endpoint-label oracle boundary,0.944
+K_C31_joint_good_rate,F8,Final mechanism diagram,0.424
+K_C42_source_rank_top1_joint,F8,Final mechanism diagram,0.506
+K_C48_local_ceiling_hit,F8,Final mechanism diagram,1.000
+K_C55_endpoint_scalar_transfer,F8,Final mechanism diagram,0.944

@@ -1,0 +1,20 @@
+risk,status,blocking,evidence
+C74_cache_or_view_hash_drift,closed,0,feature extraction rehashes every allowed descriptor
+same_label_oracle_access,closed,0,restricted manifest contains five allowed views only
+T3_HO_new_variable_access,closed,0,T3 IDs excluded and no T3 path consumed
+factorization_origin_overclaim,controlled,0,GL non-identifiability note and synthetic audit mandatory
+stability_as_prediction,controlled,0,construct validity requires separate incremental/null gates
+Wz_duplicate_regularization_gain,closed,0,column-space SVD audit plus naive-ridge sensitivity
+unregistered_feature_search,closed,0,six low-dimensional blocks frozen in protocol
+target_label_leakage,closed,0,only F5 uses construction labels; evaluation labels outcomes only
+residual_relabeling_as_gauge,closed,0,outcome named unexplained candidate-specific residual
+null_hyperparameter_adaptation,controlled,0,observed nested fold alpha frozen for blocked null
+multiple_blocks_outcomes,closed,0,max-stat family F1-F5 x six outcomes
+small_target_count,controlled,0,per-target disclosure and target-cluster bootstrap
+cache_rows_iid,controlled,0,unit-level modeling and blocked dependence
+counterfactual_as_mechanism,closed,0,matched nulls and factorization prevent origin claim
+conditional_CS_proxy_overclaim,closed,0,proxy/exact distinction in estimator contract
+conditional_kernel_scale_or_path_multiplicity,closed,0,outer-training-fold z-score and global 2-path x 3-bandwidth max-stat
+selector_or_checkpoint_artifact,closed,0,aggregate metrics only; no selected IDs
+raw_cache_in_git,closed,0,only compact feature cache external
+unauthorized_forward_training_GPU,closed,0,analysis modules have no model/data forward path

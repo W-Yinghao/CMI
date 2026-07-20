@@ -1,0 +1,5 @@
+method_hypothesis,evidence,status,next_allowed_action
+OACI conditional-domain leakage-control,C8 K1 weak-nominal/non-multiplicity + K2 stop; C10 source_audit oracle fails to rescue,closed_as_control_objective,"keep support-aware leakage + K1 as MEASUREMENT only; NO OACI-v2 selector, NO adversary tuning"
+SRC source-endpoint control,"C12 anti-transfer (source worst-domain NLL improves ~1 nat, target NLL worsens); target NLL blowup; level-1 ERM fallback",closed_as_control_objective,no further source-side endpoint control without a NEW transfer diagnostic
+global_lpc / uniform (posterior-KL / uniform alignment),baselines / failure modes; never beat ERM on target worst-domain,closed_as_positive_method,retain as stress-test baselines only
+support-aware extractable leakage (L_Q^ov) + K1 permutation null,identifies non-identifiable cells + quantifies held-out audit leakage with an honest null,retained_as_measurement,use inside the falsification battery; NOT as a control objective

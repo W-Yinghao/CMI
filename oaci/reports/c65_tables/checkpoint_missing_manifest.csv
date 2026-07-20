@@ -1,0 +1,7 @@
+missing_item,required_for,present,blocks_reinference_only,recovery_path
+checkout_weight_files,checkout_only_reinference,0,1,use mounted frozen store rather than checkout-only inventory
+oaci_frozen_weight_files,re_inference_only_trial_cache,1,0,primary /projects checkpoint store recovered
+model_hash_to_file_path_manifest,checkpoint_universe_mapping,1,0,artifact_index logical_hash to relative_path
+state_dict_shape_manifest,safe_cpu_abi_validation,1,0,checkpoint json sidecars contain tensor dtype/shape
+trial_level_logits_cache,split_label_and_full_cs,0,0,future re-inference-only campaign if weights/data contract recover
+dataset_mount_fingerprint,preprocess_replay,1,0,artifact context manifests bind raw fingerprint; verify again before campaign

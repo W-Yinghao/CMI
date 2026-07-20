@@ -1,0 +1,9 @@
+regime,severity,deletes_cells,description
+S0_full_support,0,False,original C17 setting; no source cells masked (exact reproduction baseline).
+S1_label_marginal_skew,1,False,class marginals skewed within source domains; all domain x class cells remain estimable.
+S2_rare_cells,2,False,selected source domain x class cells downweighted to just above the estimability threshold.
+S3_nonestimable_cells,3,True,"selected cells reduced BELOW the estimability threshold (present but n<m), not deleted."
+S4_missing_cells,4,True,selected source domain x class cells removed entirely.
+S5_block_class_by_domain,4,True,one class made rare/non-estimable across a subset of source domains.
+S6_boundary_aligned_mask,3,True,perturb cells aligned with C17's class-boundary rotation classes.
+S7_random_matched_mask,3,True,random support mask matched to S6 in severity (negative/control comparison).

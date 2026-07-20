@@ -1,0 +1,5 @@
+guard,forbidden_in_split_label_feature,allowed_as_diagnostic_oracle,reason
+same_candidate_endpoint_scalar,1,1,same evaluated endpoint cannot construct evaluated feature
+construction_eval_disjointness,0,0,must be enforced before any split-label claim
+target_label_quarantine,0,0,eval labels only score future audit
+few_label_claim,1,0,C65 does not establish few-label sufficiency

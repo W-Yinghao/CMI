@@ -1,0 +1,11 @@
+check,passed
+config_hash_unchanged,1
+read_only_c50_c51_artifacts,1
+locked_witness_unchanged,1
+no_training_no_gpu_no_reinference,1
+no_bnci2014_004_no_seeds_3_4,1
+key_only_label_derived_separated,1
+source_only_ladder_excludes_target_fields,1
+target_labels_diagnostic_only,1
+no_selection_artifact,1
+compact_json_no_row_level_payload,1

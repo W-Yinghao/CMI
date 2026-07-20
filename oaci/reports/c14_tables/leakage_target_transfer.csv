@@ -1,0 +1,7 @@
+metric,value
+k1_sweep_status,stop_no_detectable_heldout_leakage_reduction
+n_nominal_detected,11
+n_bh_survivors,0
+weak_nominal_signal,True
+audit_leakage_to_target_bacc_pearson,-0.06439408516678274
+audit_leakage_to_target_nll_pearson,-0.13336914134822594

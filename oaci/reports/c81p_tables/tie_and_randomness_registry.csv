@@ -1,0 +1,6 @@
+object,rule,seed,scientific_sample
+candidate_score_tie,smallest_canonical_candidate_index,none,0
+class_tie,smallest_class_id,none,0
+uniform_random_control,analytic_expectation_over_81_candidates,none,0
+signflip_null,enumerate_all_2^8_shared_target_sign_vectors,none,0
+synthetic,SHA256_derived_stream_per_scenario_replication,810081,0

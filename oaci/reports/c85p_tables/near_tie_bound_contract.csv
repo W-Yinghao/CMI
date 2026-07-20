@@ -1,0 +1,2 @@
+bound_id,theorem_id,error_assumption,event,candidate_bound,dependence_handling,status
+NT1,T7,pairwise estimation error is sub-Gaussian with registered scale sigma_a,selected outside A_epsilon,"min(1,sum_{Delta_a>epsilon} exp(-(Delta_a-epsilon)^2/(2 sigma_a^2)))",union bound; no independence required,OPEN

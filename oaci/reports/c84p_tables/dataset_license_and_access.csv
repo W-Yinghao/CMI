@@ -1,0 +1,4 @@
+dataset,dataset_doi,paper_doi,repository,license,official_metadata_url,downloaded_in_C84P,real_arrays_opened
+Lee2019_MI,10.5524/100542,10.1093/gigascience/giz002,GigaDB,MOABB_1.5.0_metadata_reports_GPL-3.0;access_terms_recheck_at_canary,https://moabb.neurotechx.com/docs/generated/moabb.datasets.Lee2019_MI.html,0,0
+Cho2017,10.5524/100295,10.1093/gigascience/gix034,GigaDB,CC-BY-4.0,https://moabb.neurotechx.com/docs/generated/moabb.datasets.Cho2017.html,0,0
+PhysionetMI,10.13026/C28G6P,10.1109/TBME.2004.827072,PhysioNet,ODC-By-1.0,https://physionet.org/content/eegmmidb/1.0.0/,0,0

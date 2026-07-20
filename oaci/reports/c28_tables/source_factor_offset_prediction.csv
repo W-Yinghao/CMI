@@ -1,0 +1,8 @@
+gauge,gap_closed,survives_permutation
+target_carrier_reference,0.5238775560151255,True
+source_carrier__source_guard,-0.3783667201018121,False
+source_occupancy__source_guard,0.38355829121746443,False
+source_global_confidence__source_guard,-0.41020448120999997,False
+source_carrier__source_audit,-0.7965711768376992,False
+source_occupancy__source_audit,-0.4990240947637633,False
+source_global_confidence__source_audit,-0.6264699763824807,False

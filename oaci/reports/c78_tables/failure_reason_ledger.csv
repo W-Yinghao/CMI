@@ -1,0 +1,8 @@
+item,status,blocking,reason
+no_auth_guard,pass,0,67bca01 baseline retained
+authorized_GPU_preflight_892830,blocked_repaired,0,CuBLAS deterministic workspace missing; no real data loaded
+authorized_training_892832,pass,0,82 units frozen source-only
+postfreeze_views_892841,pass,0,physical information views separated
+instrumentation_892843_892844,pass,0,82 units; all identity gates
+CPU_peak_RAM,unavailable_caveat,0,Slurm accounting DB connection refused; no estimate substituted
+SRC_coverage,deferred_blocks_P2,0,SRC not exercised in locked pilot

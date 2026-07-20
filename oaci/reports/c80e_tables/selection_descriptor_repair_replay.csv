@@ -1,0 +1,14 @@
+check,expected,observed,status
+repair_protocol_precedes_implementation,1,1,PASS
+implementation_precedes_replacement_lock,1,1,PASS
+failure_before_evaluation_open,1,1,PASS
+selection_payload_recomputed,0,0,PASS
+selection_payload_values_inspected,0,0,PASS
+evaluation_label_reads,0,0,PASS
+evaluation_outcomes,0,0,PASS
+scientific_registry_changed,0,0,PASS
+outcome_dependent_decision_introduced,0,0,PASS
+magic_token_required,0,0,PASS
+PI_hash_repetition_required,0,0,PASS
+selection_payload_sha256,a0bf1ae048afcff5ab78d79ea7a4bd6243ec05dd373d987b98af83994d8beda6,a0bf1ae048afcff5ab78d79ea7a4bd6243ec05dd373d987b98af83994d8beda6,PASS
+replacement_lock_sha256,2149895865bd44b4ab8358c76848bb6774abb59d4a203b261864be0ec599ff62,2149895865bd44b4ab8358c76848bb6774abb59d4a203b261864be0ec599ff62,PASS

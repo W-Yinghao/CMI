@@ -1,0 +1,387 @@
+"""Artifact tree writer + the completeness/consistency gate.
+
+Nothing is written until the whole FoldRunResult re-verifies: every level COMPLETE, the provenance
+COMPLETE with empty target fits, the selection snapshot consistent, and the method/level/fold logical
+hashes recomputed from the shared payload builders. The level invariants are checked by explicit rules
+(NOT ``all(invariants.values())`` -- they mix booleans with counts).
+"""
+from __future__ import annotations
+
+import hashlib
+import os
+from dataclasses import dataclass
+
+from ..protocol.manifest_v2 import manifest_payload_hash as _manifest_payload_hash
+from ..runner.keys import canonical_json_hash as _keys_hash    # the hash that produced exec/model hashes
+from ..runner.provenance import RunnerPhase
+from ..runner.scientific_hash import scientific_value_hash
+from .canonical_json import canonical_json_bytes, canonical_json_hash
+from .decision_codec import add_level_decisions
+from .atomic import StagingDir, _sha256_file
+from .checkpoint import CheckpointStore, write_checkpoint_file
+from .deterministic_npz import write_deterministic_npz
+from . import plan_codec as P
+from . import prediction_codec as PR
+from . import support_codec as SC
+from .result_payload import (fold_result_logical_payload, level_result_logical_payload,
+                             method_result_logical_payload)
+from .schema import ARTIFACT_PROFILE, ARTIFACT_SCHEMA_VERSION, ALLOWED_METHODS, make_envelope
+
+_REQUIRED_TRUE = ("phase_complete", "selection_snapshot_unchanged", "target_fit_ids_empty",
+                  "shared_erm_unique", "shared_tau_unique", "shared_task_plan_unique",
+                  "source_audit_signature_match", "target_signature_match")
+_ROLES = ("source_guard", "source_audit", "target_audit")
+
+
+@dataclass(frozen=True)
+class GitEvidence:
+    commit: str
+    tree_hash: str
+    scientific_paths: tuple
+    status_entries: tuple                       # `git status --porcelain` lines scoped to the paths
+    clean: bool
+    evidence_hash: str
+
+
+def git_evidence_hash(commit, tree_hash, scientific_paths, status_entries, clean) -> str:
+    return canonical_json_hash({"commit": commit, "tree_hash": tree_hash,
+                                "scientific_paths": list(scientific_paths),
+                                "status_entries": list(status_entries), "clean": bool(clean)})
+
+
+def collect_git_evidence(repo_root, scientific_paths=("oaci",)) -> GitEvidence:
+    """Run git directly (never trust a caller-claimed clean flag)."""
+    import subprocess
+
+    def g(*args):
+        return subprocess.run(["git", "-C", str(repo_root), *args], capture_output=True, text=True,
+                              check=True).stdout
+    commit = g("rev-parse", "HEAD").strip()
+    tree = g("rev-parse", "HEAD^{tree}").strip()
+    status = g("status", "--porcelain=v1", "--untracked-files=all", "--", *scientific_paths)
+    entries = tuple(line for line in status.splitlines() if line.strip())
+    clean = not entries
+    return GitEvidence(commit, tree, tuple(scientific_paths), entries, clean,
+                       git_evidence_hash(commit, tree, scientific_paths, entries, clean))
+
+
+@dataclass(frozen=True)
+class ArtifactContext:
+    manifest_payload: dict
+    manifest_hash: str
+    execution_config_payloads: tuple            # ((level, mapping), ...)
+    model_spec_payloads: tuple
+    git: GitEvidence
+    repo_root: str                              # NON-hashed; used to keep the artifact out of the repo
+    context_hash: str                           # provenance-BOUND: manifest + config + spec + git
+    pure_context_hash: str                      # commit-INDEPENDENT: manifest + config + spec, NO git
+
+
+@dataclass(frozen=True)
+class ArtifactWriteResult:
+    artifact_dir: str
+    artifact_scientific_hash: str               # provenance-bound (binds the git commit/tree)
+    artifact_pure_science_hash: str             # commit-independent: identical science -> identical hash
+    fold_result_hash: str
+    context_hash: str
+    pure_context_hash: str
+    provenance_hash: str                        # the git evidence hash (commit/tree/clean/status)
+    n_indexed_files: int
+    n_total_files: int                          # indexed + artifact_index + COMMITTED
+    n_unique_checkpoints: int
+
+
+def context_scientific_hash(manifest_payload, execution_config_payloads, model_spec_payloads, git) -> str:
+    """Provenance-BOUND context hash: the science PLUS the git commit/tree. Changes across commits."""
+    return canonical_json_hash({"manifest": manifest_payload,
+                                "execution_config": [[int(l), m] for l, m in execution_config_payloads],
+                                "model_spec": [[int(l), m] for l, m in model_spec_payloads],
+                                "git": {"commit": git.commit, "tree_hash": git.tree_hash,
+                                        "scientific_paths": list(git.scientific_paths), "clean": bool(git.clean)}})
+
+
+def pure_science_context_hash(manifest_payload, execution_config_payloads, model_spec_payloads) -> str:
+    """Commit-INDEPENDENT context hash: the manifest / execution-config / model-spec science ONLY -- no
+    git commit/tree, no test or doc files, no runtime path, no physical file bytes. Identical science
+    across different commits yields the identical hash."""
+    return canonical_json_hash({"manifest": manifest_payload,
+                                "execution_config": [[int(l), m] for l, m in execution_config_payloads],
+                                "model_spec": [[int(l), m] for l, m in model_spec_payloads]})
+
+
+def context_from_git_evidence(manifest_payload, manifest_hash, execution_config_payloads, model_spec_payloads,
+                              git, repo_root) -> ArtifactContext:
+    """Build the context (low-level: tests inject a synthetic GitEvidence; the demo collects live)."""
+    ch = context_scientific_hash(manifest_payload, execution_config_payloads, model_spec_payloads, git)
+    pch = pure_science_context_hash(manifest_payload, execution_config_payloads, model_spec_payloads)
+    return ArtifactContext(manifest_payload=manifest_payload, manifest_hash=manifest_hash,
+                           execution_config_payloads=tuple(execution_config_payloads),
+                           model_spec_payloads=tuple(model_spec_payloads), git=git, repo_root=str(repo_root),
+                           context_hash=ch, pure_context_hash=pch)
+
+
+def artifact_scientific_hash(fold_result_hash, manifest_hash, context_hash) -> str:
+    """Provenance-bound artifact identity: binds the git commit via context_hash."""
+    return scientific_value_hash({"schema_version": ARTIFACT_SCHEMA_VERSION, "fold_result_hash": fold_result_hash,
+                                  "manifest_hash": manifest_hash, "context_hash": context_hash})
+
+
+def artifact_pure_science_hash(fold_result_hash, manifest_hash, pure_context_hash) -> str:
+    """Commit-independent artifact identity: the same science (manifest + config + spec + fold result)
+    hashes the same regardless of which commit produced it."""
+    return scientific_value_hash({"schema_version": ARTIFACT_SCHEMA_VERSION, "kind": "pure_science",
+                                  "fold_result_hash": fold_result_hash, "manifest_hash": manifest_hash,
+                                  "pure_context_hash": pure_context_hash})
+
+
+def _check_invariants(inv: dict) -> None:
+    for k in _REQUIRED_TRUE:
+        if inv.get(k) is not True:
+            raise ValueError(f"required invariant {k!r} is not true")
+    for k, v in inv.items():
+        if (k.endswith("_cache_reuse_valid") or k.endswith("_inactive_is_erm")) and v is not True:
+            raise ValueError(f"required invariant {k!r} is not true")
+    if int(inv.get("n_unique_checkpoints", 0)) < 1:
+        raise ValueError("n_unique_checkpoints must be >= 1")
+    if "oaci_rejected_ineligible_rows" in inv and int(inv["oaci_rejected_ineligible_rows"]) != 0:
+        raise ValueError("oaci_rejected_ineligible_rows must be 0")
+
+
+def _gate(fold_result, context, final_path) -> None:
+    fr = fold_result
+    levels = dict(fr.level_items)
+    if not levels:
+        raise ValueError("fold result has no levels")
+    if context.manifest_hash != fr.fold_scope.fold_key.manifest_hash:
+        raise ValueError("context manifest hash != fold scope manifest hash")
+    if _manifest_payload_hash(context.manifest_payload) != context.manifest_hash:
+        raise ValueError("context manifest payload does not recompute the manifest hash")
+    if not context.git.clean or context.git.status_entries:
+        raise ValueError("refusing to write an artifact from a dirty scientific tree")
+    if context.git.evidence_hash != git_evidence_hash(
+            context.git.commit, context.git.tree_hash, context.git.scientific_paths,
+            context.git.status_entries, context.git.clean):
+        raise ValueError("git evidence hash does not recompute")
+    if context_scientific_hash(context.manifest_payload, context.execution_config_payloads,
+                               context.model_spec_payloads, context.git) != context.context_hash:
+        raise ValueError("context hash does not recompute")
+    if pure_science_context_hash(context.manifest_payload, context.execution_config_payloads,
+                                 context.model_spec_payloads) != context.pure_context_hash:
+        raise ValueError("pure-science context hash does not recompute")
+    if context.repo_root:                                       # the artifact must live outside the repo tree
+        rr = os.path.abspath(context.repo_root)
+        if os.path.abspath(final_path) == rr or os.path.abspath(final_path).startswith(rr + os.sep):
+            raise ValueError("artifact destination must be outside the repository scientific tree")
+    ec = dict((int(l), m) for l, m in context.execution_config_payloads)
+    ms = dict((int(l), m) for l, m in context.model_spec_payloads)
+    if set(ec) != set(levels) or set(ms) != set(levels):
+        raise ValueError("context config/spec payloads do not cover exactly the levels")
+    for lvl, lr in levels.items():
+        if lr.phase != RunnerPhase.COMPLETE or lr.provenance.phase != RunnerPhase.COMPLETE:
+            raise ValueError(f"level {lvl} is not COMPLETE")
+        if lr.provenance.target_fit_ids:
+            raise ValueError(f"level {lvl} has non-empty target fits")
+        if lr.run_key.fold_key.fold_key_hash != fr.fold_scope.fold_key.fold_key_hash:
+            raise ValueError(f"level {lvl} FoldKey disagrees with the scope")
+        if _keys_hash(ec[lvl]) != lr.execution_config_hash:
+            raise ValueError(f"level {lvl} execution config payload hash mismatch")
+        if _keys_hash(ms[lvl]) != lr.model_spec_hash:
+            raise ValueError(f"level {lvl} model spec payload hash mismatch")
+        _check_invariants(dict(lr.invariant_items))
+        for name, m in lr.method_items:
+            if name not in ALLOWED_METHODS:
+                raise ValueError(f"unknown method {name!r}")
+            if scientific_value_hash(method_result_logical_payload(m)) != m.method_result_hash:
+                raise ValueError(f"level {lvl} method {name} hash does not recompute")
+            for role in _ROLES:
+                b = {"source_guard": m.source_guard_predictions, "source_audit": m.source_audit_predictions,
+                     "target_audit": m.target_predictions}[role]
+                if b.prediction_content_hash() != b.bundle_hash:
+                    raise ValueError("prediction bundle hash inconsistent")
+        if scientific_value_hash(level_result_logical_payload(lr)) != lr.level_result_hash:
+            raise ValueError(f"level {lvl} result hash does not recompute")
+    if scientific_value_hash(fold_result_logical_payload(fr)) != fr.fold_result_hash:
+        raise ValueError("fold result hash does not recompute")
+
+
+class _Tree:
+    def __init__(self, staging: StagingDir):
+        self.s = staging
+        self.entries = []
+
+    def _entry(self, rel, kind, logical_hash, ap=None):
+        ap = ap or __import__("os").path.join(self.s.staging, rel)
+        sha = _sha256_file(ap)
+        size = __import__("os").path.getsize(ap)
+        self.entries.append({"relative_path": rel, "artifact_kind": kind, "schema_version": ARTIFACT_SCHEMA_VERSION,
+                             "byte_size": int(size), "file_sha256": sha, "logical_hash": logical_hash})
+
+    def put(self, rel_base, kind, encoded):
+        logical, body, arrays = encoded
+        self.json(rel_base, kind, logical, body, arrays)
+
+    def json(self, rel_base, kind, logical_hash, body, arrays=None):
+        if arrays is not None:
+            npz_rel = rel_base + ".npz"
+            meta = write_deterministic_npz(self.s.file_path(npz_rel), arrays)
+            self._entry(npz_rel, kind + "_npz", canonical_json_hash(meta))
+            body = {**body, "npz": meta}
+        doc = make_envelope(kind, logical_hash, body)
+        data = canonical_json_bytes(doc)
+        rel = rel_base + ".json"
+        self.s.write_bytes(rel, data)
+        self.entries.append({"relative_path": rel, "artifact_kind": kind, "schema_version": ARTIFACT_SCHEMA_VERSION,
+                             "byte_size": len(data), "file_sha256": hashlib.sha256(data).hexdigest(),
+                             "logical_hash": logical_hash})
+
+    def checkpoint(self, level_dir, model_hash, state):
+        rel_pt = f"{level_dir}/checkpoints/{model_hash}.pt"
+        meta = write_checkpoint_file(self.s.file_path(rel_pt), model_hash, state)
+        self._entry(rel_pt, "checkpoint_pt", model_hash)
+        self.json(f"{level_dir}/checkpoints/{model_hash}", "checkpoint", model_hash, meta)
+
+
+def _opt(tree, base, kind, encoded):
+    """Write an optional (possibly None) plan; record present:false otherwise."""
+    if encoded is None:
+        tree.json(base, kind, "absent", {"present": False})
+        return
+    logical, body, arrays = encoded
+    tree.json(base, kind, logical, {"present": True, **body}, arrays)
+
+
+def write_artifact_tree_atomic(fold_result, context, output_root, *, overwrite=False,
+                               level_decisions=None) -> ArtifactWriteResult:
+    """``level_decisions`` (optional) = ``{level: {k1_body, k1_null_arrays, k2_body}}`` — the C7 pre-registered
+    K1/K2 decisions, written INDEXED under ``levels/<level>/decisions/``. Omitting it yields a legacy tree
+    (no decisions), which still verifies whole."""
+    fr = fold_result
+    if level_decisions is None:                           # C8a: the decisions travel WITH the fold result
+        level_decisions = {int(l): lr.decision for l, lr in fr.level_items
+                           if getattr(lr, "decision", None) is not None}
+    a_hash = artifact_scientific_hash(fr.fold_result_hash, context.manifest_hash, context.context_hash)
+    p_hash = artifact_pure_science_hash(fr.fold_result_hash, context.manifest_hash, context.pure_context_hash)
+    final = os.path.join(str(output_root), a_hash)
+    _gate(fold_result, context, final)
+
+    with StagingDir(final, overwrite=overwrite) as st:
+        t = _Tree(st)
+        # context
+        t.json("context/manifest", "manifest", context.manifest_hash, {"manifest": context.manifest_payload})
+        t.json("context/execution_config", "execution_config", context.context_hash,
+               {"levels": [[int(l), m] for l, m in context.execution_config_payloads]})
+        t.json("context/model_spec", "model_spec", context.context_hash,
+               {"levels": [[int(l), m] for l, m in context.model_spec_payloads]})
+        g = context.git
+        t.json("context/provenance", "context_provenance", g.evidence_hash,
+               {"commit": g.commit, "tree_hash": g.tree_hash, "scientific_paths": list(g.scientific_paths),
+                "status_entries": list(g.status_entries), "clean": bool(g.clean), "evidence_hash": g.evidence_hash})
+        # fold + scope
+        t.json("fold", "fold_result", fr.fold_result_hash,
+               {"payload": fold_result_logical_payload(fr), "fold_scope_hash": fr.fold_scope.fold_scope_hash})
+        fs = fr.fold_scope
+        t.json("scope/fold_scope", "fold_scope", fs.fold_scope_hash,
+               {"fold_key_hash": fs.fold_key.fold_key_hash, "maps_hash": fs.maps.maps_hash,
+                "target_population_hash": fs.target_population_hash, "target_tensor_hash": fs.target_tensor_hash})
+        au = fs.source_audit
+        t.json("scope/audit_support", SC.SUPPORT_KIND, au.support_graph.support_hash(),
+               {"m": int(au.support_graph.m), "domain_names": list(au.support_graph.domain_names),
+                "class_names": list(au.support_graph.class_names), "support_hash": au.support_graph.support_hash()},
+               {"eligibility_counts": _np_int(au.support_graph.counts), "cell_mass": _np_f(au.support_graph.cell_mass),
+                "reference_prior": _np_f(au.support_graph.reference_prior)})
+        _opt(t, "scope/audit_design", P.DESIGN_KIND, P.encode_design(au.design))
+        _opt(t, "scope/audit_fold_plan", P.FOLD_KIND, None if au.fold_plan is None else P.encode_fold_plan(au.fold_plan))
+        _opt(t, "scope/audit_bootstrap_plan", P.BOOTSTRAP_KIND,
+             None if au.bootstrap_plan is None else P.encode_bootstrap_plan(au.bootstrap_plan))
+
+        for lvl, lr in fr.level_items:
+            ld = f"levels/level-{int(lvl):03d}"
+            t.json(f"{ld}/level", "level_result", lr.level_result_hash,
+                   {"payload": level_result_logical_payload(lr), "execution_config_hash": lr.execution_config_hash,
+                    "model_spec_hash": lr.model_spec_hash})
+            sh, sbody, sarr = SC.encode_support(lr.support_state)
+            t.json(f"{ld}/support", SC.SUPPORT_KIND, sh, sbody, sarr)
+            t.json(f"{ld}/provenance", "provenance", lr.provenance.provenance_hash,
+                   {"phase": lr.provenance.phase.value, "provenance_hash": lr.provenance.provenance_hash,
+                    "preprocess_fit_ids": sorted(lr.provenance.preprocess_fit_ids),
+                    "optimization_fit_ids": sorted(lr.provenance.optimization_fit_ids),
+                    "selection_fit_ids": sorted(lr.provenance.selection_fit_ids),
+                    "audit_estimator_fit_ids": sorted(lr.provenance.audit_estimator_fit_ids),
+                    "target_fit_ids": sorted(lr.provenance.target_fit_ids)})
+            t.json(f"{ld}/invariants", "invariants", scientific_value_hash(dict(lr.invariant_items)),
+                   {"invariants": [[k, (v if isinstance(v, (bool, int)) else str(v))] for k, v in lr.invariant_items]})
+            t.json(f"{ld}/cache_stats", "cache_stats",
+                   scientific_value_hash([lr.audit_cache_stats.stats_hash, lr.prediction_cache_stats.stats_hash]),
+                   {"audit_cache_stats_hash": lr.audit_cache_stats.stats_hash,
+                    "prediction_cache_stats_hash": lr.prediction_cache_stats.stats_hash})
+            lp = lr.plans
+            t.put(f"{ld}/plans/stage1_task", P.TASK_KIND, P.encode_task_plan(lp.stage1_task))
+            t.put(f"{ld}/plans/stage2_task", P.TASK_KIND, P.encode_task_plan(lp.stage2_task))
+            _opt(t, f"{ld}/plans/oaci_alignment", P.ALIGN_KIND,
+                 None if lp.oaci_alignment is None else P.encode_alignment_plan(lp.oaci_alignment))
+            _opt(t, f"{ld}/plans/full_domain_alignment", P.ALIGN_KIND,
+                 None if lp.full_domain_alignment is None else P.encode_alignment_plan(lp.full_domain_alignment))
+            t.put(f"{ld}/plans/selection_design", P.DESIGN_KIND, P.encode_design(lp.selection_design))
+            _opt(t, f"{ld}/plans/selection_fold_plan", P.FOLD_KIND,
+                 None if lp.selection_fold_plan is None else P.encode_fold_plan(lp.selection_fold_plan))
+            _opt(t, f"{ld}/plans/selection_bootstrap_plan", P.BOOTSTRAP_KIND,
+                 None if lp.selection_bootstrap_plan is None else P.encode_bootstrap_plan(lp.selection_bootstrap_plan))
+            # checkpoints (dedup): erm + all trajectory + all selected
+            store = CheckpointStore()
+            es = lr.erm_stage
+            store.add(es.checkpoint.model_hash, es.checkpoint.model_state)
+            for name, m in lr.method_items:
+                for c in m.train_result.trajectory:
+                    store.add(c.model_hash, c.model_state)
+                store.add(m.selection.model_hash, m.selection.model_state)
+            for mh in store.model_hashes():
+                t.checkpoint(ld, mh, store.state(mh))
+            t.json(f"{ld}/stage1/erm", "erm_stage", es.stage1_invocation_id,
+                   {"checkpoint": es.checkpoint.model_hash, "R_ERM_hat": float(es.R_ERM_hat),
+                    "tau": float(es.tau), "invocation_id": es.stage1_invocation_id, "task_plan_hash": es.task_plan_hash})
+            # methods
+            for name, m in lr.method_items:
+                md = f"{ld}/methods/{name}"
+                t.json(f"{md}/method", "method_result", m.method_result_hash, method_result_logical_payload(m))
+                _opt(t, f"{md}/selection_leakage", PR.LEAKAGE_KIND,
+                     None if m.selection_leakage is None else PR.encode_leakage(m.selection_leakage))
+                _opt(t, f"{md}/audit_leakage", PR.LEAKAGE_KIND,
+                     None if m.audit_leakage is None else PR.encode_leakage(m.audit_leakage))
+                dl, dbody, _ = PR.encode_diagnostics(dict(m.training_diagnostics_items))
+                t.json(f"{md}/training_diagnostics", PR.DIAGNOSTICS_KIND, dl, dbody)
+                metrics_body = {}
+                for role, bundle, met in (("source_guard", m.source_guard_predictions, m.source_guard_metrics),
+                                          ("source_audit", m.source_audit_predictions, m.source_audit_metrics),
+                                          ("target_audit", m.target_predictions, m.target_metrics)):
+                    t.put(f"{md}/{role}", PR.PREDICTION_KIND, PR.encode_prediction(bundle))
+                    _, mb, _ = PR.encode_metrics(met)
+                    metrics_body[role] = mb
+                t.json(f"{md}/metrics", PR.METRICS_KIND,
+                       scientific_value_hash([metrics_body[r]["metrics_hash"] for r in _ROLES]),
+                       {"roles": metrics_body})
+            if level_decisions and int(lvl) in level_decisions:   # C7: additive, indexed decisions subtree
+                _d = level_decisions[int(lvl)]
+                add_level_decisions(t, int(lvl), _d["k1_body"], _d["k1_null_arrays"], _d["k2_body"])
+
+        marker = {"schema_version": ARTIFACT_SCHEMA_VERSION, "artifact_profile": ARTIFACT_PROFILE,
+                  "artifact_scientific_hash": a_hash, "artifact_pure_science_hash": p_hash,
+                  "fold_result_hash": fr.fold_result_hash, "context_hash": context.context_hash,
+                  "pure_context_hash": context.pure_context_hash, "provenance_hash": context.git.evidence_hash}
+        n_ck = sum(1 for e in t.entries if e["artifact_kind"] == "checkpoint_pt")
+        st.commit(t.entries, marker)
+    return ArtifactWriteResult(artifact_dir=final, artifact_scientific_hash=a_hash, artifact_pure_science_hash=p_hash,
+                               fold_result_hash=fr.fold_result_hash, context_hash=context.context_hash,
+                               pure_context_hash=context.pure_context_hash, provenance_hash=context.git.evidence_hash,
+                               n_indexed_files=len(t.entries), n_total_files=len(t.entries) + 2,
+                               n_unique_checkpoints=n_ck)
+
+
+import numpy as _npmod
+
+
+def _np_int(a):
+    return _npmod.ascontiguousarray(_npmod.asarray(a))
+
+
+def _np_f(a):
+    return _npmod.ascontiguousarray(_npmod.asarray(a, dtype=_npmod.float64))

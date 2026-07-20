@@ -1,0 +1,11 @@
+group,name,source,strict_source,target_unlabeled,target_labels,function_invariant,orthogonal_invariant,coordinate_dependent,redundant_with_logits,qualification_candidate
+G0,metadata_source_baseline,C75_F0,1,0,0,1,1,0,0,0
+G1S,strict_source_functional,C75_F1,1,0,0,1,1,0,0,0
+G1T,target_unlabeled_functional,C75_F3,0,1,0,1,1,0,0,0
+G2S,strict_source_Wz_functional,C75_source_Wz_summary,1,0,0,1,1,0,1,0
+G2T,target_unlabeled_Wz_functional,C75_target_Wz_summary,0,1,0,1,1,0,1,0
+G3S,strict_source_orthogonal_geometry,orbit_recomputed_C75_F2,1,0,0,0,1,0,0,1
+G3T,target_unlabeled_orthogonal_geometry,orbit_recomputed_C75_F4,0,1,0,0,1,0,0,1
+G4S,strict_source_fixed_coordinate_probes,8_SHA_locked_coordinate_probes,1,0,0,0,0,1,0,0
+G4T,target_unlabeled_fixed_coordinate_probes,8_SHA_locked_coordinate_probes,0,1,0,0,0,1,0,0
+G6,construction_label_positive_control,C75_F5,0,0,1,1,1,0,0,0

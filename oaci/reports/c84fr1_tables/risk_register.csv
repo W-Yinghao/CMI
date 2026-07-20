@@ -1,0 +1,12 @@
+risk,status,blocking
+historical_authorization_reused,CLOSED,0
+model_retraining_on_target_retry,CLOSED,0
+dictionary_insertion_order_used_as_schema,CLOSED,0
+historical_target_raw_manifest_drift,CLOSED,0
+target_label_access,CLOSED,0
+target_outcome_retry,CLOSED,0
+partial_target_field_published,CLOSED,0
+runtime_tolerance_widening,CLOSED,0
+same_label_oracle,CLOSED,0
+C84S_execution,CLOSED,0
+fresh_PI_authorization_absent,EXPECTED_STOP,0

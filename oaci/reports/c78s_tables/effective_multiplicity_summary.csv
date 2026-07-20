@@ -1,0 +1,2 @@
+raw_deviance,full_deviance,incremental_deviance_reduction,null_mean,null_p95,permutation_p,null_replicates,effective_M_coefficient_median,inverse_gap_coefficient_median,raw_M_range,endpoint_geometry_is_diagnostic_not_selector
+178.1606764350879,187.66659702240366,-9.505920587315757,-4.157183831065328,3.141894960233079,0.896,499,0.18056401075524836,0.23125424292780045,5-40,1

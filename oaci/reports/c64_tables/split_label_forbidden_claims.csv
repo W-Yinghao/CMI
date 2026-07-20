@@ -1,0 +1,5 @@
+claim,forbidden,reason
+same-label endpoint oracle implies split-label sufficiency,1,construction/evaluation labels must be disjoint
+split-label diagnostic implies few-label deployable calibration,1,few-label method claim needs separate protocol and selection-time constraints
+target-label diagnostic is source-only,1,availability class differs
+held-out evaluation labels can enter feature construction,1,leakage

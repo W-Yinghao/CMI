@@ -1,0 +1,14 @@
+gate,decision,requires_user_release,default,note
+C60_training,not_executed,1,TRAINING_BLUEPRINT_REFINED_BUT_NOT_AUTHORIZED,blueprint refined only
+P0_no_training,allowed_read_only,0,available,frozen-artifact proof and measurement planning only
+P1_split_label_cache,proposal_only,1,blocked,requires split disjointness and no selector tuning
+P2_per_trial_logits_probs,proposal_only,1,blocked,requires instrumented inference approval
+P3_atom_trace,proposal_only,1,blocked,requires fixed trace schema and approved compute
+P4_independent_replication,proposal_only,1,blocked,requires separate Slurm campaign
+P5_rank_gauge_intervention,proposal_only,1,blocked,requires controlled-family pre-registration
+P6_reserved_holdout,reserved,1,blocked,"BNCI2014_004/seeds [3,4] only after explicit release"
+BNCI2014_004,reserved,1,blocked,no use in C60
+seeds_3_4,reserved,1,blocked,no use in C60
+GPU,not_authorized,1,blocked,no GPU in C60
+re_inference,not_authorized,1,blocked,no re-inference in C60
+selector_search,forbidden,0,blocked,C60 is diagnostic/theory audit

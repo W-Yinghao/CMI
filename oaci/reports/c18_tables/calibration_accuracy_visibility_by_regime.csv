@@ -1,0 +1,9 @@
+regime,accuracy_visibility,calibration_visibility,calibration_biased
+S0_full_support,0.07199395123539287,0.17689737678497056,True
+S1_label_marginal_skew,0.07199395123539287,0.17689737678497056,True
+S2_rare_cells,0.06924145616327763,0.15478601394020017,True
+S3_nonestimable_cells,0.06945073435106836,0.15416017306369162,True
+S4_missing_cells,,0.15315537925281023,False
+S5_block_class_by_domain,0.08790086924906446,0.12730777975869473,True
+S6_boundary_aligned_mask,,0.1304633156320496,False
+S7_random_matched_mask,,0.13300823282576021,False

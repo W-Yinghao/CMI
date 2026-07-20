@@ -1,0 +1,3 @@
+failure,blocking,status,evidence,required_action
+C79_final_protocol_postdates_C78S_outcomes,1,unresolved,c79_protocol_timing.csv,PM claim/protocol redesign; do not access seed4 under strict-confirmation label
+C79_final_protocol_is_outcome_adaptive_and_incomplete,1,unresolved,c79_protocol_registry.csv;c79_protocol_diff_against_c78s.csv,lock a complete prospective post-seed3 replication protocol or abandon C79 execution

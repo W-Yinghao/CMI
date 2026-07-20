@@ -1,0 +1,84 @@
+{
+  "schema_version": "c81_github_audit_addendum_v1",
+  "milestone": "C81_audit_addendum",
+  "additive_only": true,
+  "historical_report_rewritten": false,
+  "historical_gate": "C81-E_protocol_input_implementation_or_provenance_blocker",
+  "scientific_result_available": false,
+  "C81_A_B_C_D_available": false,
+  "latest_valid_science": "C80E",
+  "audit_scope": {
+    "git_and_compact_artifacts_only": true,
+    "frozen_selection_payload_loaded": false,
+    "evaluation_view_opened": false,
+    "new_scientific_statistics": 0
+  },
+  "findings": [
+    {
+      "id": "A_malformed_implementation_commit_identity",
+      "invalid_commit": "d17ffa65a3e7cffeb5cac65292e7840787f6845d",
+      "correct_commit": "d17ffa62a63b929d36d03f74e4ce79794cd9601b",
+      "correction_commit": "29f4555b65273bf2329c0154704233cc746ce8f0",
+      "corrected_before_reauthorization": true,
+      "scientific_registry_changed": false
+    },
+    {
+      "id": "B_csv_insertion_order_blocker",
+      "job_id": "894958",
+      "same_field_set": true,
+      "different_dictionary_order": true,
+      "rows_computed_in_memory": 672,
+      "rows_frozen": 0
+    },
+    {
+      "id": "C_cross_seed_same_method_taxonomy_mismatch",
+      "implementation_compared_seed_category_labels_only": true,
+      "same_method_intersection_required_by_scientific_claim": true,
+      "nonblocker_taxonomy_executed_in_C81": false
+    },
+    {
+      "id": "D_registered_analysis_coverage_gaps",
+      "missing_or_incomplete": [
+        "Q3_objective_dependence",
+        "Q5_information_class_summary",
+        "U16_accuracy_on_the_line",
+        "measurement_metric_tables",
+        "selected_regime_and_catastrophic_failure_tables",
+        "coherent_executable_LORO"
+      ]
+    },
+    {
+      "id": "E_missing_end_to_end_result_freeze_test",
+      "public_synthetic_recovery_entrypoint_tested": false,
+      "mixed_row_writer_tested": false,
+      "atomic_all_artifact_freeze_tested": false,
+      "all_taxonomy_branches_end_to_end_tested": false
+    },
+    {
+      "id": "F_evidence_boundary",
+      "contexts_computed_in_memory": 32,
+      "rows_computed_in_memory": 672,
+      "rows_frozen": 0,
+      "evaluation_label_rows_read": 4746,
+      "values_not_persisted_or_printed": "executor_and_red_team_assertion",
+      "human_non_observation_provable_from_git": false
+    },
+    {
+      "id": "G_retry_policy_attribution",
+      "literal_base_protocol_same_identity_no_rerun_clause": false,
+      "accepted_no_rerun_governance_sources": [
+        "PM_post_failure_governance",
+        "consumed_scope_specific_authorization",
+        "blocker_first_taxonomy",
+        "additive_history_discipline"
+      ]
+    }
+  ],
+  "final_disposition": {
+    "C81_gate_unchanged": true,
+    "C81_scientific_result_exists": false,
+    "simple_writer_patch_sufficient": false,
+    "new_post_outcome_access_protocol_required": true,
+    "C82E_authorized": false
+  }
+}

@@ -1,0 +1,7 @@
+condition_set,candidate_added,hit_before,hit_after,delta_hit,screens_off_endpoint,status
+cell_only,source_rank,0.4297233780360411,0.5061728395061729,0.07644946147013176,0,weak_source_gain_not_sufficient
+source_rank,key_only,0.5061728395061729,0.4876543209876543,-0.018518518518518545,0,key_only_does_not_screen_off
+source_plus_key,label_diagnostic,0.4876543209876543,0.8127572016460904,0.3251028806584361,0,large_diagnostic_gain
+source_plus_key,template_only,0.4876543209876543,0.7037037037037037,0.2160493827160494,0,partial_target_label_transfer
+source_plus_key_template,same_label_endpoint,0.7037037037037037,0.9444444444444444,0.2407407407407407,0,endpoint_adds_after_template
+same_label_endpoint,endpoint_self_redundancy,0.9444444444444444,0.9444444444444444,0.0,1,oracle_boundary_diagnostic_only

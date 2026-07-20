@@ -1,0 +1,9 @@
+operation,allowed,fail_closed,implementation_requirement
+index_target_y,0,1,target label object discarded without indexing/hash/summary/logging
+hash_target_y,0,1,target label object discarded without indexing/hash/summary/logging
+summarize_target_y,0,1,target label object discarded without indexing/hash/summary/logging
+log_target_y,0,1,target label object discarded without indexing/hash/summary/logging
+retain_by_target_y,0,1,target label object discarded without indexing/hash/summary/logging
+retry_by_target_y,0,1,target label object discarded without indexing/hash/summary/logging
+pass_target_y_to_training,0,1,target label object discarded without indexing/hash/summary/logging
+pass_target_y_to_instrumentation,0,1,target label object discarded without indexing/hash/summary/logging

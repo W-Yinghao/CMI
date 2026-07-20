@@ -92,8 +92,9 @@ def train_h2(X: np.ndarray, y: np.ndarray, domains: DomainLabels, dag: DomainDAG
     pi_star = reference_prior(y, n_cls, cfg.align.reference_prior)
 
     model = H2Model(cfg, pi_star).to(dev)
-    hcmi = HierarchicalCMI(cfg.encoder.z_c_dim, n_cls, dag, domains, y, cfg.cmi).to(dev)
-    dual = DualBudget(hcmi.budgets, cfg.cmi)
+    use_cmi = cfg.cmi.enabled                      # clean CMI-off arm: no critics/dual/penalty
+    hcmi = HierarchicalCMI(cfg.encoder.z_c_dim, n_cls, dag, domains, y, cfg.cmi).to(dev) if use_cmi else None
+    dual = DualBudget(hcmi.budgets, cfg.cmi) if use_cmi else None
     align = ReferenceMarginalAlignment(cfg.align, n_cls, pi_star) if cfg.align.enabled else None
     n_dom_align = int(domains.factor(align_factor).max()) + 1
     disent = DisentangleLoss(cfg.encoder.z_c_dim, cfg.encoder.z_n_dim, n_cls, n_dom_align,
@@ -109,7 +110,7 @@ def train_h2(X: np.ndarray, y: np.ndarray, domains: DomainLabels, dag: DomainDAG
     if sslaux is not None:
         main_params += list(sslaux.parameters())
     opt_main = torch.optim.AdamW(main_params, lr=cfg.train.lr, weight_decay=cfg.train.weight_decay)
-    opt_critic = torch.optim.Adam(hcmi.parameters(), lr=cfg.cmi.critic_lr)
+    opt_critic = torch.optim.Adam(hcmi.parameters(), lr=cfg.cmi.critic_lr) if use_cmi else None
     sched = torch.optim.lr_scheduler.CosineAnnealingLR(opt_main, T_max=cfg.train.epochs)
 
     align_dom = domains.factor(align_factor).astype(np.int64)
@@ -118,42 +119,60 @@ def train_h2(X: np.ndarray, y: np.ndarray, domains: DomainLabels, dag: DomainDAG
                        torch.as_tensor(y, dtype=torch.long),
                        torch.as_tensor(align_dom, dtype=torch.long),
                        torch.as_tensor(idx_all, dtype=torch.long))
+    # deterministic minibatch order keyed ONLY on train.seed, so CMI-off (Source-A) and
+    # CMI-on (Source-B) at the same seed see the IDENTICAL batch sequence (paired factorial).
+    g = torch.Generator(); g.manual_seed(cfg.train.seed)
     dl = DataLoader(ds, batch_size=cfg.train.batch_size, shuffle=True,
-                    drop_last=cfg.train.drop_last)
+                    drop_last=cfg.train.drop_last, generator=g)
+    factors = hcmi.factors if use_cmi else []
+
+    # Re-seed the GLOBAL RNG entering the loop so in-loop stochasticity (e.g. encoder
+    # dropout) is identical for CMI-off (Source-A) and CMI-on (Source-B) regardless of how
+    # much RNG the setup (critic construction, etc.) consumed. Batch order is already
+    # decoupled via the DataLoader generator above.
+    torch.manual_seed(cfg.train.seed)
 
     history = []
     for ep in range(cfg.train.epochs):
         model.train()
         if disent: disent.train()
         if sslaux: sslaux.train()
-        ep_ihat = {f: [] for f in hcmi.factors}
-        ep_log = dict(hybrid=[], cmi=[], align=[], disent=[], ssl=[])
+        ep_ihat = {f: [] for f in factors}
+        ep_log = dict(hybrid=[], cmi=[], align=[], disent=[], ssl=[], critic_ce=[])
         lam_warm = min(1.0, (ep + 1) / max(1, cfg.train.warmup))
         for xb, yb, db, ib in dl:
             xb, yb, db = xb.to(dev), yb.to(dev), db.to(dev)
             ib_np = ib.numpy()
-            lev, pk = hcmi.batch_context(domains, ib_np)
 
             # ---- single forward (grad) ----
             z_c, z_n, logits = model(xb)
 
-            # ---- Step A: fit critics on detached z_c ----
-            z_det = z_c.detach()
-            for _ in range(cfg.cmi.critic_inner):
-                la = hcmi.critic_loss(z_det, yb, lev, pk)
-                opt_critic.zero_grad(); la.backward(); opt_critic.step()
+            if use_cmi:
+                lev, pk = hcmi.batch_context(domains, ib_np)
+                # ---- Step A: fit critics on detached z_c ----
+                z_det = z_c.detach()
+                la = None
+                for _ in range(cfg.cmi.critic_inner):
+                    la = hcmi.critic_loss(z_det, yb, lev, pk)
+                    opt_critic.zero_grad(); la.backward(); opt_critic.step()
+                if la is not None and factors:
+                    ep_log["critic_ce"].append(float(la.detach()) / len(factors))
+                # critics FROZEN during the encoder step (envelope theorem)
+                for p in hcmi.parameters():
+                    p.requires_grad_(False)
 
             # ---- Step B: encoder + head + penalties ----
             loss, info = model.head.loss(z_c, yb)
             ep_log["hybrid"].append(float(loss.detach()))
 
-            terms = hcmi.estimate(z_c, yb, lev, pk)         # frozen critics (opt_main excludes them)
-            lambdas = dual.as_tensors(dev)
-            cmi_pen = hcmi.total_penalty(terms, lambdas) * lam_warm
-            loss = loss + cmi_pen
-            for f, v in terms.items():
-                ep_ihat[f].append(float(v.detach()))
-            ep_log["cmi"].append(float(cmi_pen.detach()))
+            if use_cmi:
+                terms = hcmi.estimate(z_c, yb, lev, pk)     # backprops only to the encoder
+                lambdas = dual.as_tensors(dev)
+                cmi_pen = hcmi.total_penalty(terms, lambdas) * lam_warm
+                loss = loss + cmi_pen
+                for f, v in terms.items():
+                    ep_ihat[f].append(float(v.detach()))
+                ep_log["cmi"].append(float(cmi_pen.detach()))
 
             if align is not None:
                 a, _ = align(z_c, yb, db, n_cls)
@@ -173,19 +192,24 @@ def train_h2(X: np.ndarray, y: np.ndarray, domains: DomainLabels, dag: DomainDAG
             if cfg.train.grad_clip:
                 torch.nn.utils.clip_grad_norm_(main_params, cfg.train.grad_clip)
             opt_main.step()
+            if use_cmi:
+                for p in hcmi.parameters():        # unfreeze critics for the next Step A
+                    p.requires_grad_(True)
             if cfg.density.ema > 0:
                 model.head.density.ema_update(z_c.detach(), yb, cfg.density.ema)
 
         # ---- per-epoch primal-dual update ----
         ihat_mean = {f: float(np.mean(v)) if v else 0.0 for f, v in ep_ihat.items()}
-        dual.step(ihat_mean)
+        if use_cmi:
+            dual.step(ihat_mean)
         sched.step()
-        rec = dict(epoch=ep, ihat=ihat_mean, lambda_=dual.state(),
+        rec = dict(epoch=ep, ihat=ihat_mean, lambda_=dual.state() if use_cmi else {},
                    **{k: (float(np.mean(v)) if v else 0.0) for k, v in ep_log.items()})
         history.append(rec)
         if verbose or cfg.train.log_every and (ep + 1) % cfg.train.log_every == 0:
+            lam = dual.state() if use_cmi else {}
             print(f"ep {ep+1}/{cfg.train.epochs} hybrid={rec['hybrid']:.3f} "
                   f"cmi={rec['cmi']:.3f} align={rec['align']:.3f} "
-                  f"Ihat={ {f: round(ihat_mean[f],3) for f in hcmi.factors} } "
-                  f"lam={ {f: round(dual.state()[f],3) for f in hcmi.factors} }", flush=True)
+                  f"Ihat={ {f: round(ihat_mean[f],3) for f in factors} } "
+                  f"lam={ {f: round(lam[f],3) for f in factors} }", flush=True)
     return model, hcmi, dual, history

@@ -1,0 +1,5 @@
+failure_id,reason,blocks_theorem
+LC-F1,source distance proxy is not total variation,1
+LC-F2,"target-divergent pairs are empirical artifacts, not two worlds",1
+LC-F3,no observation law over source transcripts,1
+LC-F4,split-label validation cache unavailable,1

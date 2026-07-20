@@ -1,0 +1,6 @@
+component,ERM,OACI,SRC,C78R_status
+stage1,trained_anchor,read_only_parent,read_only_parent,not_retrained
+stage2_objective,none,domain_information_critic,smooth_worst_domain_balanced_CE,historical_exact
+alignment,none,support_eligible,full_domain,distinct_validated_path
+optimizer_count,1,2,1,SRC_single_encoder_optimizer
+retention,one_anchor,40,40,complete

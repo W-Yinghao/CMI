@@ -1,0 +1,5 @@
+test_scope,command,status,environment,slurm_partition
+focused_c67,python -m pytest oaci/tests/test_c67_c66_dual_mode_cache_consumption.py -q,green,eeg2025,cpu-high
+c50_c67_slice,python -m pytest oaci/tests/test_c5*.py oaci/tests/test_c6*.py oaci/tests/test_c67_*.py -q,green,eeg2025,cpu-high
+c23_c67_regression,python -m pytest oaci/tests/test_c2[3-9]_*.py oaci/tests/test_c3*.py oaci/tests/test_c4*.py oaci/tests/test_c5*.py oaci/tests/test_c6*.py -q,green,eeg2025,cpu-high
+full_oaci_tests,python -m pytest oaci/tests -q,green,eeg2025,cpu-high

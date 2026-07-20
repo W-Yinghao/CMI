@@ -1,0 +1,2 @@
+failure_id,stage,blocking,reason,real_data_access,scientific_outcome_access,repair_required
+NONE,C84L1P_protocol_generation,0,protocol_and_identity_generation_passed,0,0,0

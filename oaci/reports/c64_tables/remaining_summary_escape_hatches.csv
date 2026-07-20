@@ -1,0 +1,7 @@
+hatch_id,remaining,reason,scientifically_justified_now
+RH1_more_source_summary_features,0,static/dynamic source summaries repeatedly below endpoint boundary,0
+RH2_target_unlabeled_summary_geometry,0,already diagnostic-only and not source-only rescue,0
+RH3_split_label_cache,1,separates same-label oracle from disjoint target-label diagnostic content,1
+RH4_full_conditional_cs,1,requires paired trial-level variables and Gram/KDE inputs,1
+RH5_atom_trace,1,C39-C40 atom branch closed only under current artifacts,1
+RH6_independent_replication,1,tests checkpoint-field dependence without tuning current universe,1

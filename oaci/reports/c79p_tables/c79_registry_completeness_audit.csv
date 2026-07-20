@@ -1,0 +1,12 @@
+audit,expected,observed,passed
+registered_paths,10,10,1
+categories_per_path,16,16,1
+path_category_cells,160,160,1
+blank_cells,0,0,1
+implicit_same_as_before_cells,0,0,1
+unresolved_inherited_defaults,0,0,1
+active_after_Holm_selection_paths,0,0,1
+seed4_outcome_dependent_branches,0,0,1
+registry_completeness_percent,100,100,1
+historical_registry_completeness,2/16,2/16,1
+historical_protocol_reused_for_authorization,false,false,1

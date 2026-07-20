@@ -1,0 +1,9 @@
+check,passed,finding
+c53_identity_replay,1,"C54 replays C53 best key-only, C52 diagnostic, best scalar, field identity, and cell count."
+same_label_oracle_flagged,1,target_joint_margin_raw:high is classified as same-label endpoint oracle content.
+binary_endpoint_bit_sufficient,1,The sign bit of target_joint_margin_raw closes the C53 scalar gap.
+null_controls_pass,1,Same-cell scalar success exceeds cell-preserving scalar and label nulls.
+transfer_not_full_closure,1,Cross-cell endpoint templates remain below same-cell endpoint scalar content.
+split_label_boundary_unresolved,1,No per-trial target prediction/label cache is available; no split-label sufficiency is claimed.
+target_label_fields_unavailable_at_selection_time,1,Target endpoint scalars are marked target-label-derived and unavailable at selection time.
+no_selection_artifact,1,"C54 emits only diagnostic inventory, curves, nulls, and ledgers."

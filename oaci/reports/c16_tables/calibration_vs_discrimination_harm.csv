@@ -1,0 +1,7 @@
+quantity,value
+selected_checkpoint_verdict,selected_oaci_calibration_improved_accuracy_flat
+harm_type_tally,"{'discrimination_harm': 9, 'improved': 24, 'calibration_harm': 5, 'mixed_harm': 15, 'neutral': 1}"
+mean_d_bacc,-0.002411265432098756
+mean_d_nll,-0.07389125871048376
+mean_d_ece,-0.035526116633731016
+class_boundary_rotation,True

@@ -1,0 +1,5 @@
+check,expected,observed,passed,status,notes
+parent_protocol_sha_match,9075e13d86192c48677b167457b765854db4f7d77781474753212b62d480e611,9075e13d86192c48677b167457b765854db4f7d77781474753212b62d480e611,1,pass,C71 references locked C70 protocol.
+t3_ho_units,1052,1052,1,executed,Authorized T3-HO cache covers the disjoint physical units.
+t2_t3_ho_overlap,0,0,1,inherited_and_replayed,T3-HO physical units are canonical minus C69/C70 T2.
+cache_hashes_match,1,1,1,executed,External cache and manifest hashes replay.

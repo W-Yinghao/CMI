@@ -14,6 +14,15 @@ import numpy as np
 
 warnings.filterwarnings("ignore")
 
+# This is the SLOW end-to-end test (trains a model); keep it out of the fast unit suite:
+#   pytest -m "not integration"     # fast unit tests only
+#   pytest -m integration           # this end-to-end smoke
+try:
+    import pytest
+    pytestmark = pytest.mark.integration
+except ImportError:
+    pass
+
 
 def _tiny_config(n_classes, chans, times):
     from h2cmi.config import H2Config

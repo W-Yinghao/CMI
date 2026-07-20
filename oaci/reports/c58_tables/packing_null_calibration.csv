@@ -1,0 +1,4 @@
+null_id,observed_hit,null_p95,passes,claim_scope
+N1_cell_preserving_label_shuffle,0.9444444444444444,0.45075937973389896,1,endpoint scalar only
+N5_trajectory_block_shuffle,0.9444444444444444,0.7712962962962961,1,endpoint scalar only
+Nmax_template_only,0.7037037037037037,0.7712962962962961,0,template-only partial transfer not formal bound

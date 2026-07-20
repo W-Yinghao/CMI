@@ -1,0 +1,93 @@
+{
+  "schema_version": "c84sr2_overall_report_v1",
+  "milestone": "C84SR2",
+  "gate": "C84S_STAGE_B_FIELD_DESCRIPTOR_COMPATIBILITY_REPAIRED_AND_V4_LOCK_READY_FOR_FRESH_PI_AUTHORIZATION",
+  "status": "COMPLETE_READY_NOT_AUTHORIZED",
+  "identities": {
+    "repair_protocol_commit": "5fa4366f57087f07cf6e290a84f37abbb1ef97c8",
+    "repair_protocol_sha256": "6d7853cd60a85c9f3516cb21fda1c75909f0963e96ad2ac0292647bdc93f1aef",
+    "implementation_commit": "5fddbb103600207f70e2cfff0d615ee81d5391f2",
+    "lock_bound_implementation_commit": "a737e2b91578aa7e85aab948ca4b0e64929c3073",
+    "execution_lock_commit": "8528bd142bbf6c4cca047bdcc558133eebf5e757",
+    "execution_lock_sha256": "582e5074b4b17d62ff1e5fbfd992f037dd3082b7763b22d707630aa19db81c3d",
+    "accepted_regression_commit": "b08538d3f399c77bb188246d23472cb5fd39ded5"
+  },
+  "historical_v3_attempt": {
+    "job": 897843,
+    "authorization_consumed": true,
+    "authorization_reusable": false,
+    "construction_label_access": 1,
+    "evaluation_label_access": 0,
+    "selector_contexts": 0,
+    "scientific_result_rows": 0,
+    "evaluation_descriptor_sealed": true,
+    "training": 0,
+    "forward": 0,
+    "GPU": 0,
+    "same_label_oracle": 0
+  },
+  "descriptor_compatibility": {
+    "field_units": 1944,
+    "native_sidecars": 1701,
+    "historical_C84C_omissions": 243,
+    "allowed_omission_scope": {
+      "panel": "A",
+      "training_seed": 5,
+      "level": 0,
+      "model_reuse_provenance": "C84C",
+      "intervention_id": "C84_LEVEL0_FULL_SOURCE_PANEL_V1"
+    },
+    "all_other_missing_or_mismatch": "FAIL_CLOSED",
+    "candidate_or_scientific_change": false
+  },
+  "stage_a_reuse": {
+    "mode": "IMMUTABLE_REPLAY_ONLY",
+    "complete_sha256": "29e77b600184f3f96b65858a40767f562e664e81eb848e2546e5486886ed35bd",
+    "construction_handoff_sha256": "29b0848b8bbc40d5d346722d7cc479c69995406444ee8b9688f663f9c4256223",
+    "evaluation_seal_sha256": "54e06dff60d80255631dc4faa20c8c7db651f2af8fc5415671dd9ab6681b5502",
+    "construction_rows": 4773,
+    "evaluation_rows": 4848,
+    "overlap": 0,
+    "label_loader_calls": 0,
+    "target_label_rows_reloaded": 0,
+    "evaluation_released_to_stage_b": false
+  },
+  "readiness": {
+    "field_units": 1944,
+    "contexts": 944,
+    "candidates_per_context": 81,
+    "external_files_replayed": 7776,
+    "external_bytes_replayed": 48072941176,
+    "synthetic_Q0_chains": 2048,
+    "synthetic_Q0_records": 9110448,
+    "synthetic_method_context_rows": 18608,
+    "synthetic_summary_sha256": "7b88c30f0f623894a33cfcfa6aea56149500a8df7a1f5cb202d765e169384749",
+    "synthetic_selection_freeze_sha256": "0012344acd674df4d28e78f08cf81dac67ec7b37fef3e851faf5892efe6e6982",
+    "synthetic_result_sha256": "33d825a4d8fe0538b1f775b01cf98a1dff1655f934b16c103339de64cf17d990",
+    "red_team_passed": 50,
+    "red_team_total": 50
+  },
+  "regression": {
+    "accepted_commit": "b08538d3f399c77bb188246d23472cb5fd39ded5",
+    "focused": {"job": 897866, "passed": 242, "failed": 0, "stderr_bytes": 0},
+    "C65": {"job": 897867, "passed": 843, "failed": 0, "skipped": 1, "deselected": 3, "stderr_bytes": 0},
+    "C23": {"job": 897865, "passed": 1254, "failed": 0, "skipped": 1, "deselected": 3, "stderr_bytes": 0},
+    "full": {"job": 897868, "passed": 2178, "failed": 0, "skipped": 1, "deselected": 3, "stderr_bytes": 0},
+    "initial_attempt_preserved": true,
+    "scheduler_evidence": "squeue",
+    "sacct_used": false
+  },
+  "protected_state_at_readiness": {
+    "V4_authorization_record_present": false,
+    "target_label_reload": 0,
+    "evaluation_label_access_during_repair": 0,
+    "real_selector_scores": 0,
+    "real_scientific_statistics": 0,
+    "training": 0,
+    "forward": 0,
+    "GPU": 0,
+    "same_label_oracle": 0,
+    "C85_authorized": false
+  },
+  "next_required_direct_statement": "授权 C84S"
+}

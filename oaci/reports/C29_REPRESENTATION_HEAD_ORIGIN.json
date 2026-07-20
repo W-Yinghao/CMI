@@ -1,0 +1,167 @@
+{
+  "config_hash": "664007686afb520f",
+  "counterfactuals": {
+    "baseline_gap": 0.5238775560151255,
+    "destroyers": [
+      "effective_mean_removed",
+      "global_scale_removed",
+      "source_mean_centered_projection"
+    ],
+    "note": "interventions that destroy the offset recovery: effective_mean_removed, global_scale_removed, source_mean_centered_projection",
+    "per_intervention": {
+      "effective_mean_removed": {
+        "destroys_recovery": true,
+        "gap_closed": -0.3126904391879488,
+        "loto_r2": -1.170641226436612,
+        "perm_p": 0.7884231536926147,
+        "survives_permutation": false
+      },
+      "global_scale_removed": {
+        "destroys_recovery": true,
+        "gap_closed": -0.14854562586424233,
+        "loto_r2": 0.08099187813631825,
+        "perm_p": 0.5588822355289421,
+        "survives_permutation": false
+      },
+      "parameter_bias_removed": {
+        "destroys_recovery": false,
+        "gap_closed": 0.5104626830969548,
+        "loto_r2": 0.04185409413151375,
+        "perm_p": 0.027944111776447105,
+        "survives_permutation": true
+      },
+      "projection_only": {
+        "destroys_recovery": false,
+        "gap_closed": 0.5104626830969548,
+        "loto_r2": 0.04185409413151375,
+        "perm_p": 0.027944111776447105,
+        "survives_permutation": true
+      },
+      "raw": {
+        "destroys_recovery": false,
+        "gap_closed": 0.5238775560151255,
+        "loto_r2": 0.1467960665545477,
+        "perm_p": 0.031936127744510975,
+        "survives_permutation": true
+      },
+      "source_mean_centered_projection": {
+        "destroys_recovery": true,
+        "gap_closed": -0.29673943636118866,
+        "loto_r2": -1.5684459341170953,
+        "perm_p": 0.782435129740519,
+        "survives_permutation": false
+      },
+      "weight_norm_normalized": {
+        "destroys_recovery": false,
+        "gap_closed": 0.3534092438722946,
+        "loto_r2": 0.114445260533524,
+        "perm_p": 0.19161676646706588,
+        "survives_permutation": false
+      }
+    }
+  },
+  "diagnostic_only_non_deployable": true,
+  "full_carrier_id_accuracy": 0.6648264984227129,
+  "logit_decomposition": {
+    "carrier_is_nonlinear_linear_gauges_fail": true,
+    "effective_bias_gauge": {
+      "gap_closed": -0.054727174830822546,
+      "loto_r2": 0.047216447194277644,
+      "perm_p": 0.5269461077844312,
+      "survives_permutation": false
+    },
+    "effective_mean_removed_carrier": {
+      "gap_closed": -0.3126904391879488,
+      "loto_r2": -1.170641226436612,
+      "perm_p": 0.7884231536926147,
+      "survives_permutation": false
+    },
+    "full_carrier": {
+      "gap_closed": 0.5238775560151255,
+      "loto_r2": 0.1467960665545477,
+      "perm_p": 0.031936127744510975,
+      "survives_permutation": true
+    },
+    "note": "removing the parameter head-bias b (-> W.z) PRESERVES the carrier (0.510 vs full 0.524) while removing the per-class EFFECTIVE mean DESTROYS it -> the offset-carrying effective class bias is the representation-projection mean mean(W.z), NOT the parameter head-bias b (R2). The carrier is a NONLINEAR softmax confidence, so the LINEAR b/projection-mean 4-vec gauges do not isolate it (b-gauge -0.943, projmean-gauge -0.085) -- evidence is the counterfactual on the actual carrier, not the linear gauges.",
+    "parameter_bias_drives_offset": false,
+    "parameter_bias_gauge": {
+      "gap_closed": -0.9427856434856028,
+      "loto_r2": -2.019439313664629,
+      "perm_p": 0.9740518962075848,
+      "survives_permutation": false
+    },
+    "parameter_bias_removed_carrier": {
+      "gap_closed": 0.5104626830969548,
+      "loto_r2": 0.04185409413151375,
+      "perm_p": 0.027944111776447105,
+      "survives_permutation": true
+    },
+    "projection_mean_gauge": {
+      "gap_closed": -0.0848762221759936,
+      "loto_r2": 0.009158586179758177,
+      "perm_p": 0.5668662674650699,
+      "survives_permutation": false
+    },
+    "representation_projection_drives_offset": true
+  },
+  "mode": "in_regime",
+  "n_candidates": 1268,
+  "representation_geometry": {
+    "note": "logit = W.z + b, so the projection W.z = (logit - b) is the COMPLETE offset-relevant representation summary; z-components orthogonal to W are offset-irrelevant (a full 800-d z re-persistence would add only offset-orthogonal descriptive geometry).",
+    "projection_full_geometry": {
+      "gap_closed": 0.15731347667005258,
+      "loto_r2": 0.04580347986699862,
+      "perm_p": 0.2934131736526946,
+      "survives_permutation": false
+    },
+    "projection_mean_only": {
+      "gap_closed": -0.0848762221759936,
+      "loto_r2": 0.009158586179758621,
+      "perm_p": 0.5668662674650699,
+      "survives_permutation": false
+    }
+  },
+  "source_target_residual": {
+    "note": "neither the source-explained projection nor its residual cleanly carries the offset",
+    "residual_carries_offset": false,
+    "residual_over_source_explained": false,
+    "source_explained": {
+      "gap_closed": 0.34817790232381696,
+      "loto_r2": -0.005277194913638539,
+      "perm_p": 0.14570858283433133,
+      "survives_permutation": false
+    },
+    "target_projection_mean": {
+      "gap_closed": -0.0848762221759936,
+      "loto_r2": 0.009158586179758177,
+      "perm_p": 0.5668662674650699,
+      "survives_permutation": false
+    },
+    "target_residual": {
+      "gap_closed": -0.11563712233385062,
+      "loto_r2": -0.3828216934960045,
+      "perm_p": 0.5828343313373253,
+      "survives_permutation": false
+    }
+  },
+  "taxonomy": {
+    "destroyers": [
+      "effective_mean_removed",
+      "global_scale_removed",
+      "source_mean_centered_projection"
+    ],
+    "diagnostic_only_non_deployable": true,
+    "established": [
+      "R2_effective_logit_bias_from_target_representation",
+      "R3_target_representation_shift_drives_offset",
+      "R6_source_representation_tracks_source_error_only"
+    ],
+    "interpretation": "the offset-carrying effective class bias is an EFFECTIVE logit bias induced by the target representation projection mean(W.z), NOT the parameter head-bias b.",
+    "parameter_bias_drives": false,
+    "primary_case": "R2_effective_logit_bias_from_target_representation",
+    "representation_projection_drives": true,
+    "scale_insufficient": false,
+    "target_representation_shift": true,
+    "target_residual_carries": false
+  }
+}

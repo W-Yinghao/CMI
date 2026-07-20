@@ -1,0 +1,4 @@
+stage,input,output,evaluation_descriptor_received,selection_mutable
+A,authorization_receipt+frozen_trial_registry+loader_labels,construction_handoff+sealed_evaluation_descriptor,0,0
+B,construction_handoff+frozen_source_and_target_unlabeled_artifacts,atomic_selection_freeze_V2,0,1
+C,immutable_selection_freeze+evaluation_descriptor,atomic_scientific_result,1,0

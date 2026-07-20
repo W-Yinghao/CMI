@@ -1,0 +1,208 @@
+{
+  "artifact_hygiene": [
+    {
+      "check": "config_hash_unchanged",
+      "passed": true
+    },
+    {
+      "check": "read_only_c50_c52_artifacts",
+      "passed": true
+    },
+    {
+      "check": "no_training_no_gpu_no_reinference",
+      "passed": true
+    },
+    {
+      "check": "no_bnci2014_004_no_seeds_3_4",
+      "passed": true
+    },
+    {
+      "check": "key_only_label_content_separated",
+      "passed": true
+    },
+    {
+      "check": "same_label_not_split_label",
+      "passed": true
+    },
+    {
+      "check": "split_label_unavailable_reason_emitted",
+      "passed": true
+    },
+    {
+      "check": "target_labels_diagnostic_only",
+      "passed": true
+    },
+    {
+      "check": "no_selection_artifact",
+      "passed": true
+    },
+    {
+      "check": "compact_json_no_row_level_payload",
+      "passed": true
+    }
+  ],
+  "best_scalar_endpoint": {
+    "field": "target_joint_margin_raw",
+    "hit": 0.9444444444444444,
+    "mean_top_tie_count": 1.1111111111111112,
+    "orientation": "high"
+  },
+  "c52_replay": {
+    "best_key_only_hit": 0.4876543209876543,
+    "best_strict_source_hit": 0.5061728395061729,
+    "c51_trajectory_local_bayes_oracle_hit": 0.808641975308642,
+    "cell_count": 162,
+    "key_only_closes_cell_count": 12,
+    "label_diagnostic_closes_cell_count": 131,
+    "trajectory_centered_diagnostic_hit": 0.8127572016460904,
+    "trajectory_random_tie_hit": 0.429723378036041
+  },
+  "config_hash": "664007686afb520f",
+  "decision": {
+    "best_transfer_closed_fraction": 0.6645569620253167,
+    "best_transfer_hit": 0.7037037037037037,
+    "cell_prior_strong_close": false,
+    "decision": "C53-B_scalar_endpoint_label_sufficiency",
+    "gap_close_gate": 0.05,
+    "null_like_or_artifact": false,
+    "pairwise_rank_strong_close": true,
+    "same_label_diagnostic_only": true,
+    "scalar_endpoint_near_or_exceeds_l7": true,
+    "scalar_endpoint_strong_close": true,
+    "secondary_tags": [
+      "C53-H_same_label_diagnostic_only",
+      "C53-F_nontransferable_cell_local_label_content"
+    ],
+    "split_label_budget_available": false,
+    "strong_close_gate": 0.8,
+    "weak_close_gate": 0.5
+  },
+  "diagnostic_only_non_deployable": true,
+  "inherits_from": [
+    "C49",
+    "C50",
+    "C51",
+    "C52"
+  ],
+  "milestone": "C53",
+  "n_candidate_rows": 3804,
+  "n_trajectories": 162,
+  "red_team": [
+    {
+      "check": "c52_replay_exact",
+      "finding": "C53 replays C52's key-only and label-diagnostic cell counts before new analysis.",
+      "passed": 1
+    },
+    {
+      "check": "key_only_not_conflated_with_label_content",
+      "finding": "Cell prior/key-only content remains insufficient while candidate-specific scalar label content closes.",
+      "passed": 1
+    },
+    {
+      "check": "same_label_guard",
+      "finding": "Scalar endpoint closure is reported as same-label diagnostic content, not split-label sufficiency.",
+      "passed": 1
+    },
+    {
+      "check": "nulls_do_not_explain_scalar_closure",
+      "finding": "Candidate-specific scalar endpoint closure exceeds key-preserving shuffle controls.",
+      "passed": 1
+    },
+    {
+      "check": "class_conditioned_not_overclaimed",
+      "finding": "Candidate-level class-conditioned label content is marked unavailable rather than inferred from aggregate tables.",
+      "passed": 1
+    },
+    {
+      "check": "transfer_not_full_closure",
+      "finding": "Cross-cell transfer is weaker than same-cell scalar endpoint label content.",
+      "passed": 1
+    },
+    {
+      "check": "split_label_unavailable_documented",
+      "finding": "Per-trial target prediction/label cache is unavailable, so split-label budget claims are not made.",
+      "passed": 1
+    },
+    {
+      "check": "no_selection_artifact",
+      "finding": "C53 emits only diagnostic tables and no selected-candidate fields.",
+      "passed": 1
+    }
+  ],
+  "scalar_endpoint_field_results": [
+    {
+      "field": "target_joint_margin_raw",
+      "hit": 0.9444444444444444,
+      "mean_top_tie_count": 1.1111111111111112,
+      "orientation": "high"
+    },
+    {
+      "field": "target_bacc_delta",
+      "hit": 0.9259259259259259,
+      "mean_top_tie_count": 1.1111111111111112,
+      "orientation": "high"
+    },
+    {
+      "field": "target_nll_delta",
+      "hit": 0.8333333333333334,
+      "mean_top_tie_count": 1.0,
+      "orientation": "high"
+    },
+    {
+      "field": "target_ece_delta",
+      "hit": 0.7037037037037037,
+      "mean_top_tie_count": 1.0,
+      "orientation": "high"
+    },
+    {
+      "field": "target_utility_score",
+      "hit": 0.8518518518518519,
+      "mean_top_tie_count": 1.0,
+      "orientation": "high"
+    },
+    {
+      "field": "continuous_joint_min_margin",
+      "hit": 0.8518518518518519,
+      "mean_top_tie_count": 1.0,
+      "orientation": "high"
+    },
+    {
+      "field": "endpoint_vector_norm_regret",
+      "hit": 0.8888888888888888,
+      "mean_top_tie_count": 1.0,
+      "orientation": "low"
+    },
+    {
+      "field": "dominated_hypervolume_regret",
+      "hit": 0.8703703703703703,
+      "mean_top_tie_count": 1.0,
+      "orientation": "low"
+    },
+    {
+      "field": "pareto_distance",
+      "hit": 0.8081790123456791,
+      "mean_top_tie_count": 3.2037037037037037,
+      "orientation": "low"
+    },
+    {
+      "field": "pareto_good",
+      "hit": 0.8081790123456791,
+      "mean_top_tie_count": 3.2037037037037037,
+      "orientation": "high"
+    }
+  ],
+  "split_label_budget_available": false,
+  "split_label_unavailable_reason": "required per-trial target prediction/label cache unavailable",
+  "table_row_counts": {
+    "cell_label_content_ledger": 162,
+    "failure_reason_ledger": 10,
+    "label_content_ladder_summary": 8,
+    "label_null_calibration_summary": 7,
+    "label_transferability_ledger": 810,
+    "label_transferability_summary": 5,
+    "no_selector_artifact_gate": 10,
+    "red_team_verification": 8,
+    "split_label_budget_curve": 1,
+    "split_label_budget_ledger": 1
+  }
+}

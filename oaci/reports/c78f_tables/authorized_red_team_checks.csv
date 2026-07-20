@@ -1,0 +1,58 @@
+category,check,status,blocking,evidence
+timing,red_team_precedes_main_report,PASS,1,md=False;json=False
+protocol,C78F_protocol_hash,PASS,1,85aba93fe2e232f0434162b3c6c97a30cac02047228676951c25cbab805d3d84
+protocol,C78S_protocol_hash,PASS,1,df85699090a65d1e1766d754bcebd9eb5648cc13e4441d8074a3f4884487c7f8
+protocol,C78S_bound_into_C78F,PASS,1,"{'analysis_started_in_C78F': False, 'locked_before_remaining_target_outcome_access': True, 'path': 'oaci/reports/C78S_SEED3_SCIENTIFIC_ANALYSIS_PROTOCOL.json', 'sha256': 'df85699090a65d1e1766d754bcebd9eb5648cc13e4441d8074a3f4884487c7f8'}"
+authorization,direct_user_authorization_recorded,PASS,1,"{'evidence_sha256': '84591fc3dc99fa5cbc464e255a986a3b3c315304fb81e76fac5267462ea13e47', 'magic_token_required': False, 'mode': 'direct_explicit_user_authorization', 'received': True, 'received_at_utc': '2026-07-11T02:14:38Z', 'scope_bound': True}"
+authorization,magic_token_removed,PASS,1,direct lock only
+authorization,scope_bound_execution_lock,PASS,1,2de617ba72faa126122f896e07dbb37b98335a11bd4ca71121c6b0731155b0f8
+timing,zero_access_before_lock,PASS,1,0/0/0
+implementation,all_locked_files_replay,PASS,1,16
+scope,full_unit_registry_1458,PASS,1,1458
+scope,remaining_registry_1296,PASS,1,1296
+scope,remaining_regime_counts,PASS,1,16/640/640
+scope,target4_exact_162,PASS,1,162
+scope,seed3_only,PASS,1,['3']
+scope,BNCI001_only,PASS,1,['BNCI2014_001']
+waves,two_disjoint_four_target_waves,PASS,1,"[{'wave': 'A', 'target': '8', 'assignment_key_sha256': '476af179f2bdaa53d6406621b1232745d8cfe4b67dbaf3ffdf2810f928f887a4', 'target_outcome_used': '0'}, {'wave': 'A', 'target': '9', 'assignment_key_sha256': '52554dd305ec9e78dba735daf7284176cb15eb22a376965a401ed1e8f05735ce', 'target_outcome_used': '0'}, {'wave': 'A', 'target': '3', 'assignment_key_sha256': 'a441967646d0ecd20e004e401791735b0dbc573e552fcd86b903093329d6ff58', 'target_outcome_used': '0'}, {'wave': 'A', 'target': '6', 'assignment_key_sha256': 'baf07fafa52221bc8ffc2a483f558cc9dcd146446c3f85832f8da69196dc73b5', 'target_outcome_used': '0'}, {'wave': 'B', 'target': '5', 'assignment_key_sha256': 'd6f92d0db36095e332bfb8788d7af2c3583f5f9f897085b78cc197a5b5254530', 'target_outcome_used': '0'}, {'wave': 'B', 'target': '2', 'assignment_key_sha256': 'e11eaa69117bc83a2e0696e702b588c1d18f46cd9b04df39eea4f71c38184cb0', 'target_outcome_used': '0'}, {'wave': 'B', 'target': '7', 'assignment_key_sha256': 'e8d2119cd64b332ec53f77e020bd7cbf29abcbbe4f83f2df9030f5dae4058461', 'target_outcome_used': '0'}, {'wave': 'B', 'target': '1', 'assignment_key_sha256': 'f7ed473314a27d1ff150dbf8e9644683ae04d85094a8fc34b61147feac6156e6', 'target_outcome_used': '0'}]"
+waves,wave_A_engineering_passed,PASS,1,caab98b643fbcfac2d0eec1872793b6a5873edefdb3eecc51953287e9b8d7ef1
+waves,wave_B_engineering_passed,PASS,1,87f3aafee01cf228ff3a57606bec0b0ec121e3d257d97990d487a13bafa03b30
+waves,wave_A_gate_predates_wave_B_fields,PASS,1,2026-07-11T03:24:02Z
+waves,continuation_engineering_only,PASS,1,engineering_only
+checkpoint,checkpoint_rows_1458,PASS,1,1458
+checkpoint,all_checkpoint_hashes_replay,PASS,1,1458
+checkpoint,all_54_cadence_cells_pass,PASS,1,54
+checkpoint,remaining_genealogy_1296,PASS,1,1296
+checkpoint,SRC_never_retrained_ERM,PASS,1,0
+checkpoint,SRC_never_read_OACI_weights,PASS,1,0
+checkpoint,optimizer_replay_1296,PASS,1,1296
+isolation,all_8_targets_isolated,PASS,1,8
+isolation,zero_target_training_rows_labels,PASS,1,0/0
+isolation,zero_source_audit_training_rows,PASS,1,0
+isolation,zero_outcome_retention_retry,PASS,1,0/0
+instrumentation,all_1296_remaining_units_instrumented,PASS,1,1296
+instrumentation,zero_identity_failures,PASS,1,0
+instrumentation,Wz_logit_tolerance,PASS,1,0.0
+instrumentation,softmax_tolerance,PASS,1,0.0
+instrumentation,hook_tolerance,PASS,1,0.0
+instrumentation,repeat_identity,PASS,1,exact
+instrumentation,full_row_counts,PASS,1,6718464/839808
+views,five_views_per_remaining_target,PASS,1,40
+views,unlabeled_views_have_no_labels,PASS,1,8
+views,oracle_diagnostic_only,PASS,1,8
+views,labels_after_full_freeze,PASS,1,f65d810467ea5d9e4fc0bec9c61b626f0c17d2e0e50b1b79aa1cb3ed17198b1b
+attempts,all_attempts_retained,PASS,1,32
+attempts,no_attempt_target_labels,PASS,1,0
+attempts,all_16_training_stages_completed,PASS,1,16
+science_boundary,target4_excluded_from_primary,PASS,1,"{'new_target_population_claim_allowed': False, 'primary_targets': [1, 2, 3, 5, 6, 7, 8, 9], 'seed3': 'exploratory_replication_field', 'seed4': 'untouched_locked_confirmation_field', 'target4_canary': 'descriptive_only_excluded_from_all_primary_tests'}"
+science_boundary,C78S_not_started,PASS,1,false
+science_boundary,no_target_outcomes_inspected,PASS,1,0
+science_boundary,ERM_anchor_asymmetry_locked,PASS,1,anchor_not_symmetric_trajectory
+science_boundary,SRC_negative_control_only,PASS,1,exact_C11_historical_negative_control_commit_2555b36_smooth_temperature_0.1
+science_boundary,no_selector_or_recommendation,PASS,1,false/false
+protection,seed4_untouched,PASS,1,"{'seed4_training_jobs': '0', 'seed4_data_execution_access': '0', 'seed4_checkpoints': '0', 'seed4_caches': '0', 'seed4_outcome_reads': '0', 'BNCI2014_004_access': '0', 'passed': '1'}"
+protection,BNCI004_untouched,PASS,1,0
+risk,no_blocking_open_risk,PASS,1,25
+artifact,no_git_payload_over_50MiB,PASS,1,[]
+artifact,no_raw_external_payload_tracked,PASS,1,external only
+artifact,complete_field_manifest_external,PASS,1,/projects/EEG-foundation-model/yinghao/oaci-c78f-full-seed3/protocol_85aba93fe2e232f0/implementation_644e275ed3d5a201/gates/FULL_SEED3_FIELD_FROZEN.json

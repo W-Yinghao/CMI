@@ -1,0 +1,7 @@
+null_id,estimator_family,observed_stat,observed_value,null_p95,passes,interpretation
+N1_cell_preserving_label_shuffle,partition/binary_y,endpoint_hit,0.9444444444444444,0.45075937973389896,1,endpoint scalar clears label shuffle but remains diagnostic
+N2_field_identity_shuffle,partition/binary_y,endpoint_hit,0.9444444444444444,0.7620855461500601,1,endpoint remains above strong field null
+N3_trajectory_block_shuffle,partition/binary_y,endpoint_hit,0.9444444444444444,0.7712962962962961,1,sets max null boundary
+N4_template_only_vs_max_null,partition/binary_y,template_hit,0.7037037037037037,0.7712962962962961,0,template partial signal is not reliability-bound grade
+N5_source_scalarization_vs_max_null,source_adversary,source_scalarization_hit,0.5740740740740741,0.7712962962962961,0,source-only family remains below reliability
+N6_summary_kernel_bandwidth_bootstrap,summary_kernel_proxy,endpoint_proxy_rank,1.0,,0,proxy lacks sample-level bootstrap support; do not promote to full estimator

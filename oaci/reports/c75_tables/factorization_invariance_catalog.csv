@@ -1,0 +1,9 @@
+quantity,general_invertible_A_invariant,orthogonal_A_invariant,directly_function_identifiable,status,C75_implication
+logits=Wz+b,1,1,1,function_level,function_level_identifiable
+probabilities/margins/predictions,1,1,1,function_level,function_level_identifiable
+Wz,1,1,1,projection_level_given_b,function_level_identifiable
+head_bias_b,1,1,1,parameter_level,function_level_identifiable
+z_coordinate_mean/covariance,0,0,0,coordinate_dependent,mechanism_origin_not_unique
+z_norm/covariance_eigenvalues,0,1,0,orthogonal_only,mechanism_origin_not_unique
+W_row_norms/cosines/singular_values,0,1,0,orthogonal_only,mechanism_origin_not_unique
+normalized_zW_alignment,0,1,0,orthogonal_only,mechanism_origin_not_unique

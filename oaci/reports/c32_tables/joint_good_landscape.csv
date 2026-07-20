@@ -1,0 +1,15 @@
+metric,value
+n_candidates,3804
+n_trajectories,162
+joint_good_count,1614
+joint_good_rate,0.4242902208201893
+trajectory_any_joint_fraction,0.9444444444444444
+mean_joint_good_per_trajectory,9.962962962962964
+median_joint_good_per_trajectory,8.5
+min_joint_good_per_trajectory,0
+max_joint_good_per_trajectory,29
+mean_joint_good_rate_per_trajectory,0.429723378036041
+median_joint_good_rate_per_trajectory,0.35416666666666663
+mean_candidates_per_trajectory,23.48148148148148
+selected_oaci_trajectories,162
+selected_oaci_missing_or_duplicate,0

@@ -1,0 +1,7 @@
+check,observed,threshold,status,evidence
+tracked_files,3628,informational,PASS,git_ls_files
+tracked_payload_over_50MiB,0,0,PASS,c79p_tracked_payload_scan
+raw_cache_or_weights_tracked,0,0,PASS,c79p_tracked_payload_scan
+seed4_checkpoint_or_cache_payload,0,0,PASS,seed4_untouched_audit.csv
+GPU_jobs_submitted_by_C79P,0,0,PASS,regression_verification.csv
+seed4_jobs_submitted_by_C79P,0,0,PASS,regression_verification.csv

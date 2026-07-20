@@ -1,0 +1,5 @@
+grid_id,cell,construct_trials_min,eval_trials_min,same_label_reuse_allowed,status
+SL1,target_x_trajectory_x_class,20,20,0,protocol_ready_cache_missing
+SL2,target_x_class,40,40,0,coarser_backup_cache_missing
+SL3,trajectory_x_class,30,30,0,trajectory_backup_cache_missing
+SL4,global_target_split,80,80,0,stability_check_cache_missing

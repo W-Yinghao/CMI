@@ -1,0 +1,6 @@
+gate,passed,finding
+strict_source_inputs_only_for_source_candidates,1,source-only candidates do not read target endpoint fields
+target_label_templates_marked_diagnostic,1,template rows are marked target-label-derived
+no_candidate_beats_null_as_source_only,1,no allowed source-only row beats max null p95
+no_new_nested_probe_training,1,kernel probe is not executed from frozen summaries
+no_escape_hatch,1,all reliable_escape_hatch flags are zero

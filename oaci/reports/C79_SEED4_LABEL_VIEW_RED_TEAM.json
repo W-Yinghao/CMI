@@ -1,0 +1,25 @@
+{
+  "all_gates_passed": true,
+  "construction_rows": 2235,
+  "evaluation_rows": 2373,
+  "locked_split_hashes_passed": 8,
+  "overlap_rows": 0,
+  "primary_targets": [
+    1,
+    2,
+    3,
+    5,
+    6,
+    7,
+    8,
+    9
+  ],
+  "route_sha256": "f3de19edc9cece07437db03337d2222005c60106388669f2599cf0f96abf9290",
+  "row_order_used_as_predictor": false,
+  "same_label_oracle_created": false,
+  "same_label_oracle_descriptor_visible": false,
+  "schema_version": "c79_seed4_label_view_red_team_v1",
+  "target4_label_view_created": false,
+  "trial_id_used_as_predictor": false,
+  "union_rows": 4608
+}

@@ -1,0 +1,5 @@
+suite,job_id,passed_tests,stderr_empty,status,command
+focused_C76,local_lightweight,18,1,passed,python -m pytest oaci/tests/test_c76_representation_association_orbit.py -q
+C65_C76,892715,115,1,passed,c76-reg-c65
+C23_C76,892716,522,1,passed,c76-reg-c23
+full_OACI,892717,1450,1,passed,c76-reg-full

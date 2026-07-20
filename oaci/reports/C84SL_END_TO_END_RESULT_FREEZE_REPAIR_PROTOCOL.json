@@ -1,0 +1,56 @@
+{
+  "schema_version": "c84sl_end_to_end_result_freeze_repair_protocol_v1",
+  "milestone": "C84SL",
+  "created_at_utc": "2026-07-16T03:17:59Z",
+  "status": "LOCKED_BEFORE_REPAIR_IMPLEMENTATION_NOT_AUTHORIZED",
+  "chronology": {
+    "base_head": "8b49e99c417023d345837378f18d2a5952aa206c",
+    "initial_analysis_lock_commit": "c2f75c265b7abaa09c175524a9ae0e2a650173f7",
+    "initial_analysis_lock_sha256": "e17e4da14b60ac77ca0ec8bec80a2ca249cda014baf5460cfd64627294f2047b",
+    "repair_precedes_implementation": true,
+    "target_construction_labels_read": 0,
+    "target_evaluation_labels_read": 0,
+    "target_y_operations": 0,
+    "real_selector_scores": 0,
+    "scientific_statistics": 0,
+    "training_forward_GPU": [0, 0, 0]
+  },
+  "blockers_found_by_pre_readiness_audit": [
+    "FULL construction-label trial ordering depended on the Monte Carlo chain even though FULL selection was numerically invariant",
+    "no single production analysis entrypoint validated mixed method-context rows and atomically wrote every registered Stage-C result table",
+    "synthetic scenarios S12, S13, and S15 were declarative rows rather than executable production-path checks",
+    "the initial analysis lock therefore did not bind a complete result-freeze implementation"
+  ],
+  "repair_scope": {
+    "FULL_trial_order": "canonical frozen construction-view order independent of chain",
+    "FULL_selection": "deterministic with identical score and sample digests across chains",
+    "production_entrypoint": "one validated method-context analysis and atomic result-freeze path",
+    "result_tables": "all registered evaluation inference robustness taxonomy and final-manifest outputs",
+    "synthetic_entrypoint": "the same production result-freeze path with injected synthetic rows",
+    "S12": "ranking association cannot substitute for a failed Q1 decision",
+    "S13": "top-k cannot substitute for a failed Q1 decision",
+    "S15": "Monte Carlo chain rows are rejected as target-cluster scientific rows",
+    "replacement_lock": "C84S_ANALYSIS_EXECUTION_LOCK_V2.json"
+  },
+  "unchanged_scientific_contract": {
+    "complete_field_manifest_sha256": "cfffcac1a55148941b809b69bed2c9a8957a94729ed7f2c2c29ed8d48c0134d8",
+    "scientific_protocol_v3_sha256": "bf6c7f718413b4b2ac2ad9786aa2e47dc045a536e7237d5d8c0464b6598130b8",
+    "operationalization_protocol_sha256": "abf56676901bd7e5f484ffe4f4bb49de625d5c7b87cc34c0e3ab2bdb39361c5e",
+    "method_registry_sha256": "ef48ecf7fcc55188b78b0878d86f07f6239fe4f6c88bbc854829b3a1c7a1a120",
+    "candidate_universe_changed": false,
+    "method_or_formula_changed": false,
+    "score_direction_or_tie_rule_changed": false,
+    "budget_or_threshold_changed": false,
+    "target_population_changed": false,
+    "level_intervention_changed": false,
+    "inference_or_taxonomy_changed": false
+  },
+  "historical_object_policy": {
+    "initial_lock_preserved": true,
+    "initial_lock_operative_after_repair": false,
+    "authorization_inherited": false,
+    "fresh_direct_PI_authorization_required": true
+  },
+  "success_gate": "C84S_MULTIDATASET_LABEL_VIEWS_SELECTION_INFERENCE_IMPLEMENTED_AND_LOCKED_READY_FOR_PI_AUTHORIZATION",
+  "failure_gate": "C84S_LABEL_VIEW_SELECTOR_INFERENCE_TAXONOMY_OR_PROVENANCE_RECONCILIATION_REQUIRED"
+}

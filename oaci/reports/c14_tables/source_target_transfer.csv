@@ -1,0 +1,7 @@
+metric,value
+source_nll_to_target_nll_pearson,-0.9469945606902348
+source_nll_to_target_nll_spearman,-1.0
+sign_agreement,0.0
+ATI_NLL,1.0
+ATI_severity,0.8955791381571258
+source_target_instability_score,1.0

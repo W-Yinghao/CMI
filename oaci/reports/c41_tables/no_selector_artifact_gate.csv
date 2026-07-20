@@ -1,0 +1,14 @@
+check,passed
+config_hash_unchanged,1
+candidate_registry_complete,1
+field_availability_audited_first,1
+no_training_no_gpu_no_reinference,1
+no_atom_level_claims,1
+no_proxy_selector_ucl,1
+target_fields_diagnostic_only,1
+target_unlabeled_marked_non_source_only,1
+trajectory_conditioned_random_baseline,1
+no_selected_checkpoint_method_artifact,1
+no_monolithic_large_json,1
+finite_filtering_applied,1
+diagnostic_only_non_deployable,1

@@ -1,0 +1,12 @@
+analysis,unit,mandatory,row_iid_allowed
+within_target_centering,target,1,0
+within_regime_centering,regime,1,0
+per_target_per_regime,target_x_regime,1,0
+leave_target_out,target,1,0
+leave_regime_out,regime,1,0
+leave_trajectory_out,trajectory,1,0
+checkpoint_cluster_bootstrap,checkpoint,1,0
+trial_ID_cluster_bootstrap,trial_id,1,0
+seed_stratified,seed,1,0
+blocked_max_stat_permutation,seed_x_regime_x_target,1,0
+crossed_pigeonhole_bootstrap,checkpoint_x_trial_id,1,0

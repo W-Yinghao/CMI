@@ -1,0 +1,471 @@
+{
+  "gate": "C86D_DEVELOPMENT_ACTIVE_POLICY_FIELD_FROZEN_C86H_REVIEW_REQUIRED",
+  "stage": "C86D_D2_HELD_EVALUATION",
+  "development_only": true,
+  "confirmatory_claim": false,
+  "primary_risk": "held_standardized_regret",
+  "near_opt_scale": "raw_composite_utility_gap (epsilon geometry; indicator-first)",
+  "freeze_verification": "count/uniqueness/seed-binding/schema/context/action/nested-prefix fully verified BEFORE C85U opened",
+  "full_acquisition_invariance": {
+    "full_invariant_within_group": true,
+    "full_invariant_across_chains": true
+  },
+  "cross_cohort_eligible_budgets": [
+    "4",
+    "8",
+    "16",
+    "FULL"
+  ],
+  "input_unavailable_cells": {
+    "P0|32": [
+      "PhysionetMI"
+    ],
+    "A1|32": [
+      "PhysionetMI"
+    ],
+    "A2H|32": [
+      "PhysionetMI"
+    ],
+    "P0|4": [],
+    "A1|4": [],
+    "A2H|4": [],
+    "P0|8": [],
+    "A1|8": [],
+    "A2H|8": [],
+    "P0|16": [],
+    "A1|16": [],
+    "A2H|16": [],
+    "P0|FULL": [],
+    "A1|FULL": [],
+    "A2H|FULL": []
+  },
+  "endpoints": {
+    "P0|4": {
+      "mean_regret_std": 0.42221435034804766,
+      "tail_regret_std": 0.5117426138731195,
+      "target_near_opt_prob": 0.001059322033898305,
+      "mean_by_cohort": {
+        "Cho2017": 0.47331788753402815,
+        "Lee2019_MI": 0.4132507419162385,
+        "PhysionetMI": 0.41136077984515557
+      },
+      "tail_by_cohort": {
+        "Cho2017": 0.5508516925267556,
+        "Lee2019_MI": 0.4963368372931088,
+        "PhysionetMI": 0.4989801746793687
+      },
+      "near_opt_by_cohort": {
+        "Cho2017": 0.0,
+        "Lee2019_MI": 0.0,
+        "PhysionetMI": 0.001644736842105263
+      },
+      "n_targets_available_by_cohort": {
+        "Cho2017": 20,
+        "Lee2019_MI": 22,
+        "PhysionetMI": 76
+      }
+    },
+    "P0|8": {
+      "mean_regret_std": 0.3825017208499333,
+      "tail_regret_std": 0.47776739411461144,
+      "target_near_opt_prob": 0.0,
+      "mean_by_cohort": {
+        "Cho2017": 0.38741605023828174,
+        "Lee2019_MI": 0.3560366127717223,
+        "PhysionetMI": 0.3888694286124816
+      },
+      "tail_by_cohort": {
+        "Cho2017": 0.44532732276841036,
+        "Lee2019_MI": 0.45316706705996695,
+        "PhysionetMI": 0.4859898292164472
+      },
+      "near_opt_by_cohort": {
+        "Cho2017": 0.0,
+        "Lee2019_MI": 0.0,
+        "PhysionetMI": 0.0
+      },
+      "n_targets_available_by_cohort": {
+        "Cho2017": 20,
+        "Lee2019_MI": 22,
+        "PhysionetMI": 76
+      }
+    },
+    "P0|16": {
+      "mean_regret_std": 0.3623873242773831,
+      "tail_regret_std": 0.48198478897729286,
+      "target_near_opt_prob": 0.001059322033898305,
+      "mean_by_cohort": {
+        "Cho2017": 0.3315728278499528,
+        "Lee2019_MI": 0.328681145715874,
+        "PhysionetMI": 0.3802534539734595
+      },
+      "tail_by_cohort": {
+        "Cho2017": 0.3850081888895175,
+        "Lee2019_MI": 0.45866401729356193,
+        "PhysionetMI": 0.4980524477898404
+      },
+      "near_opt_by_cohort": {
+        "Cho2017": 0.0,
+        "Lee2019_MI": 0.0,
+        "PhysionetMI": 0.001644736842105263
+      },
+      "n_targets_available_by_cohort": {
+        "Cho2017": 20,
+        "Lee2019_MI": 22,
+        "PhysionetMI": 76
+      }
+    },
+    "P0|32": {
+      "mean_regret_std": 0.2878054956505955,
+      "tail_regret_std": 0.39662957667253423,
+      "target_near_opt_prob": 0.008928571428571428,
+      "mean_by_cohort": {
+        "Cho2017": 0.2753645455365199,
+        "Lee2019_MI": 0.29911545029975517
+      },
+      "tail_by_cohort": {
+        "Cho2017": 0.34819391575454883,
+        "Lee2019_MI": 0.43572307520537784
+      },
+      "near_opt_by_cohort": {
+        "Cho2017": 0.00625,
+        "Lee2019_MI": 0.011363636363636364
+      },
+      "n_targets_available_by_cohort": {
+        "Cho2017": 20,
+        "Lee2019_MI": 22
+      }
+    },
+    "P0|FULL": {
+      "mean_regret_std": 0.33211310184810694,
+      "tail_regret_std": 0.5180928574187086,
+      "target_near_opt_prob": 0.0,
+      "mean_by_cohort": {
+        "Cho2017": 0.2092060778869352,
+        "Lee2019_MI": 0.28649818317726,
+        "PhysionetMI": 0.3776613740847129
+      },
+      "tail_by_cohort": {
+        "Cho2017": 0.3230655529324441,
+        "Lee2019_MI": 0.4750769934928606,
+        "PhysionetMI": 0.5353242494440975
+      },
+      "near_opt_by_cohort": {
+        "Cho2017": 0.0,
+        "Lee2019_MI": 0.0,
+        "PhysionetMI": 0.0
+      },
+      "n_targets_available_by_cohort": {
+        "Cho2017": 20,
+        "Lee2019_MI": 22,
+        "PhysionetMI": 76
+      }
+    },
+    "A1|4": {
+      "mean_regret_std": 0.42221435034804766,
+      "tail_regret_std": 0.5117426138731195,
+      "target_near_opt_prob": 0.001059322033898305,
+      "mean_by_cohort": {
+        "Cho2017": 0.47331788753402815,
+        "Lee2019_MI": 0.4132507419162385,
+        "PhysionetMI": 0.41136077984515557
+      },
+      "tail_by_cohort": {
+        "Cho2017": 0.5508516925267556,
+        "Lee2019_MI": 0.4963368372931088,
+        "PhysionetMI": 0.4989801746793687
+      },
+      "near_opt_by_cohort": {
+        "Cho2017": 0.0,
+        "Lee2019_MI": 0.0,
+        "PhysionetMI": 0.001644736842105263
+      },
+      "n_targets_available_by_cohort": {
+        "Cho2017": 20,
+        "Lee2019_MI": 22,
+        "PhysionetMI": 76
+      }
+    },
+    "A1|8": {
+      "mean_regret_std": 0.38758254109634915,
+      "tail_regret_std": 0.48860678959687054,
+      "target_near_opt_prob": 0.0,
+      "mean_by_cohort": {
+        "Cho2017": 0.38862830608772436,
+        "Lee2019_MI": 0.36299167717535286,
+        "PhysionetMI": 0.39442574775995964
+      },
+      "tail_by_cohort": {
+        "Cho2017": 0.4432409165212345,
+        "Lee2019_MI": 0.4939884681627198,
+        "PhysionetMI": 0.491650773211096
+      },
+      "near_opt_by_cohort": {
+        "Cho2017": 0.0,
+        "Lee2019_MI": 0.0,
+        "PhysionetMI": 0.0
+      },
+      "n_targets_available_by_cohort": {
+        "Cho2017": 20,
+        "Lee2019_MI": 22,
+        "PhysionetMI": 76
+      }
+    },
+    "A1|16": {
+      "mean_regret_std": 0.361618230459175,
+      "tail_regret_std": 0.4813068945337695,
+      "target_near_opt_prob": 0.0,
+      "mean_by_cohort": {
+        "Cho2017": 0.3408591651813136,
+        "Lee2019_MI": 0.32686850338470597,
+        "PhysionetMI": 0.37714027389595867
+      },
+      "tail_by_cohort": {
+        "Cho2017": 0.3908139779206402,
+        "Lee2019_MI": 0.4520784179820321,
+        "PhysionetMI": 0.49829070550259774
+      },
+      "near_opt_by_cohort": {
+        "Cho2017": 0.0,
+        "Lee2019_MI": 0.0,
+        "PhysionetMI": 0.0
+      },
+      "n_targets_available_by_cohort": {
+        "Cho2017": 20,
+        "Lee2019_MI": 22,
+        "PhysionetMI": 76
+      }
+    },
+    "A1|32": {
+      "mean_regret_std": 0.2918732848540022,
+      "tail_regret_std": 0.3890799679024803,
+      "target_near_opt_prob": 0.002976190476190476,
+      "mean_by_cohort": {
+        "Cho2017": 0.2861729216766567,
+        "Lee2019_MI": 0.2970554331970437
+      },
+      "tail_by_cohort": {
+        "Cho2017": 0.33837736905500404,
+        "Lee2019_MI": 0.4293071679948586
+      },
+      "near_opt_by_cohort": {
+        "Cho2017": 0.0,
+        "Lee2019_MI": 0.005681818181818182
+      },
+      "n_targets_available_by_cohort": {
+        "Cho2017": 20,
+        "Lee2019_MI": 22
+      }
+    },
+    "A1|FULL": {
+      "mean_regret_std": 0.33211310184810694,
+      "tail_regret_std": 0.5180928574187086,
+      "target_near_opt_prob": 0.0,
+      "mean_by_cohort": {
+        "Cho2017": 0.2092060778869352,
+        "Lee2019_MI": 0.28649818317726,
+        "PhysionetMI": 0.3776613740847129
+      },
+      "tail_by_cohort": {
+        "Cho2017": 0.3230655529324441,
+        "Lee2019_MI": 0.4750769934928606,
+        "PhysionetMI": 0.5353242494440975
+      },
+      "near_opt_by_cohort": {
+        "Cho2017": 0.0,
+        "Lee2019_MI": 0.0,
+        "PhysionetMI": 0.0
+      },
+      "n_targets_available_by_cohort": {
+        "Cho2017": 20,
+        "Lee2019_MI": 22,
+        "PhysionetMI": 76
+      }
+    },
+    "A2H|4": {
+      "mean_regret_std": 0.42221435034804766,
+      "tail_regret_std": 0.5117426138731195,
+      "target_near_opt_prob": 0.001059322033898305,
+      "mean_by_cohort": {
+        "Cho2017": 0.47331788753402815,
+        "Lee2019_MI": 0.4132507419162385,
+        "PhysionetMI": 0.41136077984515557
+      },
+      "tail_by_cohort": {
+        "Cho2017": 0.5508516925267556,
+        "Lee2019_MI": 0.4963368372931088,
+        "PhysionetMI": 0.4989801746793687
+      },
+      "near_opt_by_cohort": {
+        "Cho2017": 0.0,
+        "Lee2019_MI": 0.0,
+        "PhysionetMI": 0.001644736842105263
+      },
+      "n_targets_available_by_cohort": {
+        "Cho2017": 20,
+        "Lee2019_MI": 22,
+        "PhysionetMI": 76
+      }
+    },
+    "A2H|8": {
+      "mean_regret_std": 0.3865024423504689,
+      "tail_regret_std": 0.4847319797077573,
+      "target_near_opt_prob": 0.0,
+      "mean_by_cohort": {
+        "Cho2017": 0.3813780674443976,
+        "Lee2019_MI": 0.3636258876980565,
+        "PhysionetMI": 0.39447312261987016
+      },
+      "tail_by_cohort": {
+        "Cho2017": 0.4216262486846917,
+        "Lee2019_MI": 0.46976049772804446,
+        "PhysionetMI": 0.49402323341787435
+      },
+      "near_opt_by_cohort": {
+        "Cho2017": 0.0,
+        "Lee2019_MI": 0.0,
+        "PhysionetMI": 0.0
+      },
+      "n_targets_available_by_cohort": {
+        "Cho2017": 20,
+        "Lee2019_MI": 22,
+        "PhysionetMI": 76
+      }
+    },
+    "A2H|16": {
+      "mean_regret_std": 0.3580468712351607,
+      "tail_regret_std": 0.4738489259421075,
+      "target_near_opt_prob": 0.001059322033898305,
+      "mean_by_cohort": {
+        "Cho2017": 0.32939377048207474,
+        "Lee2019_MI": 0.326125673302573,
+        "PhysionetMI": 0.37482750767698514
+      },
+      "tail_by_cohort": {
+        "Cho2017": 0.38667810891258236,
+        "Lee2019_MI": 0.4508124297006685,
+        "PhysionetMI": 0.48791611848010147
+      },
+      "near_opt_by_cohort": {
+        "Cho2017": 0.0,
+        "Lee2019_MI": 0.0,
+        "PhysionetMI": 0.001644736842105263
+      },
+      "n_targets_available_by_cohort": {
+        "Cho2017": 20,
+        "Lee2019_MI": 22,
+        "PhysionetMI": 76
+      }
+    },
+    "A2H|32": {
+      "mean_regret_std": 0.29450863753484186,
+      "tail_regret_std": 0.3931922677397016,
+      "target_near_opt_prob": 0.0,
+      "mean_by_cohort": {
+        "Cho2017": 0.286171138637874,
+        "Lee2019_MI": 0.3020881819866308
+      },
+      "tail_by_cohort": {
+        "Cho2017": 0.34450782976044614,
+        "Lee2019_MI": 0.4283234477623756
+      },
+      "near_opt_by_cohort": {
+        "Cho2017": 0.0,
+        "Lee2019_MI": 0.0
+      },
+      "n_targets_available_by_cohort": {
+        "Cho2017": 20,
+        "Lee2019_MI": 22
+      }
+    },
+    "A2H|FULL": {
+      "mean_regret_std": 0.33211310184810694,
+      "tail_regret_std": 0.5180928574187086,
+      "target_near_opt_prob": 0.0,
+      "mean_by_cohort": {
+        "Cho2017": 0.2092060778869352,
+        "Lee2019_MI": 0.28649818317726,
+        "PhysionetMI": 0.3776613740847129
+      },
+      "tail_by_cohort": {
+        "Cho2017": 0.3230655529324441,
+        "Lee2019_MI": 0.4750769934928606,
+        "PhysionetMI": 0.5353242494440975
+      },
+      "near_opt_by_cohort": {
+        "Cho2017": 0.0,
+        "Lee2019_MI": 0.0,
+        "PhysionetMI": 0.0
+      },
+      "n_targets_available_by_cohort": {
+        "Cho2017": 20,
+        "Lee2019_MI": 22,
+        "PhysionetMI": 76
+      }
+    }
+  },
+  "chain_level_paired_mc_se": {
+    "A1-P0|4": {
+      "chain_mean_diff": 0.0,
+      "mc_se": 0.0,
+      "n_chains": 8
+    },
+    "A2H-P0|4": {
+      "chain_mean_diff": 0.0,
+      "mc_se": 0.0,
+      "n_chains": 8
+    },
+    "A1-P0|8": {
+      "chain_mean_diff": 0.005080820246415763,
+      "mc_se": 0.0035916476214689595,
+      "n_chains": 8
+    },
+    "A2H-P0|8": {
+      "chain_mean_diff": 0.00400072150053561,
+      "mc_se": 0.0025065053570540387,
+      "n_chains": 8
+    },
+    "A1-P0|16": {
+      "chain_mean_diff": -0.0007690938182080276,
+      "mc_se": 0.0034698375327103137,
+      "n_chains": 8
+    },
+    "A2H-P0|16": {
+      "chain_mean_diff": -0.004340453042222288,
+      "mc_se": 0.0038020593171390425,
+      "n_chains": 8
+    },
+    "A1-P0|32": {
+      "chain_mean_diff": 0.004067789203406789,
+      "mc_se": 0.0045935609191568895,
+      "n_chains": 8
+    },
+    "A2H-P0|32": {
+      "chain_mean_diff": 0.006703141884246344,
+      "mc_se": 0.0035793570941452793,
+      "n_chains": 8
+    },
+    "A1-P0|FULL": {
+      "chain_mean_diff": 0.0,
+      "mc_se": 0.0,
+      "n_chains": 8
+    },
+    "A2H-P0|FULL": {
+      "chain_mean_diff": 0.0,
+      "mc_se": 0.0,
+      "n_chains": 8
+    }
+  },
+  "development_disposition": {
+    "label": "ACQUISITION_VIEW_NONTRANSPORTABLE",
+    "budget": "FULL"
+  },
+  "c86h_method_registry": [
+    "P0",
+    "A1",
+    "A2H"
+  ],
+  "c86h_note": "registry not pruned by development performance",
+  "n_replicate_rows": 14160,
+  "d2_seconds": 6.4
+}

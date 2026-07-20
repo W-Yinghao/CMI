@@ -1,0 +1,92 @@
+{
+  "schema_version": "c81e_c81r2_direct_pi_authorization_v3",
+  "recorded_at_utc": "2026-07-13T12:50:56Z",
+  "reauthorized_at_utc": "2026-07-13T13:20:02Z",
+  "c81r2_reauthorized_at_utc": "2026-07-13T14:02:34Z",
+  "binding_revision": 3,
+  "authorization_source": "direct_PI_statement_in_current_execution_conversation",
+  "authorization_text_exact": "授权 C81R2 修复后的 C81E 继续执行",
+  "authorization_received": false,
+  "authorization_historically_received": true,
+  "authorization_active": false,
+  "authorization_consumed_by_job_id": "894958",
+  "authorization_consumption_result": "post_evaluation_pre_result_freeze_schema_blocker",
+  "magic_token_required": false,
+  "PI_must_repeat_hashes": false,
+  "binding_policy_commit": "3d9dd76",
+  "binding_resolution": "executor_automatically_bound_the_new_direct_authorization_to_the_single_current_C81R2_lock_and_exact_preserved_selection_manifest",
+  "protocol_commit": "16a0d2eba4715a1cec78da6a79a182fd416a6629",
+  "protocol_sha256": "cbdb42f54956b685c27a1718c37d7c56c513084817a5c69fb29f06bfb67ad3ee",
+  "repair_protocol_commit": "6371b2220979b61cabfb105521036bb02f47aaea",
+  "repair_protocol_sha256": "ba0434b4ea7965691dafaf506547af64f851c57bdca330a0a5c88e4fa7ba1b15",
+  "selection_descriptor_repair_protocol_commit": "5062f5ade0f45d6fd34f80556fb77470c2c6d717",
+  "selection_descriptor_repair_protocol_sha256": "2acf6ecc179c739f73845d430f9eac9e9e83a83015370b1125dbe447b8b59272",
+  "repaired_implementation_commit": "225df1c2066b50abedec4bacf043f6359c715190",
+  "repaired_implementation_sha256": "d5d8825e9c06994970de87728f73c6c8fef56af0cdd0f734746f1bd4863bf701",
+  "analysis_lock_commit": "f82ffa4b147c0b1329a98649b898691cf1fdc983",
+  "analysis_lock_sha256": "13414dde0a88eb8a1a0810b3b36f25c718669d4cfe3178b871239eff6e292705",
+  "binding_history": [
+    {
+      "analysis_lock_commit": "541651c2ee3343c12d374a7322c91181a860a2c9",
+      "analysis_lock_sha256": "b383707f58063c10f719194a995ab34094f6dcefe08c1e71837644db83dc94f1",
+      "status": "consumed_by_preflight_and_failed_selection_attempt_894878_not_reusable"
+    },
+    {
+      "analysis_lock_commit": "bad8db494765f3f921443bf5e8cdd5db569861a9",
+      "analysis_lock_sha256": "3093201d3f2959d828cb9debb8a4aeb9252f5385b9e8f806445cff05307a8b1c",
+      "status": "consumed_by_completed_selection_job_894915_and_post_selection_descriptor_replay_blocker_not_reusable"
+    },
+    {
+      "analysis_lock_commit": "f82ffa4b147c0b1329a98649b898691cf1fdc983",
+      "analysis_lock_sha256": "13414dde0a88eb8a1a0810b3b36f25c718669d4cfe3178b871239eff6e292705",
+      "status": "operative_C81R2_lock_directly_reauthorized_for_preserved_selection_replay_and_held_evaluation"
+    }
+  ],
+  "field_view_manifest_digest": "6180275dcef26bdda4ae4b291d1ef6dc83434462ecacee0350fa94ae9c6a7fef",
+  "scope": {
+    "existing_seed3_seed4_primary_fields_read_only": true,
+    "registered_C81_baseline_comparison": true,
+    "training": false,
+    "forward": false,
+    "reinference": false,
+    "GPU": false,
+    "seed5": false,
+    "target4_primary": false,
+    "same_label_oracle": false,
+    "BNCI2014_004": false,
+    "active_acquisition": false,
+    "new_candidate_or_feature_kernel_model_search": false,
+    "C82": false,
+    "manuscript_experiments": false
+  },
+  "protected_state_before_record": {
+    "real_C81_baseline_statistics": 0,
+    "new_real_candidate_rankings": 0,
+    "baseline_specific_evaluation_label_reads": 0,
+    "same_label_oracle_accesses": 0,
+    "target4_primary_rows": 0,
+    "training_forward_reinference_GPU": 0
+  },
+  "protected_state_before_reauthorization": {
+    "failed_selection_attempts_preserved": 1,
+    "selection_manifests": 0,
+    "real_C81_baseline_statistics": 0,
+    "new_real_candidate_rankings": 0,
+    "baseline_specific_evaluation_label_reads": 0,
+    "same_label_oracle_accesses": 0,
+    "target4_primary_rows": 0,
+    "training_forward_reinference_GPU": 0
+  },
+  "protected_state_before_C81R2_reauthorization": {
+    "failed_selection_attempts_preserved": 1,
+    "completed_selection_jobs_preserved": 1,
+    "selection_manifests": 1,
+    "candidate_rankings_frozen": 1,
+    "selection_recomputation_allowed": false,
+    "held_evaluation_statistics": 0,
+    "baseline_specific_evaluation_label_reads": 0,
+    "same_label_oracle_accesses": 0,
+    "target4_primary_rows": 0,
+    "training_forward_reinference_GPU": 0
+  }
+}

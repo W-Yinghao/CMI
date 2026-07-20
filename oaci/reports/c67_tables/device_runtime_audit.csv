@@ -1,0 +1,5 @@
+check,observed,allowed,passed,notes
+c67_new_forward_pass,0,0,1,C67 reads cache only
+c67_training,0,0,1,no training
+c67_gpu,0,0,1,no GPU
+c66_execution_gpu_used,0,0,1,from C66 execution table

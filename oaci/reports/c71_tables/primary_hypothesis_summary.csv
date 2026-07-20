@@ -1,0 +1,6 @@
+hypothesis,primary_budget,primary_statistic,confirmatory_gate,status,result
+H1_within_target_reliability,full-construction,within-target centered Spearman,blocked max-stat p<0.01 and positive direction in >=7/9 targets,pass,observed=0.637483;p=0.0002;positive_targets=8/9
+H2_small_budget_weakness,8,gauge/actionability gates,small-budget actionability only if all gates pass,fail_actionability_gate,gauge=0.17053;coverage=0.099392;top1=0.050749;enrichment=0.456741
+H3_dense_partial_recovery,64;full-construction,gauge recovery versus 0.50 and residual gap,dense/full recovery partial if registered recovery remains below actionability boundary,partial,b64_gauge=0.423187;full_gauge=0.43452
+H4_measurement_control_separation,8;64;full-construction,reliability significant while actionability partial,H1 positive and H2/H3 partial,pass,H1=1;b8_actionability=0;dense_partial=1
+H5_endpoint_oracle_boundary,post-primary,oracle availability tags,oracle not available at selection time,pass,same_label_oracle_view diagnostic_only=1;available_at_selection_time=0

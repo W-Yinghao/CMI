@@ -1,0 +1,67 @@
+{
+  "authorization": {
+    "authorization_commit": "05bfca1",
+    "authorization_consumed_sha256": "45a7352bc4fde96b7ae6bdd93960dbb1bec729056a7e149542cb20e92ce753d0",
+    "authorization_record_sha256": "5774b3985d9517f6b26205686dd6bc43bb10a022adf39f07d3953f97f8482f9f",
+    "consumed": true,
+    "reusable": false
+  },
+  "execution": {
+    "elapsed_seconds_from_attempt_ledger": 2041.986663626,
+    "job_id": 895928,
+    "node_last_observed_by_squeue": "node08",
+    "squeue_active_after_failure": false,
+    "stderr_sha256": "04beb4d9ec9a826d906d5007ae45f768208e9c6110cf1e2bae8296dfb7fcf6a1",
+    "stdout_sha256": "c128e4790d00536d7469d2708e30fed4b5941d63cb11351a808cf3bfd7982cdd"
+  },
+  "failure": {
+    "error_type": "C84R3RuntimeError",
+    "failed_unit_id": "c84l1_3694c9bcfa6865ae595f4607e9c03a0f",
+    "failed_unit_regime": "SRC",
+    "failed_unit_epoch": 164,
+    "failed_unit_trajectory_order": 33,
+    "observed_Wz_plus_b_max_abs_error": 0.00001239776611328125,
+    "locked_linear_abs_tolerance": 0.00001,
+    "repeat_logits_max_abs_error": 0.0,
+    "repeat_z_max_abs_error": 0.0,
+    "softmax_max_abs_error": 0.0,
+    "stage": "level1_training_and_instrumentation:Lee2019_MI"
+  },
+  "frozen_partial_state": {
+    "checkpoints": 74,
+    "complete_units": 73,
+    "optimizer_states": 81,
+    "partial_manifest_sha256": "ba67a4a0f8a516085b3eb020c353c401c2eafdd1981eb880c5c63587ac31b091",
+    "sidecars": 73,
+    "source_audit_artifacts": 73,
+    "target_unlabeled_artifacts": 73,
+    "training_phases_completed": 3,
+    "training_phases_started": 3
+  },
+  "governance": {
+    "C84F_authorized": false,
+    "C84S_authorized": false,
+    "failed_root_preserved": true,
+    "failed_root_reusable": false,
+    "fresh_direct_PI_authorization_required": true,
+    "new_additive_repair_and_lock_required": true,
+    "same_lock_rerun_forbidden": true
+  },
+  "identity": {
+    "execution_lock_commit": "3eafd70795344c43e0c6326e5c190ecaea4c2934",
+    "execution_lock_sha256": "d6ccab97ebfbb1e1d571b71d5062e88dcfa08371ae9d53526cf7c25f45220e58",
+    "external_root": "/projects/EEG-foundation-model/yinghao/oaci-c84-level1-canary-v1/lock_d6ccab97ebfbb1e1d571",
+    "level1_canary_protocol_sha256": "88dad89054b4201be13ef5e6d63693bdfbc31a8646432f7e1a8c1d6ab094091b",
+    "repair_protocol_sha256": "b9fed16afe9961d0d25f4801fa29859a8acb87c091e125ffe57e20e72ad00f35"
+  },
+  "protected_state": {
+    "construction_view_access": 0,
+    "evaluation_view_access": 0,
+    "same_label_oracle_access": 0,
+    "target_outcome_decisions": 0,
+    "target_scientific_metrics": 0,
+    "target_y_accesses": 0
+  },
+  "retry_disposition": "NEW_ADDITIVE_REPAIR_NEW_LOCK_NEW_AUTHORIZATION_AND_FRESH_ROOT_REQUIRED",
+  "schema_version": "c84l1c_failed_attempt_v1"
+}

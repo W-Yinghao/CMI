@@ -1,0 +1,176 @@
+{
+  "artifact_hygiene": [
+    {
+      "check": "config_hash_unchanged",
+      "passed": true
+    },
+    {
+      "check": "c54_replay_identity_passed",
+      "passed": true
+    },
+    {
+      "check": "best_key_only_replayed_0_488",
+      "passed": true
+    },
+    {
+      "check": "same_cell_scalar_replayed_0_944",
+      "passed": true
+    },
+    {
+      "check": "template_only_cross_cell_partial_0_704",
+      "passed": true
+    },
+    {
+      "check": "endpoint_scalar_transfer_requires_test_scalar",
+      "passed": true
+    },
+    {
+      "check": "endpoint_scalar_transfer_uses_no_same_cell_template_labels",
+      "passed": true
+    },
+    {
+      "check": "availability_ledger_emitted",
+      "passed": true
+    },
+    {
+      "check": "split_label_budget_unavailable",
+      "passed": true
+    },
+    {
+      "check": "source_key_baselines_below_gate",
+      "passed": true
+    },
+    {
+      "check": "no_training_no_gpu_no_reinference",
+      "passed": true
+    },
+    {
+      "check": "no_bnci2014_004_no_seeds_3_4",
+      "passed": true
+    },
+    {
+      "check": "compact_json_no_row_level_payload",
+      "passed": true
+    }
+  ],
+  "c54_replay": {
+    "auc_vs_joint_good": 1.0,
+    "best_key_only_hit": 0.4876543209876543,
+    "best_scalar_field": "target_joint_margin_raw:high",
+    "best_strict_source_hit": 0.5061728395061729,
+    "binary_sign_hit": 0.9444444444444444,
+    "c52_trajectory_diagnostic_hit": 0.8127572016460904,
+    "cross_cell_transfer_hit": 0.7037037037037037,
+    "random_tie_hit": 0.429723378036041,
+    "same_cell_scalar_hit": 0.9444444444444444,
+    "threshold_overlap": 1.0
+  },
+  "config_hash": "664007686afb520f",
+  "decision": {
+    "artifact_or_null_like": false,
+    "best_endpoint_scalar_transfer_hit": 0.9444444444444444,
+    "best_endpoint_scalar_transfer_score": "leave_cell_out_endpoint_scalar_threshold",
+    "best_template_only_hit": 0.7037037037037037,
+    "best_template_only_score": "matched_source_geometry_template_only",
+    "primary": "C55-G_transfer_requires_unavailable_test_endpoint_scalar",
+    "requires_test_endpoint_scalar_for_full_close": true,
+    "same_cell_endpoint_scalar_hit": 0.9444444444444444,
+    "same_cell_minus_best_endpoint_scalar_transfer_gap": 0.0,
+    "same_cell_minus_best_template_gap": 0.2407407407407407,
+    "secondary": [
+      "C55-S1_joint_margin_transfer_dominates",
+      "C55-S3_threshold_transfers_but_scalar_unavailable",
+      "C55-S5_target_local_transfer_only",
+      "C55-S7_no_split_label_budget_available",
+      "C55-S8_source_only_escape_hatch_still_closed"
+    ]
+  },
+  "diagnostic_only_non_deployable": true,
+  "inherits_from": [
+    "C49",
+    "C50",
+    "C51",
+    "C52",
+    "C53",
+    "C54"
+  ],
+  "milestone": "C55",
+  "n_candidate_rows": 3804,
+  "n_trajectories": 162,
+  "nulls": {
+    "max_null_p95_hit": 0.7712962962962961,
+    "max_null_p95_name": "N5_trajectory_block_shuffle",
+    "observed_gt_all_null_p95": true
+  },
+  "red_team": [
+    {
+      "check": "c54_identity_replay",
+      "finding": "C55 replays C54 key-only, C52 diagnostic, endpoint scalar, sign-bit, AUC, overlap, and split-label budget.",
+      "passed": 1
+    },
+    {
+      "check": "template_vs_test_scalar_separated",
+      "finding": "Template-only transfer remains partial while endpoint-scalar transfer closes only after reading held-out endpoint scalars.",
+      "passed": 1
+    },
+    {
+      "check": "heldout_cell_labels_not_used_for_transfer_template",
+      "finding": "Leave-cell, leave-target, and leave-trajectory endpoint transfers fit templates outside the held-out cell.",
+      "passed": 1
+    },
+    {
+      "check": "availability_ledger_marks_test_endpoint_scalar",
+      "finding": "Rows requiring held-out target endpoint scalars are explicitly unavailable under the original source-only DG setting.",
+      "passed": 1
+    },
+    {
+      "check": "nulls_emitted",
+      "finding": "C55 emits field, threshold, block, label, and scalar permutation null controls.",
+      "passed": 1
+    },
+    {
+      "check": "split_label_boundary_kept_closed",
+      "finding": "No split-label construction is available or claimed.",
+      "passed": 1
+    },
+    {
+      "check": "no_training_or_reinference",
+      "finding": "C55 is read-only over committed C54/C53/C52 artifacts.",
+      "passed": 1
+    },
+    {
+      "check": "no_chosen_checkpoint_artifact",
+      "finding": "C55 emits diagnostic summaries, ledgers, nulls, and reports only.",
+      "passed": 1
+    }
+  ],
+  "split_label_budget_available": false,
+  "split_label_unavailable_reason": "required per-trial target prediction/label cache unavailable",
+  "table_row_counts": {
+    "artifact_hygiene_gate": 13,
+    "c54_replay_identity": 9,
+    "cross_cell_protocol_summary": 12,
+    "endpoint_template_availability_ledger": 13,
+    "field_family_transfer_summary": 16,
+    "leave_cell_out_transfer_summary": 2,
+    "leave_target_out_transfer_summary": 2,
+    "leave_trajectory_out_transfer_summary": 2,
+    "red_team_verification": 8,
+    "threshold_transfer_curve": 24,
+    "transfer_cell_ledger": 162,
+    "transfer_failure_reason_ledger": 2,
+    "transfer_null_summary": 6
+  },
+  "transfer_boundary": {
+    "best_endpoint_scalar_transfer_hit": 0.9444444444444444,
+    "best_endpoint_scalar_transfer_requires_test_endpoint_scalar": true,
+    "best_endpoint_scalar_transfer_score": "leave_cell_out_endpoint_scalar_threshold",
+    "best_template_only_hit": 0.7037037037037037,
+    "best_template_only_requires_test_endpoint_scalar": false,
+    "best_template_only_score": "matched_source_geometry_template_only",
+    "requires_test_endpoint_scalar_for_full_close": true,
+    "same_cell_endpoint_scalar_hit": 0.9444444444444444,
+    "same_cell_minus_best_endpoint_scalar_transfer_gap": 0.0,
+    "same_cell_minus_best_template_gap": 0.2407407407407407
+  }
+}

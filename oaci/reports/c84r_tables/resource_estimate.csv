@@ -1,0 +1,14 @@
+scope,resource,estimate,unit,envelope,within_envelope
+C84C,candidate_units,243,units,fixed,1
+C84C,GPU_phase_hours_safety,7.109241,hours,250,1
+C84C,CPU_instrumentation,2.0,million_row_upper_bound,planning,1
+C84C,download_bytes,193273528320,bytes_upper_bound,2199023255552,1
+C84C,external_payload,70,GiB,2048,1
+C84C,calendar_wall,18,hours,planning,1
+C84F_remaining,candidate_units,1701,units,fixed,1
+C84F_remaining,GPU_phase_hours_safety,49.764684,hours,250,1
+C84F_remaining,training_phases,63,phases,fixed,1
+C84_complete,candidate_units,1944,units,fixed,1
+C84_complete,training_phases,72,phases,fixed,1
+C84_complete,GPU_phase_hours_safety,56.873925,hours,250,1
+C84_complete,download_plus_derived,630,GiB,2048,1

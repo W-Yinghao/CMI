@@ -1,0 +1,6 @@
+rung,target_inputs,target_grouping,target_labels,uses_held_out_target_scores,deployable_transductively,recovers_gap_closed,recovers
+source_only_DG,False,False,False,False,False,-0.8246766357884945,no (C23: offset source-unobservable)
+target_unlabeled_transductive,True,True,False,False,True,0.4908528004503232,"partial/weak (C24 R3 +0.491, predictive gauge; no held-out target scores used)"
+target_grouped_transductive_zero_label,True,True,False,True,True,1.0,full (C24 R6 target-centered; uses held-out target's OWN candidate scores' mean)
+few_label_target_calibration,True,True,True,True,False,1.4151880223693383,refines beyond grouping (C24 R5)
+target_label_oracle,True,True,True,True,False,1.4151880223693383,upper bound

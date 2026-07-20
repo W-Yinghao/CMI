@@ -1,0 +1,4 @@
+budget,status,rank_component,gauge_component,finite_trial_residual,common_offset_not_credited
+8,actual_t3_ho,0.152663,0.17053,0.82947,1
+64,actual_t3_ho,0.377398,0.423187,0.576813,1
+full-construction,actual_t3_ho,0.382027,0.43452,0.56548,1

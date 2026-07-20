@@ -1,0 +1,7 @@
+view,C84C_provisioned,source_y_access,target_X_access,target_y_access,purpose,target_y_indexed,target_y_hashed,target_y_logged,target_y_retention_or_retry
+source_training_view,1,1,0,0,training,0,0,0,0
+source_audit_view,1,1,0,0,engineering_source_audit_only,0,0,0,0
+target_unlabeled_view,1,0,1,0,instrumentation_without_y,0,0,0,0
+target_construction_view,0,0,0,0,not_provisioned_in_C84C,0,0,0,0
+target_evaluation_view,0,0,0,0,not_provisioned_in_C84C,0,0,0,0
+same_label_oracle_view,0,0,0,0,physically_unreachable,0,0,0,0

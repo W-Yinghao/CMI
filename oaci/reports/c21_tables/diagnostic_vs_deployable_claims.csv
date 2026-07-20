@@ -1,0 +1,7 @@
+id,claim,diagnostic_only,deployable
+D1,The C19/C20 competence probe is DIAGNOSTIC-ONLY: it emits no selector and makes no deployment claim.,True,False
+D2,"Target-oracle labels and source-signal identifiability analyses are diagnostic-only, joined post hoc.",True,False
+N1,No deployable target-free selector / competence detector is established (diagnostic-only; no-selector gate).,False,False
+N2,External / new-regime dataset generalization of the probe is NOT established.,False,False
+N3,Support mismatch as a NATURAL cause in BNCI2014_001 is NOT demonstrated (masks are controlled).,False,False
+N4,"We do NOT make blanket over-claims (all-DG-failure, EEG-transfer-impossibility, or support-aware-invariance worthlessness); the falsification is protocol-scoped (single dataset / single backbone).",False,False

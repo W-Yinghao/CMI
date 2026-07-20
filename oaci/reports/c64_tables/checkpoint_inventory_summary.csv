@@ -1,0 +1,8 @@
+inventory_item,present,count,evidence,blocks_reinference_now
+checkpoint_weight_files,0,0,no .pt/.pth/.ckpt/.safetensors files in checkout,1
+checkpoint_abi_code,1,1,oaci/artifacts/checkpoint.py,0
+training_checkpoint_record_code,1,1,oaci/train/checkpoint.py,0
+eeg_preprocessing_code,1,1,oaci/data/eeg/preprocess.py,0
+eeg_cache_code,1,1,oaci/data/eeg/cache.py,0
+split_label_cache,0,0,C58 schema exists but cache missing,1
+trial_level_logits_cache,0,0,C62/C63 missing-data gates,1

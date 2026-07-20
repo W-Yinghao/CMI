@@ -1,0 +1,12 @@
+resource,estimate,unit,envelope,basis,locked_for_real_execution
+primary_adult_target_subjects,53,subjects,53,16+37,0
+unique_candidate_units,648,models,648,2_panels*2_seeds*2_levels*81,0
+training_phases,24,phases,24,2*2*2*3_regimes,0
+target_contexts,424,contexts,424,53*8,0
+candidate_context_slices,34344,slices,34344,424*81,0
+unit_cohort_artifacts,1296,artifacts,1296,648*2,0
+raw_download_storage,192,GiB,256,public_metadata_sizes_plus_staging_margin,0
+target_prediction_field_storage,48,GiB,64,34344_slices_scaled_from_C84,0
+total_scratch_storage,640,GiB,768,raw_models_outputs_staging_and_replay,0
+GPU_time,24,GPU_hours_scaled,96,future_canary_required,0
+RAM,128,GiB,128,future_field_generation,0

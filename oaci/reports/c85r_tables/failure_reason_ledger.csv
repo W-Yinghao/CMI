@@ -1,0 +1,2 @@
+reason_id,category,status,blocking,detail
+NONE_OPEN,READINESS,CLOSED,0,No open C85R generative-semantics or proof-obligation blocker after exact semantic preflight.

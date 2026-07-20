@@ -1,0 +1,163 @@
+{
+  "schema_version": "c80r_additive_repair_protocol_v1",
+  "milestone": "C80R",
+  "created_at_utc": "2026-07-13T08:46:36Z",
+  "status": "REPAIR_PROTOCOL_LOCKED_C80E_SCIENTIFIC_EXECUTION_NOT_AUTHORIZED",
+  "PM_gates": [
+    "C80E_PREFLIGHT_STOP_ACCEPTED_NO_OUTCOME_CONTAMINATION",
+    "C80R_ADDITIVE_REPAIR_AND_RELOCK_GO",
+    "C80E_SCIENTIFIC_EXECUTION_NOT_AUTHORIZED"
+  ],
+  "chronology": {
+    "historical_protocol_commit": "f5d83b3ca2297a4cc9511aa55ef300bb976d107c",
+    "historical_protocol_sha256": "c6292597f5610cb96e8eaf0313eaa741f8fa9b11dd89ff9e4d84db1fa33add85",
+    "historical_analysis_lock_commit": "972f47c",
+    "historical_analysis_lock_sha256": "05a99e7ccc357b90b6675756caa680fd16541358bb697fdded89351f1e7ae4a8",
+    "accepted_preflight_blocker_commit": "6c18fd4bdd794b32ceffd0c9cd3da8fbc487ab69",
+    "repair_protocol_precedes_adapter_implementation": true,
+    "repair_protocol_precedes_any_C80_budget_outcome": true
+  },
+  "supersession": {
+    "historical_objects_preserved": true,
+    "history_rewritten": false,
+    "historical_protocol_status": "historical_superseded_for_execution",
+    "historical_analysis_lock_status": "historical_insufficient_for_run_real",
+    "historical_C80E_authorization_status": "attempted_preflight_only_not_reusable",
+    "preflight_blocker_evidence_status": "authoritative_preserved",
+    "operative_future_execution_requires_replacement_lock": true
+  },
+  "scientific_inheritance": {
+    "base_protocol_path": "oaci/reports/C80_LABEL_BUDGET_FRONTIER_PROTOCOL.json",
+    "base_protocol_commit": "f5d83b3ca2297a4cc9511aa55ef300bb976d107c",
+    "base_protocol_sha256": "c6292597f5610cb96e8eaf0313eaa741f8fa9b11dd89ff9e4d84db1fa33add85",
+    "inherit_exact_top_level_keys": [
+      "epistemic_status",
+      "admission_contract",
+      "no_outcome_boundary",
+      "accepted_inputs",
+      "population",
+      "information_boundary",
+      "budget_design",
+      "acquisition_policy",
+      "monte_carlo",
+      "selector",
+      "evaluation",
+      "materiality",
+      "frontier",
+      "cross_seed_stability",
+      "inference",
+      "secondary_S3",
+      "synthetic_calibration",
+      "scientific_registry",
+      "forbidden_scope"
+    ],
+    "scientific_registry_path": "oaci/reports/c80p_tables/scientific_registry.csv",
+    "scientific_registry_sha256": "e031d785004fc1acacfe63e3e18c971dad7a61b3b901ca9bbb254d2992deeec5",
+    "registry_bound_cells": 80,
+    "registry_blank_cells": 0,
+    "registered_paths": ["P1", "P2", "S1", "S2", "S3"],
+    "estimands_changed": false,
+    "budget_grid_changed": false,
+    "Q0_policy_changed": false,
+    "selector_changed": false,
+    "RNG_or_MC_changed": false,
+    "dependence_or_inference_changed": false,
+    "materiality_changed": false
+  },
+  "taxonomy": {
+    "mutually_exclusive": true,
+    "exhaustive": true,
+    "apply_in_priority_order": true,
+    "near_FULL_ordinal_set": [32, "FULL"],
+    "near_FULL_definition": "near_full(seed_s) iff Bstar_seed_s is 32 or FULL",
+    "FULL_semantics": "all_available_construction_labels_in_each_exact_cell_not_numeric_61",
+    "numeric_interpolation_between_32_and_FULL": false,
+    "decision_table": [
+      {
+        "priority": 1,
+        "case": "C80-E_protocol_dependence_view_or_provenance_blocker",
+        "condition": "any_primary_execution_view_dependence_protocol_or_provenance_blocker_prevents_a_complete_valid_result"
+      },
+      {
+        "priority": 2,
+        "case": "C80-D_no_registered_budget_achieves_stable_material_actionability",
+        "condition": "Bstar_seed3_is_absent_or_Bstar_seed4_is_absent"
+      },
+      {
+        "priority": 3,
+        "case": "C80-B_actionability_frontier_exists_but_required_budget_is_seed_heterogeneous",
+        "condition": "both_Bstar_exist_and_registered_cross_seed_stability_rule_fails"
+      },
+      {
+        "priority": 4,
+        "case": "C80-C_material_actionability_requires_near_full_construction_labels",
+        "condition": "both_Bstar_exist_and_cross_seed_stability_passes_and_both_Bstar_are_in_32_or_FULL"
+      },
+      {
+        "priority": 5,
+        "case": "C80-A_stable_low_regret_label_budget_frontier_across_training_seeds",
+        "condition": "both_Bstar_exist_and_cross_seed_stability_passes_and_C80_C_condition_is_false"
+      }
+    ]
+  },
+  "authorization_guard_repair": {
+    "canonical_protocol_hash_field": "lock.protocol.sha256",
+    "forbidden_legacy_field": "lock.protocol_sha256",
+    "schema_validation_required": true,
+    "guard_must_run_before_any_external_array_load": true,
+    "guard_must_bind_protocol_commit_sha_lock_commit_and_field_view_manifests": true,
+    "run_real_fail_closed_without_new_authorization": true
+  },
+  "real_data_adapter_contract": {
+    "development_inputs": "synthetic_and_schema_only_fixtures",
+    "real_evaluation_view_access_before_replacement_lock": 0,
+    "selection_stage_allowed_views": [
+      "target_unlabeled_logits_and_candidate_metadata",
+      "physically_separate_target_construction_view"
+    ],
+    "selection_stage_forbidden_views": [
+      "target_evaluation_view",
+      "same_label_oracle_view"
+    ],
+    "selection_freeze_required_before_evaluation_open": true,
+    "evaluation_stage_allowed_only_after_selection_manifest_hash_replay": true,
+    "all_five_paths_unconditional": true,
+    "target4_primary": false,
+    "same_label_oracle_reachable": false,
+    "run_real_entrypoint_required": true,
+    "result_freeze_before_narrative": true
+  },
+  "replacement_lock_must_bind": [
+    "this_repair_protocol_commit_and_sha256",
+    "historical_base_protocol_blob_and_sha256",
+    "repaired_guard_blob_and_sha256",
+    "real_data_adapter_blob_and_sha256",
+    "exact_seed3_seed4_field_and_view_manifests",
+    "complete_taxonomy_decision_table",
+    "scientific_registry_80_of_80",
+    "all_RNG_MC_selector_inference_and_report_schemas"
+  ],
+  "authorization": {
+    "C80R_repair_authorized": true,
+    "C80E_scientific_execution_authorized": false,
+    "old_authorization_reusable": false,
+    "new_direct_PI_authorization_required_after_relock": true,
+    "new_authorization_must_bind": [
+      "replacement_protocol_commit",
+      "replacement_protocol_sha256",
+      "replacement_analysis_lock_commit",
+      "exact_seed3_seed4_field_and_view_manifests"
+    ]
+  },
+  "protected_state_at_protocol_lock": {
+    "real_budget_statistics": 0,
+    "evaluation_label_value_reads_for_C80": 0,
+    "same_label_oracle_accesses": 0,
+    "target4_primary_rows": 0,
+    "training": 0,
+    "forward": 0,
+    "reinference": 0,
+    "GPU": 0
+  },
+  "C80R_success_gate": "C80_REPAIRED_PROTOCOL_AND_REAL_ADAPTER_LOCKED_READY_FOR_PI_REAUTHORIZATION"
+}

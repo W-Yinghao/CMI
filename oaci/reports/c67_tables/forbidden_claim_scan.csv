@@ -1,0 +1,14 @@
+pattern,total_hits,affirmative_hits,files,passed
+checkpoint selector,0,0,,1
+checkpoint recommendation,1,0,oaci/reports/C67_C66_DUAL_MODE_CACHE_CONSUMPTION.md,1
+deployable method,0,0,,1
+source-only rescue,1,0,oaci/reports/c67_tables/split_label_failure_ledger.csv,1
+OACI rescue,0,0,,1
+few-label sufficiency,1,0,oaci/reports/C67_C66_DUAL_MODE_CACHE_CONSUMPTION.md,1
+full conditional-CS claim,1,0,oaci/reports/C67_C66_DUAL_MODE_CACHE_CONSUMPTION.md,1
+new training,0,0,,1
+new forward pass,1,0,oaci/reports/C67_C66_DUAL_MODE_CACHE_CONSUMPTION.md,1
+GPU required,0,0,,1
+BNCI2014_004 used,0,0,,1
+"seeds [3,4] used",0,0,,1
+manuscript drafting,0,0,,1

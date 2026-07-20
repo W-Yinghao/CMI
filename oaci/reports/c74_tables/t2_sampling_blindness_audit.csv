@@ -1,0 +1,26 @@
+check,expected,observed,passed,evidence
+T2_unit_count,216,216,1,C69 deterministic schedule replay
+P0_unit_count,54,54,1,6 units x 9 targets
+P1_unit_count,162,162,1,all predeclared T2 units outside pilot
+T3_HO_holdout_count,1052,1052,1,canonical minus T2
+T2_T3_HO_overlap,0,0,1,checkpoint-id set intersection
+selection_algorithm,metadata-only deterministic greedy balance + hash tie-break,C74_P0_V1,1,target/seed/level/regime/trajectory/checkpoint hash only
+regime_balance_feasibility,report actual support,S0_full_support,1,T2 canonical schedule has one regime; no false balance claim
+forbidden_sampling_field:target_bAcc,0,0,1,not present in C65 metadata input or selection key
+forbidden_sampling_field:target_NLL,0,0,1,not present in C65 metadata input or selection key
+forbidden_sampling_field:target_ECE,0,0,1,not present in C65 metadata input or selection key
+forbidden_sampling_field:joint_good,0,0,1,not present in C65 metadata input or selection key
+forbidden_sampling_field:target_margin,0,0,1,not present in C65 metadata input or selection key
+forbidden_sampling_field:C72_residual,0,0,1,not present in C65 metadata input or selection key
+forbidden_sampling_field:endpoint_scalar,0,0,1,not present in C65 metadata input or selection key
+forbidden_sampling_field:z,0,0,1,not present in C65 metadata input or selection key
+forbidden_sampling_field:Wz,0,0,1,not present in C65 metadata input or selection key
+pilot_balance_target:1,n=6;seed=2/2/2;level=3/3,n=6;seed=2/2/2;level=3/3,1,metadata-only P0 selection
+pilot_balance_target:2,n=6;seed=2/2/2;level=3/3,n=6;seed=2/2/2;level=3/3,1,metadata-only P0 selection
+pilot_balance_target:3,n=6;seed=2/2/2;level=3/3,n=6;seed=2/2/2;level=3/3,1,metadata-only P0 selection
+pilot_balance_target:4,n=6;seed=2/2/2;level=3/3,n=6;seed=2/2/2;level=3/3,1,metadata-only P0 selection
+pilot_balance_target:5,n=6;seed=2/2/2;level=3/3,n=6;seed=2/2/2;level=3/3,1,metadata-only P0 selection
+pilot_balance_target:6,n=6;seed=2/2/2;level=3/3,n=6;seed=2/2/2;level=3/3,1,metadata-only P0 selection
+pilot_balance_target:7,n=6;seed=2/2/2;level=3/3,n=6;seed=2/2/2;level=3/3,1,metadata-only P0 selection
+pilot_balance_target:8,n=6;seed=2/2/2;level=3/3,n=6;seed=2/2/2;level=3/3,1,metadata-only P0 selection
+pilot_balance_target:9,n=6;seed=2/2/2;level=3/3,n=6;seed=2/2/2;level=3/3,1,metadata-only P0 selection

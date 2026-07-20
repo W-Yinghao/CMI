@@ -1,0 +1,3 @@
+method,null,replicates,familywise_error,criterion_max,passed
+exact_target_signflip_maxT,materiality_boundary,512,0.044921875,0.06,1
+unadjusted_per_budget_negative_control,materiality_boundary,512,0.40234375,not_applicable_negative_control,1

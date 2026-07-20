@@ -1,0 +1,4 @@
+contract,status,required,observed,passed,notes
+unique_trial_budget,executed,1,1,1,Budget counts unique construction target trial IDs per target/class.
+shared_construction_ids,executed,1,1,1,Construction trial IDs are shared across candidates within target.
+disjoint_construction_evaluation,executed,1,1,1,Construction/evaluation trial IDs are disjoint.

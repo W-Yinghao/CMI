@@ -1,0 +1,13 @@
+# BNCI2014_001 LOSO seed-0 staged full-bootstrap config (C6). Thin config over the confirmatory budget.
+# NOT the final multi-seed multi-dataset confirmatory efficacy result.
+loso_id: bnci001-loso-seed0-v1
+source_protocol: confirmatory_v2.yaml
+dataset: BNCI2014_001
+subjects: [1, 2, 3, 4, 5, 6, 7, 8, 9]
+model_seed: 0
+bootstrap_mode: full          # selection 200 / audit 2000 / paired 2000 (from confirmatory_v2)
+execution: staged             # Phase A (V100) record + Phase B (CPU) replay
+methods: [ERM, OACI, global_lpc, uniform]
+deletion_levels: [0, 1]
+source_audit_count: 2
+deleted_class: feet

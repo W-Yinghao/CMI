@@ -1,0 +1,7 @@
+resource,estimate,units,within_envelope
+existing_external_field_read,48072941176,bytes,1
+new_Stage_A_label_loader_calls,0,calls,1
+Q0_records,9110448,records,1
+RAM,128,GiB,1
+GPU,0,GPU,1
+wall,48,hours,1

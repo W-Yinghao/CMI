@@ -1,0 +1,6 @@
+method_id,standard_name,acquisition_signal,estimation_correction,endpoint,authorized
+AT0,passive_stratified_sampling,fixed stratum allocation,design weights where required,selection regret|top-k,0
+AT1,active_testing,prospectively registered evaluation uncertainty,importance weighting,model evaluation and selection,0
+AT2,pairwise_difference_variance_design,variance of candidate loss differences,design-aware,best/top-k identification,0
+AT3,consensus_disagreement_acquisition,candidate prediction disagreement,prospectively specified,selection regret,0
+AT4,sequential_stopping,registered confidence or regret certificate,anytime-valid requirement,stopping cost and selection regret,0

@@ -1,0 +1,7 @@
+section,required,content_contract,C85TL_materialized
+Exact Statement,1,exact lock-bound theorem statement plus SHA256,0
+Assumptions,1,complete nonempty theorem assumptions,0
+Proof Or Counterexample,1,self-contained argument or retained incomplete T5 attempt,0
+Boundary Cases,1,domain endpoints ties and excluded conditions,0
+Independent Red Team,1,role verdict and exact mechanical checks,0
+Final Status,1,one allowed transition after audit,0

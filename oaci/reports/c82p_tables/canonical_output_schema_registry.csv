@@ -1,0 +1,17 @@
+position,field,type,finite_constraint,allowed_values_or_rule
+1,seed,integer,finite,3|4
+2,target,integer,finite,1|2|3|5|6|7|8|9
+3,level,integer,finite,0|1
+4,method_id,string,not_applicable,registered_21_method_context_rows
+5,standardized_regret,float,required_finite,locked_formula
+6,selected_utility,float,required_finite,locked_formula
+7,top1,float,required_finite,closed_interval_0_1
+8,top5,float,required_finite,closed_interval_0_1
+9,top10,float,required_finite,closed_interval_0_1
+10,coverage_top1,float,required_finite,closed_interval_0_1
+11,coverage_top5,float,required_finite,closed_interval_0_1
+12,coverage_top10,float,required_finite,closed_interval_0_1
+13,selected_regime,string,not_applicable,ERM|OACI|SRC|RANDOM|ORACLE
+14,evaluation_label_access_after_selection_freeze,boolean,not_applicable,true_required
+15,same_label_oracle_accessed,boolean,not_applicable,false_required
+16,target4_primary,boolean,not_applicable,false_required

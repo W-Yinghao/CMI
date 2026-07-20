@@ -1,0 +1,6 @@
+check,passed,finding
+self_neighbor_and_label_path_quarantine,1,Local purity excludes self labels; target labels are diagnostic-only outputs.
+coverage_accounting,1,"Every reported coverage curve row carries coverage, empty fraction, and neighbor count."
+same_group_random_baseline,1,Coverage rows compare local Bayes hit against covered candidates inside the same group.
+broad_vs_sparse_gate,1,Reliability is evaluated under predeclared coverage thresholds 0.25/0.50/0.75.
+underuse_not_selector_repair,1,Existing scores are audited against diagnostic islands without emitting selected artifacts.

@@ -1,0 +1,4 @@
+backend,statistics,finite_required,magnitude_gate,retention_effect,status
+CPU_PyTorch_float32,max|p95|p99|feature_dimension|logit_abs_max|logit_abs_p95,1,0,0,DIAGNOSTIC_ONLY
+NumPy_float32,max|p95|p99|feature_dimension|logit_abs_max|logit_abs_p95,1,0,0,DIAGNOSTIC_ONLY
+NumPy_float64,max|p95|p99|feature_dimension|logit_abs_max|logit_abs_p95,1,0,0,DIAGNOSTIC_ONLY

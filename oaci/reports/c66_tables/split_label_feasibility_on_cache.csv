@@ -1,0 +1,5 @@
+check,value,feasible_now,feasible_after_authorized_cache,blocks_current_claim
+real_trial_cache_present,1,1,1,0
+construct_eval_disjointness_defined,1,1,1,0
+same_label_endpoint_oracle_blocked,1,1,1,0
+few_label_sufficiency_claim,0,0,0,1

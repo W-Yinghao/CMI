@@ -1,0 +1,2 @@
+job_id,state,exit_code,stage,observed_error,real_EEG_views,source_label_arrays,target_y_accesses,target_scientific_metrics,training_phases,optimizer_states,checkpoints,complete_units,source_artifacts,target_artifacts,authorization_consumed,retry_disposition
+895366,FAILED,1:0,training_and_instrumentation:Lee2019_MI,2.86102294921875e-06,3,2,0,0,3,81,1,0,0,0,1,NEW_ADDITIVE_REPAIR_LOCK_AND_FRESH_AUTHORIZATION_REQUIRED

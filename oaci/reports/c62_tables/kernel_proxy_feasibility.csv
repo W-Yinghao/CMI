@@ -1,0 +1,8 @@
+row_id,bandwidth,sample_level_pairs_required,supported,proxy_only,unstable,endpoint_proxy,template_proxy,rank_order_endpoint_gt_template,reason
+K0_full_sample_conditional_cs,,1,0,0,1,,,,missing per-trial paired variables/logits/representations
+K1_summary_rbf_bw_0.025,0.025,0,1,1,1,1.0,0.9999999999999722,1,"summary-level RBF-on-hit-delta proxy, not full conditional CS"
+K1_summary_rbf_bw_0.05,0.05,0,1,1,1,1.0,0.9995917735292235,1,"summary-level RBF-on-hit-delta proxy, not full conditional CS"
+K1_summary_rbf_bw_0.1,0.1,0,1,1,0,0.9999325483818179,0.8578570610755549,1,"summary-level RBF-on-hit-delta proxy, not full conditional CS"
+K1_summary_rbf_bw_0.25,0.25,0,1,1,0,0.7849008076673412,0.26812645925105016,1,"summary-level RBF-on-hit-delta proxy, not full conditional CS"
+K1_summary_rbf_bw_0.5,0.5,0,1,1,1,0.3189802687999629,0.07506968978981265,1,"summary-level RBF-on-hit-delta proxy, not full conditional CS"
+K1_summary_rbf_bw_1,1.0,0,1,1,1,0.09157323005394047,0.019320147854255065,1,"summary-level RBF-on-hit-delta proxy, not full conditional CS"

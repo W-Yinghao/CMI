@@ -1,0 +1,20 @@
+{
+  "checkout_checkpoint_weight_files_found": 0,
+  "checkpoint_artifact_index_count": 27,
+  "checkpoint_json_sidecars_found": 5454,
+  "decision": "frozen store and preprocessing contracts recovered; execution still requires explicit authorization",
+  "external_weight_sightings_found": 35,
+  "final_gate": "REINFERENCE_ONLY_CAMPAIGN_READY_BUT_NOT_AUTHORIZED",
+  "gpu_authorized": false,
+  "gpu_gate": "GPU_NOT_AUTHORIZED_IN_C65",
+  "minimal_next_evidence_path": "re_inference_only_request",
+  "oaci_checkpoint_weight_files_found": 5454,
+  "preprocess_code_recovered": true,
+  "raw_data_contract_recovered": true,
+  "recovered_weight_mapping_complete": true,
+  "reinference_authorized": false,
+  "reinference_gate": "REINFERENCE_NOT_AUTHORIZED_IN_C65",
+  "reinference_only_ready": true,
+  "training_authorized": false,
+  "training_gate": "TRAINING_NOT_AUTHORIZED_IN_C65"
+}

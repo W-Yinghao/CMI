@@ -1,0 +1,6 @@
+gate,decision,required_for_c58,future_scientific_value,condition_to_open
+C58_training_run,blocked,0,0,explicit user authorization required
+split_label_cache,future_needed,0,1,pre-registered split disjointness and no selector tuning
+atom_trace_capture,future_needed,0,1,pre-registered trace schema and fixed seeds
+independent_checkpoint_field_replication,future_needed,0,1,separate C-number and Slurm submission
+manuscript_drafting,blocked_by_user_discipline,0,0,only if user explicitly asks for manuscript work

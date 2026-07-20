@@ -1,0 +1,379 @@
+{
+  "config_hash": "664007686afb520f",
+  "diagnostic_only_non_deployable": true,
+  "feasibility_regret_summary": {
+    "leakage_objective_regret_fraction": 1.0,
+    "n_pairs": 114,
+    "risk_gate_regret_fraction": 0.0,
+    "selection_audit_inversion_fraction": 0.4473684210526316,
+    "source_endpoint_regret_fraction": 0.47368421052631576,
+    "tie_break_regret_fraction": 0.0,
+    "trace_unavailable_fraction": 1.0
+  },
+  "n_preference_robust_pairs": 114,
+  "n_unique_selector_units": 38,
+  "no_selector_artifact_gate": [
+    {
+      "check": "config_hash_unchanged",
+      "passed": true
+    },
+    {
+      "check": "c35_preference_robust_pairs_imported",
+      "passed": true
+    },
+    {
+      "check": "utility_grid_unchanged",
+      "passed": true
+    },
+    {
+      "check": "selector_trace_availability_audited",
+      "passed": true
+    },
+    {
+      "check": "robust_pair_trace_resolves",
+      "passed": true
+    },
+    {
+      "check": "no_proxy_selector_score",
+      "passed": true
+    },
+    {
+      "check": "per_candidate_ucl_gap_disclosed",
+      "passed": true
+    },
+    {
+      "check": "target_endpoint_labels_diagnostic_only",
+      "passed": true
+    },
+    {
+      "check": "no_training_no_reinference",
+      "passed": true
+    },
+    {
+      "check": "no_selected_checkpoint_method_artifact",
+      "passed": true
+    },
+    {
+      "check": "tie_plateau_eps_frozen",
+      "passed": true
+    },
+    {
+      "check": "source_pareto_objective_set_frozen",
+      "passed": true
+    },
+    {
+      "check": "finite_filtering_applied",
+      "passed": true
+    },
+    {
+      "check": "diagnostic_only_non_deployable",
+      "passed": true
+    }
+  ],
+  "plateau_tiebreak_summary": {
+    "actual_selector_plateau_available": false,
+    "actual_selector_tie_metadata_available": false,
+    "n_pairs": 114,
+    "point_component_active_selected_margin_fraction": 0.8947368421052632,
+    "point_component_plateau_fraction": 0.10526315789473684
+  },
+  "red_team": {
+    "source_pareto_check": "Source-Pareto is vector dominance over frozen objectives, not scalarization.",
+    "target_label_check": "Target endpoints enter only as diagnostic imported C35 pair labels.",
+    "trace_proxy_check": "Per-candidate selector UCL is unavailable; selection leakage point is never used as actual selector score."
+  },
+  "selection_audit_inversion_summary": {
+    "audit_to_target_inversion_rate": 0.5526315789473685,
+    "local_leakage_target_conflict_rate": 1.0,
+    "n_pairs": 114,
+    "selection_to_audit_inversion_rate": 0.4473684210526316
+  },
+  "source_pareto_summary": {
+    "better_source_dominates_fraction": 0.0,
+    "better_source_dominates_selected_count": 0,
+    "better_source_dominates_selected_fraction": 0.0,
+    "n_pairs": 114,
+    "selected_source_dominates_better_count": 6,
+    "selected_source_dominates_better_fraction": 0.05263157894736842,
+    "source_pareto_conflict_fraction": 1.0,
+    "source_pareto_incomparable_count": 108,
+    "source_pareto_incomparable_fraction": 0.9473684210526315,
+    "source_pareto_tie_count": 0,
+    "source_pareto_tie_fraction": 0.0,
+    "source_pareto_unavailable_count": 0,
+    "source_pareto_unavailable_fraction": 0.0
+  },
+  "taxonomy": {
+    "case_rows": [
+      {
+        "case": "S1_risk_gate_excludes_target_better",
+        "established": 0,
+        "evidence": "risk_gate_regret_fraction=0.0"
+      },
+      {
+        "case": "S2_leakage_objective_prefers_selected",
+        "established": 1,
+        "evidence": "selection leakage point component prefers selected in 1.0 of robust pairs; actual UCL deltas unavailable"
+      },
+      {
+        "case": "S3_source_endpoint_prefers_selected",
+        "established": 0,
+        "evidence": "source_endpoint_regret_fraction=0.47368421052631576"
+      },
+      {
+        "case": "S4_selection_audit_inversion",
+        "established": 1,
+        "evidence": "selection_to_audit_inversion_rate=0.4473684210526316"
+      },
+      {
+        "case": "S5_source_pareto_conflict",
+        "established": 1,
+        "evidence": "source_pareto_conflict_fraction=1.0"
+      },
+      {
+        "case": "S6_selector_plateau_tiebreak",
+        "established": 0,
+        "evidence": "actual selector UCL plateau unavailable; point plateau is component-only"
+      },
+      {
+        "case": "S7_selector_active_misdirection",
+        "established": 0,
+        "evidence": "blocked: better candidate per-candidate selector UCL unavailable"
+      },
+      {
+        "case": "S8_better_candidate_source_dominates_selected",
+        "established": 0,
+        "evidence": "better_source_dominates_fraction=0.0"
+      },
+      {
+        "case": "S9_trace_insufficient",
+        "established": 1,
+        "evidence": "trace_unavailable_fraction=1.0"
+      }
+    ],
+    "cases": [
+      "S2_leakage_objective_prefers_selected",
+      "S4_selection_audit_inversion",
+      "S5_source_pareto_conflict",
+      "S9_trace_insufficient"
+    ],
+    "evidence": {
+      "S1_risk_gate_excludes_target_better": "risk_gate_regret_fraction=0.0",
+      "S2_leakage_objective_prefers_selected": "selection leakage point component prefers selected in 1.0 of robust pairs; actual UCL deltas unavailable",
+      "S3_source_endpoint_prefers_selected": "source_endpoint_regret_fraction=0.47368421052631576",
+      "S4_selection_audit_inversion": "selection_to_audit_inversion_rate=0.4473684210526316",
+      "S5_source_pareto_conflict": "source_pareto_conflict_fraction=1.0",
+      "S6_selector_plateau_tiebreak": "actual selector UCL plateau unavailable; point plateau is component-only",
+      "S7_selector_active_misdirection": "blocked: better candidate per-candidate selector UCL unavailable",
+      "S8_better_candidate_source_dominates_selected": "better_source_dominates_fraction=0.0",
+      "S9_trace_insufficient": "trace_unavailable_fraction=1.0"
+    }
+  },
+  "trace_availability": {
+    "pair_resolution": {
+      "all_resolved": true,
+      "missing_pair_ids": [],
+      "n_missing": 0,
+      "n_pairs": 114
+    },
+    "pair_ucl": {
+      "better_ucl_available": 0,
+      "n_pairs": 114,
+      "pairwise_selector_score_delta_available": false,
+      "selected_ucl_available": 114
+    },
+    "rows": [
+      {
+        "availability_fraction": 1.0,
+        "field": "candidate_id",
+        "n_available": 3966,
+        "n_total": 3966,
+        "status": "complete",
+        "trace_item": "exact_candidate_identity_without_hash",
+        "trace_use": "classification",
+        "used_for_classification": 1
+      },
+      {
+        "availability_fraction": 1.0,
+        "field": "candidate_order",
+        "n_available": 3966,
+        "n_total": 3966,
+        "status": "complete",
+        "trace_item": "exact_candidate_order",
+        "trace_use": "classification",
+        "used_for_classification": 1
+      },
+      {
+        "availability_fraction": 1.0,
+        "field": "selected_oaci",
+        "n_available": 3966,
+        "n_total": 3966,
+        "status": "complete",
+        "trace_item": "exact_artifact_selected_flag",
+        "trace_use": "classification",
+        "used_for_classification": 1
+      },
+      {
+        "availability_fraction": 1.0,
+        "field": "feasible",
+        "n_available": 3966,
+        "n_total": 3966,
+        "status": "complete",
+        "trace_item": "exact_risk_feasibility_for_replayed_candidates",
+        "trace_use": "classification",
+        "used_for_classification": 1
+      },
+      {
+        "availability_fraction": 1.0,
+        "field": "R_src",
+        "n_available": 3966,
+        "n_total": 3966,
+        "status": "complete",
+        "trace_item": "exact_source_risk",
+        "trace_use": "classification",
+        "used_for_classification": 1
+      },
+      {
+        "availability_fraction": 1.0,
+        "field": "risk_slack_to_tau",
+        "n_available": 3966,
+        "n_total": 3966,
+        "status": "complete",
+        "trace_item": "derived_tau_minus_R_src",
+        "trace_use": "classification",
+        "used_for_classification": 1
+      },
+      {
+        "availability_fraction": 1.0,
+        "field": "selection_leakage_point",
+        "n_available": 3966,
+        "n_total": 3966,
+        "status": "complete",
+        "trace_item": "exact_selection_leakage_point_component",
+        "trace_use": "classification",
+        "used_for_classification": 1
+      },
+      {
+        "availability_fraction": 0.0,
+        "field": "per_candidate_selector_ucl_available",
+        "n_available": 0,
+        "n_total": 3966,
+        "status": "unavailable",
+        "trace_item": "actual_selector_score_ucl_per_candidate",
+        "trace_use": "blocked",
+        "used_for_classification": 0
+      },
+      {
+        "availability_fraction": 1.0,
+        "field": "audit_leakage_point",
+        "n_available": 3966,
+        "n_total": 3966,
+        "status": "complete",
+        "trace_item": "exact_source_audit_leakage_point_component",
+        "trace_use": "classification",
+        "used_for_classification": 1
+      },
+      {
+        "availability_fraction": 0.49016641452344933,
+        "field": "source_guard_worst_bacc",
+        "n_available": 1944,
+        "n_total": 3966,
+        "status": "partial",
+        "trace_item": "source_guard_endpoint",
+        "trace_use": "classification",
+        "used_for_classification": 0
+      },
+      {
+        "availability_fraction": 1.0,
+        "field": "source_guard_worst_nll",
+        "n_available": 3966,
+        "n_total": 3966,
+        "status": "complete",
+        "trace_item": "source_guard_endpoint",
+        "trace_use": "classification",
+        "used_for_classification": 1
+      },
+      {
+        "availability_fraction": 1.0,
+        "field": "source_guard_worst_ece",
+        "n_available": 3966,
+        "n_total": 3966,
+        "status": "complete",
+        "trace_item": "source_guard_endpoint",
+        "trace_use": "classification",
+        "used_for_classification": 1
+      },
+      {
+        "availability_fraction": 1.0,
+        "field": "source_audit_worst_bacc",
+        "n_available": 3966,
+        "n_total": 3966,
+        "status": "complete",
+        "trace_item": "source_audit_endpoint",
+        "trace_use": "classification",
+        "used_for_classification": 1
+      },
+      {
+        "availability_fraction": 1.0,
+        "field": "source_audit_worst_nll",
+        "n_available": 3966,
+        "n_total": 3966,
+        "status": "complete",
+        "trace_item": "source_audit_endpoint",
+        "trace_use": "classification",
+        "used_for_classification": 1
+      },
+      {
+        "availability_fraction": 1.0,
+        "field": "source_audit_worst_ece",
+        "n_available": 3966,
+        "n_total": 3966,
+        "status": "complete",
+        "trace_item": "source_audit_endpoint",
+        "trace_use": "classification",
+        "used_for_classification": 1
+      },
+      {
+        "availability_fraction": 0.04084720121028744,
+        "field": "actual_selector_rank_known",
+        "n_available": 162,
+        "n_total": 3966,
+        "status": "partial",
+        "trace_item": "actual_selected_rank_known_only_for_selected",
+        "trace_use": "limited",
+        "used_for_classification": 0
+      },
+      {
+        "availability_fraction": 0.0,
+        "field": "tie_break_metadata_available",
+        "n_available": 0,
+        "n_total": 3966,
+        "status": "unavailable",
+        "trace_item": "exact_tie_break_metadata",
+        "trace_use": "blocked",
+        "used_for_classification": 0
+      },
+      {
+        "availability_fraction": 1.0,
+        "field": "checkpoint_hash_available",
+        "n_available": 3966,
+        "n_total": 3966,
+        "status": "complete",
+        "trace_item": "checkpoint_hash_available_not_emitted",
+        "trace_use": "classification",
+        "used_for_classification": 1
+      },
+      {
+        "availability_fraction": 1.0,
+        "field": "checkpoint_hash_emitted",
+        "n_available": 3966,
+        "n_total": 3966,
+        "status": "pass_not_emitted",
+        "trace_item": "checkpoint_hash_not_emitted",
+        "trace_use": "gate",
+        "used_for_classification": 0
+      }
+    ]
+  },
+  "utility_grid_step": 0.05
+}

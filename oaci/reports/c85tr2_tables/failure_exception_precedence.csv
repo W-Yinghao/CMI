@@ -1,0 +1,6 @@
+secondary_operation,may_replace_primary,storage
+terminal-ledger append,0,secondary_errors
+cleanup,0,secondary_errors
+quarantine rename,0,secondary_errors
+failure reporting,0,secondary_errors
+post-rename recovery,0,recovered-success or secondary_errors

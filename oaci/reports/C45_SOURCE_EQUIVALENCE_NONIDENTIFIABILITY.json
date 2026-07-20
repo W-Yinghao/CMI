@@ -1,0 +1,499 @@
+{
+  "config_hash": "664007686afb520f",
+  "diagnostic_only_non_deployable": true,
+  "epsilon_radius_target_variance_summary": {
+    "q01": {
+      "baseline_joint_good_entropy": 0.6053894678184949,
+      "baseline_target_utility_variance": 0.3345936575163603,
+      "epsilon_quantile": 0.01,
+      "epsilon_radius": 0.03462955414672538,
+      "joint_entropy_over_baseline": 0.0,
+      "joint_good_cohabitation_rate": 0.0,
+      "mean_joint_good_entropy": 0.0,
+      "mean_neighbors_including_self": 1.2323869610935858,
+      "mean_pareto_good_entropy": 0.0038160443984142124,
+      "mean_preference_robust_entropy": 0.0,
+      "mean_target_gauge_variance": 1.5896509121369964e-08,
+      "mean_target_utility_range": 0.0005975679989655794,
+      "mean_target_utility_variance": 3.7256844929283073e-06,
+      "target_utility_variance_over_baseline": 1.113495252893769e-05
+    },
+    "q02": {
+      "baseline_joint_good_entropy": 0.6053894678184949,
+      "baseline_target_utility_variance": 0.3345936575163603,
+      "epsilon_quantile": 0.02,
+      "epsilon_radius": 0.11422509412362998,
+      "joint_entropy_over_baseline": 0.0,
+      "joint_good_cohabitation_rate": 0.0,
+      "mean_joint_good_entropy": 0.0,
+      "mean_neighbors_including_self": 1.464248159831756,
+      "mean_pareto_good_entropy": 0.009680174289587467,
+      "mean_preference_robust_entropy": 0.001512851604143919,
+      "mean_target_gauge_variance": 7.497585917373797e-08,
+      "mean_target_utility_range": 0.0018941146550640415,
+      "mean_target_utility_variance": 1.8409468550466004e-05,
+      "target_utility_variance_over_baseline": 5.502037512341624e-05
+    },
+    "q05": {
+      "baseline_joint_good_entropy": 0.6053894678184949,
+      "baseline_target_utility_variance": 0.3345936575163603,
+      "epsilon_quantile": 0.05,
+      "epsilon_radius": 0.33442145137782736,
+      "joint_entropy_over_baseline": 0.005105781801103029,
+      "joint_good_cohabitation_rate": 0.003943217665615142,
+      "mean_joint_good_entropy": 0.0030909865273671187,
+      "mean_neighbors_including_self": 2.159831756046267,
+      "mean_pareto_good_entropy": 0.01954667643220192,
+      "mean_preference_robust_entropy": 0.007496033147909308,
+      "mean_target_gauge_variance": 2.8144232190115233e-07,
+      "mean_target_utility_range": 0.007270504926488676,
+      "mean_target_utility_variance": 8.560265888345825e-05,
+      "target_utility_variance_over_baseline": 0.0002558406501751236
+    },
+    "q10": {
+      "baseline_joint_good_entropy": 0.6053894678184949,
+      "baseline_target_utility_variance": 0.3345936575163603,
+      "epsilon_quantile": 0.1,
+      "epsilon_radius": 1.269009511962666,
+      "joint_entropy_over_baseline": 0.03562075943766549,
+      "joint_good_cohabitation_rate": 0.02996845425867508,
+      "mean_joint_good_entropy": 0.02156443259925894,
+      "mean_neighbors_including_self": 3.319663512092534,
+      "mean_pareto_good_entropy": 0.04145628572812119,
+      "mean_preference_robust_entropy": 0.008416587252178993,
+      "mean_target_gauge_variance": 2.609139801809977e-06,
+      "mean_target_utility_range": 0.02832156742420535,
+      "mean_target_utility_variance": 0.0008643962504995187,
+      "target_utility_variance_over_baseline": 0.0025834209079628272
+    }
+  },
+  "family_space_witness_summary": {
+    "all_source_objectives": {
+      "baseline_joint_good_disagreement_rate": 0.3107255520504732,
+      "baseline_target_divergent_rate": 0.8162460567823344,
+      "distance_metrics_frozen": 1,
+      "families": "all",
+      "joint_disagreement_reduction_vs_baseline": 0.11934805467928497,
+      "mean_nearest_source_distance": 2.410715599895769,
+      "n_objectives": 17,
+      "nearest_joint_good_disagreement_rate": 0.19137749737118823,
+      "nearest_mean_target_utility_gap": 0.42340851807694063,
+      "nearest_pareto_good_disagreement_rate": 0.19216614090431125,
+      "nearest_target_divergent_rate": 0.6167192429022083,
+      "q10_radius": 1.269009511962666,
+      "source_equivalent_q10_fraction": 0.19190325972660358,
+      "source_equivalent_q10_joint_disagreement_rate": 0.028767123287671233,
+      "source_equivalent_q10_target_divergent_rate": 0.13287671232876713,
+      "space": "all_source_objectives"
+    },
+    "endpoint_only": {
+      "baseline_joint_good_disagreement_rate": 0.3107255520504732,
+      "baseline_target_divergent_rate": 0.8162460567823344,
+      "distance_metrics_frozen": 1,
+      "families": "source_endpoint",
+      "joint_disagreement_reduction_vs_baseline": 0.08675078864353314,
+      "mean_nearest_source_distance": 1.1292602867545891,
+      "n_objectives": 5,
+      "nearest_joint_good_disagreement_rate": 0.22397476340694006,
+      "nearest_mean_target_utility_gap": 0.5094079511863931,
+      "nearest_pareto_good_disagreement_rate": 0.21687697160883282,
+      "nearest_target_divergent_rate": 0.6529968454258676,
+      "q10_radius": 0.8450542263305267,
+      "source_equivalent_q10_fraction": 0.31309148264984227,
+      "source_equivalent_q10_joint_disagreement_rate": 0.11838790931989925,
+      "source_equivalent_q10_target_divergent_rate": 0.37279596977329976,
+      "space": "endpoint_only"
+    },
+    "leakage_only": {
+      "baseline_joint_good_disagreement_rate": 0.3107255520504732,
+      "baseline_target_divergent_rate": 0.8162460567823344,
+      "distance_metrics_frozen": 1,
+      "families": "leakage",
+      "joint_disagreement_reduction_vs_baseline": 0.06388012618296532,
+      "mean_nearest_source_distance": 0.3970084648407822,
+      "n_objectives": 2,
+      "nearest_joint_good_disagreement_rate": 0.24684542586750788,
+      "nearest_mean_target_utility_gap": 0.4835850602663343,
+      "nearest_pareto_good_disagreement_rate": 0.20977917981072555,
+      "nearest_target_divergent_rate": 0.667192429022082,
+      "q10_radius": 0.1498723513890061,
+      "source_equivalent_q10_fraction": 0.2862776025236593,
+      "source_equivalent_q10_joint_disagreement_rate": 0.15151515151515152,
+      "source_equivalent_q10_target_divergent_rate": 0.3746556473829201,
+      "space": "leakage_only"
+    },
+    "leakage_rank": {
+      "baseline_joint_good_disagreement_rate": 0.3107255520504732,
+      "baseline_target_divergent_rate": 0.8162460567823344,
+      "distance_metrics_frozen": 1,
+      "families": "leakage;source_rank",
+      "joint_disagreement_reduction_vs_baseline": 0.07518401682439538,
+      "mean_nearest_source_distance": 0.7437243457601929,
+      "n_objectives": 4,
+      "nearest_joint_good_disagreement_rate": 0.23554153522607782,
+      "nearest_mean_target_utility_gap": 0.48317958088337004,
+      "nearest_pareto_good_disagreement_rate": 0.20899053627760253,
+      "nearest_target_divergent_rate": 0.6466876971608833,
+      "q10_radius": 0.34259135004506114,
+      "source_equivalent_q10_fraction": 0.2542060988433228,
+      "source_equivalent_q10_joint_disagreement_rate": 0.08686659772492245,
+      "source_equivalent_q10_target_divergent_rate": 0.26990692864529475,
+      "space": "leakage_rank"
+    },
+    "rank_only": {
+      "baseline_joint_good_disagreement_rate": 0.3107255520504732,
+      "baseline_target_divergent_rate": 0.8162460567823344,
+      "distance_metrics_frozen": 1,
+      "families": "source_rank",
+      "joint_disagreement_reduction_vs_baseline": 0.07308096740273398,
+      "mean_nearest_source_distance": 0.14587774315386895,
+      "n_objectives": 2,
+      "nearest_joint_good_disagreement_rate": 0.23764458464773922,
+      "nearest_mean_target_utility_gap": 0.5064895757813752,
+      "nearest_pareto_good_disagreement_rate": 0.21503680336487907,
+      "nearest_target_divergent_rate": 0.6748159831756047,
+      "q10_radius": 0.07679219616459493,
+      "source_equivalent_q10_fraction": 0.5141955835962145,
+      "source_equivalent_q10_joint_disagreement_rate": 0.2116564417177914,
+      "source_equivalent_q10_target_divergent_rate": 0.5945807770961146,
+      "space": "rank_only"
+    },
+    "rank_risk": {
+      "baseline_joint_good_disagreement_rate": 0.3107255520504732,
+      "baseline_target_divergent_rate": 0.8162460567823344,
+      "distance_metrics_frozen": 1,
+      "families": "source_rank;source_risk",
+      "joint_disagreement_reduction_vs_baseline": 0.10383806519453209,
+      "mean_nearest_source_distance": 0.7655946473928456,
+      "n_objectives": 5,
+      "nearest_joint_good_disagreement_rate": 0.2068874868559411,
+      "nearest_mean_target_utility_gap": 0.4600387389968893,
+      "nearest_pareto_good_disagreement_rate": 0.1937434279705573,
+      "nearest_target_divergent_rate": 0.629863301787592,
+      "q10_radius": 0.3554688303888576,
+      "source_equivalent_q10_fraction": 0.23501577287066247,
+      "source_equivalent_q10_joint_disagreement_rate": 0.08612975391498881,
+      "source_equivalent_q10_target_divergent_rate": 0.27740492170022374,
+      "space": "rank_risk"
+    },
+    "risk_only": {
+      "baseline_joint_good_disagreement_rate": 0.3107255520504732,
+      "baseline_target_divergent_rate": 0.8162460567823344,
+      "distance_metrics_frozen": 1,
+      "families": "source_risk",
+      "joint_disagreement_reduction_vs_baseline": 0.11277602523659308,
+      "mean_nearest_source_distance": 0.4283882345826822,
+      "n_objectives": 3,
+      "nearest_joint_good_disagreement_rate": 0.19794952681388012,
+      "nearest_mean_target_utility_gap": 0.4796082801008111,
+      "nearest_pareto_good_disagreement_rate": 0.1861198738170347,
+      "nearest_target_divergent_rate": 0.6411671924290221,
+      "q10_radius": 0.21215154317331583,
+      "source_equivalent_q10_fraction": 0.28470031545741326,
+      "source_equivalent_q10_joint_disagreement_rate": 0.10249307479224377,
+      "source_equivalent_q10_target_divergent_rate": 0.3739612188365651,
+      "space": "risk_only"
+    }
+  },
+  "n_candidate_rows": 3804,
+  "n_trajectories": 162,
+  "nearest_source_neighbor_summary": {
+    "cross_target": {
+      "baseline_joint_good_disagreement_rate": 0.48264984227129337,
+      "baseline_mean_target_utility_gap": 1.1745951998345041,
+      "baseline_target_divergent_rate": 0.9763406940063092,
+      "joint_good_disagreement_rate": 0.4597791798107255,
+      "mean_source_distance": 1.7961488080420518,
+      "mean_target_utility_gap": 1.0007333786766426,
+      "n_rows": 3804,
+      "pareto_good_disagreement_rate": 0.21950578338590956,
+      "preference_robust_disagreement_rate": 0.06256572029442692,
+      "source_equivalent_q10_fraction": 0.1750788643533123,
+      "source_equivalent_q10_joint_disagreement_rate": 0.35435435435435436,
+      "source_equivalent_q10_target_divergent_rate": 0.9369369369369369,
+      "target_divergent_rate": 0.9400630914826499
+    },
+    "epsilon_radii": {
+      "q01": 0.03462955414672538,
+      "q02": 0.11422509412362998,
+      "q05": 0.33442145137782736,
+      "q10": 1.269009511962666
+    },
+    "same_regime": {
+      "baseline_joint_good_disagreement_rate": 0.48264984227129337,
+      "baseline_mean_target_utility_gap": 1.0176697009476614,
+      "baseline_target_divergent_rate": 0.9400630914826499,
+      "joint_good_disagreement_rate": 0.3588328075709779,
+      "mean_source_distance": 1.62425502040259,
+      "mean_target_utility_gap": 0.7513853378051658,
+      "n_rows": 3804,
+      "pareto_good_disagreement_rate": 0.20951629863301788,
+      "preference_robust_disagreement_rate": 0.058096740273396424,
+      "source_equivalent_q10_fraction": 0.2400105152471083,
+      "source_equivalent_q10_joint_disagreement_rate": 0.12814895947426067,
+      "source_equivalent_q10_target_divergent_rate": 0.29901423877327493,
+      "target_divergent_rate": 0.7652471083070452
+    },
+    "source_equivalent_target_divergent_pair_count": 632,
+    "trajectories_with_source_equivalent_divergent_pair_fraction": 0.2222222222222222,
+    "within_target": {
+      "baseline_joint_good_disagreement_rate": 0.46267087276551,
+      "baseline_mean_target_utility_gap": 0.9932391848533437,
+      "baseline_target_divergent_rate": 0.919558359621451,
+      "joint_good_disagreement_rate": 0.002365930599369085,
+      "mean_source_distance": 0.29080240192157125,
+      "mean_target_utility_gap": 0.0030003322633358107,
+      "n_rows": 3804,
+      "pareto_good_disagreement_rate": 0.004468980021030494,
+      "preference_robust_disagreement_rate": 0.001840168243953733,
+      "source_equivalent_q10_fraction": 0.9771293375394322,
+      "source_equivalent_q10_joint_disagreement_rate": 0.0002690341673392521,
+      "source_equivalent_q10_target_divergent_rate": 0.004842615012106538,
+      "target_divergent_rate": 0.007360672975814932
+    },
+    "within_trajectory": {
+      "baseline_joint_good_disagreement_rate": 0.3107255520504732,
+      "baseline_mean_target_utility_gap": 0.6502166226902436,
+      "baseline_target_divergent_rate": 0.8162460567823344,
+      "joint_good_disagreement_rate": 0.19137749737118823,
+      "mean_source_distance": 2.410715599895769,
+      "mean_target_utility_gap": 0.42340851807694063,
+      "n_rows": 3804,
+      "pareto_good_disagreement_rate": 0.19216614090431125,
+      "preference_robust_disagreement_rate": 0.060199789695057834,
+      "source_equivalent_q10_fraction": 0.19190325972660358,
+      "source_equivalent_q10_joint_disagreement_rate": 0.028767123287671233,
+      "source_equivalent_q10_target_divergent_rate": 0.13287671232876713,
+      "target_divergent_rate": 0.6167192429022083
+    },
+    "within_trajectory_pair_baseline": {
+      "all_pair_joint_disagreement_rate": 0.28044882692961576,
+      "all_pair_mean_target_utility_gap": 0.59709743124205,
+      "all_pair_n_pairs": 44115,
+      "all_pair_target_divergent_rate": 0.7493369602176131,
+      "source_distance_matched_n_pairs": 4412,
+      "source_distance_matched_pair_joint_disagreement_rate": 0.04057116953762466,
+      "source_distance_matched_pair_mean_target_utility_gap": 0.039441467966255216,
+      "source_distance_matched_pair_target_divergent_rate": 0.14324569356300998
+    }
+  },
+  "no_selector_artifact_gate": [
+    {
+      "check": "config_hash_unchanged",
+      "passed": true
+    },
+    {
+      "check": "read_only_committed_artifacts",
+      "passed": true
+    },
+    {
+      "check": "no_training_no_gpu_no_reinference",
+      "passed": true
+    },
+    {
+      "check": "source_objective_registry_inherited",
+      "passed": true
+    },
+    {
+      "check": "distance_metrics_frozen",
+      "passed": true
+    },
+    {
+      "check": "no_feature_selection",
+      "passed": true
+    },
+    {
+      "check": "no_target_labels_in_source_space_construction",
+      "passed": true
+    },
+    {
+      "check": "target_endpoint_labels_diagnostic_only",
+      "passed": true
+    },
+    {
+      "check": "target_gauge_non_source_only",
+      "passed": true
+    },
+    {
+      "check": "witness_rates_have_baselines",
+      "passed": true
+    },
+    {
+      "check": "no_selected_checkpoint_artifact",
+      "passed": true
+    },
+    {
+      "check": "compact_json_no_monolithic_payload",
+      "passed": true
+    },
+    {
+      "check": "finite_filtering_applied",
+      "passed": true
+    },
+    {
+      "check": "diagnostic_only_non_deployable",
+      "passed": true
+    }
+  ],
+  "red_team": {
+    "gauge_boundary_check": "Target gauge is diagnostic-only and non-source-only.",
+    "metric_shopping_check": "Primary, rank-L1, and family-block metrics are frozen in schema.",
+    "nearest_neighbor_base_rate_check": "Witness rates include scope-conditioned and trajectory baselines."
+  },
+  "selector_lower_bound_summary": {
+    "q01": {
+      "ambiguous_neighborhood_fraction": 0.0,
+      "discordant_pair_fraction": 0.0,
+      "discordant_pair_fraction_over_baseline": 0.0,
+      "epsilon_quantile": 0.01,
+      "epsilon_radius": 0.03462955414672538,
+      "minimum_unavoidable_ambiguity_rate": 0.0,
+      "n_source_equivalent_pairs": 442,
+      "target_good_non_good_cohabitation_rate": 0.0,
+      "target_labels_diagnostic_only": 1,
+      "trajectory_conditioned_pair_baseline": 0.28044882692961576
+    },
+    "q02": {
+      "ambiguous_neighborhood_fraction": 0.0,
+      "discordant_pair_fraction": 0.0,
+      "discordant_pair_fraction_over_baseline": 0.0,
+      "epsilon_quantile": 0.02,
+      "epsilon_radius": 0.11422509412362998,
+      "minimum_unavoidable_ambiguity_rate": 0.0,
+      "n_source_equivalent_pairs": 883,
+      "target_good_non_good_cohabitation_rate": 0.0,
+      "target_labels_diagnostic_only": 1,
+      "trajectory_conditioned_pair_baseline": 0.28044882692961576
+    },
+    "q05": {
+      "ambiguous_neighborhood_fraction": 0.003943217665615142,
+      "discordant_pair_fraction": 0.004079782411604714,
+      "discordant_pair_fraction_over_baseline": 0.014547332774647752,
+      "epsilon_quantile": 0.05,
+      "epsilon_radius": 0.33442145137782736,
+      "minimum_unavoidable_ambiguity_rate": 0.0010880359855123263,
+      "n_source_equivalent_pairs": 2206,
+      "target_good_non_good_cohabitation_rate": 0.003943217665615142,
+      "target_labels_diagnostic_only": 1,
+      "trajectory_conditioned_pair_baseline": 0.28044882692961576
+    },
+    "q10": {
+      "ambiguous_neighborhood_fraction": 0.02996845425867508,
+      "discordant_pair_fraction": 0.04057116953762466,
+      "discordant_pair_fraction_over_baseline": 0.1446651425923304,
+      "epsilon_quantile": 0.1,
+      "epsilon_radius": 1.269009511962666,
+      "minimum_unavoidable_ambiguity_rate": 0.00707238971759291,
+      "n_source_equivalent_pairs": 4412,
+      "target_good_non_good_cohabitation_rate": 0.02996845425867508,
+      "target_labels_diagnostic_only": 1,
+      "trajectory_conditioned_pair_baseline": 0.28044882692961576
+    }
+  },
+  "source_objective_space_registry_summary": {
+    "distance_metrics_frozen": [
+      "within_trajectory_z_euclidean",
+      "within_trajectory_rank_l1",
+      "family_block_z_euclidean"
+    ],
+    "families": [
+      "leakage",
+      "source_calibration_softness",
+      "source_endpoint",
+      "source_rank",
+      "source_risk"
+    ],
+    "n_primary_source_objectives": 17,
+    "n_registry_rows": 18,
+    "primary_source_objectives_complete": true
+  },
+  "target_gauge_residual_summary": {
+    "c27_c29_global_origin_available": true,
+    "gauge_gap_target_utility_gap_corr": 0.7255185224457221,
+    "large_gauge_mean_target_utility_gap": 0.30312905025073345,
+    "mean_target_gauge_gap": 0.0038912298523606317,
+    "mean_target_utility_gap": 0.05973050927684093,
+    "n_source_equivalent_divergent_pairs": 632,
+    "n_source_equivalent_gauge_witnesses": 17,
+    "pair_local_representation_projection_atom_available": false,
+    "source_equivalent_gauge_witness_fraction": 0.02689873417721519,
+    "target_gauge_candidate_level_source_available": false,
+    "target_gauge_non_source_only": true
+  },
+  "taxonomy": {
+    "case_rows": [
+      {
+        "case": "N1_source_equivalent_target_divergent_witnesses",
+        "established": 1,
+        "evidence": "within_traj_q10_divergent_rate=0.13287671232876713, cross_target_q10_divergent_rate=0.9369369369369369, same_regime_q10_divergent_rate=0.29901423877327493, pair_count=632"
+      },
+      {
+        "case": "N2_within_trajectory_nonidentifiability",
+        "established": 0,
+        "evidence": "trajectory_fraction=0.2222222222222222"
+      },
+      {
+        "case": "N3_source_radius_target_variance_persists",
+        "established": 0,
+        "evidence": "q05_variance_over_baseline=0.0002558406501751236, q05_joint_entropy_over_baseline=0.005105781801103029"
+      },
+      {
+        "case": "N4_source_metric_neighborhood_not_discriminative",
+        "established": 0,
+        "evidence": "q10_joint_entropy_over_baseline=0.03562075943766549, nearest_joint_disagreement=0.19137749737118823, baseline=0.3107255520504732"
+      },
+      {
+        "case": "N5_target_gauge_residual_drives_divergence",
+        "established": 0,
+        "evidence": "gauge_witness_fraction=0.02689873417721519, gauge_utility_corr=0.7255185224457221"
+      },
+      {
+        "case": "N6_family_reduced_space_not_sufficient",
+        "established": 1,
+        "evidence": "min_reduced_q10_divergent=0.26990692864529475"
+      },
+      {
+        "case": "N7_rank_space_reduces_but_does_not_close_ambiguity",
+        "established": 1,
+        "evidence": "rank_reduction_vs_baseline=0.07308096740273398, rank_q10_divergent=0.5945807770961146"
+      },
+      {
+        "case": "N8_empirical_selector_lower_bound_supported",
+        "established": 0,
+        "evidence": "q05_unavoidable=0.0010880359855123263, q10_ambiguous_fraction=0.02996845425867508"
+      },
+      {
+        "case": "N9_inconclusive_due_to_objective_availability",
+        "established": 0,
+        "evidence": "primary_source_objectives_complete=True"
+      }
+    ],
+    "cases": [
+      "N1_source_equivalent_target_divergent_witnesses",
+      "N6_family_reduced_space_not_sufficient",
+      "N7_rank_space_reduces_but_does_not_close_ambiguity"
+    ],
+    "established": {
+      "N1_source_equivalent_target_divergent_witnesses": true,
+      "N2_within_trajectory_nonidentifiability": false,
+      "N3_source_radius_target_variance_persists": false,
+      "N4_source_metric_neighborhood_not_discriminative": false,
+      "N5_target_gauge_residual_drives_divergence": false,
+      "N6_family_reduced_space_not_sufficient": true,
+      "N7_rank_space_reduces_but_does_not_close_ambiguity": true,
+      "N8_empirical_selector_lower_bound_supported": false,
+      "N9_inconclusive_due_to_objective_availability": false
+    },
+    "evidence": {
+      "N1_source_equivalent_target_divergent_witnesses": "within_traj_q10_divergent_rate=0.13287671232876713, cross_target_q10_divergent_rate=0.9369369369369369, same_regime_q10_divergent_rate=0.29901423877327493, pair_count=632",
+      "N2_within_trajectory_nonidentifiability": "trajectory_fraction=0.2222222222222222",
+      "N3_source_radius_target_variance_persists": "q05_variance_over_baseline=0.0002558406501751236, q05_joint_entropy_over_baseline=0.005105781801103029",
+      "N4_source_metric_neighborhood_not_discriminative": "q10_joint_entropy_over_baseline=0.03562075943766549, nearest_joint_disagreement=0.19137749737118823, baseline=0.3107255520504732",
+      "N5_target_gauge_residual_drives_divergence": "gauge_witness_fraction=0.02689873417721519, gauge_utility_corr=0.7255185224457221",
+      "N6_family_reduced_space_not_sufficient": "min_reduced_q10_divergent=0.26990692864529475",
+      "N7_rank_space_reduces_but_does_not_close_ambiguity": "rank_reduction_vs_baseline=0.07308096740273398, rank_q10_divergent=0.5945807770961146",
+      "N8_empirical_selector_lower_bound_supported": "q05_unavoidable=0.0010880359855123263, q10_ambiguous_fraction=0.02996845425867508",
+      "N9_inconclusive_due_to_objective_availability": "primary_source_objectives_complete=True"
+    }
+  }
+}

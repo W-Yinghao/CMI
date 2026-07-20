@@ -1,0 +1,7 @@
+status,meaning,allowed_at_C85P_for_T1_T7
+PROVED,complete proof with audited assumptions,0
+PROVED_FINITE_MODEL_ONLY,complete proof restricted to declared finite model,0
+COUNTEREXAMPLE,finite counterexample exhaustively verified,0
+CONJECTURE,plausible target without proof,0
+OPEN,registered obligation not completed,1
+INVALIDATED,registered target disproved or internally inconsistent,0

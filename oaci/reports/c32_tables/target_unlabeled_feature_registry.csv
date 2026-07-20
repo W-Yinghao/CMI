@@ -1,0 +1,13 @@
+feature,needs_target_labels
+target_entropy_mean,False
+target_entropy_std,False
+target_confidence_mean,False
+target_confidence_std,False
+target_margin_mean,False
+target_margin_std,False
+target_logit_norm_mean,False
+target_logit_norm_std,False
+target_pred_prop_c0,False
+target_pred_prop_c1,False
+target_pred_prop_c2,False
+target_pred_prop_c3,False

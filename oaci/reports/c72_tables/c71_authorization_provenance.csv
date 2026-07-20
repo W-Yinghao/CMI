@@ -1,0 +1,4 @@
+mode,commit,authorization_present,forward_or_reinference_executed,cache_rows,status
+no_auth_readiness,6c2bfbc,0,0,0,guard_evidence_replayed
+authorized_T3_HO,4c6081d,1,1,605952,authorized_cache_consumed_read_only_by_C72
+C72,11534dc,0,0,0,derived_outcome_only_no_forward

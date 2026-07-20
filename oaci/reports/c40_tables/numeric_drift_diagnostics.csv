@@ -1,0 +1,6 @@
+diagnostic,status,evidence,rules_out_semantic_mismatch
+float_precision,float64_replay_observed,C39 atom replay coerces features/probe math to float64; persisted per-fold outputs are absent,0
+summation_order,atom_additive_diff_near_zero,max atom_sum_minus_recomputed_point is <= 4.44e-16,0
+serialization_precision,csv_precision_sufficient_for_observed_values,persisted C37/C39 CSV values carry full decimal precision; max drift is far above decimal truncation scale,0
+row_order_and_groupby_order,not_directly_persisted,sample ids and per-fold prediction rows are not committed in C39/C37 tables,0
+bounded_drift,bounded_at_1e-3,max_abs_drift=0.00021521578246364026,0

@@ -1,0 +1,9 @@
+input_family,allowed,available_in_frozen_artifacts,risk
+source_leakage_summaries,1,1,weak information
+source_endpoint_summaries,1,1,source-target decoupling
+source_rank_features,1,1,rank signal weak
+source_objective_geometry,1,1,Pareto crowding
+source_neighborhood_geometry,1,1,conditioning needed
+target_endpoint_scalars,0,1,same-label oracle
+target_joint_margin_raw,0,1,endpoint tautology
+same_cell_diagnostic_labels,0,1,label leakage

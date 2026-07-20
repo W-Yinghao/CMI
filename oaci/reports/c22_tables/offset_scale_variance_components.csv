@@ -1,0 +1,3 @@
+mode,target_between_fraction,regime_between_fraction,target_offset_vs_baserate_corr
+cross_regime,0.5190751664208629,0.0026364640240587613,-0.605968385644532
+in_regime,0.5430503329199244,0.0015356714618775466,-0.43253904889665246

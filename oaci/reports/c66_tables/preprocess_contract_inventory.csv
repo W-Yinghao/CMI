@@ -1,0 +1,10 @@
+item,value,source,validated,blocks_campaign
+dataset,BNCI2014_001,context/manifest.json,1,0
+channels,22,context/manifest.json,1,0
+classes,left_hand|right_hand|feet|tongue,context/manifest.json,1,0
+bandpass,fmin=4.0;fmax=38.0,context/manifest.json,1,0
+resample,128.0,context/manifest.json,1,0
+epoch_window,tmin=0.5;tmax=3.5;n_times=385,context/manifest.json,1,0
+normalization,zscore_sample;eps=1e-08,context/manifest.json,1,0
+loader_code,True,oaci/data/eeg/bnci.py,1,0
+split_code,True,oaci/data/eeg/splits.py,1,0

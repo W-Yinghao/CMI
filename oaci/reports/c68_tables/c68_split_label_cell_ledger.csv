@@ -1,0 +1,4 @@
+cell_key,cell_count,planned_min_units_per_cell_T2,planned_coverage_T2,planned_coverage_T3,uses_endpoint_for_sampling,status
+seed_target_level,54,4,,,0,plan_only
+target,9,,all_targets,,0,plan_only
+regime,3,,,logical_annotation_no_duplicate_forward,0,plan_only

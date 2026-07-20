@@ -1,0 +1,2 @@
+target_fit_ids_empty,selector_target_read,target_outcome_retention_read,target_outcome_retry_read,target_label_reads_before_freeze,training_process_target_rows,training_process_source_audit_rows,training_process_source_rows,source_training_subjects,field_frozen_before_target_load,passed
+1,0,0,0,0,0,0,3456,"[1, 2, 3, 7, 8, 9]",1,1

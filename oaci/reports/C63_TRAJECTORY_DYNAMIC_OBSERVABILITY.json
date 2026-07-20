@@ -1,0 +1,76 @@
+{
+  "c62_commit": "d914e44",
+  "c62_decision": "C62-A_C61_ladder_reproduced",
+  "config_hash": "664007686afb520f",
+  "decision": {
+    "active": [
+      "C63-A_dynamic_conditional_observability_ladder_established",
+      "C63-C_source_dynamic_history_near_static_source_only",
+      "C63-D_source_dynamic_template_partial_but_no_screen_off_endpoint",
+      "C63-E_endpoint_scalar_still_dominates_after_dynamic_conditioning",
+      "C63-G_no_dynamic_source_observable_escape_hatch_found",
+      "C63-I_trajectory_fragmentation_not_explained_by_source_dynamics",
+      "C63-J_synthetic_dynamic_rank_gauge_validation_successful",
+      "C63-K_full_time_series_conditional_cs_requires_trial_level_cache",
+      "C63-L_training_not_authorized"
+    ],
+    "inactive": [
+      "C63-B_source_dynamic_history_adds_stable_observability",
+      "C63-F_dynamic_source_observable_escape_hatch_found",
+      "C63-H_trajectory_fragmentation_explained_by_source_dynamics",
+      "C63-M_claim_or_availability_inconsistency_found"
+    ],
+    "instrumentation_gate": "TRIAL_LEVEL_CACHE_NEEDED_BUT_NOT_AUTHORIZED_FOR_TIME_SERIES_CS",
+    "primary": "C63-A_dynamic_conditional_observability_ladder_established",
+    "recommended_next_direction": "wait for remote review; C64 may request explicit trial-level instrumentation or refine discrete dynamic observability",
+    "red_team_failure_count": 0,
+    "training_gate": "TRAINING_NOT_AUTHORIZED_IN_C63"
+  },
+  "diagnostic_only_non_deployable": true,
+  "dynamic_status": {
+    "dynamic_template": "partial_no_screen_off",
+    "endpoint_after_dynamic_template": "dominant_same_label_oracle",
+    "finite_partition_dynamic_cod": "established_proxy",
+    "full_time_series_conditional_cs": "unsupported_trial_level_cache_required",
+    "source_dynamic_history": "near_static_source_only",
+    "trajectory_fragmentation": "not_explained_by_source_dynamics"
+  },
+  "instrumentation_gate": "TRIAL_LEVEL_CACHE_NEEDED_BUT_NOT_AUTHORIZED_FOR_TIME_SERIES_CS",
+  "key_numbers": {
+    "endpoint_after_dynamic_template_hit_gain": 0.22376543209876543,
+    "endpoint_oracle": 0.9444444444444444,
+    "max_null_p95": 0.7712962962962961,
+    "source_dynamic_history": 0.5740740740740741,
+    "source_dynamic_template": 0.720679012345679,
+    "strict_source": 0.5061728395061729,
+    "template_only": 0.7037037037037037,
+    "trajectory_actionability_fail_fraction_q20_min1": 0.43209876543209874
+  },
+  "milestone": "C63",
+  "recommended_next_step": "wait for remote review; C64 may request explicit trial-level instrumentation or refine discrete dynamic observability",
+  "table_row_counts": {
+    "artifact_manifest": 26,
+    "dynamic_availability_ledger": 5,
+    "dynamic_cod_ladder_summary": 7,
+    "dynamic_estimator_stress_summary": 24,
+    "dynamic_null_summary": 6,
+    "dynamic_screening_off_summary": 5,
+    "dynamic_source_escape_hatch_audit": 6,
+    "dynamic_source_feature_inventory": 7,
+    "dynamic_support_sensitivity": 16,
+    "forbidden_claim_scan": 24,
+    "hankel_window_support_summary": 4,
+    "large_artifact_scan": 26,
+    "missing_dynamic_fields": 5,
+    "red_team_failure_ledger": 13,
+    "schema_validation_summary": 20,
+    "synthetic_dynamic_cod_ladder": 12,
+    "synthetic_dynamic_rank_gauge_summary": 6,
+    "test_command_manifest": 4,
+    "trajectory_artifact_inventory": 5,
+    "trajectory_failure_reason_update": 5,
+    "trajectory_fragmentation_dynamic_ledger": 6,
+    "trajectory_sequence_schema": 7
+  },
+  "training_gate": "TRAINING_NOT_AUTHORIZED_IN_C63"
+}

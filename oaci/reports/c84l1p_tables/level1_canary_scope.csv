@@ -1,0 +1,4 @@
+dataset,panel,training_seed,level,deleted_source_subject,deleted_class,target_subject,candidate_units,training_phases,engineering_only,target_scientific_metrics
+Lee2019_MI,A,5,1,31,left_hand,19,81,3,1,0
+Cho2017,A,5,1,17,left_hand,24,81,3,1,0
+PhysionetMI,A,5,1,103,left_hand,106,81,3,1,0

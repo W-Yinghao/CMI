@@ -24,7 +24,7 @@ collapses to label predictability H(Y|Z) and is NOT a concept-shift measurement.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from typing import Sequence
 
 import numpy as np
@@ -197,3 +197,28 @@ class DomainLabels:
         for j in pidx:
             key = key * self.dag.factors[j].n_levels + self.levels[:, j]
         return key
+
+
+def compact_domain_labels(domains: "DomainLabels"):
+    """Build a SOURCE-ONLY DAG with contiguous levels for every factor (review P0-1).
+
+    After an outer (or inner pseudo-target) split, the subset still references the full
+    DAG, whose factor cardinalities include levels that never appear in the subset (e.g.
+    the held-out target site/subjects/sessions). That (a) leaks the target cardinality
+    into a "strict DG" run and (b) makes the Laplace-smoothed reference entropy
+    H(D_j|Y,Pa) and the critic CE live on different effective supports.
+
+    This relabels each factor's observed levels to ``0..K-1`` and shrinks the factor
+    cardinalities accordingly, returning ``(compact_dag, compact_labels, level_maps)``
+    where ``level_maps[name]`` are the original level ids in compact order (so the mapping
+    can be inverted). MUST be called on every fold/pseudo-target subset, not once.
+    """
+    levels = np.asarray(domains.levels, dtype=np.int64).copy()
+    factors, level_maps = [], {}
+    for j, factor in enumerate(domains.dag.factors):
+        unique, inverse = np.unique(levels[:, j], return_inverse=True)
+        levels[:, j] = inverse
+        level_maps[factor.name] = unique
+        factors.append(replace(factor, n_levels=int(len(unique))))
+    dag = DomainDAG(factors)
+    return dag, DomainLabels(dag, levels), level_maps

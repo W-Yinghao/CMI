@@ -1,0 +1,7 @@
+check,expected,observed,status
+full_registered_table_set,26,26,PASS
+raw_gap_standardized_regret_separation,1,1,PASS
+exact_collapse_guard,1,1,PASS
+stochastic_Q0_preserved,1,1,PASS
+fractional_CVaR_boundary,1,1,PASS
+atomic_shadow_publication,1,1,PASS

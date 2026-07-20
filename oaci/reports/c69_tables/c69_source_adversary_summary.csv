@@ -1,0 +1,5 @@
+stage,adversary,status,paired_eval_rows,independent_checkpoint_units,target_labels_used,source_domain_trial_logits_available,x1_cod_vs_intercept,label_diagnostic_incremental_cod,escape_hatch_found,notes
+t1,metadata_only_x1_proxy,nonzero_metadata_proxy_not_strict_source_escape,19138,64,0,0,0.05015507,0.00163712,0,"Target/seed/level/candidate-order metadata is a non-label proxy, but C69 did not instrument strict source-domain trial logits/probs; this is not a trial-level source escape hatch."
+t1,strict_source_trial_logits,not_instrumented_in_c69_cache,19138,64,0,0,,,0,No source-domain raw trial logits/probs are emitted; no source-only rescue claim is made.
+t2,metadata_only_x1_proxy,nonzero_metadata_proxy_not_strict_source_escape,64512,216,0,0,0.04170378,0.00291205,0,"Target/seed/level/candidate-order metadata is a non-label proxy, but C69 did not instrument strict source-domain trial logits/probs; this is not a trial-level source escape hatch."
+t2,strict_source_trial_logits,not_instrumented_in_c69_cache,64512,216,0,0,,,0,No source-domain raw trial logits/probs are emitted; no source-only rescue claim is made.

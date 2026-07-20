@@ -1,0 +1,6 @@
+status,meaning,general_proof_required,finite_only_sufficient,false_statement_required,eligible_theorems
+PROVED,Complete proof of frozen general statement under frozen assumptions,1,0,0,T1|T3|T4|T5|T7
+PROVED_FINITE_MODEL_ONLY,Exact proof only for registered finite scenario or finite class,0,1,0,T1|T3|T4|T5|T7
+COUNTEREXAMPLE,Exact frozen construction satisfies frozen counterexample statement,0,1,0,T2|T6
+OPEN,Candidate or statement incomplete but not disproved,0,0,0,T1|T2|T3|T4|T5|T6|T7
+INVALIDATED,Frozen statement false or contradicted by valid counterexample,0,0,1,T1|T2|T3|T4|T5|T6|T7

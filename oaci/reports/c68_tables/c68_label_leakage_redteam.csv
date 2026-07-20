@@ -1,0 +1,6 @@
+check,passed,notes
+source_only_target_labels_masked,1,replayed from C67 masked view
+source_only_predictions_masked,1,source-only view cannot see target logits/probs
+construction_eval_label_separation_planned,1,construction/evaluation access matrix remains split
+same_label_oracle_policy_only,1,diagnostic full view is not selection path
+conditional_cs_diagnostic_policy_only,1,full diagnostic view only for CS smoke/design

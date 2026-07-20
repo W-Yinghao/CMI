@@ -1,0 +1,12 @@
+artifact,field_order,field,type_contract,target_label_or_derived,source_label_allowed,required
+target_trial_registry,0,dataset,scalar_or_row_key,0,0,1
+target_trial_registry,1,target_subject_id,scalar_or_row_key,0,0,1
+target_trial_registry,2,target_trial_id,scalar_or_row_key,0,0,1
+target_trial_registry,3,session,scalar_or_row_key,0,0,1
+target_trial_registry,4,run,scalar_or_row_key,0,0,1
+target_trial_registry,5,interface_id,scalar_or_row_key,0,0,1
+target_trial_registry,6,montage_sha256,scalar_or_row_key,0,0,1
+target_trial_registry,7,sample_rate_hz,scalar_or_row_key,0,0,1
+target_trial_registry,8,n_times,scalar_or_row_key,0,0,1
+target_trial_registry,9,input_finite,scalar_or_row_key,0,0,1
+target_trial_registry,10,target_label_field_count,scalar_or_row_key,0,0,1

@@ -1,0 +1,5 @@
+object,dtype,operative_V2,disposition
+historical_protocol,int64,1,PRESERVED
+historical_implementation,uint8,0,SUPERSEDED
+V2_raw_draw,little-endian int64,1,LOCKED
+V2_post_digest_conversion,int8,1,ALLOWED_AFTER_RAW_DIGEST

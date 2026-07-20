@@ -1,0 +1,220 @@
+{
+  "schema_version": "c72_measurement_control_gap_protocol_v1",
+  "milestone": "C72",
+  "protocol_lock_timestamp_utc": "2026-07-10T02:49:07Z",
+  "protocol_lock_source_commit": "4c6081d88ed314c90a060a5a415262e504a95459",
+  "parent_c71_commit": "4c6081d88ed314c90a060a5a415262e504a95459",
+  "parent_c71_protocol_sha256": "984f4ca5a2ab57e679cbb07ab42c6ac0ccb1d937655e6fdab035b670ff19e800",
+  "parent_c71_summary_sha256": "c4bc7566b62868769cebd420eb085cd58c59b074cbf9eb8f67f98a4be1468149",
+  "parent_c70_summary_sha256": "21718f214bbf4edc9feabcee59c23eda3e8f71ac52ffafcdfc669f0e8ff231e2",
+  "known_before_lock": {
+    "c71_aggregate_results_already_revealed": true,
+    "c72_intervention_outcomes_accessed": false,
+    "prospective_scope": "derived-outcome mechanism test; not wholly untouched dataset confirmation",
+    "target_population_claim_allowed": false
+  },
+  "execution_boundary": {
+    "new_forward_passes": false,
+    "reinference": false,
+    "training_or_parameter_updates": false,
+    "gpu": false,
+    "BNCI2014_004": false,
+    "reserved_seeds_3_4": false,
+    "selector_or_checkpoint_artifacts": false,
+    "selected_checkpoint_ids": false,
+    "manuscript_drafting": false,
+    "raw_cache_in_git": false,
+    "allowed_inputs": [
+      "manifested C69 T2 cache read-only",
+      "manifested C71 T3-HO cache read-only",
+      "committed C69-C71 manifests, physical-view contracts, and frozen source-side artifacts"
+    ]
+  },
+  "data_roles": {
+    "T2": [
+      "exploratory mechanism estimation",
+      "intervention hyperparameter calibration",
+      "synthetic-to-real calibration"
+    ],
+    "T3_HO": [
+      "locked checkpoint-universe mechanism evaluation",
+      "no tuning from T3-HO intervention outcomes"
+    ],
+    "same_label_oracle": "opened only after all H1-H6 primary T3-HO outcomes are frozen"
+  },
+  "primary_hypotheses": {
+    "H1": "a target-common utility offset leaves every within-target candidate ranking exactly invariant",
+    "H2": "an all-class common logit scalar leaves probabilities and downstream metrics invariant within numerical tolerance",
+    "H3": "T2-calibrated shared target-level class-vector and temperature interventions are insufficient to reproduce candidate-specific T3-HO held-out ordering",
+    "H4": "candidate-specific perturbation rank-flip probability increases with perturbation-gap divided by original pair margin",
+    "H5": "construction-estimated candidate-specific gauge closes only part of the T3-HO measurement-control gap",
+    "H6": "conditional on measurement reliability, top-1 degrades with larger candidate fields, smaller top-two margins, and larger residual gauge scale"
+  },
+  "primary_decomposition": {
+    "components": [
+      "N_finite_label_noise",
+      "M_construction_utility_mismatch",
+      "E_extreme_order_localization",
+      "G_residual_candidate_specific_gauge"
+    ],
+    "primary_order": ["N", "M", "E", "G"],
+    "order_sensitivity": "all 24 component orders; report Shapley mean and min/max ordered attribution",
+    "dominance_threshold": 0.5,
+    "material_interaction_threshold": 0.1,
+    "normalization": "fraction of observed top1 gap from oracle top1=1 to no-intervention top1, clipped only for display; raw signed values retained"
+  },
+  "label_budgets_per_class": [4, 8, 16, 32, 64, "full-construction"],
+  "repeated_split_plan": {
+    "repeats": 256,
+    "seed": 72072,
+    "shared_trial_ids_across_candidates": true,
+    "class_stratified_without_replacement": true,
+    "candidate_specific_label_subsets": false,
+    "construction_evaluation_disjoint": true
+  },
+  "utility_registry": {
+    "bAcc": "macro mean class recall; higher is better",
+    "NLL": "mean negative log probability of true class; lower is better",
+    "ECE": "15 fixed equal-width confidence bins; lower is better",
+    "joint_utility": "equal-weight mean of within-target midrank percentiles for bAcc, -NLL, and -ECE",
+    "continuous_utility_cone": "nonnegative weights on within-target midrank percentiles of bAcc, -NLL, -ECE; simplex step 0.10",
+    "primary_joint_good": "candidate lies in the top quartile on all three oriented endpoint midranks",
+    "primary_control_endpoint": "held-out bAcc",
+    "tie_tolerance": 1e-12
+  },
+  "topk_registry": {
+    "fixed_k": [1, 3, 5],
+    "fractional_k": 0.1,
+    "fractional_rule": "ceil(0.10*M), clipped to [1,M]",
+    "tie_rule": "fractional credit across all candidates tied at the selection or oracle boundary"
+  },
+  "margin_registry": {
+    "top_two": "best held-out utility minus second-best held-out utility",
+    "best_k": "best held-out utility minus kth-best for k in {3,5,ceil(0.10*M)}",
+    "pairwise": "absolute held-out utility difference",
+    "top_quartile": "distance from candidate utility to within-field 75th percentile",
+    "source_rank": "absolute difference of joined frozen source-visible rank score; unavailable rows are reason-coded",
+    "construction": "absolute difference of split-label construction score"
+  },
+  "intervention_registry": {
+    "I0": {"name": "no_intervention", "fit_role": "none"},
+    "I1": {"name": "utility_common_offset", "offsets": [-1.0, -0.25, 0.25, 1.0], "expected": "exact rank invariance"},
+    "I2": {"name": "all_class_common_logit_scalar", "scalars": [-2.0, -0.5, 0.5, 2.0], "tolerance": 1e-10, "expected": "probability and metric invariance"},
+    "I3": {
+      "name": "shared_target_class_vector",
+      "vector_templates": "centered one-vs-rest vectors for every class plus T2 construction class-frequency residual vector",
+      "magnitudes": [0.05, 0.1, 0.2, 0.4],
+      "T2_selection": "maximize mean held-out pairwise ordering accuracy; ties choose smaller L2 magnitude then lexicographic template",
+      "T3_HO_rule": "apply one locked template/magnitude per intervention family; no T3-HO tuning"
+    },
+    "I4": {
+      "name": "shared_target_temperature",
+      "temperatures": [0.5, 0.75, 1.0, 1.25, 1.5, 2.0],
+      "T2_selection": "maximize mean held-out joint-utility ordering accuracy; ties choose temperature closest to 1",
+      "T3_HO_rule": "apply locked temperature globally"
+    },
+    "I5": {
+      "name": "candidate_specific_perturbation",
+      "random_scale_multipliers": [0.25, 0.5, 1.0, 2.0],
+      "construction_blend_alphas": [0.0, 0.25, 0.5, 0.75, 1.0],
+      "random_seed": 72572,
+      "T2_selection": "select scale/alpha by mean held-out pairwise ordering accuracy; ties choose smaller scale/alpha",
+      "T3_HO_rule": "apply locked scale/alpha; evaluation labels never fit perturbations"
+    },
+    "I6": {
+      "name": "same_label_oracle",
+      "access": "post-primary-freeze only",
+      "available_at_selection_time": false,
+      "diagnostic_only": true,
+      "fit": "candidate-specific class-vector bias selected on evaluation labels from the I3 magnitude/template grid"
+    },
+    "I7": {
+      "name": "representation_projection",
+      "run_if": "validated representation or Wdotz fields exist in both caches",
+      "otherwise": "representation_intervention_supported=false"
+    }
+  },
+  "finite_population_best_arm_plan": {
+    "paired_contrast": "per-trial correctness difference in {-1,0,1}",
+    "disagreement_probability": "finite-population fraction of nonzero paired contrasts",
+    "sampling": "without replacement from the registered construction pool",
+    "pair_bound": "empirical Bernstein-Serfling bound with explicit finite-population correction",
+    "top1_extension": "Bonferroni union bound over best-versus-other candidate pairs",
+    "topk_extension": "union bound over best-versus-candidates outside oracle top-k",
+    "assumption_reporting": "bound/proxy unless every stated condition is checked; no theorem wording for unchecked assumptions"
+  },
+  "synthetic_registry": {
+    "candidate_counts": [2, 4, 8, 16, 32, 64],
+    "rank_snr": [0.5, 1.0, 2.0],
+    "gauge_sd": [0.0, 0.25, 0.5, 1.0],
+    "gauge_shape": ["gaussian", "skewed", "heteroskedastic"],
+    "label_budgets": [4, 8, 16, 32, 64, 256],
+    "outcome_types": ["binary", "multiclass4"],
+    "replicates_per_cell": 128,
+    "seed": 72672,
+    "false_positive_alpha": 0.05
+  },
+  "hierarchical_inference": {
+    "within_target_centering": true,
+    "per_target_results": true,
+    "checkpoint_cluster_bootstrap_replicates": 2000,
+    "trial_id_cluster_bootstrap_replicates": 2000,
+    "crossed_pigeonhole_bootstrap_replicates": 2000,
+    "leave_one_target_out": true,
+    "leave_trajectory_out": true,
+    "blocked_permutations": 4999,
+    "permutation_seed": 72772,
+    "row_iid_inference": false
+  },
+  "multiplicity": {
+    "family": ["H1", "H2", "H3", "H4", "H5", "H6"],
+    "alpha": 0.05,
+    "primary_method": "Holm step-down on target/block-valid p-values",
+    "simultaneous_intervals": "bootstrap max-|t| across primary interventions",
+    "bandwidth_secondary": "fixed bandwidth grid with nested max-stat null if used"
+  },
+  "conditional_observability_secondary": {
+    "exact_conditional_cs_claim_allowed": false,
+    "comparisons": [
+      "source/template",
+      "source/template + shared target calibration",
+      "source/template + candidate-specific construction gauge",
+      "source/template + same-label oracle"
+    ],
+    "interpretation": "proxy-only, block-dependent, diagnostic-only"
+  },
+  "strict_source_contract": {
+    "required": "genuinely source-domain trial logits/probabilities",
+    "checkpoint_metadata_is_strict_source": false,
+    "target_independent_ids_are_strict_source": false,
+    "target_unlabeled_fields_are_strict_source": false,
+    "if_absent": "strict_source_trial_path_unavailable=true and no escape-hatch claim"
+  },
+  "failure_gates": [
+    "C71 parent protocol/hash/cache/view replay mismatch",
+    "T2 tuning leaks T3-HO intervention outcomes",
+    "T3-HO intervention family selected after T3-HO outcome access",
+    "construction/evaluation physical-view overlap",
+    "evaluation labels fit any I0-I5 intervention",
+    "same-label oracle opened before primary freeze",
+    "utility-common offset conflated with class-vector logit shift",
+    "representation claim without representation or Wdotz fields",
+    "trial/cache rows treated as independent",
+    "uncorrected primary intervention multiplicity",
+    "top1 reported without random 1/M base rate",
+    "measurement reliability called actionability",
+    "strict-source provenance relabeled",
+    "raw cache committed to git",
+    "new forward, re-inference, training, GPU, BNCI2014_004, or seeds 3/4",
+    "selector, checkpoint recommendation, selected checkpoint ID, deployability, source-only rescue, target-population, EEG minimax, or manuscript claim"
+  ],
+  "final_gates": [
+    "MEASUREMENT_CONTROL_GAP_MECHANISM_RESOLVED",
+    "MEASUREMENT_CONTROL_GAP_PARTIALLY_RESOLVED",
+    "RANK_GAUGE_INTERVENTION_CONTRADICTED",
+    "INTERVENTION_ANALYSIS_BLOCKED_BY_CACHE_FIELDS",
+    "PROTOCOL_OR_MASKING_REPAIR_REQUIRED",
+    "INDEPENDENT_TARGET_REPLICATION_NOW_JUSTIFIED"
+  ],
+  "diagnostic_only_non_deployable": true
+}

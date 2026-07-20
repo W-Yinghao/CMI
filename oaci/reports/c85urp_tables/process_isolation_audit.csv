@@ -1,0 +1,11 @@
+path,forbidden_import_count,training_forward_GPU_import,scientific_inference_import,theorem_status_writer_import,status
+oaci/theory/c85u_input_registry.py,0,0,0,0,PASS
+oaci/theory/c85u_utility_builder.py,0,0,0,0,PASS
+oaci/theory/c85u_persistence.py,0,0,0,0,PASS
+oaci/theory/c85u_result_manifest.py,0,0,0,0,PASS
+oaci/theory/c85u_historical_decision_replay.py,0,0,0,0,PASS
+oaci/theory/c85u_runtime_guard.py,0,0,0,0,PASS
+oaci/theory/c85u_stage_u1.py,0,0,0,0,PASS
+oaci/theory/c85u_stage_u2.py,0,0,0,0,PASS
+oaci/theory/c85u_execute.py,0,0,0,0,PASS
+oaci/theory/c85urp_readiness.py,0,0,0,0,PASS

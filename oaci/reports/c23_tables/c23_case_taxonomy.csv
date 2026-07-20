@@ -1,0 +1,2 @@
+primary_case,auc_improve,gap_closed,identity_laden,loto_generalizes,interpretation,next_science
+G5_offset_source_unobservable,-0.07473026169882457,-0.8246766357884945,True,False,"the per-target offset is NOT predictable from the allowed target-free source summaries -> within-target competence is source-visible, but cross-target calibration is not identifiable from tested source evidence.",strong mechanism boundary: cross-target calibration is not identifiable from tested source summaries; package as final.

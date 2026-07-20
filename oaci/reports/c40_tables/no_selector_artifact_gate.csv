@@ -1,0 +1,15 @@
+check,passed
+config_hash_unchanged,1
+c39_artifacts_read_only,1
+c37_c38_artifacts_read_only,1
+no_training_no_gpu,1
+no_selector_repair,1
+frozen_1e_9_identity_gate_retained,1
+exact_identity_not_restored,1
+tolerance_ladder_diagnostic_only,1
+tolerance_ladder_does_not_elevate_atom_claims,1
+atom_claims_remain_blocked,1
+no_proxy_atom_decomposition,1
+no_monolithic_large_json,1
+finite_filtering_applied,1
+diagnostic_only_non_deployable,1

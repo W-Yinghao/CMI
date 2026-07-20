@@ -1,0 +1,8 @@
+metric,value
+partial_spearman_score_label_given_epoch,0.22519165309004988
+residual_signal_present,True
+probe_beats_trajectory,True
+epoch_confounded,False
+partial_spearman_score_label_given_R_src,0.16252838954579057
+source_risk_overlap,True
+probe_adds_over_source_risk,True

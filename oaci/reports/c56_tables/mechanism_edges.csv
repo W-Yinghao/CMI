@@ -1,0 +1,8 @@
+edge_id,from_node,to_node,status,supporting_milestones,key_number_summary,diagnostic_only_boundary
+E1,N_good_checkpoints_exist,N_source_actionability_gap,confirmed,"C31,C42","joint_good_rate=0.4242902208201893, source_top1=0.5061728395061729",0
+E2,N_source_measurement,N_source_actionability_gap,confirmed,"C42,C43","source_top1=0.5061728395061729, scalarization_top1=0.5740740740740741",0
+E3,N_target_gauge,N_conditioned_islands,confirmed,"C46,C48","cross_target_q10=0.9369369369369369, local_hit=1.0",0
+E4,N_conditioned_islands,N_key_insufficiency,confirmed,"C49,C52","coverage=1.0, key_hit=0.4876543209876543",0
+E5,N_key_insufficiency,N_label_diagnostic_closure,confirmed,"C52,C53","key_hit=0.4876543209876543, label_hit=0.8127572016460904, scalar_hit=0.9444444444444444",1
+E6,N_label_diagnostic_closure,N_endpoint_oracle,confirmed,C54,"component_hit=0.9259259259259259, binary=True",1
+E7,N_endpoint_oracle,N_endpoint_availability_gap,confirmed,C55,"template=0.7037037037037037, endpoint_transfer=0.9444444444444444",1

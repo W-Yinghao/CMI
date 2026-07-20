@@ -1,0 +1,6 @@
+block,required_fields,computable,target_label_information,scientific_test_in_C78
+C75_F1_strict_source_functional,logits;probabilities;class_margins;source_class_label,1,0,0
+C75_F2_strict_source_architecture,z;Wz;W;b,1,0,0
+C75_F3_target_unlabeled_functional,logits;probabilities;class_margins,1,0,0
+C75_F4_target_unlabeled_architecture,z;Wz;W;b,1,0,0
+C75_F5_construction_label_positive_control,target_trial_id;target_class_label;split_role,1,1,0

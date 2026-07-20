@@ -1,0 +1,7 @@
+path_id,milestones,status,evidence,remaining_value
+FP1_static_source,C31-C47,closed_as_reliable_control,source-only global comparability fails; conditioning diagnostic only,none_as_selector
+FP2_conditioned_ceiling,C48-C52,diagnostic_ceiling_not_action_rule,trajectory fragmentation and key-only insufficiency,requires label/content boundary
+FP3_endpoint_scalar,C53-C55,same_label_oracle_boundary,0.944 endpoint scalar is unavailable at selection time,split-label cache required
+FP4_mechanism_theory,C56-C60,synthetic_model_bound_not_eeg_theorem,rank-gauge theorem repaired; EEG lower-bound bridge not forced,instrumented data only
+FP5_static_cod,C61-C62,estimator_stress_stable,finite partition/binary-Y COD stable; full CS unsupported,trial-level paired cache
+FP6_dynamic_cod,C63,dynamic_escape_hatch_closed,dynamic+template -> endpoint still +0.223765,trial-level trajectory cache

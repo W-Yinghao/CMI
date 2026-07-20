@@ -1,0 +1,5 @@
+metric,value
+R_src_target_competence_rank_strength,0.1244260681171579
+score_rank_strength,0.15860010745129705
+R_src_vs_target_label_corr,-0.1748271956529539
+rank_tracks_source_error_only,True

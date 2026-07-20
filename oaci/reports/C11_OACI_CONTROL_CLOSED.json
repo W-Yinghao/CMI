@@ -1,0 +1,37 @@
+{
+  "record": "C11a_oaci_control_kill_decision",
+  "hypothesis_closed": "OACI conditional-domain leakage minimization as a downstream-benefit (worst-domain DG) mechanism",
+  "evidence": {
+    "C8": {
+      "report": "C8_BNCI001_LOSO_SEEDS012_K1K2",
+      "K1_sweep": "stop_no_detectable_heldout_leakage_reduction (Bonferroni & BH-FDR survivors = 0 over 54 tests)",
+      "K2_frozen": "stop_no_reproducible_gain (worst_domain_bacc harmed 4/6 units)"
+    },
+    "C10a": {
+      "report": "C10_OACI_FAILURE_DIAGNOSTICS",
+      "selection_to_audit_optimism": "OACI cuts selection leakage 54/54 but audit transfer corr ~ 0",
+      "audit_orthogonal_to_target": "all |pearson(delta_audit, delta_target_worst_*)| < 0.14",
+      "lambda_costs_accuracy": "corr(lambda, delta_target_worst_bacc) = -0.29"
+    },
+    "C10b": {
+      "identity": "216/216 (0 argmax flips; S0_current reproduces C8 K2 exactly)",
+      "final_case": "C_oracle_also_fails",
+      "detail": "no source-only selector (S1-S4) recovers reproducible K2 gain; S5 source_audit oracle picks an OACI checkpoint 51/54 yet still no gain -> a better OACI checkpoint does not exist in the trajectory even by held-out source signal"
+    }
+  },
+  "decision": "stop investing in conditional-domain leakage control as a downstream-benefit mechanism; not a selector problem (case A) and not a selection-split problem (case B)",
+  "keep": [
+    "OACI support graph (identifiable/estimable cells, fixed reference prior)",
+    "extractable-leakage probe L_Q^ov as MEASUREMENT/falsification",
+    "K1 grouped-permutation machinery as measurement",
+    "artifact/provenance/staged-executor/target-isolation stack"
+  ],
+  "do_not_continue": [
+    "OACI-v2 constrained selector (case A ruled out)",
+    "source-audit / selection-split redesign for OACI (case B ruled out)",
+    "seeds [3,4] of the OACI control sweep",
+    "BNCI2014_004 under the OACI control hypothesis",
+    "treating C8/C10 weak nominal K1 signal as salvage evidence"
+  ],
+  "next": "C11b/C11c: endpoint-aligned source-robust training (SRC/RF-WDC) under risk feasibility, source-train-only endpoint selector, K1/K2 as measurement only"
+}

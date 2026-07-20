@@ -1,0 +1,6 @@
+risk,severity,mitigation
+checkpoint_unavailable,high,mount or restore frozen checkpoint store; do not train silently
+preprocessing_drift,high,hash preprocessing code/data transforms and replay exact C19 config
+split_leakage,high,pre-register split roles before cache construction
+same_label_oracle_reinterpretation,high,same-label endpoint scalar cannot enter split-label claims
+resource_scope_creep,medium,"re-inference-only campaign, no training, no selector search"

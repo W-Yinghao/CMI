@@ -1,0 +1,5 @@
+pair,jaccard
+accuracy_x_nll,0.5658823529411765
+accuracy_x_ece,0.5598194130925508
+accuracy_x_calibration,0.5791173304628633
+nll_x_ece,0.7450980392156863

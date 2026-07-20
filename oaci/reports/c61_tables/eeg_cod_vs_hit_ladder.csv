@@ -1,0 +1,6 @@
+information_step,cod_comparison,hit_gain,partition_bound_alignment,rank_gauge_alignment
+source_to_key,COD_key_given_source,-0.018518518518518545,matches key insufficiency,key does not expose gauge
+source_to_template,COD_template_given_source,0.19753086419753085,partial but below max null,partial target-label gauge readout
+source_to_label_diagnostic,COD_label_diag_given_source,0.3065843621399176,strong diagnostic content,target-label gauge information
+source_to_endpoint,COD_endpoint_given_source,0.43827160493827155,endpoint oracle boundary,same-label endpoint gauge readout
+source_template_to_endpoint,COD_endpoint_given_source_template,0.2407407407407407,template does not screen off endpoint,candidate endpoint gap remains

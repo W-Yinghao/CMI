@@ -1,0 +1,9 @@
+quantity,general_invertible_A_invariant,orthogonal_A_invariant,directly_function_identifiable,status
+logits=Wz+b,1,1,1,function_level
+probabilities/margins/predictions,1,1,1,function_level
+Wz,1,1,1,projection_level_given_b
+head_bias_b,1,1,1,parameter_level
+z_coordinate_mean/covariance,0,0,0,coordinate_dependent
+z_norm/covariance_eigenvalues,0,1,0,orthogonal_only
+W_row_norms/cosines/singular_values,0,1,0,orthogonal_only
+normalized_zW_alignment,0,1,0,orthogonal_only

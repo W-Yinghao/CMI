@@ -1,0 +1,4 @@
+case,replicates,detection_rate,median_correlation,expected_behavior
+functionally_redundant,500,0.044,-0.001240098723883655,redundancy_not_architecture_gain
+incremental_representation,500,1.0,0.6503417868485928,high_power
+stable_endpoint_irrelevant,500,0.026,-0.0003943835036223117,low_false_positive

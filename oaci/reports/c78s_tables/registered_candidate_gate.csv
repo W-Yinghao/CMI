@@ -1,0 +1,3 @@
+path,incremental_R2,max_stat_corrected_p,leave_target_median,positive_targets,leave_regime_median,material_actionability,all_registered_gates_pass,gate_interpretation
+strict_source_F2,-0.07308583875591457,1.0,-0.020575504437867733,4,0.119435571436942,1,0,no_registered_candidate_qualification
+target_unlabeled_F4_geometry,0.005176499403102386,1.0,0.23309637420066864,5,-0.030104329173166938,1,0,no_registered_candidate_qualification

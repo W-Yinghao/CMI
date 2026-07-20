@@ -1,0 +1,7 @@
+ledger_row,observed_value,dynamic_explained,residual,evidence
+C50_locked_witness,1.0,0,1.0,coverage/hit witness is diagnostic-only
+C51_trajectory_fail_fraction,0.43209876543209874,0,0.43209876543209874,trajectory fail remains with source-dynamic proxy
+source_dynamic_closure_fraction,0.1549295774647887,0,0.8450704225352113,small fraction of endpoint gap closed
+endpoint_after_dynamic_template,0.22376543209876543,0,0.22376543209876543,endpoint still adds after dynamics+template
+trajectory_underuse_gap_mean,0.5185185185185185,0,0.5185185185185185,source-score underuse persists
+trajectory_underuse_gap_max,1.0,0,1.0,worst underuse remains source-visible only partially

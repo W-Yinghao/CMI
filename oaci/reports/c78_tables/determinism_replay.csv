@@ -1,0 +1,2 @@
+scope,GPU_canary_initial_state_match,GPU_canary_loss_match,GPU_canary_final_hash_match,full_training_bitwise_replay_performed,real_inference_repeat_max_abs,passed,caveat
+GPU_synthetic_training_canary_plus_real_inference_repeat,1,1,1,0,0.0,1,minimal canary and inference repeats; full 82-unit training was not duplicated

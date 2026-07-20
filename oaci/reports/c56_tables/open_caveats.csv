@@ -1,0 +1,5 @@
+caveat_id,status,scope
+split_label_or_few_label,open_future,split_label_budget_available remains false; no per-trial target prediction/label cache
+formal_lower_bound,future_theory,"C56 states empirical propositions, not a minimax theorem"
+external_dataset_extension,future_empirical,"No BNCI2014_004 or seeds [3,4] are added in C56"
+C39_atom_identity,closed_under_current_artifacts,exact atom trace remains irrecoverable but does not reopen C55 endpoint boundary

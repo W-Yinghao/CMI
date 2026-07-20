@@ -1,0 +1,5 @@
+final_bundle,staging,terminal_event,classification,append_FAILED
+valid,absent,present,RECOVERED_SUCCESS_AFTER_FINAL_RENAME,0
+absent,nonterminal,absent,FAILED_STAGING_RETAINED,1
+absent,terminal,present,RECONCILIATION_BLOCKER,0
+invalid,any,any,RECONCILIATION_BLOCKER,0

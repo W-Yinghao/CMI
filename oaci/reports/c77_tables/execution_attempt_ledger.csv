@@ -1,0 +1,5 @@
+attempt,phase,execution,training,real_forward,GPU,seed3_access,seed4_access,BNCI2014_004_access,status
+1,C76_replay_and_archaeology,metadata_only,0,0,0,0,0,0,passed
+2,protocol_lock,23f549d73803bd23e435f7dae581de29bf62285f,0,0,0,0,0,0,passed
+3,synthetic_power,8_slurm_shards,0,0,0,0,0,0,passed
+4,dummy_ABI_compute_storage,892739,0,0,0,0,0,0,passed

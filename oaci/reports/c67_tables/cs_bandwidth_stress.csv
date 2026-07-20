@@ -1,0 +1,5 @@
+bandwidth,unit,independent_units,rbf_hsic_x2_eval,status
+0.25,checkpoint,6,0.08073982471880772,underpowered_n6
+0.5,checkpoint,6,0.02161987606745026,underpowered_n6
+1.0,checkpoint,6,0.00261487123154144,underpowered_n6
+2.0,checkpoint,6,0.0001992274060119631,underpowered_n6

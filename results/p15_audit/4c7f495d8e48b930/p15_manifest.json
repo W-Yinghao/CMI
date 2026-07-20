@@ -1,0 +1,262 @@
+{
+  "code_commit": "b8c01dd",
+  "protocol_check": "ok",
+  "freeze_gate": "results/freeze_a1/manifest.json",
+  "thresholds": {
+    "util_loss_pp_max": 2.0,
+    "eff_rank_drop_frac_max": 0.15,
+    "scatter_drop_frac_max": 0.15,
+    "feat_var_floor": 0.0001,
+    "sat_delta_kl": 0.02,
+    "alt_probe_recover_frac": 0.5
+  },
+  "schema": {
+    "n_files": 14,
+    "files": [
+      "feat_PD_ds002778_erm_0.npz",
+      "feat_PD_ds002778_lpc_prior_0.3.npz",
+      "feat_PD_ds003490_erm_0.npz",
+      "feat_PD_ds003490_lpc_prior_0.3.npz",
+      "feat_PD_ds004584_erm_0.npz",
+      "feat_PD_ds004584_lpc_prior_0.3.npz",
+      "feat_SCZ_ds003944_erm_0.npz",
+      "feat_SCZ_ds003944_lpc_prior_0.3.npz",
+      "feat_SCZ_ds003947_erm_0.npz",
+      "feat_SCZ_ds003947_lpc_prior_0.3.npz",
+      "feat_SCZ_ds004000_erm_0.npz",
+      "feat_SCZ_ds004000_lpc_prior_0.3.npz",
+      "feat_SCZ_ds004367_erm_0.npz",
+      "feat_SCZ_ds004367_lpc_prior_0.3.npz"
+    ],
+    "pairs": {
+      "PD/ds002778": [
+        "erm",
+        "lpc"
+      ],
+      "PD/ds003490": [
+        "erm",
+        "lpc"
+      ],
+      "PD/ds004584": [
+        "erm",
+        "lpc"
+      ],
+      "SCZ/ds003944": [
+        "erm",
+        "lpc"
+      ],
+      "SCZ/ds003947": [
+        "erm",
+        "lpc"
+      ],
+      "SCZ/ds004000": [
+        "erm",
+        "lpc"
+      ],
+      "SCZ/ds004367": [
+        "erm",
+        "lpc"
+      ]
+    },
+    "present_keys": [
+      "y_ev",
+      "y_se",
+      "y_te",
+      "z_ev",
+      "z_se",
+      "z_te"
+    ],
+    "missing_for_full_audit": [
+      "DOMAIN/COHORT labels absent inside npz (z_se domain ids) \u2014 domain-probe needs them; cohort is derivable from filename for TARGET features only",
+      "SUBJECT/RECORDING ids absent \u2014 GROUPED split (\u00a7 grouped) cannot be formed from the dumps",
+      "SAMPLE IDs absent \u2014 exact cross-run sample pairing relies on canonical row order only",
+      "PREDICTION vectors/logits absent \u2014 cannot hash-compare predictions inside dumps"
+    ],
+    "integrity": {
+      "PD/ds002778": {
+        "erm_shapes": {
+          "z_se": [
+            5098,
+            16
+          ],
+          "y_se": [
+            5098
+          ],
+          "z_ev": [
+            2185,
+            16
+          ],
+          "y_ev": [
+            2185
+          ],
+          "z_te": [
+            1240,
+            16
+          ],
+          "y_te": [
+            1240
+          ]
+        },
+        "y_te_matched": true
+      },
+      "PD/ds003490": {
+        "erm_shapes": {
+          "z_se": [
+            4566,
+            16
+          ],
+          "y_se": [
+            4566
+          ],
+          "z_ev": [
+            1957,
+            16
+          ],
+          "y_ev": [
+            1957
+          ],
+          "z_te": [
+            2000,
+            16
+          ],
+          "y_te": [
+            2000
+          ]
+        },
+        "y_te_matched": true
+      },
+      "PD/ds004584": {
+        "erm_shapes": {
+          "z_se": [
+            2268,
+            16
+          ],
+          "y_se": [
+            2268
+          ],
+          "z_ev": [
+            972,
+            16
+          ],
+          "y_ev": [
+            972
+          ],
+          "z_te": [
+            5283,
+            16
+          ],
+          "y_te": [
+            5283
+          ]
+        },
+        "y_te_matched": true
+      },
+      "SCZ/ds003944": {
+        "erm_shapes": {
+          "z_se": [
+            4003,
+            16
+          ],
+          "y_se": [
+            4003
+          ],
+          "z_ev": [
+            1717,
+            16
+          ],
+          "y_ev": [
+            1717
+          ],
+          "z_te": [
+            3280,
+            16
+          ],
+          "y_te": [
+            3280
+          ]
+        },
+        "y_te_matched": true
+      },
+      "SCZ/ds003947": {
+        "erm_shapes": {
+          "z_se": [
+            4592,
+            16
+          ],
+          "y_se": [
+            4592
+          ],
+          "z_ev": [
+            1968,
+            16
+          ],
+          "y_ev": [
+            1968
+          ],
+          "z_te": [
+            2440,
+            16
+          ],
+          "y_te": [
+            2440
+          ]
+        },
+        "y_te_matched": true
+      },
+      "SCZ/ds004000": {
+        "erm_shapes": {
+          "z_se": [
+            5124,
+            16
+          ],
+          "y_se": [
+            5124
+          ],
+          "z_ev": [
+            2196,
+            16
+          ],
+          "y_ev": [
+            2196
+          ],
+          "z_te": [
+            1680,
+            16
+          ],
+          "y_te": [
+            1680
+          ]
+        },
+        "y_te_matched": true
+      },
+      "SCZ/ds004367": {
+        "erm_shapes": {
+          "z_se": [
+            5180,
+            16
+          ],
+          "y_se": [
+            5180
+          ],
+          "z_ev": [
+            2220,
+            16
+          ],
+          "y_ev": [
+            2220
+          ],
+          "z_te": [
+            1600,
+            16
+          ],
+          "y_te": [
+            1600
+          ]
+        },
+        "y_te_matched": true
+      }
+    }
+  },
+  "bind_manifest_hash": "6ebbb3a1a61e944a286f801697f8413a7bfe616a3367807824f01f6bdf3f2291",
+  "V3": "results/feat_dump_v3"
+}

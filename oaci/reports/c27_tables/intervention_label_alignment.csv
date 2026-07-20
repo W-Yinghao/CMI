@@ -1,0 +1,6 @@
+intervention,predmix_recall_corr,alignment_destroyed
+raw,0.8812722661056602,False
+temperature,0.8812722661056602,False
+class_bias_center,0.4021871118230362,True
+logit_norm_normalize,0.8812722661056602,False
+class_uniformize,0.8583684822538247,False

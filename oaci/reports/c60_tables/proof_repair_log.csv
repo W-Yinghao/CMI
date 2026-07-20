@@ -1,0 +1,7 @@
+repair_id,issue,repair,effect,changes_decision
+PR1,C59 theorem wording could be read as stronger than a rank-measurable two-candidate model,state the theorem for fixed two-candidate margin and source sigma-field; use W for gauge so G remains available for information classes,strengthens precision,C60-B
+PR2,normal gauge curve could be mistaken as required,write general CDF formula and keep normal as calibration,strengthens proof generality,C60-B
+PR3,multi-candidate/top-k rows were only proxies,demote to corollary candidates requiring joint-tail assumptions,prevents overclaim,C60-D
+PR4,"hit, error, and regret were adjacent",separate theorem error from empirical hit/regret diagnostics and treat endpoint gaps as signed diagnostics unless comparability is registered,prevents metric mismatch,C60-B
+PR5,tie handling not explicit,add continuous-gauge/no-tie condition and atom half-tie convention,closes edge case,C60-B
+PR6,C59-H could be read as authorization to train,turn it into explicit future gate matrix only,keeps C60 non-training,C60-I

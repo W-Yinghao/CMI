@@ -1,0 +1,251 @@
+{
+  "actual_selector_score_name": "selection_bootstrap_ucl",
+  "atom_decomposition_summary": {
+    "atom_decomposition_available": false,
+    "broad_cell_claim_supported": false,
+    "cell_concentration_claim_supported": false,
+    "n_atom_families_available": 0,
+    "n_atom_families_requested": 6
+  },
+  "component_availability_summary": {
+    "atom_decomposition_available": false,
+    "bootstrap_width_available": true,
+    "n_pairs": 114,
+    "no_monolithic_c38_json": true,
+    "p0_identity_pass": true,
+    "selection_point_available": true,
+    "selection_ucl_available": true,
+    "source_audit_point_available": true,
+    "source_audit_ucl_available": false,
+    "target_gauge_pair_local_available": true
+  },
+  "config_hash": "664007686afb520f",
+  "diagnostic_only_non_deployable": true,
+  "endpoint_decoupling_summary": {
+    "conflict_class_counts": {
+      "leakage_endpoint_conflict": 45,
+      "leakage_endpoint_flat_or_mixed": 3,
+      "pure_selection_leakage_conflict": 12,
+      "source_endpoint_conflict": 54
+    },
+    "leakage_endpoint_decoupled_fraction": 0.5263157894736842,
+    "source_endpoint_counts": {
+      "better": 57,
+      "flat": 3,
+      "selected": 54
+    }
+  },
+  "gauge_conflict_summary": {
+    "leakage_target_gauge_conflict_count": 105,
+    "leakage_target_gauge_conflict_fraction": 0.9210526315789473,
+    "mean_target_gauge_delta": 0.030271635416414807,
+    "n_pairs": 114,
+    "pair_local_representation_projection_atom_available": false,
+    "target_gauge_prefers_better_count": 105,
+    "target_gauge_prefers_selected_count": 9
+  },
+  "n_preference_robust_pairs": 114,
+  "no_selector_artifact_gate": [
+    {
+      "check": "config_hash_unchanged",
+      "passed": true
+    },
+    {
+      "check": "c37_exact_ucl_pairs_imported",
+      "passed": true
+    },
+    {
+      "check": "actual_selector_score_name_frozen",
+      "passed": true
+    },
+    {
+      "check": "selection_ucl_not_proxied",
+      "passed": true
+    },
+    {
+      "check": "source_audit_not_used_as_ucl_proxy",
+      "passed": true
+    },
+    {
+      "check": "point_not_used_as_ucl_proxy",
+      "passed": true
+    },
+    {
+      "check": "p0_identity_gate_passed_before_component_claims",
+      "passed": true
+    },
+    {
+      "check": "atom_unavailability_disclosed",
+      "passed": true
+    },
+    {
+      "check": "target_endpoint_labels_diagnostic_only",
+      "passed": true
+    },
+    {
+      "check": "target_gauge_non_source_only",
+      "passed": true
+    },
+    {
+      "check": "no_training_no_reinference",
+      "passed": true
+    },
+    {
+      "check": "no_selected_checkpoint_method_artifact",
+      "passed": true
+    },
+    {
+      "check": "no_monolithic_large_json",
+      "passed": true
+    },
+    {
+      "check": "finite_filtering_applied",
+      "passed": true
+    },
+    {
+      "check": "diagnostic_only_non_deployable",
+      "passed": true
+    }
+  ],
+  "red_team": {
+    "atom_overclaim_check": "Atom-level concentration claims are blocked because atom tables are absent.",
+    "point_vs_ucl_check": "UCL margin is decomposed as point delta plus bootstrap-width delta.",
+    "target_label_check": "Target endpoints and target gauge enter only as diagnostic imported labels."
+  },
+  "selection_audit_inversion_summary": {
+    "audit_prefers_better_count": 51,
+    "audit_prefers_selected_count": 63,
+    "audit_to_target_inversion_rate": 0.5526315789473685,
+    "local_leakage_target_conflict_rate": 1,
+    "n_pairs": 114,
+    "selection_to_audit_inversion_rate": 0.4473684210526316,
+    "selection_ucl_to_audit_inversion_rate": 0.4473684210526316
+  },
+  "source_target_conflict_summary": {
+    "leakage_endpoint_conflict_count": 45,
+    "n_pairs": 114,
+    "pure_selection_leakage_conflict_count": 12,
+    "source_endpoint_conflict_count": 54,
+    "source_endpoint_majority_flat_count": 3,
+    "source_endpoint_majority_prefers_better_count": 57,
+    "source_endpoint_majority_prefers_selected_count": 54,
+    "source_pareto_conflict_fraction": 1,
+    "source_rational_target_wrong_count": 114,
+    "source_rational_target_wrong_fraction": 1
+  },
+  "support_estimability_summary": {
+    "n_pair_keys": 38,
+    "n_regimes": 3,
+    "regime_counts": {
+      "S0_full_support": 38,
+      "S2_rare_cells": 38,
+      "S3_nonestimable_cells": 38
+    },
+    "regime_invariant_pair_keys": 38,
+    "support_or_estimability_artifact_supported": false
+  },
+  "taxonomy": {
+    "case_rows": [
+      {
+        "case": "L1_point_leakage_drives_ucl_preference",
+        "established": 1,
+        "evidence": "point_dominant_fraction=0.9736842105263158"
+      },
+      {
+        "case": "L2_uncertainty_width_drives_ucl_preference",
+        "established": 0,
+        "evidence": "uncertainty_driven_count=0"
+      },
+      {
+        "case": "L3_cell_concentrated_leakage_advantage",
+        "established": 0,
+        "evidence": "atom-level class/domain/support contribution table unavailable"
+      },
+      {
+        "case": "L4_broad_leakage_advantage",
+        "established": 0,
+        "evidence": "broad cell-level claim blocked by unavailable leakage atoms"
+      },
+      {
+        "case": "L5_selection_audit_leakage_inversion",
+        "established": 1,
+        "evidence": "selection_ucl_to_audit_inversion_rate=0.4473684210526316"
+      },
+      {
+        "case": "L6_source_rational_target_wrong",
+        "established": 1,
+        "evidence": "source_rational_target_wrong_fraction=1"
+      },
+      {
+        "case": "L7_leakage_target_gauge_conflict",
+        "established": 1,
+        "evidence": "leakage_target_gauge_conflict_fraction=0.9210526315789473"
+      },
+      {
+        "case": "L8_leakage_endpoint_decoupled",
+        "established": 1,
+        "evidence": "UCL prefers selected for all pairs while source endpoint majority is split selected/better/flat=54/57/3"
+      },
+      {
+        "case": "L9_support_or_estimability_artifact",
+        "established": 0,
+        "evidence": "regime_invariant_pair_keys=38"
+      },
+      {
+        "case": "L10_trace_atom_insufficient",
+        "established": 1,
+        "evidence": "exact UCL recovered but atom-level decomposition not persisted"
+      }
+    ],
+    "cases": [
+      "L1_point_leakage_drives_ucl_preference",
+      "L5_selection_audit_leakage_inversion",
+      "L6_source_rational_target_wrong",
+      "L7_leakage_target_gauge_conflict",
+      "L8_leakage_endpoint_decoupled",
+      "L10_trace_atom_insufficient"
+    ],
+    "established": {
+      "L10_trace_atom_insufficient": true,
+      "L1_point_leakage_drives_ucl_preference": true,
+      "L2_uncertainty_width_drives_ucl_preference": false,
+      "L3_cell_concentrated_leakage_advantage": false,
+      "L4_broad_leakage_advantage": false,
+      "L5_selection_audit_leakage_inversion": true,
+      "L6_source_rational_target_wrong": true,
+      "L7_leakage_target_gauge_conflict": true,
+      "L8_leakage_endpoint_decoupled": true,
+      "L9_support_or_estimability_artifact": false
+    },
+    "evidence": {
+      "L10_trace_atom_insufficient": "exact UCL recovered but atom-level decomposition not persisted",
+      "L1_point_leakage_drives_ucl_preference": "point_dominant_fraction=0.9736842105263158",
+      "L2_uncertainty_width_drives_ucl_preference": "uncertainty_driven_count=0",
+      "L3_cell_concentrated_leakage_advantage": "atom-level class/domain/support contribution table unavailable",
+      "L4_broad_leakage_advantage": "broad cell-level claim blocked by unavailable leakage atoms",
+      "L5_selection_audit_leakage_inversion": "selection_ucl_to_audit_inversion_rate=0.4473684210526316",
+      "L6_source_rational_target_wrong": "source_rational_target_wrong_fraction=1",
+      "L7_leakage_target_gauge_conflict": "leakage_target_gauge_conflict_fraction=0.9210526315789473",
+      "L8_leakage_endpoint_decoupled": "UCL prefers selected for all pairs while source endpoint majority is split selected/better/flat=54/57/3",
+      "L9_support_or_estimability_artifact": "regime_invariant_pair_keys=38"
+    }
+  },
+  "ucl_point_width_summary": {
+    "mean_point_delta": 0.1424865218550187,
+    "mean_signed_point_fraction_of_ucl_margin": 1.354319375217135,
+    "mean_signed_width_fraction_of_ucl_margin": -0.3543193752171351,
+    "mean_ucl_delta": 0.1103589053369144,
+    "mean_width_delta": -0.0321276165181043,
+    "mixed_point_dominant_count": 33,
+    "mixed_width_dominant_count": 3,
+    "n_pairs": 114,
+    "point_dominant_count": 111,
+    "point_dominant_fraction": 0.9736842105263158,
+    "point_driven_width_offsets_count": 78,
+    "point_prefers_selected_count": 114,
+    "ucl_prefers_better_count": 0,
+    "ucl_prefers_selected_count": 114,
+    "uncertainty_driven_count": 0,
+    "width_prefers_selected_count": 36
+  }
+}

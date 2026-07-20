@@ -1,0 +1,4 @@
+bound_id,tv_proxy_or_source_distance,lecam_error_candidate,nontrivial_empirical_candidate,theorem_status,blocking_assumption
+LC1_within_target,0.004842615012106538,0.4975786924939467,1,empirical_candidate_not_distributional_theorem,no probability laws P0/P1 or TV/KL proof
+LC2_within_trajectory,0.13287671232876713,0.43356164383561646,1,empirical_candidate_not_distributional_theorem,no probability laws P0/P1 or TV/KL proof
+LC3_cross_target,0.9369369369369369,0.03153153153153154,0,empirical_candidate_not_distributional_theorem,no probability laws P0/P1 or TV/KL proof

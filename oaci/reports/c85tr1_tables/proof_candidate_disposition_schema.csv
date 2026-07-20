@@ -1,0 +1,6 @@
+field,allowed,required
+theorem_id,T1..T7,1
+historical_status,OPEN,1
+candidate_disposition,PROPOSED_PROOF|PROPOSED_COUNTEREXAMPLE|INCOMPLETE_OPEN|PROPOSED_INVALIDATION,1
+formal_status,OPEN,1
+check_class,PROOF_CANDIDATE_SCHEMA_AND_INTERNAL_CONSISTENCY,1

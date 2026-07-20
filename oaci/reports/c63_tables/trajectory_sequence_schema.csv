@@ -1,0 +1,8 @@
+schema_item,available,value,source,notes
+trajectory_id,1,162,C51 trajectory_failure_ledger,162 trajectory cells
+candidate_rows,1,3804,C51 trajectory_failure_ledger,matches compact candidate universe
+within_trajectory_order,1,implicit by committed trajectory rows,C50 island_morphology,"sufficient for support-level Hankel proxy, not raw time-series CS"
+source_score_vectors,0,missing,C50-C62 summaries,blocks full source-dynamic feature reconstruction
+per_trial_logits_probabilities,0,missing,C62 gate,blocks full time-series conditional CS
+min_rows_per_trajectory,1,18,C51 trajectory_failure_ledger,K<=5 windows have support
+max_rows_per_trajectory,1,36,C51 trajectory_failure_ledger,compact support summary only

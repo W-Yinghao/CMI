@@ -1,0 +1,6 @@
+case,opens_U2_inputs,status
+all bindings exact,1,PASS
+missing execution context,0,FAIL
+other attempt handoff,0,FAIL
+U1 incomplete,0,FAIL
+duplicate U2 receipt,0,FAIL

@@ -1,0 +1,264 @@
+{
+  "schema_version": "c84a_post_scientific_heterogeneity_audit_v1",
+  "status": "COMPLETE",
+  "final_gate": "C84_POST_SCIENTIFIC_HETEROGENEITY_AND_TPAMI_THEORY_BRIDGE_AUDIT_COMPLETE_C85_PROTOCOL_REVIEW_REQUIRED",
+  "analysis_status": "POST_C84S_EXPLORATORY_DESCRIPTIVE",
+  "confirmatory_gate_changed": false,
+  "immutable_C84S_primary_gate": "C84-D_external_dataset_source_panel_seed_level_or_target_heterogeneous",
+  "immutable_C84S_label_frontier_tag": "C84-L4",
+  "independent_confirmation": false,
+  "new_pvalues": 0,
+  "new_scientific_gate": 0,
+  "inputs": {
+    "result_sha256": "5590f85c3552ec0176a015e34296059a950dd2c5853a51aa140657cf53d79ee7",
+    "manifest_sha256": "516ae135125d66233c9ee87aa71e5b40941fcb9140a63c036f58b40fce11a2b5",
+    "selection_freeze_sha256": "30ad539c8758a15701a582f0391671682107beb694860c9c531856425f2c7df4",
+    "frozen_tables": 18,
+    "method_context_rows": 18432
+  },
+  "cott": {
+    "Lee2019_MI": {
+      "mean": 0.14803848665826158,
+      "median": 0.16190753869423727,
+      "q10": 0.011321840598211341,
+      "worst": -0.1078732437869526,
+      "floor_breach_targets": 1,
+      "floor_breach_target_ids": "8",
+      "Q1_pass_frozen": false,
+      "Q2_pass_frozen": true
+    },
+    "Cho2017": {
+      "mean": 0.18100462851604684,
+      "median": 0.2089720882347316,
+      "q10": 0.014133189434544599,
+      "worst": -0.3051707956879253,
+      "floor_breach_targets": 1,
+      "floor_breach_target_ids": "3",
+      "Q1_pass_frozen": false,
+      "Q2_pass_frozen": true
+    },
+    "PhysionetMI": {
+      "mean": 0.09664007199525672,
+      "median": 0.11148866119051845,
+      "q10": -0.10738236686521946,
+      "worst": -0.31044711910270695,
+      "floor_breach_targets": 9,
+      "floor_breach_target_ids": "17|38|41|57|58|68|74|86|102",
+      "Q1_pass_frozen": false,
+      "Q2_pass_frozen": true
+    }
+  },
+  "mano": {
+    "Lee2019_MI": {
+      "mean_regret": "0.3007868128734381",
+      "mean_Spearman": "-0.001387492005515341",
+      "top1": "0.13636363636363635",
+      "top5": "0.3409090909090909",
+      "top10": "0.4431818181818182",
+      "Q1_pass": false,
+      "Q2_pass": false,
+      "dominant_regime": "ERM",
+      "dominant_regime_fraction": "0.9943181818181818",
+      "action_density_identified": false
+    },
+    "Cho2017": {
+      "mean_regret": "0.3400789637152223",
+      "mean_Spearman": "0.0009604159822539928",
+      "top1": "0.05",
+      "top5": "0.15625",
+      "top10": "0.24375",
+      "Q1_pass": true,
+      "Q2_pass": true,
+      "dominant_regime": "ERM",
+      "dominant_regime_fraction": "1.0",
+      "action_density_identified": false
+    },
+    "PhysionetMI": {
+      "mean_regret": "0.38112341015235424",
+      "mean_Spearman": "0.00205465118678711",
+      "top1": "0.22861842105263158",
+      "top5": "0.48355263157894735",
+      "top10": "0.5707236842105263",
+      "Q1_pass": false,
+      "Q2_pass": false,
+      "dominant_regime": "ERM",
+      "dominant_regime_fraction": "0.9983552631578947",
+      "action_density_identified": false
+    }
+  },
+  "label_frontier": {
+    "Bstar": {
+      "Lee2019_MI": null,
+      "Cho2017": 8,
+      "PhysionetMI": null
+    },
+    "level0_Bstar": {
+      "Lee2019_MI": null,
+      "Cho2017": "FULL",
+      "PhysionetMI": null
+    },
+    "level1_Bstar": {
+      "Lee2019_MI": null,
+      "Cho2017": 4,
+      "PhysionetMI": null
+    },
+    "Lee_FULL_failure_components": "worst",
+    "Physionet_FULL_failure_components": "maxT|favorable|worst"
+  },
+  "read_boundary": {
+    "EEG_arrays": 0,
+    "direct_label_roots": 0,
+    "target_logits_or_source_arrays": 0,
+    "selector_or_Q0_callable": 0,
+    "inference_callable": 0,
+    "training_forward_GPU_oracle": 0
+  },
+  "authorization": {
+    "C85": false,
+    "active_acquisition": false,
+    "new_dataset_or_model_zoo": false,
+    "manuscript": false
+  },
+  "table_registry": {
+    "c82_c84_method_transport_matrix.csv": {
+      "rows": 45,
+      "sha256": "f0f556c4ccd31ec77cfece54f623b7347a1fd900236904d41eceff8ce048a82b"
+    },
+    "c84s_identity_replay.csv": {
+      "rows": 10,
+      "sha256": "b18dd48ab9aac6f34aece352d11e1a339aff1fa89c3a428404e5ed336d637269"
+    },
+    "cott_average_tail_separation.csv": {
+      "rows": 3,
+      "sha256": "5745749d74b23309e04ea51eb49f2dad54c4b1640f1a1a21b7e9a5c644507b03"
+    },
+    "cott_cross_cohort_recurrence.csv": {
+      "rows": 3,
+      "sha256": "a80cae8a0ff7a3948ac5f5566e8304a57179353ae93da442f57469e014063da2"
+    },
+    "cott_target_effect_distribution.csv": {
+      "rows": 118,
+      "sha256": "5c6a453cf25013d318b811fbc7712b32e6cd84bf4063dc9ce06809ca5ecc0f63"
+    },
+    "cott_target_influence.csv": {
+      "rows": 118,
+      "sha256": "b8a204536183c8cfcd2bc5d32c0e13e45303ecfd989905873dc9777ec5b49c4b"
+    },
+    "full_panel_gate_component_matrix.csv": {
+      "rows": 18,
+      "sha256": "65b5dd6bf40108eecd9f43673deda5e2797621826906701961291e06c21917c8"
+    },
+    "heterogeneity_axis_matrix.csv": {
+      "rows": 7,
+      "sha256": "739e1e1f009c852bdf456a0fd98588e5799bb9180a5a33667daae70d29ca1c60"
+    },
+    "information_policy_action_geometry_matrix.csv": {
+      "rows": 6,
+      "sha256": "e907574caa6e8fedb8d0eebc8f31190fc8dbcf7604f2b255deccb01e65bbe23d"
+    },
+    "label_frontier_closure_failures.csv": {
+      "rows": 15,
+      "sha256": "8bf8b9ccbb09d68c4b2a4c9e5aa07a007c09edd8a3f060cadbc2688bb43486f4"
+    },
+    "label_frontier_component_matrix.csv": {
+      "rows": 15,
+      "sha256": "22c5683ea9a73aba84c4e8bcc4ae6f994e46520f5069b0e4a1fc219d19896fba"
+    },
+    "level_label_complexity_interaction.csv": {
+      "rows": 15,
+      "sha256": "8eae079970b680e553e30415276b2598aaa15b9945d1b738a78d6e3cadf75a85"
+    },
+    "level_specific_gate_component_matrix.csv": {
+      "rows": 36,
+      "sha256": "6a2740067dd1bdb8d290e8e6fa01d60029cd1d36f1650695ac4a0f2f746bcf62"
+    },
+    "lifecycle_stage_replay.csv": {
+      "rows": 3,
+      "sha256": "2467adb706c183cc308510c7faf519014d839f9ff3835e4b030be70323621250"
+    },
+    "mano_cross_dataset_decision_profile.csv": {
+      "rows": 3,
+      "sha256": "df0f1e2b321ef335ec94946bcd4061fa35194e36c8f358324173631385b160d6"
+    },
+    "near_boundary_gate_failures.csv": {
+      "rows": 387,
+      "sha256": "2b840653660587b8fc71a6fd874f7156a4fc1dd35025cec1941c178062bf1db3"
+    },
+    "next_experiment_decision_matrix.csv": {
+      "rows": 6,
+      "sha256": "484174acc2c0299682dee7212cc4b2e0d0688d2c19d56365e58d2b23413ac631"
+    },
+    "protected_counter_replay.csv": {
+      "rows": 11,
+      "sha256": "d70e19764f987af6715bad88e292567f7e7cedb4c6b6af4e1eef90d43c2f7471"
+    },
+    "rank_topk_regret_separation.csv": {
+      "rows": 18,
+      "sha256": "c40bd872566b7710048b1094bfa1ecdc6d4043a6b55081903d544599610b2a7e"
+    },
+    "regression_redteam_replay.csv": {
+      "rows": 6,
+      "sha256": "190b38a21508d81d10887a9925de48426effbe53ae891c6cf87497fee71f9497"
+    },
+    "result_table_manifest_replay.csv": {
+      "rows": 18,
+      "sha256": "42537311d0e45f0bba3b8724e0f2b496b0ef25103cbb5af83133be349319ac7e"
+    },
+    "theory_gap_registry.csv": {
+      "rows": 7,
+      "sha256": "b974250af621ef3557e38a6b556c706eb845ea0e45a08fc4b9e51609a4935ee6"
+    }
+  },
+  "claim_contract": {
+    "rows": 14,
+    "sha256": "61438a3c17a7056df514e85e0224d0d53e79cdb1ead0092428e1a475beb32fb4"
+  },
+  "validation": {
+    "checks": 75,
+    "passed": 75,
+    "failed": 0
+  },
+  "regression_verification": {
+    "implementation_commit": "4076459996e2feecc9b7fa3aa6c036932f59f30e",
+    "initial_rejected_attempt": {
+      "environment": "default_python_3.9.13",
+      "passed": 255,
+      "failed": 1,
+      "reason": "exact_environment_expected_python_3.13.7"
+    },
+    "accepted": {
+      "focused": {
+        "job": 898806,
+        "passed": 256,
+        "failed": 0,
+        "stderr_bytes": 0
+      },
+      "C65": {
+        "job": 898807,
+        "passed": 867,
+        "failed": 0,
+        "skipped": 1,
+        "deselected": 3,
+        "stderr_bytes": 0
+      },
+      "C23": {
+        "job": 898808,
+        "passed": 1278,
+        "failed": 0,
+        "skipped": 1,
+        "deselected": 3,
+        "stderr_bytes": 0
+      },
+      "full": {
+        "job": 898809,
+        "passed": 2202,
+        "failed": 0,
+        "skipped": 1,
+        "deselected": 3,
+        "stderr_bytes": 0
+      }
+    },
+    "active_C84_or_C85_jobs_after_completion": 0,
+    "sacct_used": false
+  }
+}

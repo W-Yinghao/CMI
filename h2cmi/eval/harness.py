@@ -97,7 +97,8 @@ def evaluate_offline_tta(model, X, y, domain, cfg: H2Config, source_prior: np.nd
         do_adapt = res.adapted
         if gate is not None and res.adapted:
             g = gate_features(res.diagnostics)
-            do_adapt = gate.should_adapt(g, res.diagnostics.get("delta_density_nll"))
+            # gate evidence = HELD-OUT cross-fitted gain, not in-sample delta (review P0-4)
+            do_adapt = gate.should_adapt(g, res.diagnostics.get("crossfit_evidence_gain"))
         proba_sel[m] = p_ad if do_adapt else p_id
         per_dom_decision[int(d)] = bool(do_adapt)
         gid = balanced_accuracy_score(y[m], p_id.argmax(1))
@@ -127,8 +128,10 @@ def evaluate_offline_tta(model, X, y, domain, cfg: H2Config, source_prior: np.nd
 # ----------------------------------------------------------------- online streaming TTA
 def evaluate_online_tta(model, X, y, domain, cfg: H2Config, source_prior: np.ndarray,
                         device="cpu", batch=32) -> dict:
-    """Per target domain, stream trials in order; predict each batch under the running
-    (EMA) prior/transform BEFORE seeing it (no peeking at future samples)."""
+    """Online PRIOR-ONLY streaming (review P0-2): per target domain, stream trials in
+    order; predict each batch under the running EMA prior BEFORE seeing it (causal, no
+    peeking). The transform stays identity -- online transform adaptation is deferred.
+    Reported as 'online_prior_only'."""
     tta = ClassConditionalTTA(model.head.density, source_prior, cfg.tta, cfg.n_classes, device)
     proba = np.zeros((len(y), cfg.n_classes))
     for d in np.unique(domain):
@@ -148,7 +151,7 @@ def evaluate_online_tta(model, X, y, domain, cfg: H2Config, source_prior: np.nda
                 counts = r.sum(0).cpu().numpy()
                 pi_b = (counts + 1e-3) / (counts.sum() + 1e-3 * cfg.n_classes)
                 pi_run = cfg.tta.online_ema * pi_run + (1 - cfg.tta.online_ema) * pi_b
-    panel = metric_panel(proba, y, domain); panel["setting"] = "online_tta"
+    panel = metric_panel(proba, y, domain); panel["setting"] = "online_prior_only"
     return panel
 
 

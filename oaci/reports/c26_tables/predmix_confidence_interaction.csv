@@ -1,0 +1,9 @@
+metric,value
+predmix_only_gap,0.0031112715525154237
+confmargin_only_gap,-0.5610353773296293
+both_gap,0.4908528004503232
+shapley_main_predmix,0.527499724666234
+shapley_main_confmargin,-0.03664692421591076
+shapley_interaction,1.048776906227437
+predmix_needs_confidence_scaffold,True
+interaction_dominant,True

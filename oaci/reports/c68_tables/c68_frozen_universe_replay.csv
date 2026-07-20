@@ -1,0 +1,9 @@
+metric,value,expected,passed,notes
+c65_logical_singleton_rows,3804,3804,1,C50 logical rows including regime labels
+c65_unique_checkpoint_ids,1268,1268,1,physical checkpoint payloads used for deduped forward units
+c65_physical_forward_units,1268,1268,1,checkpoint/seed/target/level units; regime labels do not require duplicate forward
+targets,1;2;3;4;5;6;7;8;9,1;2;3;4;5;6;7;8;9,1,BNCI2014_001 targets only
+seeds,0;1;2,0;1;2,1,reserved seeds 3/4 absent
+levels,0;1,0;1,1,two trajectory levels
+regimes,S0_full_support;S2_rare_cells;S3_nonestimable_cells,S0_full_support;S2_rare_cells;S3_nonestimable_cells,1,diagnostic regimes
+verified_pt_json_rows,3804,3804,1,C65 path verification replay

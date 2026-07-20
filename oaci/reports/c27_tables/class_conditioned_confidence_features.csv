@@ -1,0 +1,6 @@
+gauge,gap_closed,survives_permutation
+full_r3,0.4908528004503232,True
+occupancy_plus_classcond_confidence,0.660164710777175,True
+occupancy_plus_classcond_conf_margin,0.6653960523256527,True
+occ_x_conf_interaction_only,0.08129994248583572,False
+class_conditioned_confidence_explains,True,

@@ -1,0 +1,5 @@
+model,predictors,target_count,mean_raw_M_coefficient,raw_M_blocked_p,mean_effective_M_coefficient,effective_M_blocked_p,mean_top_gap_coefficient,mean_r2,row_IID_used
+raw_M_only,log_raw_M,9,-0.18480285708348324,0.003,,,,0.19741637002904927,0
+effective_M_only,log_effective_M,9,,,-0.21549368290503926,0.0024,,0.22440169287236747,0
+raw_M_plus_top_gap,log_raw_M;top_gap,9,-0.13816765514432844,0.0076,,,0.13300265840337924,0.2725823842080264,0
+raw_M_effective_M_top_gap,log_raw_M;log_effective_M;top_gap,9,0.0036103979074688067,0.5206,-0.1800410027779079,0.0372,0.07054904461747184,0.31150526930248545,0

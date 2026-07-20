@@ -1,0 +1,7 @@
+candidate_id,candidate,allowed_source_only,uses_target_labels,registered_origin
+SADV1,source rank score,1,0,C42
+SADV2,best source scalarization,1,0,C43
+SADV3,source Pareto/front depth,1,0,C44
+SADV4,conditioned strict source,0,0,C47
+SADV5,key/source geometry,0,0,C52
+SADV6,template without held-out endpoint scalar,0,1,C55

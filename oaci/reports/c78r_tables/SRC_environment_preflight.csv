@@ -1,0 +1,5 @@
+check,observed,expected,passed,runtime_recheck_required
+partition,V100,V100,1,1
+CUBLAS_WORKSPACE_CONFIG,:4096:8,:4096:8,1,1
+conda_environment,/home/infres/yinwang/anaconda3/envs/icml,C78 validated environment,1,1
+GPU_determinism_canary_order,before_EEG_load,before_EEG_load,1,1

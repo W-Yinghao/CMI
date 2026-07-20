@@ -1,0 +1,4 @@
+dataset,source_training_subjects,source_training_count,source_audit_subjects,source_audit_count,target_subjects,target_count,sets_disjoint,persist_loaded_lists_and_trial_counts,real_data_access
+Lee2019_MI,31|28|5|32|21|54|18|10|13|4|24|15,12,33|53|34|40,4,19,1,1,1,0
+Cho2017,17|38|49|52|33|51|18|46|19|28|35|23,12,34|11|25|14,4,24,1,1,1,0
+PhysionetMI,103|9|99|101|24|28|18|25|19|89|84|83,12,59|39|72|40,4,106,1,1,1,0

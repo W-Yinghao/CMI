@@ -1,0 +1,5 @@
+metric,value
+P(calibration_good|accuracy_good),0.8966666666666666
+P(accuracy_good|calibration_good),0.6205305651672434
+accuracy_good_calibration_bad_rate,0.04889589905362776
+calibration_good_accuracy_flat_rate,0.25946372239747634

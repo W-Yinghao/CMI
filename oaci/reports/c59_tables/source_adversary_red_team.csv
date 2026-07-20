@@ -1,0 +1,5 @@
+gate,passed,finding
+no_target_endpoint_scalar,1,source adversary rows do not use held-out candidate endpoint scalar
+no_same_cell_labels,1,same-cell labels are not used for source-only candidates
+template_not_source_only,1,template candidate is marked target-label-derived
+no_reliable_escape_hatch,1,all reliable_escape_hatch flags are zero

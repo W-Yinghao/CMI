@@ -1,0 +1,17 @@
+component,present_in_final_C79_protocol,status,blocking_if_strict_confirmation
+primary targets and target-4 exclusion,0,missing_or_not_exactly_bound,1
+"levels, regimes, and candidate universe",1,present,0
+construction/evaluation trial-ID hashes,0,missing_or_not_exactly_bound,1
+"H1 reliability, top-k, regret formulas and gates",0,missing_or_not_exactly_bound,1
+"H2 exact model, sign convention, and held-target split",0,missing_or_not_exactly_bound,1
+"H3 exact feature block, kernel, bandwidth, and scaling",0,missing_or_not_exactly_bound,1
+"H4 exact F2 base model, cross-fit, null, and qualification",0,missing_or_not_exactly_bound,1
+"H5 exact F4 base model, cross-fit, null, and qualification",0,missing_or_not_exactly_bound,1
+H6 exact positive-control effect and Holm family ordering,0,missing_or_not_exactly_bound,1
+outer and inner grouping units,0,missing_or_not_exactly_bound,1
+permutation/bootstrap construction and counts,0,missing_or_not_exactly_bound,1
+null RNG streams,0,missing_or_not_exactly_bound,1
+seed4-only versus combined primary status,1,present,0
+retry and additive-repair policy,0,missing_or_not_exactly_bound,1
+same-label oracle reachability,0,missing_or_not_exactly_bound,1
+"success, failure, and claim taxonomy",0,missing_or_not_exactly_bound,1

@@ -1,0 +1,7 @@
+case,expected,observed,accepted
+focused initial attempt,PASS,4 FAIL / 12 PASS,0
+focused repaired attempt,PASS,16 PASS,1
+944x81,76464,76464,1
+V5 method rows,18432,18432,1
+finite Q0 actions,8749056,8749056,1
+real protected reads,0,0,1

@@ -1,0 +1,11 @@
+{
+  "construction_evaluation_overlap_required": 0,
+  "field_manifest_sha256_after_labels": "6f3e17dcc967d4323af2e49c4f245dc86f08503d3ac319869743f6a1b75b58b3",
+  "job_id": "893679",
+  "primary_route_sha256": "f3de19edc9cece07437db03337d2222005c60106388669f2599cf0f96abf9290",
+  "primary_targets": [1, 2, 3, 5, 6, 7, 8, 9],
+  "same_label_oracle_created": false,
+  "schema_version": "c79_seed4_label_view_provisioning_v1",
+  "scientific_metrics_computed": false,
+  "target4_label_view_created": false
+}

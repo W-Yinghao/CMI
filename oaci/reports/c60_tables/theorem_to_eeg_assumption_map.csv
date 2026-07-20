@@ -1,0 +1,9 @@
+assumption_id,empirical_proxy,support_class,artifact,bridge_limit
+RG60-A1,strict source hit 0.506 vs random 0.430,partially_supported,C42/C58/C59,rank signal is weak
+RG60-A2,best source scalarization 0.574 below max null p95 0.771,partially_supported,C43/C58/C59,registered source family only
+RG60-A3,label diagnostic 0.813 and endpoint oracle 0.944 exceed source fields,partially_supported,C52-C55/C58,not direct G samples
+RG60-A4,cross-target q10 divergence 0.937 vs within-target 0.00484,partially_supported,C46,"target mixing evidence, not distribution law"
+RG60-A5,no frozen gauge residual distribution cache,not_testable_with_existing_artifact,missing,requires instrumentation
+RG60-A6,no independent challenger gauge trace,not_testable_with_existing_artifact,missing,multi-candidate theorem blocked
+RG60-A8,same-label endpoint scalar hit 0.944,supported_by_existing_artifact,C53-C55/C58,oracle boundary only
+RG60-A10,C58/C59 theorem status,supported_by_existing_artifact,C58/C59,scope is finite/synthetic

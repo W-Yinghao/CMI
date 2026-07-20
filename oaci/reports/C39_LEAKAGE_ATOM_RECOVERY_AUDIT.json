@@ -1,0 +1,235 @@
+{
+  "actual_selector_score_name": "selection_bootstrap_ucl",
+  "atom_concentration_summary": {
+    "broad_pair_count": 108,
+    "broad_pair_fraction": 0.9473684210526315,
+    "concentrated_pair_count": 0,
+    "concentrated_pair_fraction": 0.0,
+    "mean_positive_hhi": 0.08619240316454056,
+    "mean_top3_positive_share": 0.3675979063690287,
+    "n_pairs": 114
+  },
+  "atom_recovery_availability_summary": {
+    "all_selection_identity_pass": false,
+    "all_source_audit_additive_pass": true,
+    "all_units_available": true,
+    "n_units": 38,
+    "target_labels_loaded_for_replay": 0
+  },
+  "atom_target_gauge_conflict_summary": {
+    "atom_target_gauge_conflict_count": 105,
+    "atom_target_gauge_conflict_fraction": 0.9210526315789473,
+    "mean_dominant_atom_positive_share": 0.1422011169766621,
+    "n_pairs": 114,
+    "target_gauge_prefers_better_count": 105,
+    "target_gauge_prefers_selected_count": 9
+  },
+  "bootstrap_atom_diagnostics_summary": {
+    "aggregate_ucl_available": true,
+    "n_pairs": 114,
+    "per_atom_ucl_summed": false,
+    "persisted_point_identity_pass": false,
+    "point_atom_additive_identity_exact": true,
+    "replicate_atom_replay_available": false,
+    "ucl_quantile_atom_limit": true
+  },
+  "config_hash": "664007686afb520f",
+  "diagnostic_only_non_deployable": true,
+  "n_jobs": 4,
+  "n_preference_robust_pairs": 114,
+  "no_selector_artifact_gate": [
+    {
+      "check": "config_hash_unchanged",
+      "passed": true
+    },
+    {
+      "check": "c37_exact_ucl_pairs_imported",
+      "passed": true
+    },
+    {
+      "check": "actual_selector_score_name_frozen",
+      "passed": true
+    },
+    {
+      "check": "selection_selected_and_better_atoms_available",
+      "passed": true
+    },
+    {
+      "check": "selected_aggregate_identity_before_better_atom_claims",
+      "passed": true
+    },
+    {
+      "check": "identity_failure_blocks_atom_contribution_claims",
+      "passed": true
+    },
+    {
+      "check": "atom_additive_identity_passed_for_recomputed_points",
+      "passed": true
+    },
+    {
+      "check": "source_audit_atoms_replayed_not_used_as_selection_proxy",
+      "passed": true
+    },
+    {
+      "check": "ucl_quantile_not_summed_from_atoms",
+      "passed": true
+    },
+    {
+      "check": "replicate_atom_limit_disclosed",
+      "passed": true
+    },
+    {
+      "check": "target_gauge_diagnostic_only",
+      "passed": true
+    },
+    {
+      "check": "no_training_no_reinference",
+      "passed": true
+    },
+    {
+      "check": "no_selector_repair",
+      "passed": true
+    },
+    {
+      "check": "no_selected_checkpoint_method_artifact",
+      "passed": true
+    },
+    {
+      "check": "no_monolithic_large_json",
+      "passed": true
+    },
+    {
+      "check": "finite_filtering_applied",
+      "passed": true
+    },
+    {
+      "check": "target_labels_not_loaded_for_replay",
+      "passed": true
+    },
+    {
+      "check": "diagnostic_only_non_deployable",
+      "passed": true
+    }
+  ],
+  "red_team": {
+    "a9_block_check": "When aggregate identity fails, atom contribution summaries remain diagnostic only.",
+    "atom_identity_check": "Aggregate point identity and atom additive identity gate atom claims.",
+    "audit_proxy_check": "Source-audit atoms are independently replayed and not used as selection proxies.",
+    "target_label_check": "Target gauge and endpoints remain diagnostic-only labels.",
+    "ucl_quantile_check": "No per-atom UCL summation is reported because UCL is a quantile."
+  },
+  "selected_atom_identity_summary": {
+    "max_audit_additive_abs_diff": 2.220446049250313e-16,
+    "max_selection_additive_abs_diff": 4.440892098500626e-16,
+    "max_selection_point_abs_diff": 0.00021521578246364026,
+    "n_rows": 152,
+    "n_selection_candidates": 76,
+    "n_selection_identity_pass": 48,
+    "n_source_audit_additive_pass": 76,
+    "n_source_audit_candidates": 76,
+    "selection_identity_pass": false,
+    "source_audit_additive_pass": true
+  },
+  "selection_audit_atom_stability_summary": {
+    "mean_atom_delta_spearman": 0.03853383458646617,
+    "mean_atom_sign_inversion_rate": 0.481203007518797,
+    "mean_atom_sign_preservation_rate": 0.5187969924812029,
+    "n_pairs": 114,
+    "selection_to_audit_inversion_rate": 0.4473684210526316,
+    "top_atom_sign_preserved_fraction": 0.5526315789473685,
+    "unstable_pair_count": 87,
+    "unstable_pair_fraction": 0.7631578947368421
+  },
+  "support_cell_artifact_summary": {
+    "dominant_atom_low_mass_fraction": 0.0,
+    "dominant_atom_support_edge_fraction": 0.0,
+    "mean_low_mass_positive_share": 0.0,
+    "mean_support_edge_positive_share": 0.0,
+    "n_pairs": 114,
+    "support_artifact_pair_count": 0,
+    "support_artifact_pair_fraction": 0.0
+  },
+  "taxonomy": {
+    "case_rows": [
+      {
+        "case": "A1_exact_atom_replay_supported",
+        "established": 0,
+        "evidence": "selection_identity=48/76, audit_additive=76/76"
+      },
+      {
+        "case": "A2_point_advantage_cell_concentrated",
+        "established": 0,
+        "evidence": "concentrated_pair_fraction=0.0"
+      },
+      {
+        "case": "A3_broad_point_leakage_advantage",
+        "established": 0,
+        "evidence": "broad_pair_fraction=0.9473684210526315"
+      },
+      {
+        "case": "A4_class_specific_leakage_conflict",
+        "established": 0,
+        "evidence": "max_class_positive_share=0.27965167065812924"
+      },
+      {
+        "case": "A5_domain_or_group_specific_leakage_conflict",
+        "established": 0,
+        "evidence": "max_domain_positive_share=0.2045194585034194"
+      },
+      {
+        "case": "A6_support_edge_or_low_mass_driven",
+        "established": 0,
+        "evidence": "support_artifact_pair_fraction=0.0"
+      },
+      {
+        "case": "A7_selection_audit_atom_instability",
+        "established": 0,
+        "evidence": "mean_atom_sign_preservation_rate=0.5187969924812029, selection_to_audit_inversion_rate=0.4473684210526316"
+      },
+      {
+        "case": "A8_atom_target_gauge_conflict",
+        "established": 0,
+        "evidence": "atom_target_gauge_conflict_fraction=0.9210526315789473"
+      },
+      {
+        "case": "A9_atom_decomposition_irrecoverable",
+        "established": 1,
+        "evidence": "exact point atom identity failed or audit additive identity failed"
+      },
+      {
+        "case": "A10_ucl_quantile_atom_limit",
+        "established": 1,
+        "evidence": "UCL is a bootstrap quantile; C39 does not sum per-atom UCLs"
+      }
+    ],
+    "cases": [
+      "A9_atom_decomposition_irrecoverable",
+      "A10_ucl_quantile_atom_limit"
+    ],
+    "established": {
+      "A10_ucl_quantile_atom_limit": true,
+      "A1_exact_atom_replay_supported": false,
+      "A2_point_advantage_cell_concentrated": false,
+      "A3_broad_point_leakage_advantage": false,
+      "A4_class_specific_leakage_conflict": false,
+      "A5_domain_or_group_specific_leakage_conflict": false,
+      "A6_support_edge_or_low_mass_driven": false,
+      "A7_selection_audit_atom_instability": false,
+      "A8_atom_target_gauge_conflict": false,
+      "A9_atom_decomposition_irrecoverable": true
+    },
+    "evidence": {
+      "A10_ucl_quantile_atom_limit": "UCL is a bootstrap quantile; C39 does not sum per-atom UCLs",
+      "A1_exact_atom_replay_supported": "selection_identity=48/76, audit_additive=76/76",
+      "A2_point_advantage_cell_concentrated": "concentrated_pair_fraction=0.0",
+      "A3_broad_point_leakage_advantage": "broad_pair_fraction=0.9473684210526315",
+      "A4_class_specific_leakage_conflict": "max_class_positive_share=0.27965167065812924",
+      "A5_domain_or_group_specific_leakage_conflict": "max_domain_positive_share=0.2045194585034194",
+      "A6_support_edge_or_low_mass_driven": "support_artifact_pair_fraction=0.0",
+      "A7_selection_audit_atom_instability": "mean_atom_sign_preservation_rate=0.5187969924812029, selection_to_audit_inversion_rate=0.4473684210526316",
+      "A8_atom_target_gauge_conflict": "atom_target_gauge_conflict_fraction=0.9210526315789473",
+      "A9_atom_decomposition_irrecoverable": "exact point atom identity failed or audit additive identity failed"
+    }
+  },
+  "utility_grid_step": 0.05
+}

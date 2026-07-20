@@ -1,0 +1,6 @@
+object,information_class,uses_target_labels,available_at_selection_time,supported_claim,forbidden_claim,supporting_milestones
+conditioned local Bayes ceiling,I7,1,0,upper diagnostic envelope exposes underuse,available action rule,C48-C51
+best strict source score,I1,0,1,weak source-visible rank signal,reliable selector,C42-C44
+target/trajectory key-only ladder,I2,0,0,keys alone do not close residual,key sufficiency,C52
+target-label diagnostic closure,I6,1,0,residual closes diagnostically,source-only DG,C52-C53
+same-label endpoint scalar,I7,1,0,endpoint-oracle boundary,deployable calibration,C54-C55

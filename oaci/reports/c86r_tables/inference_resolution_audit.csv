@@ -1,0 +1,4 @@
+cohort,target_subject_clusters,minimum_clusters_required,cluster_count_pass,adult_primary_eligible,exact_sign_configurations,registered_maxT_draws,plus_one_Monte_Carlo_min_p_exact,plus_one_Monte_Carlo_min_p_decimal,favorable_75pct_targets,LOTO_fits,resolution_status,scientific_unit
+Brandl2020,16,12,1,1,65536,65536,1/65537,1.5258556235409006e-05,12,16,PASS_IF_COHORT_ELIGIBLE,target_subject
+Kumar2024,18,12,1,0,262144,65536,1/65537,1.5258556235409006e-05,14,18,PASS_IF_COHORT_ELIGIBLE,target_subject
+Yang2025_2C,51,12,1,0,2251799813685248,65536,1/65537,1.5258556235409006e-05,39,51,PASS_IF_COHORT_ELIGIBLE,target_subject

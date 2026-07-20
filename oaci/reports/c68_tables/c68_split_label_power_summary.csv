@@ -1,0 +1,4 @@
+analysis,status,minimum_units_target,planned_units_T1,planned_units_T2,forbidden_claim,notes
+construction_summary_to_eval_endpoint,not_run_not_authorized,64,64,216,few_label_sufficiency,run only after authorized scaled cache exists
+leave_checkpoint_out,not_run_not_authorized,64,64,216,deployable_selector,checkpoint-level robustness planned
+leave_target_out_if_support_allows,not_run_not_authorized,9,9,9,source_only_rescue,target-level stress is diagnostic only

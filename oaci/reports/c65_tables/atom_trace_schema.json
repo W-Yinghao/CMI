@@ -1,0 +1,12 @@
+{
+  "axes": [
+    "dataset",
+    "target",
+    "domain",
+    "class",
+    "checkpoint",
+    "split",
+    "atom"
+  ],
+  "identity_gate": "sum_atoms_equals_aggregate"
+}

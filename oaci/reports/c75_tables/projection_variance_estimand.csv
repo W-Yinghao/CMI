@@ -1,0 +1,7 @@
+field,value
+observational_unit,"Wz[candidate,trial,class] within each target x class"
+candidate_main,candidate mean minus target-class grand mean; SS multiplied by trial count
+target_common_trial_main,across-candidate trial mean minus grand mean; SS multiplied by candidate count
+interaction_residual,value-grand-candidate_main-trial_main
+normalization,each component SS / total within-target-class SS
+causal_interpretation,forbidden; descriptive crossed ANOVA only

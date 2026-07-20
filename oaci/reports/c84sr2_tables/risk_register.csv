@@ -1,0 +1,16 @@
+risk,blocking,status,evidence
+V3_authorization_reused,1,CLOSED,protocol+implementation+synthetic+red_team
+V3_failed_root_overwritten,1,CLOSED,protocol+implementation+synthetic+red_team
+Stage_A_label_views_reprovisioned,1,CLOSED,protocol+implementation+synthetic+red_team
+evaluation_descriptor_reaches_Stage_B,1,CLOSED,protocol+implementation+synthetic+red_team
+raw_descriptor_intervention_missing,1,CLOSED,protocol+implementation+synthetic+red_team
+sidecar_mismatch_ignored,1,CLOSED,protocol+implementation+synthetic+red_team
+compatibility_scope_expanded,1,CLOSED,protocol+implementation+synthetic+red_team
+level0_identity_changed,1,CLOSED,protocol+implementation+synthetic+red_team
+candidate_or_method_changed,1,CLOSED,protocol+implementation+synthetic+red_team
+scientific_threshold_changed,1,CLOSED,protocol+implementation+synthetic+red_team
+partial_Stage_B_published,1,CLOSED,protocol+implementation+synthetic+red_team
+automatic_retry,1,CLOSED,protocol+implementation+synthetic+red_team
+training_or_forward,1,CLOSED,protocol+implementation+synthetic+red_team
+GPU_or_oracle,1,CLOSED,protocol+implementation+synthetic+red_team
+C85_started,1,CLOSED,protocol+implementation+synthetic+red_team

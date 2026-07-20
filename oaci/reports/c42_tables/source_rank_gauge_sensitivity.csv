@@ -1,0 +1,6 @@
+normalization,top1_joint_good_rate,top1_pareto_good_rate,top1_regret_vs_target_oracle,non_source_only,diagnostic_ceiling,top1_joint_good_gain_vs_raw,top1_regret_gain_vs_raw
+raw_source_rank,0.5061728395061729,0.2037037037037037,0.6568196494026767,0,0,0.0,0.0
+regime_centered_source_rank,0.5061728395061729,0.2037037037037037,0.6568196494026767,0,0,0.0,0.0
+target_centered_diagnostic_source_rank,0.5061728395061729,0.2037037037037037,0.6568196494026767,1,0,0.0,0.0
+target_regime_centered_diagnostic_source_rank,0.5061728395061729,0.2037037037037037,0.6568196494026767,1,0,0.0,0.0
+target_rank_oracle_diagnostic_ceiling,0.8518518518518519,1.0,0.0,1,1,0.345679012345679,0.6568196494026767

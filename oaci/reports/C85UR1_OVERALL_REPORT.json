@@ -1,0 +1,91 @@
+{
+  "schema_version": "c85ur1_overall_report_v1",
+  "milestone": "C85UR1",
+  "gate": "C85U_PROCESS_ISOLATION_PROTECTED_REPLAY_AND_ACCEPTANCE_TRANSACTION_REPAIRED_V2_LOCK_READY_FOR_PI_AUTHORIZATION",
+  "authorized": false,
+  "real_protected_execution": false,
+  "chronology": {
+    "starting_HEAD": "c110f15b054ae7a9aee7cd5cea4d7f78f6891a95",
+    "protocol_commit": "1cc5531c02571fa95c33b3450c6b7d6ff53a8ebf",
+    "protocol_sha256": "aa657133d35602187a5c5e11a9632a44c26a78fb63a4e65197172fb59377061d",
+    "implementation_commit": "5917cf54d33bbd5de906428bea5aaee22f45aabb",
+    "execution_lock_commit": "672670d05e9d7adfbe12673d4a64bfd499413162",
+    "execution_lock_sha256": "77382c16a593f7c2bdeb4dcacdfa21df11dcfd59982e9bfb982d6b88f5f04d1d",
+    "historical_v1_lock_sha256": "923c6bee2171f0bedcc3f883058759d368bdb49eb272cbbfa80974e98b632fe1"
+  },
+  "implementation": {
+    "runtime_bound_repository_objects": 54,
+    "U1_dedicated_registry": true,
+    "U1_dynamic_open_trap_passed": true,
+    "protected_replay_semantically_validated": true,
+    "U1_stage_receipt_single_use": true,
+    "U2_context_and_handoff_required": true,
+    "U2_stage_receipt_single_use": true,
+    "U2_hardcoded_protected_paths": 0,
+    "final_acceptance_single_rename": true,
+    "required_operations_after_rename": 0
+  },
+  "scope": {
+    "contexts": 944,
+    "candidates_per_context": 81,
+    "future_candidate_utility_rows": 76464,
+    "target_artifacts": 1944,
+    "target_sidecars": 1944,
+    "target_artifact_bytes": 48018748054,
+    "historical_method_context_rows": 18432,
+    "finite_Q0_action_records": 8749056,
+    "Q0_chains_per_finite_budget": 2048
+  },
+  "protected_access_counters": {
+    "evaluation_label_rows_opened": 0,
+    "target_or_logit_payloads_opened": 0,
+    "target_sidecar_payloads_opened": 0,
+    "Q0_shards_opened": 0,
+    "direct_C84S_tables_opened": 0,
+    "real_candidate_utilities_computed": 0,
+    "real_historical_endpoints_replayed": 0
+  },
+  "authorization": {
+    "record_created": false,
+    "future_schema_version": "c85u_direct_pi_authorization_record_v2",
+    "future_direct_statement_exact": "授权 C85U",
+    "C85E": false,
+    "C86": false,
+    "active_acquisition": false,
+    "new_data_or_model_zoo": false,
+    "manuscript": false
+  },
+  "resources": {
+    "partition": "cpu-high",
+    "CPU": 48,
+    "RAM_GiB": 128,
+    "GPU": 0,
+    "wall_hours": 2,
+    "U1_output_GiB_max": 2
+  },
+  "validation": {
+    "post_lock_C85UR1_tests_passed": 21,
+    "red_team_passed": 72,
+    "red_team_total": 72,
+    "focused": "396 passed",
+    "C65": "1088 passed, 1 skipped, 5 deselected",
+    "C23": "1499 passed, 1 skipped, 5 deselected",
+    "full": "2423 passed, 1 skipped, 5 deselected",
+    "accepted_stderr_bytes": 0,
+    "active_C85_jobs_after_regression": 0
+  },
+  "immutable_results": {
+    "C84_primary": "C84-D_external_dataset_source_panel_seed_level_or_target_heterogeneous",
+    "C84_frontier": "C84-L4",
+    "C85_theorem_statuses": {
+      "T1": "PROVED",
+      "T2": "COUNTEREXAMPLE",
+      "T3": "PROVED",
+      "T4": "PROVED",
+      "T5": "OPEN",
+      "T6": "COUNTEREXAMPLE",
+      "T7": "PROVED"
+    }
+  },
+  "future_completion_gate": "C85U_COMPLETE_CANDIDATE_UTILITY_FIELD_FROZEN_C85E_REVIEW_REQUIRED"
+}

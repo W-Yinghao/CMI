@@ -1,0 +1,6 @@
+objective,status
+OACI-control (DG control objective),CLOSED / failed under protocol (C14)
+SRC-control (endpoint-aligned),CLOSED / anti-transfer = memorization (C12/C16)
+deployable target-free selector,NOT established (no-selector gate)
+measurement / falsification / observability framework,RETAINED (contribution)
+diagnostic source-only probe,in-regime weak positive (C19); regime-local (C20)

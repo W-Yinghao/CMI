@@ -1,0 +1,4 @@
+null,observed_incremental_r2,null_mean,null_q95,p_value,permutations,passed_against_null
+candidate_permutation_within_target,-0.02705326213712178,-0.008284053637129956,-0.0007002562698117856,1.0,4999,0
+trajectory_preserving_shuffle,-0.02705326213712178,-0.008047774226852437,-0.0025504875975782934,1.0,4999,0
+target_common_residual_replacement,-0.02705326213712178,0.0,0.0,,0,0

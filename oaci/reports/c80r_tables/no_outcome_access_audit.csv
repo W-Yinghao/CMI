@@ -1,0 +1,11 @@
+protected_object,allowed_in_C80R,observed,status,evidence
+real_budget_statistics,0,0,PASS,C80_LABEL_BUDGET_FRONTIER.json_absent
+evaluation_label_value_reads,0,0,PASS,no_run_real_or_evaluation_stage_invocation
+same_label_oracle_accesses,0,0,PASS,oracle_descriptor_forbidden_and_unreachable
+target4_primary_rows,0,0,PASS,primary_targets_fixed_1_2_3_5_6_7_8_9
+training,0,0,PASS,no_training_entrypoint
+forward,0,0,PASS,no_forward_entrypoint
+reinference,0,0,PASS,no_reinference_entrypoint
+GPU_jobs,0,0,PASS,regressions_CPU_only
+new_C80E_authorization_consumed,0,0,PASS,C80E_REPAIRED_PI_AUTHORIZATION_RECORD.json_absent
+external_NPZ_payload_reads_by_C80R,0,0,PASS,manifest_JSON_and_schema_fixtures_only

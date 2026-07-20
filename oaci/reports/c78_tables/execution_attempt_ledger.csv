@@ -1,0 +1,8 @@
+attempt,mode,job_id,status,authorization_exact,training,real_forward,real_data_rows,GPU,checkpoint_count,reason
+1,no_auth_P0,892801,completed_readiness_only,0,0,0,0,0,0,protocol guard baseline
+2,authorized_GPU_preflight,892830,blocked_before_data,1,0,0,0,1,0,missing CUBLAS_WORKSPACE_CONFIG; repaired prospectively
+3,authorized_training,892832,completed,1,1,1,3456,1,82,exact locked field
+4,postfreeze_view_provisioning,892841,completed,1,0,0,5184,0,0,after FIELD_FROZEN only
+5,CPU_instrumentation_shard_0,892843,completed,1,0,1,212544,0,41,target labels unavailable
+6,CPU_instrumentation_shard_1,892844,completed,1,0,1,212544,0,41,target labels unavailable
+7,instrumentation_aggregate,892845,completed,1,0,0,0,0,82,hash/schema aggregation

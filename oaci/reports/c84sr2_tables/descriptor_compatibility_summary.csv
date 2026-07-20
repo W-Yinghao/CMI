@@ -1,0 +1,4 @@
+scope,units,allowed,intervention_source
+native_sidecar,1701,1,raw_and_sidecar_exact_match
+historical_C84C_A_seed5_level0,243,1,frozen_complete_field_descriptor
+all_other_missing_or_mismatch,0,0,fail_closed

@@ -1,0 +1,7 @@
+metric,value
+target_id_accuracy_from_source_features,0.5412723449001051
+chance,0.1111111111111111
+identity_leakage_ceiling,0.35
+source_features_identity_separable,True
+n_candidates,3804
+n_targets,9

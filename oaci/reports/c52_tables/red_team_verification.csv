@@ -1,0 +1,9 @@
+check,passed,finding
+c51_residual_replayed,1,C52 reuses C51 source-score and trajectory diagnostic gaps without rerunning earlier audits.
+key_only_vs_label_derived_not_conflated,1,Trajectory key-only remains at the trajectory random-tie baseline while label-derived diagnostics close.
+source_observable_not_sufficient,1,Existing source scores and observable source geometry do not reach the closure gate.
+target_key_not_sufficient,1,Target id alone has no within-trajectory rank under the frozen evaluation scope.
+trajectory_key_not_sufficient,1,Trajectory id alone ties the candidate set and does not explain the residual.
+target_unlabeled_geometry_not_claimed,1,No target-unlabeled geometry sufficiency claim is made from unavailable committed artifacts.
+n5_n7_nulls_or_quarantine_emitted,1,N5/N6 key nulls and N7 diagnostic quarantine rows are emitted.
+no_selection_artifact,1,C52 writes audit ledgers only and does not emit selected-candidate fields.

@@ -1,0 +1,2 @@
+construct,median_split_spearman,minimum_split_spearman,positive_split_cells,primary_incremental_R2,primary_nested_null_p95,primary_max_stat_p,stable,incremental,classification,target_gauge_name_allowed,mechanism_origin_validated
+candidate_specific_target_unlabeled_projection,0.9817391304347824,0.9365217391304346,36,-0.20834335698132767,-0.12605585686508758,1.0,1,0,reliable_nuisance_identity_descriptor,0,0

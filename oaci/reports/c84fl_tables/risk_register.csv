@@ -1,0 +1,25 @@
+risk,status,blocking,control,real_data_access_in_C84FL
+C84C_failed_root_reused,CLOSED_BY_PROTOCOL_CONTROL,0,valid root and manifest hashes fixed; job 895366 rejected,0
+canary_target_slices_called_complete,CLOSED_BY_PROTOCOL_CONTROL,0,3/944 and 243/76464 scope explicit,0
+canary_model_state_retrained,CLOSED_BY_PROTOCOL_CONTROL,0,243 IDs marked reuse-only,0
+complete_unit_arithmetic_drift,CLOSED_BY_PROTOCOL_CONTROL,0,"1,944-ID registry exact-once validation",0
+remaining_wave_arithmetic_drift,CLOSED_BY_PROTOCOL_CONTROL,0,729/243/729 wave registry,0
+target_labels_consumed,CLOSED_BY_PROTOCOL_CONTROL,0,target trial schema has zero label fields,0
+target_value_drives_wave_release,CLOSED_BY_PROTOCOL_CONTROL,0,engineering-only gate allowlist,0
+target_value_drives_retention_retry,CLOSED_BY_PROTOCOL_CONTROL,0,zero counters and retry state machine,0
+target_instrumentation_before_model_freeze,CLOSED_BY_PROTOCOL_CONTROL,0,model-field barrier state machine,0
+target_instrumentation_retrains_model,CLOSED_BY_PROTOCOL_CONTROL,0,forward stage has no training transition,0
+source_subject_drift,CLOSED_BY_PROTOCOL_CONTROL,0,exact 12+4 source contract per panel,0
+target_subject_omission,CLOSED_BY_PROTOCOL_CONTROL,0,118-subject exact target registry required,0
+channel_or_sfreq_drift,CLOSED_BY_PROTOCOL_CONTROL,0,20-channel/160-Hz/480-sample interface replay,0
+canary_subset_numerical_mismatch,CLOSED_BY_PROTOCOL_CONTROL,0,trial-ID and numeric replay required,0
+raw_input_identity_unrecorded,CLOSED_BY_PROTOCOL_CONTROL,0,path/size/SHA manifest required,0
+warnings_hide_traceback,CLOSED_BY_PROTOCOL_CONTROL,0,warning classifier fails traceback/parse/nonfinite,0
+partial_model_manifest_published,CLOSED_BY_PROTOCOL_CONTROL,0,"atomic complete gate 1,944/1,944",0
+partial_target_manifest_published,CLOSED_BY_PROTOCOL_CONTROL,0,"atomic complete gate 76,464/76,464",0
+runtime_bytes_drift,CLOSED_BY_PROTOCOL_CONTROL,0,future execution lock binds every implementation byte,0
+resource_envelope_exceeded,CLOSED_BY_PROTOCOL_CONTROL,0,250 GPU-hour and 2-TiB hard guards,0
+C84S_scope_creep,CLOSED_BY_PROTOCOL_CONTROL,0,no C84S execution lock or target label view,0
+raw_EEG_weights_cache_in_Git,CLOSED_BY_PROTOCOL_CONTROL,0,50-MiB and prohibited-suffix scan,0
+prior_C84C_authorization_reused,CLOSED_BY_PROTOCOL_CONTROL,0,fresh C84F record required,0
+level1_training_intervention_undefined,OPEN_BLOCKING,1,additive_pre_outcome_protocol_repair_required,0

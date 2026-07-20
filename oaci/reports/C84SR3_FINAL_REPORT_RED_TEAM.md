@@ -1,0 +1,55 @@
+# C84SR3 Final Report Red Team
+
+Result: **51 / 51 PASS**
+
+- PASS: `repair_protocol_precedes_implementation`
+- PASS: `V4_lock_preserved`
+- PASS: `V4_authorization_consumed_nonreusable`
+- PASS: `V4_failed_root_preserved`
+- PASS: `V4_partial_selection_rejected`
+- PASS: `V4_primary_error_recorded`
+- PASS: `V4_cleanup_error_recorded`
+- PASS: `historical_Stage_A_exact`
+- PASS: `Stage_A_label_loader_calls_zero`
+- PASS: `Stage_A_V5_receipt_binding`
+- PASS: `evaluation_descriptor_absent_from_Stage_B`
+- PASS: `field_units_1944`
+- PASS: `contexts_944`
+- PASS: `candidates_81`
+- PASS: `external_artifacts_7776`
+- PASS: `Lee_construction_25_per_class`
+- PASS: `Lee_B16_feasible`
+- PASS: `Lee_B32_input_unavailable`
+- PASS: `Cho_B32_feasible`
+- PASS: `Physionet_primary_B8_feasible`
+- PASS: `primary_grid_unchanged`
+- PASS: `no_with_replacement_sampling`
+- PASS: `no_FULL_substitution`
+- PASS: `paired_Q0_sample_identity`
+- PASS: `Q0_records_8750000`
+- PASS: `method_rows_18432`
+- PASS: `full_scale_synthetic`
+- PASS: `all_primary_taxonomy_branches`
+- PASS: `all_frontier_branches`
+- PASS: `stream_handles_closed_before_cleanup`
+- PASS: `primary_exception_preserved`
+- PASS: `bounded_cleanup`
+- PASS: `partial_Stage_B_not_publishable`
+- PASS: `Stage_C_selection_immutable`
+- PASS: `method_formulas_unchanged`
+- PASS: `thresholds_unchanged`
+- PASS: `no_training`
+- PASS: `no_forward`
+- PASS: `no_GPU`
+- PASS: `no_oracle`
+- PASS: `no_C85`
+- PASS: `fresh_root`
+- PASS: `fresh_authorization`
+- PASS: `Git_payload_hygiene`
+- PASS: `real_scores_zero`
+- PASS: `real_science_zero`
+- PASS: `focused_regression_367`
+- PASS: `C65_regression_853_1_3`
+- PASS: `C23_regression_1264_1_3`
+- PASS: `full_regression_2188_1_3`
+- PASS: `all_accepted_regression_stderr_empty`

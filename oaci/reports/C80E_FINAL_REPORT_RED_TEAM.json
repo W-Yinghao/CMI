@@ -1,0 +1,17 @@
+{
+  "schema_version": "c80e_final_report_red_team_v1",
+  "checks_passed": 30,
+  "checks_total": 30,
+  "blocking_failures": 0,
+  "report_path": "oaci/reports/C80_LABEL_BUDGET_FRONTIER.md",
+  "report_sha256": "b3c4b8eaa6859dcf3b54190e1672d8ca39a0b0e53f918a7d3d3eafd2fc9f0272",
+  "primary_taxonomy": "C80-A_stable_low_regret_label_budget_frontier_across_training_seeds",
+  "source_relative_interpretation": true,
+  "absolute_low_regret_claim": false,
+  "universal_minimum_budget_claim": false,
+  "external_validity_claim": false,
+  "same_label_oracle_accessed": false,
+  "target4_primary": false,
+  "C81_authorized": false,
+  "gate": "C80E_FINAL_REPORT_RED_TEAM_PASSED"
+}

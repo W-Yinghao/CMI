@@ -1,0 +1,58 @@
+{
+  "gates": {
+    "G1_replay_identity_matches_cached_logits": true,
+    "G2_sample_order_matches_cached_npz": true,
+    "G3_checkpoint_prediction_identity": true,
+    "G4_deterministic_repeat_forward": true,
+    "G5_no_labels_in_unlabeled_feature_path": true,
+    "G6_quarantined_labels_separate_file": true,
+    "G7_no_selected_checkpoint_artifact": true,
+    "G8_finite_filtering": true,
+    "all_pass": true,
+    "max_logit_diff": 0.0
+  },
+  "identity": [
+    {
+      "argmax_flips": 0,
+      "hash_match": true,
+      "level": 0,
+      "match": true,
+      "max_logit_diff": 0.0,
+      "method": "ERM",
+      "role": "source_audit"
+    },
+    {
+      "argmax_flips": 0,
+      "hash_match": true,
+      "level": 0,
+      "match": true,
+      "max_logit_diff": 0.0,
+      "method": "ERM",
+      "role": "target_audit"
+    },
+    {
+      "argmax_flips": 0,
+      "hash_match": true,
+      "level": 0,
+      "match": true,
+      "max_logit_diff": 0.0,
+      "method": "OACI",
+      "role": "source_audit"
+    },
+    {
+      "argmax_flips": 0,
+      "hash_match": true,
+      "level": 0,
+      "match": true,
+      "max_logit_diff": 0.0,
+      "method": "OACI",
+      "role": "target_audit"
+    }
+  ],
+  "levels": [
+    0
+  ],
+  "n_candidates": 25,
+  "seed": 0,
+  "target": 4
+}

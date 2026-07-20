@@ -1,0 +1,6 @@
+check,value
+locked_config_hash,664007686afb520f
+robust_core_matches_c19,True
+n_robust_core,16
+endpoints_excluded_from_primary,True
+static_excluded_from_primary,True

@@ -1,0 +1,3 @@
+path,prior_blocks,candidate_block,candidate_dimension,prior_centered_rank,candidate_centered_rank,combined_centered_rank,rank_gain,not_redundant_with_functional_prior,interpretation
+strict_source,F0+F1,F2_geometry,25,30,25,55,25,1,linear_column_space_nonredundancy_only;not_endpoint_relevance
+target_unlabeled,F0+F1+F3,F4_geometry_columns_0_19,20,47,20,67,20,1,linear_column_space_nonredundancy_only;not_endpoint_relevance

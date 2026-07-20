@@ -1,0 +1,162 @@
+{
+  "better_candidate_ucl_summary": {
+    "all_recovered": true,
+    "n_recovered": 38,
+    "n_unique_better": 38
+  },
+  "config_hash": "664007686afb520f",
+  "diagnostic_only_non_deployable": true,
+  "exact_ucl_ordering_summary": {
+    "n_pairs": 114,
+    "point_ucl_disagreement_fraction": 0.0,
+    "ucl_flat_count": 0,
+    "ucl_flat_fraction": 0.0,
+    "ucl_prefers_better_count": 0,
+    "ucl_prefers_better_fraction": 0.0,
+    "ucl_prefers_selected_count": 114,
+    "ucl_prefers_selected_fraction": 1.0,
+    "ucl_unavailable_count": 0
+  },
+  "n_jobs": 48,
+  "n_preference_robust_pairs": 114,
+  "n_unique_better_candidates": 38,
+  "no_selector_artifact_gate": [
+    {
+      "check": "config_hash_unchanged",
+      "passed": true
+    },
+    {
+      "check": "c35_preference_robust_pairs_imported",
+      "passed": true
+    },
+    {
+      "check": "p0_selected_ucl_identity_before_better_claims",
+      "passed": true
+    },
+    {
+      "check": "better_candidate_ucl_recovered",
+      "passed": true
+    },
+    {
+      "check": "no_proxy_selector_score",
+      "passed": true
+    },
+    {
+      "check": "target_labels_not_loaded_for_ucl_replay",
+      "passed": true
+    },
+    {
+      "check": "no_training_no_reinference",
+      "passed": true
+    },
+    {
+      "check": "no_selected_checkpoint_method_artifact",
+      "passed": true
+    },
+    {
+      "check": "ucl_identity_tolerance_frozen",
+      "passed": true
+    },
+    {
+      "check": "ucl_plateau_eps_frozen",
+      "passed": true
+    },
+    {
+      "check": "finite_filtering_applied",
+      "passed": true
+    },
+    {
+      "check": "diagnostic_only_non_deployable",
+      "passed": true
+    }
+  ],
+  "red_team": {
+    "target_label_check": "Target endpoints are imported only as diagnostic C35 labels.",
+    "trace_reconstruction_check": "P0 selected-UCL identity must pass before better-UCL claims.",
+    "ucl_proxy_check": "No point/audit/source score is used as UCL proxy."
+  },
+  "selected_ucl_identity_summary": {
+    "n_p0": 3,
+    "n_pass": 3,
+    "p0_pass": true
+  },
+  "selection_audit_reconciliation_summary": {
+    "n_pairs": 114,
+    "selection_audit_inversion_exact_rate": 0.4473684210526316,
+    "selection_target_conflict_exact_rate": 1.0
+  },
+  "source_pareto_after_ucl_summary": {
+    "n_pairs": 114,
+    "source_pareto_conflict_fraction": 1.0
+  },
+  "taxonomy": {
+    "case_rows": [
+      {
+        "case": "T1_exact_ucl_prefers_selected",
+        "established": 1,
+        "evidence": "ucl_prefers_selected_fraction=1.0"
+      },
+      {
+        "case": "T2_exact_ucl_prefers_better",
+        "established": 0,
+        "evidence": "ucl_prefers_better_fraction=0.0"
+      },
+      {
+        "case": "T3_point_ucl_disagreement",
+        "established": 0,
+        "evidence": "point_ucl_disagreement_fraction=0.0"
+      },
+      {
+        "case": "T4_ucl_plateau_uncertainty",
+        "established": 0,
+        "evidence": "ucl_plateau_fraction=0.13157894736842105"
+      },
+      {
+        "case": "T5_selection_audit_inversion_confirmed",
+        "established": 1,
+        "evidence": "selection_audit_inversion_exact_rate=0.4473684210526316"
+      },
+      {
+        "case": "T6_source_pareto_conflict_survives_exact_trace",
+        "established": 1,
+        "evidence": "source_pareto_conflict_fraction=1.0"
+      },
+      {
+        "case": "T7_selector_trace_irrecoverable",
+        "established": 0,
+        "evidence": "p0_pass=True; all_recovered=True"
+      },
+      {
+        "case": "T8_actual_selector_misdirection_supported",
+        "established": 1,
+        "evidence": "exact UCL must clearly favor selected despite robust target utility"
+      },
+      {
+        "case": "T9_selector_not_misdirected_trace_incomplete_elsewhere",
+        "established": 0,
+        "evidence": "exact UCL does not support selected-favoring misdirection"
+      }
+    ],
+    "cases": [
+      "T1_exact_ucl_prefers_selected",
+      "T5_selection_audit_inversion_confirmed",
+      "T6_source_pareto_conflict_survives_exact_trace",
+      "T8_actual_selector_misdirection_supported"
+    ],
+    "evidence": {
+      "T1_exact_ucl_prefers_selected": "ucl_prefers_selected_fraction=1.0",
+      "T2_exact_ucl_prefers_better": "ucl_prefers_better_fraction=0.0",
+      "T3_point_ucl_disagreement": "point_ucl_disagreement_fraction=0.0",
+      "T4_ucl_plateau_uncertainty": "ucl_plateau_fraction=0.13157894736842105",
+      "T5_selection_audit_inversion_confirmed": "selection_audit_inversion_exact_rate=0.4473684210526316",
+      "T6_source_pareto_conflict_survives_exact_trace": "source_pareto_conflict_fraction=1.0",
+      "T7_selector_trace_irrecoverable": "p0_pass=True; all_recovered=True",
+      "T8_actual_selector_misdirection_supported": "exact UCL must clearly favor selected despite robust target utility",
+      "T9_selector_not_misdirected_trace_incomplete_elsewhere": "exact UCL does not support selected-favoring misdirection"
+    }
+  },
+  "uncertainty_plateau_summary": {
+    "n_pairs": 114,
+    "ucl_plateau_fraction": 0.13157894736842105
+  }
+}

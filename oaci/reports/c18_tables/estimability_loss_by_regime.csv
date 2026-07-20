@@ -1,0 +1,9 @@
+regime,mean_eligible_cells_removed,mean_comparable_classes_lost
+S0_full_support,0.0,0.0
+S1_label_marginal_skew,0.0,0.0
+S2_rare_cells,0.0,0.0
+S3_nonestimable_cells,2.0,0.0
+S4_missing_cells,2.0,0.0
+S5_block_class_by_domain,3.0,0.0
+S6_boundary_aligned_mask,3.0,0.0
+S7_random_matched_mask,3.0,0.0

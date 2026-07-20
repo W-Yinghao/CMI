@@ -1,0 +1,6 @@
+view,c66_projection,sampled_rows,label_visible_rows,prediction_visible_rows,uses_same_label_endpoint_scalar,available_at_selection_time,diagnostic_only,allowed_for_selection_rule,selection_path_enforced,policy_boundary_only,status
+source_only_view,source_only_selection,3456,0,0,0,0,1,0,1,0,pass
+target_construction_view,split_label_construct,3456,1688,3456,0,0,1,0,1,0,pass
+target_evaluation_view,heldout_eval,3456,1768,3456,0,0,1,0,1,0,pass
+same_label_oracle_view,diagnostic_full,3456,3456,3456,1,0,1,0,0,1,pass
+conditional_cs_diagnostic_view,diagnostic_full,3456,3456,3456,0,0,1,0,0,1,pass

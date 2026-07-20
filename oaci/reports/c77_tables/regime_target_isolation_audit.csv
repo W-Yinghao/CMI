@@ -1,0 +1,4 @@
+regime_id,optimization_view,selection_view,target_view,target_fit_ids_empty_evidence,target_label_training_access,passed
+ERM,source_train,not_applicable_stage1_anchor,post_lock_evaluation_only,RunProvenance invariant + historical runner tests,0,1
+OACI,source_train,source_train leakage measurement,post_lock_evaluation_only,RunProvenance invariant + C11 actual,0,1
+SRC,source_train,not used for field retention; historical selector was source_guard only,post_lock_evaluation_only,C11 all_target_fit_ids_empty=true; selector target_read=false,0,1

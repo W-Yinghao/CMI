@@ -1,0 +1,5 @@
+check,current_real_cache,toy_interface_pass,full_estimator_run,feasible_now,feasible_after_authorized_cache,notes
+toy_paired_sample_interface,1,1,0,1,1,dimension-only synthetic smoke plus real cache rows if authorized
+gram_matrix_inputs,1,1,0,1,1,minimal real paired trial rows exist if authorized
+hankel_window_inputs,1,1,0,1,1,ordered target trial rows exist if authorized
+full_conditional_cs_claim,1,0,0,0,0,claim barred until a registered estimator is run

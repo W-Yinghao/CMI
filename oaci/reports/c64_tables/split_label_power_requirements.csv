@@ -1,0 +1,5 @@
+cell,min_construct_trials,min_eval_trials,bootstrap_reps,detectable_hit_gap,status
+target_x_trajectory_x_class,20,20,1000,0.15,protocol_ready_not_authorized
+target_x_class,40,40,1000,0.1,coarser_backup
+trajectory_x_class,30,30,1000,0.12,trajectory_backup
+global_target_split,80,80,2000,0.08,stability_check

@@ -1,0 +1,89 @@
+{
+  "c63_commit": "25626fa",
+  "c63_decision": "C63-A_dynamic_conditional_observability_ladder_established",
+  "config_hash": "664007686afb520f",
+  "decision": {
+    "active": [
+      "C64-A_frozen_summary_artifact_paths_saturated",
+      "C64-C_new_training_required_for_trial_cache_or_atom_trace",
+      "C64-D_split_label_cache_protocol_ready_but_not_authorized",
+      "C64-E_full_time_series_conditional_cs_protocol_ready_but_not_authorized",
+      "C64-F_atom_trace_protocol_ready_but_not_authorized",
+      "C64-G_independent_checkpoint_replication_protocol_ready_but_not_authorized"
+    ],
+    "final_gate": "TRIAL_LEVEL_CACHE_CAMPAIGN_READY_BUT_NOT_AUTHORIZED",
+    "inactive": [
+      "C64-B_reinference_only_trial_cache_campaign_sufficient",
+      "C64-H_instrumentation_not_scientifically_justified_yet",
+      "C64-I_source_observable_escape_hatch_remaining",
+      "C64-J_claim_or_availability_inconsistency_found"
+    ],
+    "primary": "C64-A_frozen_summary_artifact_paths_saturated",
+    "recommended_next_direction": "wait for remote review; C65 may request explicit re-inference-only instrumentation authorization or revise readiness gates",
+    "red_team_failure_count": 0,
+    "reinference_subgate": "CONDITIONALLY_SUFFICIENT_IF_FROZEN_CHECKPOINTS_AND_PREPROCESSING_ARE_RECOVERABLE",
+    "training_gate": "TRAINING_NOT_AUTHORIZED_IN_C64"
+  },
+  "diagnostic_only_non_deployable": true,
+  "final_gate": "TRIAL_LEVEL_CACHE_CAMPAIGN_READY_BUT_NOT_AUTHORIZED",
+  "gate_decision": {
+    "authorized_in_c64": false,
+    "checkpoint_weights_found_in_checkout": 0,
+    "decision": "protocols ready; execution requires explicit user authorization",
+    "final_gate": "TRIAL_LEVEL_CACHE_CAMPAIGN_READY_BUT_NOT_AUTHORIZED",
+    "frozen_summary_paths_saturated": true,
+    "gpu_authorized": false,
+    "new_training_authorized": false,
+    "new_training_scientifically_needed_for": [
+      "atom_trace",
+      "independent_checkpoint_replication"
+    ],
+    "reinference_authorized": false,
+    "reinference_only_sufficient_from_current_checkout": false,
+    "reinference_subgate": "CONDITIONALLY_SUFFICIENT_IF_FROZEN_CHECKPOINTS_AND_PREPROCESSING_ARE_RECOVERABLE",
+    "training_authorized": false,
+    "training_gate": "TRAINING_NOT_AUTHORIZED_IN_C64"
+  },
+  "key_numbers": {
+    "endpoint_oracle": 0.9444444444444444,
+    "max_null_p95": 0.7712962962962961,
+    "source_dynamic": 0.5740740740740741,
+    "source_dynamic_template": 0.720679012345679,
+    "strict_source": 0.5061728395061729,
+    "template_only": 0.7037037037037037
+  },
+  "milestone": "C64",
+  "recommended_next_step": "wait for remote review; C65 may request explicit re-inference-only instrumentation authorization or revise readiness gates",
+  "reinference_subgate": "CONDITIONALLY_SUFFICIENT_IF_FROZEN_CHECKPOINTS_AND_PREPROCESSING_ARE_RECOVERABLE",
+  "table_row_counts": {
+    "artifact_manifest": 37,
+    "atom_trace_claim_boundary": 4,
+    "availability_tag_definitions": 7,
+    "checkpoint_inventory_summary": 7,
+    "conditional_cs_feasibility_matrix": 5,
+    "forbidden_claim_scan": 21,
+    "frozen_path_closure_ledger": 6,
+    "frozen_path_saturation_decision": 3,
+    "hankel_variable_mapping": 5,
+    "instrumentation_power_simulation": 5,
+    "large_artifact_scan": 37,
+    "minimum_sample_requirements": 5,
+    "red_team_failure_ledger": 12,
+    "reinference_only_feasibility": 6,
+    "reinference_resource_estimate": 5,
+    "reinference_risk_ledger": 5,
+    "remaining_summary_escape_hatches": 6,
+    "replication_pass_fail_criteria": 5,
+    "replication_protocol_options": 4,
+    "sample_level_missing_data_ledger": 6,
+    "schema_validation_summary": 26,
+    "split_label_forbidden_claims": 4,
+    "split_label_power_requirements": 4,
+    "test_command_manifest": 4,
+    "training_necessity_decision": 6,
+    "training_vs_reinference_tradeoff": 4,
+    "trial_level_cache_minimal_columns": 26,
+    "value_of_information_summary": 4
+  },
+  "training_gate": "TRAINING_NOT_AUTHORIZED_IN_C64"
+}

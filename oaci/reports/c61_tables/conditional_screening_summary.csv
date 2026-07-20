@@ -1,0 +1,5 @@
+screening_test,hit_before,hit_after,endpoint_remaining_gain,screens_off,conclusion
+key_screens_endpoint_after_source,0.5061728395061729,0.4876543209876543,0.4567901234567901,0,key fails conditional sufficiency
+template_screens_endpoint_after_source,0.7037037037037037,0.9444444444444444,0.2407407407407407,0,template does not screen off endpoint
+label_diagnostic_screens_endpoint,0.8127572016460904,0.9444444444444444,0.13168724279835398,0,diagnostic content remains partial
+endpoint_self_redundancy,0.9444444444444444,0.9444444444444444,0.0,1,endpoint oracle screens itself only

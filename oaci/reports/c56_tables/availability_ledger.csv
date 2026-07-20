@@ -1,0 +1,11 @@
+score_or_claim,information_class,uses_source_only_inputs,uses_key_only_inputs,uses_target_unlabeled_inputs,uses_target_grouped_inputs,uses_target_endpoint_scalar_on_test_candidate,uses_same_cell_target_labels,uses_other_cell_target_labels,uses_trial_level_split_labels,available_under_original_source_only_DG,diagnostic_only,reported_hit_or_value,artifact,note
+best_strict_source,I1_strict_source_observables,1,0,0,0,0,0,0,0,1,0,0.5061728395061729,C52/C55 replay,
+best_key_only,I2_source_plus_target_or_trajectory_keys,0,1,0,1,0,0,0,0,0,1,0.4876543209876543,C52/C55 replay,
+target_unlabeled_geometry,I3_target_unlabeled_transductive_geometry,0,0,1,0,0,0,0,0,0,1,,C52,tested diagnostic ladder; did not close residual
+conditioned_local_ceiling,I4_target_grouped_zero_label_structure,0,0,0,1,0,0,0,0,0,1,1.0,C48-C50,
+C52_trajectory_centered_diagnostic,I6_target_label_diagnostic_content,0,0,0,1,0,0,1,0,0,1,0.8127572016460904,C52,
+C53_scalar_endpoint,I6_target_label_diagnostic_content,0,0,0,0,1,1,0,0,0,1,0.9444444444444444,C53,
+C54_same_cell_endpoint_oracle,I7_same_label_endpoint_oracle,0,0,0,0,1,1,0,0,0,1,0.9444444444444444,C54,
+C55_template_only_best,I6_target_label_diagnostic_content,0,0,0,0,0,0,1,0,0,1,0.7037037037037037,C55,does not read held-out endpoint scalar but is trained from other-cell target labels
+C55_endpoint_scalar_transfer,I7_same_label_endpoint_oracle,0,0,0,0,1,0,1,0,0,1,0.9444444444444444,C55,full closure requires held-out candidate target endpoint scalar
+split_label_constructed_endpoint_template,I5_few_label_or_split_label_calibration,0,0,0,0,0,0,0,1,0,1,unavailable,C53-C55,required split-label input is missing; split_label_budget_available=false

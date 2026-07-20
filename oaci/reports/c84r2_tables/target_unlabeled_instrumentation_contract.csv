@@ -1,0 +1,13 @@
+field,required_per_unit,unit_count,target_label,persist_and_reload
+Wz_plus_b,1,243,0,1
+classifier_bias,1,243,0,1
+classifier_weight,1,243,0,1
+dataset,1,243,0,1
+logits,1,243,0,1
+probabilities,1,243,0,1
+repeat_logits,1,243,0,1
+repeat_z,1,243,0,1
+target_subject_id,1,243,0,1
+target_trial_id,1,243,0,1
+unit_id,1,243,0,1
+z,1,243,0,1

@@ -1,0 +1,7 @@
+metric,value
+delta_selection_leakage_mean,-0.3261473945122229
+delta_audit_leakage_mean,0.007572737450704953
+selection_to_audit_transfer_ratio,-0.02321875807725072
+optimism_gap,0.31857465706151794
+corr_selection_vs_audit,0.0044811198122375745
+fraction_sign_preserved,0.46296296296296297

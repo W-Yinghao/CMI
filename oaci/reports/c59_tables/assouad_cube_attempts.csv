@@ -1,0 +1,4 @@
+cube_id,dimension,edge_separation,edge_information_proxy,assouad_status
+A1_two_bit_source_rank,1,0.43827160493827155,0.00871699528126672,too_small
+A2_trajectory_cells,,0.4567901234567901,,no_independent_edges
+A3_endpoint_bits,1,0.0,0.903,oracle_not_ambiguity

@@ -1,0 +1,5 @@
+audit,x1,x2,y,uses_target_labels_in_x2,uses_eval_labels_in_x2,uses_same_label_endpoint_scalar,available_at_selection_time,diagnostic_only
+split_label_increment,checkpoint_metadata_key_only,construction_split_target_summary,heldout_eval_correctness,1,0,0,0,1
+target_unlabeled_probability_geometry,checkpoint_metadata_key_only,target_unlabeled_logits_probs,heldout_eval_correctness,0,0,0,0,1
+same_label_endpoint_oracle,none,eval_split_endpoint_label,heldout_eval_correctness,1,1,1,0,1
+hankel_trial_dynamics,checkpoint_order_metadata,past_window_cache_features,future_trial_correctness,1,0,0,0,1

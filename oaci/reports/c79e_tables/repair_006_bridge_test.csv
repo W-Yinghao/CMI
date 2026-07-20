@@ -1,0 +1,2 @@
+job_id,partition,environment,command,passed,failed,skipped,wall_seconds,seed4_data_access,scientific_registry_changed,passed_gate
+893531,cpu-high,eeg2025,pytest_test_c79e_analysis_authorization_bridge,2,0,0,0.57,0,0,1

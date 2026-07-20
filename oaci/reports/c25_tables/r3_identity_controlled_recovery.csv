@@ -1,0 +1,7 @@
+metric,value
+r3_target_id_accuracy,0.6708727655099895
+chance,0.1111111111111111
+r3_features_identity_separable,True
+recovery_survives_loto_permutation,True
+recovery_identity_dissociated,False
+identity_signature_dominates,False

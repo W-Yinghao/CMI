@@ -1,0 +1,13 @@
+object_id,symbol,definition,empirical_instantiation,availability_class,caveat
+C,C,finite checkpoint candidate universe,3804 candidate rows,all,frozen C50-C55 artifact universe
+T,T,target subject/domain index,nine target ids in C58 lineage,I2 key,target key is not source-only DG
+Z,Z,"trajectory/cell index: seed, target, level, regime",162 evaluation cells,I2/I4,cell key alone does not order candidates
+X_s,X_s(c),strict source observables and source objective vector,"leakage, R_src, source ranks, robust core, source objectives",I1,"weak rank signal, not reliable actionability"
+K,K(c),"target, trajectory, seed, level, regime keys",C52 key ladder,I2,keys name cells but do not supply endpoint ordering
+U0,U_0(c),target-unlabeled geometry or transductive fields,unavailable in C52-C55 cache for closure,I3,not source-only if used
+D,D(c),target-label diagnostic summaries,trajectory-centered label diagnostics and templates,I6,diagnostic only
+E,E(c),same-label endpoint scalar or endpoint vector,target_joint_margin_raw and endpoint components,I7,unavailable at selection time
+Y,Y(c),evaluated target joint-good label,primary_joint_good,endpoint diagnostic,not a selector input
+a_G,a_G(Z),selector measurable with respect to information class G,one candidate per trajectory/cell,depends on G,C59 emits no selected candidate artifact
+hit,E[Y(a_G)],mean top-hit or tie-averaged hit over cells,C52-C58 hit metrics,evaluation,finite-population diagnostic metric
+regret,H*(E)-H*(G),hit gap to same-label endpoint oracle reference,C58 regret_to_endpoint_oracle,diagnostic,not C34 continuous vector regret

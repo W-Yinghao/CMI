@@ -1,0 +1,17 @@
+candidate_block,gate,operator,threshold,all_required,association_p_alone_sufficient
+strict_source_C75_C76_exact,incremental_R2,>=,0.02,1,0
+strict_source_C75_C76_exact,nested_max_stat_p,<,0.05,1,0
+strict_source_C75_C76_exact,positive_targets,>=,7,1,0
+strict_source_C75_C76_exact,positive_every_regime_or_no_interaction,==,1,1,0
+strict_source_C75_C76_exact,leave_target_median,>,0,1,0
+strict_source_C75_C76_exact,leave_regime_median,>,0,1,0
+strict_source_C75_C76_exact,material_topk_or_regret,==,1,1,0
+strict_source_C75_C76_exact,target_label_leakage,==,0,1,0
+target_unlabeled_C75_C76_exact,incremental_R2,>=,0.02,1,0
+target_unlabeled_C75_C76_exact,nested_max_stat_p,<,0.05,1,0
+target_unlabeled_C75_C76_exact,positive_targets,>=,7,1,0
+target_unlabeled_C75_C76_exact,positive_every_regime_or_no_interaction,==,1,1,0
+target_unlabeled_C75_C76_exact,leave_target_median,>,0,1,0
+target_unlabeled_C75_C76_exact,leave_regime_median,>,0,1,0
+target_unlabeled_C75_C76_exact,material_topk_or_regret,==,1,1,0
+target_unlabeled_C75_C76_exact,target_label_leakage,==,0,1,0

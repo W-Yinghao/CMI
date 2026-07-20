@@ -1,0 +1,2 @@
+mode,seed4_EEG_loads,seed4_Slurm_jobs,training,forward_or_reinference,GPU,seed4_checkpoints,seed4_caches,seed4_label_views,same_label_oracle,BNCI2014_004,manuscript,execution_lock_created,expected_seed4_manifest_created
+R,0,0,0,0,0,0,0,0,0,0,0,0,0

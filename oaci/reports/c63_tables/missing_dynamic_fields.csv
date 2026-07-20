@@ -1,0 +1,6 @@
+field,required_for_full_dynamic_rule,present,blocks_full_time_series_cs,proxy_available,reason
+raw_source_score_vector_by_checkpoint,1,0,1,1,only source score summaries and C51 underuse ledgers are committed
+past_k_source_feature_matrix,1,0,1,1,Hankel support can be counted but not row-level feature windows
+per_trial_logits_probabilities,1,0,1,0,C62 already marked trial-level cache missing
+split_label_cache,1,0,1,0,same-label endpoint oracle cannot be recast as split-label evidence
+atom_leakage_trace,0,0,0,0,mechanism trace only; not needed for C63 discrete ladder

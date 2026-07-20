@@ -1,0 +1,17 @@
+gate,failed,finding
+cod_ladder_established,0,C61 emits the required COD ladder.
+endpoint_dominates_cod,0,Endpoint scalar dominates template in COD proxy.
+endpoint_after_template_adds,0,Endpoint still adds after template.
+template_below_max_null,0,Template-only is not claimed to beat max null p95.
+key_fails_sufficiency,0,Key does not screen off endpoint after source.
+conditional_cs_not_primary,0,KDE-style conditional CS estimator is marked unstable/unavailable from summary artifacts.
+source_escape_hatch_closed,0,No source-observable COD escape hatch is found.
+endpoint_unavailable,0,Endpoint scalar remains unavailable at selection time.
+target_label_not_source_only,0,Target-label diagnostic content is not marked source-only.
+synthetic_common_offset_negative_control,0,Common target offset negative control is present.
+future_training_not_authorized,0,Future instrumentation rows are not C61 execution authorization.
+reserved_dataset_and_seeds_blocked,0,"BNCI2014_004 and seeds [3,4] remain reserved."
+no_gpu_or_reinference,0,No GPU or re-inference is authorized.
+no_manuscript_or_selector,0,No manuscript drafting or selector search.
+forbidden_scan_passed,0,Forbidden affirmative claim scan passed.
+large_artifact_scan_passed,0,All listed artifacts are under 50MB.

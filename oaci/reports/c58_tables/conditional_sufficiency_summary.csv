@@ -1,0 +1,6 @@
+information_set,description,best_hit,endpoint_gap,sufficient,diagnostic_only,evidence
+S,strict source observables,0.5061728395061729,0.43827160493827155,0,0,C42/C52
+S+K,source plus target/trajectory keys,0.4876543209876543,0.4567901234567901,0,1,C52
+S+K+U,target-unlabeled geometry,,,0,1,unavailable in C52-C55 cache
+D,target-label diagnostic content,0.8127572016460904,0.13168724279835398,0,1,C52
+E,same-label endpoint scalar,0.9444444444444444,0.0,1,1,C54/C55

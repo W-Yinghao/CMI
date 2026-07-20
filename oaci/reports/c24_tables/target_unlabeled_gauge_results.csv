@@ -1,0 +1,12 @@
+metric,value
+status,computed
+pooled_auc,0.5876289088489687
+auc_improve,0.0444799290308272
+gap_closed,0.4908528004503232
+loto_r2,-0.6463509418927544
+loto_generalizes,False
+auc_improve_perm_p,0.023952095808383235
+perm_null_mean,-0.010280512863162545
+perm_null_p95,0.03692442891993792
+survives_permutation,True
+identity_laden,True

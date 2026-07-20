@@ -1,0 +1,2 @@
+failure_id,stage,blocking,reason,gate_if_open
+NONE,C84SR1_readiness,0,no_open_failure_after_validation,C84S_REAL_EXECUTION_SELECTION_AGGREGATION_RESOURCE_OR_PROVENANCE_RECONCILIATION_REQUIRED

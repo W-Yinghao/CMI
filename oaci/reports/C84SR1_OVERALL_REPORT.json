@@ -1,0 +1,79 @@
+{
+  "schema_version": "c84sr1_overall_report_v1",
+  "milestone": "C84SR1",
+  "gate": "C84S_REAL_EXECUTION_ORCHESTRATION_Q0_INTEGRATION_REPAIRED_AND_LOCKED_READY_FOR_FRESH_PI_AUTHORIZATION",
+  "status": "READINESS_ONLY_NOT_AUTHORIZED",
+  "chronology": {
+    "base_head": "9cdeb9ae2794226ff789411dea0ced10026a216f",
+    "repair_protocol_commit": "764fed0219acd412785f240a395d9236879c9b9b",
+    "implementation_commit": "86dfda5191dc00d4c9f70265657784626a0370a6",
+    "readiness_binding_commit": "97c1305b1574dcf1cbe35318b1ac61f13fbaad6a",
+    "lock_readiness_commit": "4774f72d4c2674fed409bab950bce8ce70df2264"
+  },
+  "identities": {
+    "repair_protocol_sha256": "3bdfbf67f1e1697a1488ccb5b7148494db06586ea9ff4318f16e030b88e7be2a",
+    "historical_v2_lock_sha256": "94c896f0f00c53441095da6225f9ac574eb4a9baa904821a5dab3f11ea76f75c",
+    "v3_lock_sha256": "15d8a84b7870021a90b1f0f103a8a4d733523b249321b143a89091978c0aa9fc",
+    "complete_field_sha256": "cfffcac1a55148941b809b69bed2c9a8957a94729ed7f2c2c29ed8d48c0134d8",
+    "model_field_sha256": "d8931b81a3d68f4b1e098ac6e3ede3cd44cdb6c70cdef9f18a76e0a8c62ecdb2",
+    "target_registry_sha256": "52526aaf7d9bd941bac693a0947971dc35b9083c1c783619f97055926aceabb8"
+  },
+  "production_arithmetic": {
+    "contexts": 944,
+    "candidates_per_context": 81,
+    "candidate_score_rows": 535248,
+    "candidate_rank_rows": 535248,
+    "fixed_selection_rows": 4720,
+    "q0_chains": 2048,
+    "q0_records": 9110448,
+    "q0_shards": 944,
+    "method_context_rows": 18608,
+    "result_tables": 18
+  },
+  "runtime_replay": {
+    "bound_implementation_files": 21,
+    "static_process_isolation_checks": 24,
+    "external_files": 7776,
+    "external_bytes": 48072941176
+  },
+  "synthetic_calibration": {
+    "status": "PASS",
+    "summary_sha256": "26e80934c75caae512d038e7939283ddef0b0d620c1c0686fe8cf55c1d5e8799",
+    "selection_freeze_sha256": "bd697d31c10c2bb8c2290f6066e2d7aaf220ccb69bef741f818938dd3012c1ac",
+    "result_sha256": "fd4562ef9cb690d982d8ff3c89d8dc04ff27ee7af7aa584ce92ae68e674784e0",
+    "q0_records": 9110448,
+    "method_context_rows": 18608,
+    "total_seconds": 1439.7423122720793,
+    "real_field_array_access": 0,
+    "real_target_label_access": 0,
+    "real_selector_scores": 0,
+    "real_scientific_statistics": 0
+  },
+  "verification": {
+    "focused": "19 passed",
+    "C65": "832 passed, 1 skipped, 3 deselected",
+    "C23": "1243 passed, 1 skipped, 3 deselected",
+    "full": "2167 passed, 1 skipped, 3 deselected",
+    "accepted_stderr_bytes": 0,
+    "red_team": "65/65 PASS",
+    "risks": "30/30 CLOSED",
+    "scheduler_monitor": "squeue",
+    "sacct_used": false
+  },
+  "evidence_boundary": {
+    "real_target_label_access": 0,
+    "real_selector_scores": 0,
+    "real_scientific_statistics": 0,
+    "training": 0,
+    "forward": 0,
+    "GPU": 0,
+    "same_label_oracle": 0
+  },
+  "authorization": {
+    "historical_v2_authorization_consumed": false,
+    "historical_authorization_migrates": false,
+    "v3_authorization_record_present": false,
+    "fresh_direct_statement_required": true,
+    "C85_authorized": false
+  }
+}

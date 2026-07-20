@@ -1,0 +1,8 @@
+information_class,variable,hit,uses_source_only_inputs,uses_target_labels,available_at_selection_time,diagnostic_only
+I0_random_or_tie,cell candidate set,0.4297233780360411,0,0,1,0
+I1_strict_source,source rank/source scores,0.5061728395061729,1,0,1,0
+I1b_source_scalarization,registered hindsight source scalarization,0.5740740740740741,1,0,0,1
+I2_key,target/trajectory key or source geometry key,0.4876543209876543,0,0,0,1
+I6_template,matched geometry endpoint template,0.7037037037037037,0,1,0,1
+I6_label_diagnostic,target-label diagnostic content,0.8127572016460904,0,1,0,1
+I7_endpoint_scalar,same-label target endpoint scalar,0.9444444444444444,0,1,0,1

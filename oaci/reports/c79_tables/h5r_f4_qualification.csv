@@ -1,0 +1,2 @@
+path,incremental_R2,max_stat_corrected_p,leave_target_median,positive_targets,leave_regime_median,material_actionability,all_registered_gates_pass,gate_interpretation,qualified,allowed_interpretation
+target_unlabeled_F4_geometry,0.010450398396399496,1.0,0.12939323502140254,7,0.07730386152065802,1,0,no_registered_candidate_qualification,0,registered_F4_candidate_status_only

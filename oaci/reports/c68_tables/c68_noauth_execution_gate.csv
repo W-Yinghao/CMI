@@ -1,0 +1,7 @@
+gate,allowed,observed,passed,notes
+authorization_phrase_present,1,0,1,phrase absent in current user request; C68 remains readiness only
+new_forward_or_reinference,0,0,1,no EEG forward/re-inference in C68 readiness
+training_or_gradient_update,0,0,1,training remains forbidden
+gpu_use,0,0,1,CPU-only planning/report generation
+raw_cache_written,0,0,1,no scaled raw cache emitted
+selector_or_checkpoint_recommendation,0,0,1,"scale-up schedule is a non-performance plan, not a selector"

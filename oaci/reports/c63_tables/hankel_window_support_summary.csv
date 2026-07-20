@@ -1,0 +1,5 @@
+window_k,n_trajectories,supported_trajectories,support_fraction,total_candidate_rows,windowed_rows,row_retention,emits_row_payload,full_time_series_cs_supported,notes
+1,162,162,1.0,3804,3642,0.9574132492113565,0,0,support-only Hankel proxy; raw paired source/target samples missing
+2,162,162,1.0,3804,3480,0.9148264984227129,0,0,support-only Hankel proxy; raw paired source/target samples missing
+3,162,162,1.0,3804,3318,0.8722397476340694,0,0,support-only Hankel proxy; raw paired source/target samples missing
+5,162,162,1.0,3804,2994,0.7870662460567823,0,0,support-only Hankel proxy; raw paired source/target samples missing

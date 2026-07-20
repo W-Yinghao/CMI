@@ -1,0 +1,113 @@
+# OACI single-fold GPU smoke manifest — SEPARATE from the confirmatory protocol.
+# status='smoke' is rejected by ProtocolManifestV2.assert_confirmatory(): a smoke run must never be
+# a temporarily-shortened confirmatory manifest. Tiny budget; proves end-to-end + shared baseline +
+# no leakage ONLY (not an efficacy result). The runner that consumes `training`/`sampler`/`probe` and
+# the explicit deleted cell lands in the next commit (4-method runner + GPU smoke).
+protocol_id: oaci-smoke-v1
+status: smoke
+seeds:
+  split: 101
+  deletion: 202
+  model: [0]
+  selection_bootstrap: 303
+  audit_bootstrap: 404
+datasets:
+  BNCI2014_001:
+    enabled: true
+    cohort_ids: [BNCI2014_001]
+    class_names: [left_hand, right_hand, feet, tongue]
+    outer_target_factor: subject_id
+    domain_factor: subject_id
+    group_factor: recording_id
+    support_unit_factor: trial_id
+    eval_unit_factor: trial_id
+    support_m: 4
+    channels: [Fz, FC3, FC1, FCz, FC2, FC4, C5, C3, C1, Cz, C2, C4, C6, CP3, CP1, CPz, CP2, CP4, P1, Pz, P2, POz]
+    expected_sfreq: 128
+    expected_epoch_seconds: 3.0
+    expected_n_times: 385          # MOABB endpoint convention may give ±1
+    preprocessing:
+      kind: moabb_motor_imagery
+      fmin: 4.0
+      fmax: 38.0
+      resample_sfreq: 128.0
+      epoch_tmin: 0.5
+      epoch_tmax: 3.5
+      baseline: null
+      normalization: zscore_sample
+      normalization_eps: 1.0e-8
+      channel_interpolation: false
+      code_version: oaci-bnci-loader-v1
+risk:
+  metric: balanced_ce
+  epsilon: 0.05
+backbone:
+  name: shallow_convnet
+  temporal_filters: 40
+  temporal_kernel_samples: 25
+  pool_kernel_samples: 75
+  pool_stride_samples: 15
+  dropout: 0.5
+  safe_log_eps: 1.0e-6
+methods:
+  names: [ERM, OACI, global_lpc, uniform]
+  global_lpc_laplace_smoothing: 1.0
+  critic_capacity: 8
+evaluation: {alpha: 0.05, delta_bacc: 0.02, ece_bins: 15, paired_bootstrap: 8, invalid_draw_threshold: 0.5, min_clusters: 2, prediction_prob_floor: 1.0e-6}
+optimizer:
+  name: adam
+  lr_stage1: 5.0e-3
+  lr_encoder: 1.0e-2
+  lr_critic: 1.0e-2
+  weight_decay: 0.0
+  dual_lr: 0.5
+  lambda_init: 0.3
+  lambda_max: 20.0
+  lambda_floor: 0.0
+  gradient_clip: 0.0
+  critic_gradient_clip: 0.0
+training:
+  stage1_epochs: 2
+  stage2_epochs: 2
+  stage1_steps_per_epoch: 2
+  stage2_steps_per_epoch: 2
+  task_batch_size: 64
+  warmup_steps: 2
+  critic_steps: 1
+  checkpoint_every: 2
+  guard_chunk_size: 512
+  feature_chunk_size: 512
+  prediction_chunk_size: 512
+  numerical_tol: 1.0e-4
+  stage2_bn_mode: frozen_erm_running_stats
+  selection_score_tolerance: 1.0e-8
+  deterministic_algorithms: true
+sampler:
+  min_per_eligible_cell: 4
+  min_per_observed_cell: 4
+  adv_microbatch_size: 64
+  adv_accumulation_steps: 4
+  replacement_mode: auto
+probe:
+  capacities: [0, 8]
+  folds: 3
+  selection_bootstrap: 8
+  audit_bootstrap: 8
+  l2_C: 1.0
+  max_iter: 200
+  prob_floor: 1.0e-6
+  feature_seed_base: 10000
+  max_candidate_multiplier: 10
+  max_invalid_draw_rate: 0.5
+  solver: lbfgs
+  tol: 1.0e-4
+  fit_intercept: true
+smoke:
+  subjects: [1, 2, 3, 4, 5, 6]
+  target_subjects: [1]
+  source_audit_subjects: [2, 3]
+  source_train_subjects: [4, 5, 6]
+  deletion_levels: [0, 1]
+  deleted_cell_level1: {domain_id: BNCI2014_001|subject-004, class_name: feet}   # explicit level-1 deletion
+k1: {statistic: smoke, split_role: source_audit, permutation_scheme: paired_swap_within_y_recording_group, n_permutations: 20, alpha: 0.1, decision_rule: smoke, seed: 0}
+k2: {endpoints: [worst_domain_bacc], min_seeds: 1, level_policy: both_levels, bacc_margin: 0.0, nll_margin: 0.0, decision_rule: smoke}

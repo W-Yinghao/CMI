@@ -1,0 +1,5 @@
+summary_id,artifact,row_count,source_equivalence_definition,target_divergence_definition,formal_status
+P1_c45_pair_table,oaci/reports/c45_tables/source_equivalent_target_divergent_pairs.csv,632,q10 source-neighborhood witness from C45,target endpoint or target utility disagreement,empirical_witness_set
+P2_c46_within_target,oaci/reports/C46_CONDITIONING_BOUNDARY_AUDIT.json,,within-target source neighborhoods,q10 divergent fraction 0.004842615012106538,conditioning_restores_local_meaning
+P3_c46_cross_target,oaci/reports/C46_CONDITIONING_BOUNDARY_AUDIT.json,,cross-target source neighborhoods,q10 divergent fraction 0.9369369369369369,cross_target_break
+P4_no_distributional_worlds,C58 formal audit,,not available,not available,blocks_formal_lecam_bound

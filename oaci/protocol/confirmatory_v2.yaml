@@ -1,0 +1,127 @@
+# OACI confirmatory protocol v2 (draft) — per-dataset blocks, machine-executable.
+protocol_id: oaci-confirmatory-v2
+status: draft
+datasets:
+  BNCI2014_001:
+    enabled: true
+    cohort_ids: [BNCI2014_001]
+    class_names: [left_hand, right_hand, feet, tongue]
+    outer_target_factor: subject_id
+    domain_factor: subject_id
+    group_factor: recording_id
+    support_unit_factor: trial_id
+    eval_unit_factor: trial_id
+    support_m: 8
+    channels: [Fz, FC3, FC1, FCz, FC2, FC4, C5, C3, C1, Cz, C2, C4, C6, CP3, CP1, CPz, CP2, CP4, P1, Pz, P2, POz]
+    preprocessing:
+      fmin: 4.0
+      fmax: 38.0
+      resample_sfreq: 128
+      epoch_tmin: 0.5
+      epoch_tmax: 3.5
+      normalization: zscore_sample
+  BNCI2014_004:
+    enabled: true
+    cohort_ids: [BNCI2014_004]
+    class_names: [left_hand, right_hand]
+    outer_target_factor: subject_id
+    domain_factor: subject_id
+    group_factor: recording_id
+    support_unit_factor: trial_id
+    eval_unit_factor: trial_id
+    support_m: 8
+    channels: [C3, Cz, C4]
+    preprocessing: {fmin: 4.0, fmax: 38.0, resample_sfreq: 128, epoch_tmin: 0.5, epoch_tmax: 3.5, normalization: zscore_sample}
+  SEED:
+    enabled: false        # canonical 3-class SEED not present in this datalake (NOT SEED-V)
+    cohort_ids: [SEED]
+    class_names: [negative, neutral, positive]
+    outer_target_factor: subject_id
+    domain_factor: subject_id
+    group_factor: recording_id
+    support_unit_factor: eval_unit_id
+    eval_unit_factor: eval_unit_id     # film clip
+    support_m: 4
+    channels: frozen_common_native
+    preprocessing: {fmin: 1.0, fmax: 50.0, resample_sfreq: 200, window_s: 4.0, window_stride_s: 2.0, normalization: zscore_sample}
+  PD_cross_site:
+    enabled: false        # 3 resting cohorts not located in this datalake (require provisioning)
+    cohort_ids: [ds002778, ds003490, ds004584]
+    class_names: [HC, PD]
+    outer_target_factor: site_id
+    domain_factor: site_id
+    group_factor: subject_id
+    support_unit_factor: subject_id
+    eval_unit_factor: subject_id
+    support_m: 4
+    channels: frozen_common_native
+    preprocessing: {fmin: 1.0, fmax: 40.0, resample_sfreq: 128, window_s: 2.0, window_stride_s: 1.0, normalization: zscore_sample}
+risk:
+  metric: balanced_ce
+  epsilon: 0.03
+seeds: {split: 20260622, deletion: 70260622, model: [0, 1, 2, 3, 4], selection_bootstrap: 303, audit_bootstrap: 404}
+backbone:
+  name: shallow_convnet
+  temporal_filters: 40
+  temporal_kernel_samples: 25
+  pool_kernel_samples: 75
+  pool_stride_samples: 15
+  dropout: 0.5
+  safe_log_eps: 1.0e-6
+optimizer:
+  name: adam
+  lr_stage1: 5.0e-3
+  lr_encoder: 1.0e-2
+  lr_critic: 1.0e-2
+  weight_decay: 0.0
+  dual_lr: 0.5
+  lambda_init: 0.3
+  lambda_max: 20.0
+  lambda_floor: 0.0
+  gradient_clip: 0.0
+  critic_gradient_clip: 0.0
+training:
+  stage1_epochs: 200
+  stage2_epochs: 200
+  stage1_steps_per_epoch: 1
+  stage2_steps_per_epoch: 20
+  task_batch_size: 256
+  warmup_steps: 60
+  critic_steps: 5
+  checkpoint_every: 5
+  guard_chunk_size: 1024
+  feature_chunk_size: 1024
+  prediction_chunk_size: 1024
+  numerical_tol: 1.0e-4
+  stage2_bn_mode: frozen_erm_running_stats
+  selection_score_tolerance: 1.0e-8
+  deterministic_algorithms: true
+sampler: {min_per_eligible_cell: 8, min_per_observed_cell: 8, adv_microbatch_size: 256, adv_accumulation_steps: 4, replacement_mode: auto}
+probe: {capacities: [0, 64], folds: 5, selection_bootstrap: 200, audit_bootstrap: 2000, l2_C: 1.0, max_iter: 500, prob_floor: 1.0e-6, feature_seed_base: 10000, max_candidate_multiplier: 8, max_invalid_draw_rate: 0.5, solver: lbfgs, tol: 1.0e-4, fit_intercept: true}
+methods:
+  names: [ERM, OACI, global_lpc, uniform]
+  global_lpc_laplace_smoothing: 1.0
+  critic_capacity: 16
+evaluation:
+  alpha: 0.05
+  delta_bacc: 0.02
+  ece_bins: 15
+  paired_bootstrap: 2000
+  invalid_draw_threshold: 0.5
+  min_clusters: 2
+  prediction_prob_floor: 1.0e-6
+k1:
+  statistic: grouped_max_probe_extractable_LQ_ov_OACI_minus_ERM
+  split_role: source_audit
+  permutation_scheme: paired_swap_within_y_recording_group
+  n_permutations: 2000
+  alpha: 0.05
+  decision_rule: stop_if_within_null_band
+  seed: 707
+k2:
+  endpoints: [worst_domain_bacc, worst_domain_nll]
+  min_seeds: 3
+  level_policy: both_levels
+  bacc_margin: 0.0
+  nll_margin: 0.0
+  decision_rule: stop_if_no_reproducible_gain

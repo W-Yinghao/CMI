@@ -1,0 +1,4 @@
+budget,status,pair_count,pairwise_recovery,median_margin
+8,actual_t3_ho,3909120,0.601361,0.028953
+64,actual_t3_ho,3909120,0.69508,0.028953
+full-construction,actual_t3_ho,61080,0.697561,0.028953

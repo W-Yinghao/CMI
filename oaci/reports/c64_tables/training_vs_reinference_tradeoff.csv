@@ -1,0 +1,5 @@
+path,changes_checkpoint_universe,supports_split_label,supports_full_cs,supports_atom_trace,confound_risk,authorized
+re_inference_only,0,1,1,0,low,0
+new_instrumented_training,1,1,1,1,medium_high,0
+independent_replication_field,1,1,1,1,medium,0
+more_summary_feature_engineering,0,0,0,0,low_but_low_value,0

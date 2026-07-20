@@ -1,0 +1,11 @@
+contract_item,path,present,value,recovered,blocks_campaign
+preprocess_spec_code,oaci/data/eeg/preprocess.py,1,PreprocessSpec,1,0
+bandpass,context/manifest.json,1,fmin=4.0;fmax=38.0,1,0
+resample,oaci/data/eeg/preprocess.py,1,128Hz,1,0
+epoch_window,context/manifest.json,1,tmin=0.5;tmax=3.5;expected_n_times=385,1,0
+normalization_guard,context/manifest.json,1,zscore_sample_eps_1e-8,1,0
+channel_order,context/manifest.json,1,22_frozen_BNCI001_channels,1,0
+class_order,context/manifest.json,1,left_hand|right_hand|feet|tongue,1,0
+offline_moabb_loader,oaci/data/eeg/bnci.py,1,raw fingerprint/header/channel validation,1,0
+raw_datalake_fingerprint,context/manifest.json,1,bound_in_recovered_artifact_context,1,0
+exact_model_runtime_config,context/model_spec.json,1,shallow_convnet_input_22x385_nclasses4,1,0

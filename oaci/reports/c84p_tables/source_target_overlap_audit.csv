@@ -1,0 +1,10 @@
+dataset,left_partition,right_partition,overlap_count,overlap_subjects,pass
+Lee2019_MI,source_panel_A,source_panel_B,0,NONE,1
+Lee2019_MI,source_panel_A,targets,0,NONE,1
+Lee2019_MI,source_panel_B,targets,0,NONE,1
+Cho2017,source_panel_A,source_panel_B,0,NONE,1
+Cho2017,source_panel_A,targets,0,NONE,1
+Cho2017,source_panel_B,targets,0,NONE,1
+PhysionetMI,source_panel_A,source_panel_B,0,NONE,1
+PhysionetMI,source_panel_A,targets,0,NONE,1
+PhysionetMI,source_panel_B,targets,0,NONE,1

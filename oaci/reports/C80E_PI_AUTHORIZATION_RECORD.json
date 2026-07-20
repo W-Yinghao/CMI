@@ -1,0 +1,32 @@
+{
+  "schema_version": "c80e_pi_authorization_record_v1",
+  "recorded_at_utc": "2026-07-13T08:19:25Z",
+  "authorization_source": "direct_PI_message_in_current_execution_conversation",
+  "authorization_text_exact": "我授权C80E",
+  "resolved_binding": {
+    "protocol_commit": "f5d83b3ca2297a4cc9511aa55ef300bb976d107c",
+    "protocol_sha256": "c6292597f5610cb96e8eaf0313eaa741f8fa9b11dd89ff9e4d84db1fa33add85",
+    "analysis_execution_lock_commit": "972f47c",
+    "field_and_view_manifests": "exact_objects_enumerated_by_oaci/reports/C80P_ANALYSIS_EXECUTION_LOCK.json"
+  },
+  "scope": {
+    "existing_seed3_seed4_primary_fields_read_only": true,
+    "registered_C80_paths_only": ["P1", "P2", "S1", "S2", "S3"],
+    "training": false,
+    "forward": false,
+    "reinference": false,
+    "GPU": false,
+    "seed5": false,
+    "target4_primary": false,
+    "same_label_oracle": false,
+    "BNCI2014_004": false,
+    "active_learning": false,
+    "new_feature_kernel_model_search": false,
+    "C81": false,
+    "manuscript": false
+  },
+  "authorization_received": true,
+  "scientific_execution_started": false,
+  "execution_blocked_by_preflight": true,
+  "blocker_gate": "C80E_AUTHORIZATION_PROTOCOL_LOCK_VIEW_OR_DEPENDENCE_BLOCKER"
+}

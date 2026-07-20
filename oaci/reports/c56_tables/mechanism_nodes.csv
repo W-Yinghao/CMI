@@ -1,0 +1,11 @@
+node_id,node,status,supporting_milestones,boundary
+N_source_measurement,source-side observables contain weak real signal,confirmed,"C31,C42,C43",Source rank improves weakly but not reliably.
+N_good_checkpoints_exist,joint-good target candidates exist,confirmed,C31,C31 joint-good and Pareto existence rates reject absence of good checkpoints.
+N_target_gauge,target-specific endpoint gauge and offset,confirmed,"C31,C45,C46",Cross-target comparability breaks while conditioned neighborhoods become meaningful.
+N_source_actionability_gap,source-rank/top-k gap,confirmed,"C42,C43,C44",Pairwise signal does not become reliable top-k localization.
+N_conditioned_islands,conditioned local diagnostic islands,confirmed,"C48,C49,C50",Broad conditioned diagnostic ceilings exist but fragment by trajectory.
+N_key_insufficiency,source/key-only insufficiency,confirmed,C52,Keys alone do not close C51 residual.
+N_label_diagnostic_closure,target-label diagnostic closure,confirmed,"C52,C53",Target-label-derived diagnostic content closes residual.
+N_endpoint_oracle,same-label endpoint oracle boundary,confirmed,C54,target_joint_margin_raw:high restates evaluated endpoint threshold.
+N_endpoint_availability_gap,endpoint-scalar availability gap,confirmed,C55,Full closure requires held-out endpoint scalar.
+N_split_label_future,split-label/few-label branch,open_future,"C53,C54,C55",Split-label cache is unavailable; no sufficiency claim.

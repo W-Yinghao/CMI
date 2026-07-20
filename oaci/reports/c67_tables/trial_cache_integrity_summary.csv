@@ -1,0 +1,12 @@
+check,value,expected,passed,notes
+phase0_gate,C66_DUAL_MODE_PROVENANCE_RECONCILED,C66_DUAL_MODE_PROVENANCE_RECONCILED,1,C66 no-auth guard and authorized cache both reconciled
+row_count,3456,3456,1,external cache rows
+checkpoint_count,6,6,1,six pilot checkpoints
+target_count,3,3,1,targets 1/5/9
+dataset_ids,BNCI2014_001,BNCI2014_001,1,no BNCI2014_004
+seed_set,0;1;2,0;1;2,1,seeds 3/4 absent
+duplicate_checkpoint_trial_keys,0,0,1,checkpoint/target/split/trial key uniqueness
+probabilities_sum_to_one,3456,3456,1,tolerance 1e-5
+pred_matches_argmax,3456,3456,1,prob/logit argmax coherence
+margin_matches_prob_gap,3456,3456,1,top1-top2 prob gap
+raw_cache_not_git_tracked,0,0,1,raw cache remains external only

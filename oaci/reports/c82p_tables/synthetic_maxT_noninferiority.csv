@@ -1,0 +1,7 @@
+scenario,Q1_rows,Q2_rows,all_pvalues_in_unit_interval,same_target_sign_vectors,passed,real_field_used
+same_method_A,12,12,1,256,1,0
+same_method_B,12,12,1,256,1,0
+stable_C,12,12,1,256,1,0
+different_A_methods,12,12,1,256,1,0
+different_B_methods,12,12,1,256,1,0
+blocker_E,12,12,1,256,1,0

@@ -1,0 +1,4 @@
+witness_id,source_indistinguishability_proxy,target_contrast,support_rows,uses_target_labels_for_diagnostic,valid_distribution_pair
+LC1_within_target,0.004842615012106538,source-near target divergence,632,1,0
+LC2_within_trajectory,0.13287671232876713,trajectory-local divergence,632,1,0
+LC3_cross_target,0.9369369369369369,cross-target comparability break,632,1,0

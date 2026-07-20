@@ -1,0 +1,83 @@
+{
+  "schema_version": "c85e_result_identity_v1",
+  "gate": "C85E_FROZEN_FIELD_DECISION_THEORY_BRIDGE_COMPLETE_C86_PROTOCOL_REVIEW_REQUIRED",
+  "result_tag": "POST_C84S_EXPLORATORY",
+  "readiness_HEAD": "39891d827985a164a867381246f8dcf6242c7801",
+  "authorization_execution_HEAD": "c65402db892fb8a58a0592ca5e81a0ee871a88ce",
+  "authorization": {
+    "commit": "c65402db892fb8a58a0592ca5e81a0ee871a88ce",
+    "authorization_id": "e1f6b397-6f5f-4499-98d8-ad0f5cedd779",
+    "file_sha256": "a67a57266d6454ab9352b9c6db861cd2950f725c4a3c2cf49ffd64ea623a541c",
+    "binding_sha256": "80b8a8203f87f6186826eee7beb3f0343e0584607302bea0607d898d31996934",
+    "consumption_receipt_sha256": "3ae9e9b518a8ef1acbd0dec213dc948700f4cbae8b46bacbdc8b6fe8ca7de03b",
+    "consumed_once": true
+  },
+  "execution": {
+    "job_id": 900801,
+    "attempt_id": "89bd3b598c8b46aaaeb924169c90e9de",
+    "execution_lock_commit": "48e177c9914003202cc75cefb4a98832ea8250c3",
+    "execution_lock_sha256": "a59062305b521973476e0d40236069eba7c9e149aeca9d3fe03c08a1ce106176",
+    "output_root": "/projects/EEG-foundation-model/yinghao/oaci-c85e-frozen-field-v1/c85e-v1-a59062305b521973-e1f6b3976f5f4499",
+    "partition": "cpu-high",
+    "requested_CPU": 32,
+    "requested_RAM_GiB": 128,
+    "GPU": 0,
+    "scheduler_state": "COMPLETED",
+    "scheduler_exit_code": "0:0",
+    "scheduler_elapsed_seconds": 13,
+    "result_transaction_seconds": 0.272935295,
+    "stdout_sha256": "26969ee7ca29c0d1877acc9dc14b7763def35a6dbf7dd9580b73f9afdcb73971",
+    "stderr_bytes": 0,
+    "sacct_evidence": "UNAVAILABLE_CONNECTION_REFUSED"
+  },
+  "frozen_objects": {
+    "input_replay_sha256": "0e233f27a786c0269a53d9e73ce7f266a4bf7909975403023b23165e573b2d58",
+    "result_sha256": "f2f09d123dd7767d41e6141ae5fe573bff8c15868aee04ae3be9a3d5c1b8d4db",
+    "result_manifest_sha256": "75ffaa7212b01f6dfc4c69f86ddbe9d8f6c911ce7a107917b997a8c9fcf6c55e",
+    "completion_receipt_sha256": "fe0ce0873734fcb709136f32834bd349cccda5710f9098e03297c01d2ab8433f",
+    "lifecycle_sha256": "898596c9e33d6e1ec920ac49a052716613c8e5b8032e05e5a46836bce9df5e3c"
+  },
+  "coverage": {
+    "utility_contexts": 944,
+    "candidate_utility_rows": 76464,
+    "historical_method_context_rows": 18432,
+    "finite_Q0_action_records": 8749056,
+    "Q0_shards": 944,
+    "registered_result_tables": 26,
+    "registered_table_rows": 21607,
+    "manifest_artifacts": 29,
+    "bundle_files": 32,
+    "bundle_bytes": 7115589
+  },
+  "semantic_replay": {
+    "status": "PASS",
+    "all_table_rows_tagged_POST_C84S_EXPLORATORY": true,
+    "epsilon_grid": [0.005, 0.01, 0.02, 0.05],
+    "tau_grid": [0.005, 0.01, 0.02, 0.05, 0.1],
+    "CVaR_alpha_grid": [0.5, 0.75, 0.9],
+    "nontrivial_exact_collapse_scope_rows": 12,
+    "residual_staging_roots": 0
+  },
+  "immutable_results": {
+    "C84_primary": "C84-D_external_dataset_source_panel_seed_level_or_target_heterogeneous",
+    "C84_frontier": "C84-L4",
+    "T1": "PROVED",
+    "T2": "COUNTEREXAMPLE",
+    "T3": "PROVED",
+    "T4": "PROVED",
+    "T5": "OPEN",
+    "T6": "COUNTEREXAMPLE",
+    "T7": "PROVED"
+  },
+  "protected_counters": {
+    "direct_label_access": 0,
+    "target_logit_access": 0,
+    "EEG_access": 0,
+    "selector_or_Q0_builder_calls": 0,
+    "inference_calls": 0,
+    "theorem_status_writes": 0,
+    "active_acquisition": 0,
+    "C86": 0,
+    "manuscript_writes": 0
+  }
+}

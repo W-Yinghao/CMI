@@ -1,0 +1,6 @@
+transfer_test,transfer_hit,transfer_enrichment,transfer_closed_fraction,transfer_gap_to_local_scalar,cells_evaluated,cells_improved,cells_degraded,mean_donor_cells,target_labels_diagnostic_only,no_selection_artifact
+T1_leave_one_target_out_label_summary_transfer,0.5740740740740741,1.3359153897974017,0.26582278481012667,0.37037037037037035,162,81,48,144.0,1,1
+T2_leave_one_trajectory_out_label_summary_transfer,0.5740740740740741,1.3359153897974017,0.26582278481012667,0.37037037037037035,162,81,48,161.0,1,1
+T3_same_target_cross_trajectory_transfer,0.6481481481481481,1.5082915691260987,0.4936708860759495,0.2962962962962963,162,93,39,17.0,1,1
+T4_same_seed_level_regime_cross_target_transfer,0.4444444444444444,1.0342570759721819,-0.13291139240506342,0.5,162,60,66,8.0,1,1
+T5_support_matched_cross_cell_transfer,0.7037037037037037,1.6375737036226214,0.6645569620253167,0.2407407407407407,162,102,30,13.444444444444445,1,1

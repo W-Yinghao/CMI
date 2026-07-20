@@ -1,0 +1,3 @@
+null,status,requires_authorized_cache,notes
+checkpoint_label_permutation,planned_not_run,1,calibrate split-label signal
+target_cell_preserving_shuffle,planned_not_run,1,preserve target/cell base rates

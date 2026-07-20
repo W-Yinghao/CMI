@@ -1,0 +1,6 @@
+property,contract,static_string_sufficient,blocking
+constructor,module-private sentinel,0,1
+issuance,after atomic authorization consumption,0,1
+binding,authorization SHA|lock SHA|attempt ID|output root,0,1
+cross_attempt_reuse,fail closed,0,1
+shadow_fixture,no registered capability,0,1

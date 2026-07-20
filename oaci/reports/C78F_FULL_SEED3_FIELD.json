@@ -1,0 +1,144 @@
+{
+  "authorization": {
+    "magic_token_required": false,
+    "mode": "direct_explicit_user_authorization",
+    "received": true
+  },
+  "boundaries": {
+    "BNCI2014_004_touched": false,
+    "manuscript_drafting": false,
+    "scientific_analysis_started": false,
+    "seed4_touched": false,
+    "selector_or_checkpoint_recommendation": false,
+    "target4_primary_excluded": true,
+    "target_outcomes_inspected": 0
+  },
+  "execution": {
+    "remaining_GPU_hours_measured_sum_of_phase_walls": 6.86211816781097,
+    "remaining_external_bytes_measured": 26766911921,
+    "remaining_instrumentation_job_wall_seconds_sum": 1417.922018289566,
+    "training_attempt_events": 32,
+    "waves": [
+      {
+        "continuation_basis": "engineering_only",
+        "engineering_passed": "1",
+        "gate_sha256": "caab98b643fbcfac2d0eec1872793b6a5873edefdb3eecc51953287e9b8d7ef1",
+        "target_scientific_outcomes_read": "0",
+        "targets": "[8, 9, 3, 6]",
+        "units": "648",
+        "wave": "A"
+      },
+      {
+        "continuation_basis": "engineering_only",
+        "engineering_passed": "1",
+        "gate_sha256": "87f3aafee01cf228ff3a57606bec0b0ec121e3d257d97990d487a13bafa03b30",
+        "target_scientific_outcomes_read": "0",
+        "targets": "[5, 2, 7, 1]",
+        "units": "648",
+        "wave": "B"
+      }
+    ]
+  },
+  "execution_lock_commit": "a9029668fad767f58230ec7b8d24fcabae85a642",
+  "field": {
+    "ERM": 18,
+    "OACI": 720,
+    "SRC": 720,
+    "levels": 2,
+    "remaining_targets_generated": 8,
+    "strict_source_rows": 6718464,
+    "target_unlabeled_rows": 839808,
+    "targets": 9,
+    "units": 1458
+  },
+  "final_gate": "FULL_SEED3_FIELD_EXECUTED_AND_MANIFESTED_ANALYSIS_NOT_STARTED",
+  "identity": {
+    "Wz_plus_b_logits_max_abs": 0,
+    "failed_units": 0,
+    "hook_z_max_abs": 0,
+    "softmax_max_abs": 0
+  },
+  "milestone": "C78F",
+  "primary": "C78F-A_full_seed3_field_executed_and_manifested",
+  "protocol_commit": "1d210fdbf6333755ded53dead92c0f9f7ce7cefe",
+  "protocol_sha256": "85aba93fe2e232f0434162b3c6c97a30cac02047228676951c25cbab805d3d84",
+  "red_team": {
+    "blocking_failures": 0,
+    "checks": 57,
+    "report": "oaci/reports/C78F_AUTHORIZED_RED_TEAM_VERIFICATION.md"
+  },
+  "regressions": [
+    {
+      "cpus": "48",
+      "failed": "0",
+      "job_id": "893056",
+      "partition": "cpu-high",
+      "passed": "32",
+      "status": "PASS",
+      "stderr_empty": "1",
+      "suite": "focused",
+      "wall_seconds": "0.39"
+    },
+    {
+      "cpus": "48",
+      "failed": "0",
+      "job_id": "893057",
+      "partition": "cpu-high",
+      "passed": "214",
+      "status": "PASS",
+      "stderr_empty": "1",
+      "suite": "c65_c78f",
+      "wall_seconds": "39.64"
+    },
+    {
+      "cpus": "48",
+      "failed": "0",
+      "job_id": "893058",
+      "partition": "cpu-high",
+      "passed": "621",
+      "status": "PASS",
+      "stderr_empty": "1",
+      "suite": "c23_c78f",
+      "wall_seconds": "49.18"
+    },
+    {
+      "cpus": "48",
+      "failed": "0",
+      "job_id": "893059",
+      "partition": "cpu-high",
+      "passed": "1549",
+      "status": "PASS",
+      "stderr_empty": "1",
+      "suite": "full_oaci",
+      "wall_seconds": "449.74"
+    }
+  ],
+  "schema_version": "c78f_full_seed3_field_result_v1",
+  "secondary_active": [
+    "C78F-S1_exact_1296_remaining_units_manifested",
+    "C78F-S2_complete_1458_unit_seed3_field_manifested",
+    "C78F-S3_all_regimes_levels_targets_passed",
+    "C78F-S4_target_isolation_passed",
+    "C78F-S5_instrumentation_identity_passed",
+    "C78F-S6_physical_view_isolation_passed",
+    "C78F-S7_actual_runtime_storage_measured",
+    "C78F-S8_target4_excluded_from_primary_analysis",
+    "C78F-S9_C78S_analysis_protocol_locked",
+    "C78F-S10_seed4_untouched",
+    "C78F-S11_seed3_scientific_analysis_ready_but_not_started"
+  ],
+  "engineering_repair": {
+    "failed_job_id": "893052",
+    "replacement_job_id": "893055",
+    "repair_protocol_commit": "f0d49c2ff038c91779d7d580e8562068b1ad0706",
+    "repair_protocol_sha256": "60c4c4f2a9a78e7d68af995a6319989c0d9cb46f331d9af54260f3d7e76b508e",
+    "repair_red_team_checks": 10,
+    "training": 0,
+    "forward": 0,
+    "GPU": 0,
+    "target_labels": 0,
+    "target_metrics": 0,
+    "original_locked_implementation_unchanged": true,
+    "status": "closed"
+  }
+}

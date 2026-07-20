@@ -1,0 +1,15 @@
+pattern,total_hits,affirmative_hits,files,passed
+distribution-free minimax theorem,1,0,oaci/reports/C59_FORMAL_LOWER_BOUND_THEORY_FACTORY.md,1
+EEG theorem,2,0,oaci/reports/C59_FORMAL_LOWER_BOUND_THEORY_FACTORY.md;oaci/reports/c59_tables/training_campaign_options.csv,1
+source-only rescue,0,0,,1
+OACI rescue,0,0,,1
+deployable selector,0,0,,1
+checkpoint recommendation artifact,0,0,,1
+few-label sufficiency,0,0,,1
+same-label endpoint oracle available at selection time,0,0,,1
+new EEG training run,0,0,,1
+silent re-inference,0,0,,1
+BNCI2014_004 used,0,0,,1
+"seeds [3,4] used",0,0,,1
+M1 manuscript drafting,0,0,,1
+manuscript drafting starts,0,0,,1

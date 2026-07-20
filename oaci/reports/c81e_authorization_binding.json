@@ -1,0 +1,42 @@
+{
+  "schema_version": "c81e_c81r2_authorization_binding_v3",
+  "authorization_record_path": "oaci/reports/C81E_PI_AUTHORIZATION_RECORD.json",
+  "authorization_record_sha256": "c7304e0e3e8129ff3484c2e5dcfebd2f43fba5f77817e35ad142f389392bf521",
+  "authorization_received": false,
+  "authorization_historically_received": true,
+  "authorization_active": false,
+  "authorization_consumed_by_job_id": "894958",
+  "authorization_consumption_result": "C81_E_post_evaluation_pre_result_freeze_blocker",
+  "authorization_text_exact": "授权 C81R2 修复后的 C81E 继续执行",
+  "binding_policy_commit": "3d9dd76",
+  "protocol": {
+    "commit": "16a0d2eba4715a1cec78da6a79a182fd416a6629",
+    "sha256": "cbdb42f54956b685c27a1718c37d7c56c513084817a5c69fb29f06bfb67ad3ee"
+  },
+  "repair_protocol": {
+    "commit": "6371b2220979b61cabfb105521036bb02f47aaea",
+    "sha256": "ba0434b4ea7965691dafaf506547af64f851c57bdca330a0a5c88e4fa7ba1b15"
+  },
+  "selection_descriptor_repair_protocol": {
+    "commit": "5062f5ade0f45d6fd34f80556fb77470c2c6d717",
+    "sha256": "2acf6ecc179c739f73845d430f9eac9e9e83a83015370b1125dbe447b8b59272"
+  },
+  "analysis_lock": {
+    "commit": "f82ffa4b147c0b1329a98649b898691cf1fdc983",
+    "sha256": "13414dde0a88eb8a1a0810b3b36f25c718669d4cfe3178b871239eff6e292705"
+  },
+  "frozen_selection": {
+    "manifest_self_sha256": "4677ed3aba7758ea0008c2093b44d6fb81d425930727e5941950179737ebd519",
+    "payload_sha256": "1ed893acd9190914eb4cb122f3ef26bc1e2355c4103894b816894bd264669257",
+    "selection_recomputation_allowed": false
+  },
+  "field_view_manifest_digest": "6180275dcef26bdda4ae4b291d1ef6dc83434462ecacee0350fa94ae9c6a7fef",
+  "base_head_before_C81R2_authorized_evaluation": "77af370c000daea626af4eb038482559deacfb99",
+  "magic_token_required": false,
+  "hash_recital_required": false,
+  "held_evaluation_execution_started_after_C81R2_repair": true,
+  "held_evaluation_result_frozen": false,
+  "real_baseline_statistics_before_binding": 0,
+  "evaluation_label_reads_before_binding": 0,
+  "same_label_oracle_accesses_before_binding": 0
+}

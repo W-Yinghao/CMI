@@ -1,0 +1,11 @@
+subagent_id,role,integration_status
+SA1,Formal Object / Sigma-Field Specifier,launched_integrated
+SA2,Registered Partition Bound Theorem Agent,launched_integrated
+SA3,Rank-Gauge Synthetic Lower-Bound Theorem Agent,launched_integrated
+SA4,Empirical Le Cam Witness Repair Agent,launched_integrated
+SA5,Fano / Assouad Packing Repair Agent,launched_integrated
+SA6,Conditional Sufficiency / Markov Boundary Agent,launched_integrated
+SA7,Source-Observable Counterexample Adversary,launched_integrated
+SA8,Existing Artifact Sufficiency / Missing Data Agent,launched_integrated
+SA9,Instrumented Real-EEG Measurement Blueprint Agent,launched_integrated
+SA10,Integration / Red-Team Agent,launched_integrated

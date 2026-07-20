@@ -1,0 +1,27 @@
+risk,status,blocking_open,blocks_success_if_runtime_failure,mitigation_or_boundary
+SRC_historical_config_drift,closed,0,1,runtime artifact replay passed; see C78R red-team
+smooth_temperature_mismatch,closed,0,1,runtime artifact replay passed; see C78R red-team
+SRC_runner_path_unvalidated,closed,0,1,runtime artifact replay passed; see C78R red-team
+level_1_omission,closed,0,1,runtime artifact replay passed; see C78R red-team
+authorization_bypass,closed,0,1,runtime artifact replay passed; see C78R red-team
+target_label_training_leakage,closed,0,1,runtime artifact replay passed; see C78R red-team
+target_outcome_retention_or_retry_selection,closed,0,1,runtime artifact replay passed; see C78R red-team
+checkpoint_cadence_incomplete,closed,0,1,runtime artifact replay passed; see C78R red-team
+checkpoint_genealogy_mismatch,closed,0,1,runtime artifact replay passed; see C78R red-team
+C78_artifact_overwrite,closed,0,1,runtime artifact replay passed; see C78R red-team
+ERM_OACI_SRC_false_symmetry,closed,0,1,runtime artifact replay passed; see C78R red-team
+single_target_called_multiregime_replication,closed,0,1,runtime artifact replay passed; see C78R red-team
+pilot_to_full_silent_escalation,closed_full_expansion_denied,0,1,runtime artifact replay passed; see C78R red-team
+MNE_or_scratch_lock_collision,closed,0,1,runtime artifact replay passed; see C78R red-team
+cuBLAS_preflight_after_data_load,closed,0,1,runtime artifact replay passed; see C78R red-team
+GPU_runtime_reported_as_estimate,closed,0,1,runtime artifact replay passed; see C78R red-team
+resource_extrapolation_by_checkpoint_count,closed,0,1,runtime artifact replay passed; see C78R red-team
+instrumentation_schema_drift,closed,0,1,runtime artifact replay passed; see C78R red-team
+Wz_logit_identity_failure,closed,0,1,runtime artifact replay passed; see C78R red-team
+source_target_view_leakage,closed,0,1,runtime artifact replay passed; see C78R red-team
+oracle_descriptor_leakage,closed,0,1,runtime artifact replay passed; see C78R red-team
+seed4_contamination,closed,0,1,runtime artifact replay passed; see C78R red-team
+BNCI2014_004_access,closed,0,1,runtime artifact replay passed; see C78R red-team
+raw_cache_or_weights_in_git,closed,0,1,runtime artifact replay passed; see C78R red-team
+selector_or_checkpoint_recommendation,closed,0,1,runtime artifact replay passed; see C78R red-team
+manuscript_drafting,closed,0,1,runtime artifact replay passed; see C78R red-team

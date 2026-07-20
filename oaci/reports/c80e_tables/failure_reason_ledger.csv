@@ -1,0 +1,2 @@
+stage,reason,blocking,outcome_dependent_retry,same_label_oracle_accessed
+complete_locked_execution,none,0,0,0

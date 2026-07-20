@@ -1,0 +1,9 @@
+sigma_field,available_inputs,uses_source,uses_target_or_trajectory_key,uses_target_unlabeled,uses_target_labels,uses_same_label_endpoint,available_at_selection_time,c58_role,boundary_status
+G0_random_or_tie,trajectory candidate set only,0,0,0,0,0,1,null floor,baseline not sufficient
+G1_strict_source_observables,"source losses, leakage, R_src, C30/C42/C43 source scores",1,0,0,0,0,1,source-only actionability class,weak signal but not reliable
+G2_source_plus_key,source observables plus target_id or trajectory_id keys,1,1,0,0,0,0,key-only escape hatch,key naming alone does not close residual
+G3_target_unlabeled_geometry,target-unlabeled prediction or geometry fields,1,1,1,0,0,0,unlabeled transductive candidate,not available in committed C52-C55 cache
+G4_target_grouped_zero_label_structure,target or trajectory grouped zero-label structure,1,1,0,0,0,0,conditioned diagnostic problem class,descriptive homogeneity without selector
+G5_split_label_or_few_label,disjoint target label construction and evaluation cache,1,1,0,1,0,0,future information class,unresolved because split-label cache is missing
+G6_target_label_diagnostic_content,same audit target labels outside deployable selection,1,1,0,1,0,0,diagnostic closure class,closes residual only diagnostically
+G7_same_label_endpoint_oracle,candidate-specific evaluated target endpoint scalar,0,1,0,1,1,0,endpoint oracle reference,tautological diagnostic reference

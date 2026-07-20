@@ -1,0 +1,8 @@
+scope,definition
+within_trajectory,same seed|target|level|regime trajectory
+within_target,same target identity across seeds/levels/regimes
+within_seed,same seed across targets/levels/regimes
+within_level,same level across seeds/targets/regimes
+within_regime,same regime across seeds/targets/levels
+cross_target,different target identity
+cross_regime,different regime

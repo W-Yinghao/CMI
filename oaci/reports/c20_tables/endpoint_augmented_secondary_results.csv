@@ -1,0 +1,5 @@
+held_out_regime,n_endpoint_estimable_val,loto_auc,permutation_p,passes,is_secondary
+S4_missing_cells,0,,,False,True
+S5_block_class_by_domain,621,0.5190821256038647,0.004975124378109453,False,True
+S6_boundary_aligned_mask,0,,,False,True
+S7_random_matched_mask,0,,,False,True

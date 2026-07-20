@@ -1,0 +1,26 @@
+risk,class,status,blocking_open,mitigation
+authorization_bypass,blocking,closed_or_boundary_verified,0,committed direct-user scope lock required
+protocol_after_data_access,blocking,closed_or_boundary_verified,0,timing audit and zero-access lock
+target4_pilot_in_primary_inference,blocking,closed_or_boundary_verified,0,C78S excludes target 4
+remaining_target_outcome_peeking,blocking,closed_or_boundary_verified,0,generation computes no outcomes
+wave_A_outcome_based_wave_B_decision,blocking,closed_or_boundary_verified,0,engineering-only wave gate
+target_outcome_regime_or_retry_selection,blocking,closed_or_boundary_verified,0,fixed first-valid execution policy
+historical_config_drift,blocking,closed_or_boundary_verified,0,implementation/config hashes locked
+target_label_training_leakage,blocking,closed_or_boundary_verified,0,source-only training process
+source_audit_training_leakage,blocking,closed_or_boundary_verified,0,six train-source subjects only
+checkpoint_cadence_incomplete,blocking,closed_or_boundary_verified,0,exact 40-point cadence per trajectory
+missing_unit_silently_dropped,blocking,closed_or_boundary_verified,0,"1,296-unit set equality gate"
+multiple_successful_rerun_selection,blocking,closed_or_boundary_verified,0,first valid run retained
+MNE_lock_collision,blocking,closed_or_boundary_verified,0,job-private MNE/scratch paths
+deterministic_cublas_preflight_bypass,blocking,closed_or_boundary_verified,0,GPU preflight before EEG loader
+instrumentation_schema_drift,blocking,closed_or_boundary_verified,0,registered exact field schemas
+view_label_leakage,blocking,closed_or_boundary_verified,0,physical target-unlabeled field gate
+Wz_logit_identity_failure,blocking,closed_or_boundary_verified,0,per-unit numerical identity gate
+ERM_trajectory_false_symmetry,claim,closed_or_boundary_verified,0,ERM retained as anchor only
+SRC_rescue_reinterpretation,claim,closed_or_boundary_verified,0,SRC remains historical negative control
+seed4_contamination,blocking,closed_or_boundary_verified,0,seed-4 zero-access audit
+BNCI2014_004_access,blocking,closed_or_boundary_verified,0,dataset allowlist is BNCI2014_001
+pilot_to_science_claim,claim,closed_or_boundary_verified,0,C78F generation only
+raw_weights_or_cache_in_git,blocking,closed_or_boundary_verified,0,external payload root and 50 MiB scan
+selector_or_checkpoint_recommendation,blocking,closed_or_boundary_verified,0,no outcome/selection consumer
+manuscript_drafting,blocking,closed_or_boundary_verified,0,explicitly forbidden

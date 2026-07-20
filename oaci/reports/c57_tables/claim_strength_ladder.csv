@@ -1,0 +1,8 @@
+allowed_strength,meaning,manuscript_usage
+observed_in_this_setting,empirical number from frozen artifacts,results and mechanism claims
+empirical_mechanism,supported causal-style diagnosis without formal theorem,mechanism sections
+diagnostic_ceiling,upper envelope using target labels or diagnostic grouping,ceiling and limitation sections
+information_boundary,availability-separated empirical boundary,C52-C55 synthesis
+negative_control_result,escape hatch or method claim falsified,failure and audit sections
+future_work_only,not evaluated in current artifacts,limitations
+not_claimed,must not be asserted,red-team appendix

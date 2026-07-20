@@ -1,0 +1,6 @@
+resource,estimate,needed,notes
+cpu_inference,moderate,1,can be Slurm cpu-high if model/runtime supports CPU inference
+gpu_inference,not_requested,0,C64 does not request GPU
+storage_trial_cache,1-20GB depending on logits/representations,1,representations dominate storage
+walltime,campaign estimate needed after checkpoint count is known,1,current checkout lacks weight-file count
+hash_manifest,required,1,"must hash checkpoint, cache, split, and output files"

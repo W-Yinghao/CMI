@@ -1,0 +1,313 @@
+{
+  "C79_protocol": {
+    "path": "oaci/reports/C79_SEED4_LOCKED_CONFIRMATION_PROTOCOL.json",
+    "sha256": "7732986513793725d58933d487f5bc8f4fc68bfad0857bb4734a450b41ca5dd4"
+  },
+  "created_at_utc": "2026-07-11T10:43:47Z",
+  "raw_cache_in_git": false,
+  "red_team": {
+    "path": "oaci/reports/C78S_AUTHORIZED_RED_TEAM_VERIFICATION.md",
+    "sha256": "b5642113a7ca9ac51f23fdd925b5078507345c36e5fa4cc209d8b9358152c785"
+  },
+  "report": {
+    "path": "oaci/reports/C78S_SEED3_SCIENTIFIC_ANALYSIS.md",
+    "sha256": "74ff2c4a958539adfd47e5914e12b22402e53bf2f4d1014535a713809851c2e1"
+  },
+  "result": {
+    "path": "oaci/reports/C78S_SEED3_SCIENTIFIC_ANALYSIS.json",
+    "sha256": "c20e7688cbe017947b2012a6a31fa0f575eed72aeb6ef0ff34a16fcbe60056a3"
+  },
+  "schema_version": "c78s_artifact_manifest_v1",
+  "tables": [
+    {
+      "path": "oaci/reports/c78s_tables/actionability_cells.csv",
+      "sha256": "d01c17d8e6ec4e558481b028953bda135c347948c0ac57156719c986a64bb6d7",
+      "size_bytes": 27362
+    },
+    {
+      "path": "oaci/reports/c78s_tables/actionability_summary.csv",
+      "sha256": "426dcc27049cc35487cf0340dcc3eaa0ca1eb4023ede8fea30ded64baa2c86c1",
+      "size_bytes": 2134
+    },
+    {
+      "path": "oaci/reports/c78s_tables/artifact_hygiene_audit.csv",
+      "sha256": "b4d203997140221dcd15c14ba18bc9a3ca09861c64dbe7eb462e101b94a489fb",
+      "size_bytes": 260
+    },
+    {
+      "path": "oaci/reports/c78s_tables/association_null_summary.csv",
+      "sha256": "6daef0a7e28098d5db71e37beb4228b83defe6c235fc3aab3cbdb3c977dcdea7",
+      "size_bytes": 22003
+    },
+    {
+      "path": "oaci/reports/c78s_tables/association_prediction_separation.csv",
+      "sha256": "6472a1dd509199cc23e64545702437aefaaf50aa020a64bb01400c4b9ea53d44",
+      "size_bytes": 315
+    },
+    {
+      "path": "oaci/reports/c78s_tables/association_strict_control_summary.csv",
+      "sha256": "d34d0415f4b08cea416e57a11842f77e770b03ce9fd7a1bc966f55d7415c6fb0",
+      "size_bytes": 2446
+    },
+    {
+      "path": "oaci/reports/c78s_tables/association_topology.csv",
+      "sha256": "eabbc6bbd65f4a890a11b872b874b75cb87642f8618594bf6a3c0c3cd7959297",
+      "size_bytes": 998
+    },
+    {
+      "path": "oaci/reports/c78s_tables/association_topology_folds.csv",
+      "sha256": "75e7abd4e9ece005a889447a320795733acbfc623e173c91cb62fbc4bae7fcf8",
+      "size_bytes": 9733
+    },
+    {
+      "path": "oaci/reports/c78s_tables/authorization_and_timing_audit.csv",
+      "sha256": "beb4f20b63e3e5350d8c766ef3049b77989a0455ce5bedd84fff9f977b15a302",
+      "size_bytes": 430
+    },
+    {
+      "path": "oaci/reports/c78s_tables/authorized_red_team_checks.csv",
+      "sha256": "c6288b32704358750ca47ed0e3c588cdd0f092b3940898df3e97686aaf282779",
+      "size_bytes": 42677
+    },
+    {
+      "path": "oaci/reports/c78s_tables/boundary_replay.csv",
+      "sha256": "2ffbea7c88f622de899e33a4b55141acfc87fb51f03f629b606c9882087d5012",
+      "size_bytes": 275
+    },
+    {
+      "path": "oaci/reports/c78s_tables/claim_boundary_ledger.csv",
+      "sha256": "8c5fea5f6770104106e1b107077600bf957cc24ea404ffa9c05e704f2313790e",
+      "size_bytes": 301
+    },
+    {
+      "path": "oaci/reports/c78s_tables/cross_fitted_incremental_prediction.csv",
+      "sha256": "ee5dd59f96be27fc56bc077a7211439b475c299c5558ba11116e4286d55db6ee",
+      "size_bytes": 5802
+    },
+    {
+      "path": "oaci/reports/c78s_tables/crossed_target_trial_bootstrap.csv",
+      "sha256": "9813b28e4189d39661fd3960f9b0deec78ee1ddb5830f6d6c861469d570c80f8",
+      "size_bytes": 426
+    },
+    {
+      "path": "oaci/reports/c78s_tables/effective_multiplicity_coefficients.csv",
+      "sha256": "5bd2a63ded524fdcdbd519a9043f8c832977e5843d11805e7abe4d5dc97057a3",
+      "size_bytes": 390
+    },
+    {
+      "path": "oaci/reports/c78s_tables/effective_multiplicity_prefix_ledger.csv",
+      "sha256": "613d84ac6c1380a4033fcb1f125c8071f411d40c953173f0e9f827a0fc649300",
+      "size_bytes": 11268
+    },
+    {
+      "path": "oaci/reports/c78s_tables/effective_multiplicity_summary.csv",
+      "sha256": "b3295543d35b926349dbab2b95536011351a14ed6bb53224e3f9cd82524be968",
+      "size_bytes": 376
+    },
+    {
+      "path": "oaci/reports/c78s_tables/execution_attempt_ledger.csv",
+      "sha256": "22865ccbbcb6a7a33a47889adaf92fd846eea169d638933144904440612048d1",
+      "size_bytes": 140
+    },
+    {
+      "path": "oaci/reports/c78s_tables/failure_reason_ledger.csv",
+      "sha256": "291e7e443c99067c3e72cfef5d98131046ace1c89bf194844beb39c5a7331ede",
+      "size_bytes": 92
+    },
+    {
+      "path": "oaci/reports/c78s_tables/feature_availability_ledger.csv",
+      "sha256": "a7572350a9016f50a32251548d08feb8a34bec66b67ea011a70ad5438b5d89c2",
+      "size_bytes": 1063
+    },
+    {
+      "path": "oaci/reports/c78s_tables/feature_block_registry.csv",
+      "sha256": "accc2e5c3a45fcb39fc31f2196ee227ce504a08e17f743e46a0f654cf42420c1",
+      "size_bytes": 974
+    },
+    {
+      "path": "oaci/reports/c78s_tables/field_replay.csv",
+      "sha256": "20ebdd373dae6352736b421262ce3340690205838d6d43db6ada58ed001c261e",
+      "size_bytes": 141
+    },
+    {
+      "path": "oaci/reports/c78s_tables/final_report_red_team_checks.csv",
+      "sha256": "ad11c548bc8f0a894781d2014260e630d8c4a352bb2871c3193d9246d64f7ad1",
+      "size_bytes": 1331
+    },
+    {
+      "path": "oaci/reports/c78s_tables/hierarchical_bootstrap_summary.csv",
+      "sha256": "d32ae955d1818291d7b40e7a19d176e830fbbfac2b36a49f33f37d861222dd02",
+      "size_bytes": 300
+    },
+    {
+      "path": "oaci/reports/c78s_tables/label_split_isolation.csv",
+      "sha256": "7d718e6c608d388f2993297b08e674cde6ec32ef2effdffdc69c54d89c847721",
+      "size_bytes": 1427
+    },
+    {
+      "path": "oaci/reports/c78s_tables/leave_regime_out_prediction.csv",
+      "sha256": "12bfe0d1f1673dcd8bf3994d7373ef43976cbe5b53df0cd312cafd2f3ddfe809",
+      "size_bytes": 5756
+    },
+    {
+      "path": "oaci/reports/c78s_tables/leave_target_out_prediction.csv",
+      "sha256": "a8c850858037f63164ba285424051595f8e30b0d6ae49260b34aed5e32b2e1f7",
+      "size_bytes": 23559
+    },
+    {
+      "path": "oaci/reports/c78s_tables/leave_trajectory_out_prediction.csv",
+      "sha256": "12b556899d1b49a761c022a4e052fb79611018e9d631546260fb69fabffbb0d2",
+      "size_bytes": 12268
+    },
+    {
+      "path": "oaci/reports/c78s_tables/level_summary.csv",
+      "sha256": "89a7fc907e44518f9925d32769323296849c14604bf4947881c18cb48e819156",
+      "size_bytes": 121
+    },
+    {
+      "path": "oaci/reports/c78s_tables/measurement_control_actionability_cells.csv",
+      "sha256": "e530ec947fde67bfb05d346f4ddba1e33a8385daf7e46aac6d883dc2b3fcca77",
+      "size_bytes": 8701
+    },
+    {
+      "path": "oaci/reports/c78s_tables/measurement_control_summary.csv",
+      "sha256": "6dd59173436153e518edae67a6d6afbdbde5161d17242addf36228534d561c26",
+      "size_bytes": 1557
+    },
+    {
+      "path": "oaci/reports/c78s_tables/measurement_reliability_by_context.csv",
+      "sha256": "a04974867882790287293e0d693bd860ed8b5fde2628dd6c4876d887ed3862f8",
+      "size_bytes": 2603
+    },
+    {
+      "path": "oaci/reports/c78s_tables/nested_block_nulls.csv",
+      "sha256": "9733a2b080ed620d676659a55302c1a6e9e5af7660400db76872ac03c53d80ce",
+      "size_bytes": 3572
+    },
+    {
+      "path": "oaci/reports/c78s_tables/nonlinear_actionability_cells.csv",
+      "sha256": "d009c56122aae38e69577674fd49cb06bd8ac94f091a8f78af7b32ed6fc60fe4",
+      "size_bytes": 13871
+    },
+    {
+      "path": "oaci/reports/c78s_tables/nonlinear_actionability_summary.csv",
+      "sha256": "f6474fcf69dd0d7ced2e513ee01bb704b53ccb70540897598304c2179ae79c9e",
+      "size_bytes": 1573
+    },
+    {
+      "path": "oaci/reports/c78s_tables/nonlinear_association_family.csv",
+      "sha256": "f14198e339741160bccc87716d745ae8ff3a888fe72db6b335c4359a0863a5a0",
+      "size_bytes": 2171
+    },
+    {
+      "path": "oaci/reports/c78s_tables/nonlinear_association_target_folds.csv",
+      "sha256": "47cd16090b307d82a581400f31b94a6f73a3226770bf928388da7794e1be2ec8",
+      "size_bytes": 17085
+    },
+    {
+      "path": "oaci/reports/c78s_tables/nonlinear_leave_regime.csv",
+      "sha256": "ff4068ca7221f53d88f1e1ba56c080b59fce6513a009cd9f1723ae24baba6112",
+      "size_bytes": 279
+    },
+    {
+      "path": "oaci/reports/c78s_tables/nonlinear_leave_target.csv",
+      "sha256": "7083962f9a6eb3ce0fd75974d0e6cb0474b53c03bf3f3281e58489d0ffa30968",
+      "size_bytes": 2005
+    },
+    {
+      "path": "oaci/reports/c78s_tables/nonlinear_leave_trajectory.csv",
+      "sha256": "2268b2966d12548650c668b73f42eb67c2db33435869124bf77d84a24b43af82",
+      "size_bytes": 619
+    },
+    {
+      "path": "oaci/reports/c78s_tables/nonlinear_prediction_folds.csv",
+      "sha256": "4f56d1db05ea35f97a064ebc646a2579b14c43019e66cfeabf7a5948c20d424c",
+      "size_bytes": 2856
+    },
+    {
+      "path": "oaci/reports/c78s_tables/nonlinear_prediction_summary.csv",
+      "sha256": "93f09a4ccddbea5ef7126264c704aa1dcde42f02a63500b3a7673f663570090f",
+      "size_bytes": 626
+    },
+    {
+      "path": "oaci/reports/c78s_tables/oracle_access_audit.csv",
+      "sha256": "18fa874dcaad9bb06e2f97261a13ce147a95fb988130a5421bdbef511596cb71",
+      "size_bytes": 189
+    },
+    {
+      "path": "oaci/reports/c78s_tables/pre_execution_red_team_checks.csv",
+      "sha256": "17d9682308dcb87309fdea53dc8220c6c56f738b58f3da227c2dd98d72fe453a",
+      "size_bytes": 8062
+    },
+    {
+      "path": "oaci/reports/c78s_tables/prediction_fold_ledger.csv",
+      "sha256": "ec0f3071b233190a2bb4245fd57daa5192c15711f060aae52c0ce887e4a07234",
+      "size_bytes": 67086
+    },
+    {
+      "path": "oaci/reports/c78s_tables/primary_hypothesis_multiplicity.csv",
+      "sha256": "43e1b4a71ec6a5894c6529cb6a3a7144a393a64f3ab40081b24291a23ab12332",
+      "size_bytes": 1294
+    },
+    {
+      "path": "oaci/reports/c78s_tables/protocol_replay.csv",
+      "sha256": "f8a4024170e8ec3f091c5a8d6729a197521ba757a853382826e3fd633b2a69ad",
+      "size_bytes": 774
+    },
+    {
+      "path": "oaci/reports/c78s_tables/regime_summary.csv",
+      "sha256": "6f6fe03c018d36e792fb404d7af7fc59b962bc546cefc7352b6cf02a12d97f78",
+      "size_bytes": 283
+    },
+    {
+      "path": "oaci/reports/c78s_tables/registered_candidate_gate.csv",
+      "sha256": "2762ab8ba6d68375cbd3a2e144ed07ccac4ad14cbfabaf6fdec28be38582c909",
+      "size_bytes": 433
+    },
+    {
+      "path": "oaci/reports/c78s_tables/regression_verification.csv",
+      "sha256": "fbebcd39fcdf03f1efe80cefac397594751620f34397e8aee876d256cd9db4ad",
+      "size_bytes": 425
+    },
+    {
+      "path": "oaci/reports/c78s_tables/resource_replay.csv",
+      "sha256": "2d3e89edb6500176d531297d5c10a4f7024a9e804e78cfd8a712c1b7944be536",
+      "size_bytes": 214
+    },
+    {
+      "path": "oaci/reports/c78s_tables/risk_register.csv",
+      "sha256": "ae6706ded4ced808ed74cc6946e170140ba6dc708064809ce93ce040b9c8fe0e",
+      "size_bytes": 3280
+    },
+    {
+      "path": "oaci/reports/c78s_tables/seed4_protection_audit.csv",
+      "sha256": "0686ee381ac19f992eb5e3fed1755e35ac09d9089a25920b6edcc6668ae04fd7",
+      "size_bytes": 155
+    },
+    {
+      "path": "oaci/reports/c78s_tables/target4_exclusion_audit.csv",
+      "sha256": "ed910f2edb57b33cb7baaf812dd9a340e8ce1574d006c800dffa0f83e4afdecf",
+      "size_bytes": 195
+    },
+    {
+      "path": "oaci/reports/c78s_tables/target_summary.csv",
+      "sha256": "96e0e70b9f7a7dd91a35d911d2df61b4eb21b8500e897137204501618cdf4c4f",
+      "size_bytes": 411
+    },
+    {
+      "path": "oaci/reports/c78s_tables/trial_cluster_bootstrap_by_target.csv",
+      "sha256": "1c88c0aea1b8e5fd51d26691dc3365019a580e7905f93f1fd754bfd85afa97be",
+      "size_bytes": 1819
+    }
+  ],
+  "regression": {
+    "path": "oaci/reports/C78S_REGRESSION_VERIFICATION.md",
+    "sha256": "cf1a7c66af191f8203c745a411906c7f9aaba47e48810f1e0b9db9c5e40f77e7"
+  },
+  "final_report_red_team": {
+    "path": "oaci/reports/C78S_FINAL_REPORT_RED_TEAM.md",
+    "sha256": "0f10b08c11abb5eeb1a8d597bb7de0506354212f2294a70dcea994334fc827d3",
+    "json_path": "oaci/reports/C78S_FINAL_REPORT_RED_TEAM.json",
+    "json_sha256": "d0f45732f6d0be96cc34059bb057981fe8f55b7215483b6545b3495d9843fef4"
+  }
+}

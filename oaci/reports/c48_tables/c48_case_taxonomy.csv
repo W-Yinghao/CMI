@@ -1,0 +1,8 @@
+case,established,evidence
+LC1_conditioned_source_space_ceiling_high,1,"best_conditioned_scope=within_target, hit=1.0, enrichment=2.3597078708023864, permutation_gap=0.5743454359971853"
+LC2_conditioned_source_space_ceiling_low,0,"best_conditioned_scope=within_target, hit=1.0, enrichment=2.3597078708023864, permutation_gap=0.5743454359971853, gates=(0.7,1.5)"
+LC3_existing_scores_underuse_source_space,1,"best_conditioned_gap_vs_c47=0.5555555555555556, c47_hit=0.5555555555555556, local_hit=1.0"
+LC4_ceiling_target_local_not_transferable,0,"best_conditioned_scope=within_target, best_mixed_scope=global, hit_gap_mixed=0.0, gain_gap_mixed=0.0005089501072329528, mixed_reliable=True"
+LC5_base_rate_explains_apparent_ceiling,0,"conditioned_hit=1.0, conditioned_base=0.42378127071295635, conditioned_gain=0.5762187292870437, conditioned_enrichment=2.3597078708023864, permutation_gap=0.5743454359971853"
+LC6_conditioned_actionability_escape_hatch_closed,0,"local_hit=1.0, local_enrichment=2.3597078708023864, c47_hit=0.5555555555555556, c47_enrichment=1.3066262341305979"
+LC7_inconclusive_due_to_artifact_availability,0,required C47/C45 artifacts available

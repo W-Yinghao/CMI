@@ -1,0 +1,25 @@
+{
+  "Bstar_seed3": 1,
+  "Bstar_seed4": 1,
+  "all_five_paths_unconditional": true,
+  "cross_seed_stability": {
+    "Bstar_grid_distance": 0,
+    "common_larger_budget": 1,
+    "direction_concordance_pass": true,
+    "heterogeneity_pass": true,
+    "paired_mean_difference": -0.002350384056666783,
+    "pass": true,
+    "reason": "all_registered_stability_gates_pass",
+    "simultaneous_ci_high": 0.06754317471668235,
+    "simultaneous_ci_low": -0.07224394283001591
+  },
+  "existing_data_retrospective": true,
+  "external_validity_claim": false,
+  "primary_taxonomy": "C80-A_stable_low_regret_label_budget_frontier_across_training_seeds",
+  "protocol_sha256": "2d72eb5119056a6520fd33fc0ac14ee6270bfd573b59c36b74be6aa3dc25fe39",
+  "replacement_lock_sha256": "2149895865bd44b4ab8358c76848bb6774abb59d4a203b261864be0ec599ff62",
+  "same_label_oracle_accessed": false,
+  "schema_version": "c80_existing_field_budget_frontier_result_v1",
+  "selection_manifest_sha256": "b0c856b7ff88490a93c242048e17dae8666cb7bffe55a86ca7660312b9cf8c73",
+  "target4_primary": false
+}

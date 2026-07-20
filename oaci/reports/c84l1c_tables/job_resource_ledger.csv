@@ -1,0 +1,2 @@
+job_id,scheduler_source,scheduler_final,scheduler_exit_code,application_complete,attempt_elapsed_seconds,last_squeue_runtime,partition,node,cpus,memory,gpu,sacct_used,status
+896066,squeue_polling_plus_application_attempt_ledger,ABSENT_AFTER_APPLICATION_COMPLETE,UNAVAILABLE_SQUEUE_ONLY,1,4355.285093888,1:12:18,V100,node42,8,64G,V100:1,0,PASS

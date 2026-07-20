@@ -1,0 +1,6 @@
+information_class,uses_source_only_inputs,uses_target_labels,uses_endpoint_scalar,available_at_selection_time,diagnostic_only,hit
+I1_static_source,1,0,0,1,0,0.5061728395061729
+D_source_dynamic_proxy,1,0,0,1,1,0.5740740740740741
+I3_template,0,1,0,0,1,0.7037037037037037
+D_plus_template,0,1,0,0,1,0.720679012345679
+I7_endpoint_scalar,0,1,1,0,1,0.9444444444444444

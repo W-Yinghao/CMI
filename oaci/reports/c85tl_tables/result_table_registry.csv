@@ -1,0 +1,15 @@
+artifact,producer,publication_mode,required_in_success,created_in_C85TL
+exact_scenario_results.json,c85t_exact_scenarios,atomic_result_root,1,0
+monte_carlo_results.json,c85t_monte_carlo,atomic_result_root,1,0
+c85t_proofs/T1_blackwell_monotonicity.md,c85t_proofs,atomic_result_root,1,0
+c85t_proofs/T2_restricted_policy_counterexamples.md,c85t_proofs,atomic_result_root,1,0
+c85t_proofs/T3_policy_collapse.md,c85t_proofs,atomic_result_root,1,0
+c85t_proofs/T4_two_state_lecam_regret_bound.md,c85t_proofs,atomic_result_root,1,0
+c85t_proofs/T5_fano_extension.md,c85t_proofs,atomic_result_root,1,0
+c85t_proofs/T6_mean_tail_counterexample.md,c85t_proofs,atomic_result_root,1,0
+c85t_proofs/T7_near_optimal_union_bound.md,c85t_proofs,atomic_result_root,1,0
+theorem_status_transitions.csv,c85t_proofs,atomic_result_root,1,0
+C85T_RESULT.json,c85t_execute,atomic_result_root,1,0
+C85T_RESULT_ARTIFACT_MANIFEST.json,c85t_result_manifest,atomic_result_root,1,0
+authorization_consumed.json,c85t_execute,attempt_and_result_roots,1,0
+C85T_EXECUTION_ATTEMPT.json,c85t_execute,attempt_root_before_execution,1,0

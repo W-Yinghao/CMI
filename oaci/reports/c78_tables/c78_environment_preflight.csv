@@ -1,0 +1,5 @@
+job_id,analysis_node,python_executable,environment_prefix,expected_prefix,torch,numpy,CUDA_available,CUDA_initialized,conda_explicit_sha256,expected_conda_explicit_sha256,environment_hash_match,hash_method,real_data_loaded,GPU_requested,note,partition,availability,time_limit,nodes,gres,authorization
+892801,nodecpu01,/home/infres/yinwang/anaconda3/envs/icml/bin/python,/home/infres/yinwang/anaconda3,/home/infres/yinwang/anaconda3/envs/icml,2.8.0+cu128,1.26.4,0,0,2c04fc1733a53b55abd071d6b1657eabfda8bbb56ef0bf0ab97e8234171958a1,2c04fc1733a53b55abd071d6b1657eabfda8bbb56ef0bf0ab97e8234171958a1,1,conda_list_explicit,0,0,CPU P0 environment; assigned GPU environment must replay before future P1 data load,,,,,,
+,,,,,,,,,,,,,,,read-only scheduler snapshot; availability is not authorization,V100,up,2-00:00:00,8,gpu:2(S:0-1),0
+,,,,,,,,,,,,,,,read-only scheduler snapshot; availability is not authorization,V100,up,2-00:00:00,2,gpu:3(S:0-1),0
+,,,,,,,,,,,,,,,read-only scheduler snapshot; availability is not authorization,cpu-high,up,5-00:00:00,2,(null),0

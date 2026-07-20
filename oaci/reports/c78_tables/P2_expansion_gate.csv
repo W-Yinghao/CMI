@@ -1,0 +1,2 @@
+C78_pilot_units,actual_pilot_units,full_seed3_units,SRC_units_in_pilot,SRC_engine_exercised,full_seed3_authorized,silent_escalation_allowed,next_required_review,gate
+82,82,1458,0,0,0,0,prospective_SRC_canary_or_proof_of_identical_validated_path,SRC_CANARY_REQUIRED_BEFORE_FULL_FIELD

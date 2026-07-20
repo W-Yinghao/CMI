@@ -1,0 +1,3 @@
+cache_id,external_root,created_in_c66,real_trial_rows,manifest_hash,status
+c66_trial_cache_v1,/projects/EEG-foundation-model/yinghao/oaci-c66-trial-cache-micropilot/authorized_c66_microcampaign_v1/cache_sha256_aaef9df53eed0c4a,1,3456,7d92e1d0b171c48ba0c6e2d28deb1736f619b62a5560055fca92ce5e10130fa9,created_external_only
+c66_representation_cache_optional,/projects/EEG-foundation-model/yinghao/oaci-c66-trial-cache-micropilot/authorized_c66_microcampaign_v1/cache_sha256_aaef9df53eed0c4a,0,0,,not_requested_not_created

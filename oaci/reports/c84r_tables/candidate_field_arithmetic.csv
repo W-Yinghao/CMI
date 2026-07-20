@@ -1,0 +1,4 @@
+scope,units,training_phases,formula,interface_id
+C84C,243,9,3*81_and_3*3,C84_LEFT_RIGHT_20CH_160HZ_0_3S_V2
+C84F_remaining_after_reusable_C84C,1701,63,1944-243_and_72-9,C84_LEFT_RIGHT_20CH_160HZ_0_3S_V2
+C84_complete,1944,72,3*2*2*2*81_and_3*2*2*2*3,C84_LEFT_RIGHT_20CH_160HZ_0_3S_V2

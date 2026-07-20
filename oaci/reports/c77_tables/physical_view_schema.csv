@@ -1,0 +1,6 @@
+view,uses_source_labels,uses_target_rows,uses_target_labels,uses_evaluation_labels,available_under_strict_source_DG,diagnostic_only,physically_separate
+strict_source_trial_view,1,0,0,0,1,0,1
+target_unlabeled_trial_view,0,1,0,0,0,1,1
+target_construction_view,0,1,1,0,0,1,1
+target_evaluation_view,0,1,1,1,0,1,1
+same_label_oracle_view,0,1,1,1,0,1,1

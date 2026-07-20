@@ -1,0 +1,11 @@
+state_key,sample_count,dtype_set,shape_set,required_by_shallowconvnet_abi
+bn.bias,6,torch.float32,[40],1
+bn.num_batches_tracked,6,torch.int64,[],1
+bn.running_mean,6,torch.float32,[40],1
+bn.running_var,6,torch.float32,[40],1
+bn.weight,6,torch.float32,[40],1
+classifier.bias,6,torch.float32,[4],1
+classifier.weight,6,torch.float32,"[4, 800]",1
+spatial.weight,6,torch.float32,"[40, 40, 22, 1]",1
+temporal.bias,6,torch.float32,[40],1
+temporal.weight,6,torch.float32,"[40, 1, 1, 25]",1

@@ -1,0 +1,8 @@
+null_name,observed_hit,null_mean_hit,null_p95_hit,observed_minus_null_mean,observed_percentile,n_permutations,status,preserved_structure,destroyed_structure,unavailable_reason,target_labels_diagnostic_only,no_selection_artifact
+N0_random_tie_within_trajectory,0.9444444444444444,0.4331597222222222,0.4876543209876543,0.5112847222222222,1.0,64,available,trajectory cell sizes and label counts,row-specific label score,,1,1
+N1_key_preserving_label_shuffle,0.9444444444444444,0.4371624228395061,0.48077160493827165,0.5072820216049383,1.0,64,available,target/trajectory keys and scalar endpoint distribution,candidate-specific scalar endpoint identity,,1,1
+N2_cell_prior_preserving_shuffle,0.4297233780360411,0.4297233780360411,,0.0,,0,analytical_cell_prior,cell base rates,row-specific candidate identity,cell prior is constant inside the evaluated trajectory,1,1
+N3_class_marginal_preserving_shuffle,,,,,,0,unavailable,aggregate C16/C27 class-conditioned evidence exists only outside C52 candidate cells,not_run,candidate-level per-class target prediction/label cache unavailable,1,1
+N4_rank_permutation_within_cell,0.9444444444444444,0.43178047839506173,0.47521604938271605,0.5126639660493827,1.0,64,available,within-cell scalar endpoint rank multiset,candidate-specific rank identity,,1,1
+N5_cross_cell_label_transfer,0.9444444444444444,0.9444444444444444,,0.0,,0,reported_in_transferability_tables,donor cell scalar endpoint summaries,recipient cell-local label identity,see label_transferability_summary.csv,1,1
+N6_source_geometry_preserving_label_null,0.4876543209876543,0.4263117283950617,0.47530864197530864,0.061342592592592615,1.0,64,available,source geometry score ordering inside cells,label identity,,1,1

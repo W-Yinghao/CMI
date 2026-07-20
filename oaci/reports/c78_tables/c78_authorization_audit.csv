@@ -1,0 +1,2 @@
+token_field_path,unique_exact_token_fields,token_sha256,CLI_argument_present,exact_match,prompt_text_considered,environment_considered,substring_scan_performed,training_authorized,decision
+authorization.exact_token,1,077241b125cb49982a41767a4e49d2894b930506bd9c65ecb7e2cb7fc915f06f,0,0,0,0,0,0,P0_READINESS_ONLY

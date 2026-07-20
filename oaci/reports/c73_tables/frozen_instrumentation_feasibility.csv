@@ -1,0 +1,8 @@
+criterion,observed,expected,passed,requires_real_forward
+frozen_checkpoint_mapping,1268,1268,1,0
+source_target_preprocessing_path,signature=94ace185295aa3d42584d8a7b730ba2ba774045aa6df1b1437c3ce31f13500aa;source_subjects=8,22ch;385time;4class;8 source subjects per LOSO target,1,0
+model_output_z_hook,passed_samples=6/6,6/6,1,0
+classifier_W_b_and_Wz_identity,0.0,<=1e-6,1,0
+source_cache_schema,9,>=8 fields,1,0
+representation_Wz_schema,10,>=9 fields,1,0
+storage_runtime_plan,max_GiB=17.707;max_planning_seconds_48cpu=2113.3;pilot_required=1,external sharded CPU planning envelope,1,0

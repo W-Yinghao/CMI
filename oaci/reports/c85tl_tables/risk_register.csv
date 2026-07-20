@@ -1,0 +1,11 @@
+risk_id,risk,trigger,mitigation,residual_status
+R01,registered scenario executed during readiness,S0-S10 dispatcher called without authorization token,token gate plus static and runtime tests,CLOSED_FOR_C85TL
+R02,RNG implementation drift,NumPy runtime or bound binary changes,bind runtime metadata and eleven source/binary identities,FAIL_CLOSED
+R03,nondeterministic reduction,parallel or unordered aggregation,replicate-local generators and canonical serial reduction,FAIL_CLOSED
+R04,S9 marginal law changed,prefix or Rademacher order drift,one generator with exact 51-L then 46-H contract,FAIL_CLOSED
+R05,Monte Carlo overwrites exact result,simulated and exact fields conflated,separate artifacts and authoritative-source registry,FAIL_CLOSED
+R06,simulation promoted to proof,PROVED transition lacks proof audit,status transition validator rejects it,FAIL_CLOSED
+R07,incomplete proof overclaimed,T5 proof obligation unresolved,T5 may remain OPEN and failed attempt retained,CONTROLLED
+R08,partial result publication,failure during result construction,staging root retained and final root absent,FAIL_CLOSED
+R09,real project data import,theory module imports empirical stack,AST isolation test,FAIL_CLOSED
+R10,outcome-informed active work,C85E or active acquisition path introduced,authorization fields false and forbidden-artifact audit,FAIL_CLOSED

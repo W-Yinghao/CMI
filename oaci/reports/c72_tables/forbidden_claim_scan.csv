@@ -1,0 +1,13 @@
+pattern,total_hits,affirmative_hits,files,passed
+deployable selector,0,0,,1
+checkpoint recommendation,1,0,oaci/reports/C72_MEASUREMENT_CONTROL_GAP_PROTOCOL.json,1
+selected checkpoint id,1,0,oaci/reports/C72_MEASUREMENT_CONTROL_GAP_PROTOCOL.json,1
+oaci rescue,0,0,,1
+source-only rescue,1,0,oaci/reports/C72_MEASUREMENT_CONTROL_GAP_PROTOCOL.json,1
+target-population generalization established,0,0,,1
+eeg minimax theorem,0,0,,1
+few-label sufficiency,0,0,,1
+representation causality established,0,0,,1
+row-level iid,0,0,,1
+new training is justified,0,0,,1
+manuscript drafting started,0,0,,1

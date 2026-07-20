@@ -1,0 +1,4 @@
+check,value,expected,passed,notes
+quarantined_label_fields_present,3456,3456,1,raw external diagnostic cache
+source_only_view_labels_masked,64,64,1,sampled view projection
+same_label_oracle_unavailable,1,1,1,same-label endpoint scalar forbidden in C66/C67

@@ -1,0 +1,7 @@
+candidate_id,candidate,source_only,uses_target_labels,uses_endpoint_scalar,hit,cod_proxy,beats_max_null_p95,reliable_escape_hatch,reason
+DADV63-1,source_history_window,1,0,0,0.5740740740740741,0.009104126354836603,0,0,weak bounded gain
+DADV63-2,source_delta_window,1,0,0,0.48148148148148145,0.0012189550952579013,0,0,near or below static source
+DADV63-3,source_rank_history,1,0,0,0.5740740740740741,0.009104126354836603,0,0,same weak source scalarization boundary
+DADV63-4,source_leakage_history,1,0,0,0.4074074074074074,0.019224374371485317,0,0,misaligned with target utility
+DADV63-5,source_dynamic_kernel_neighborhood,1,0,0,,,0,0,not executable as full dynamic kernel without raw windows
+DADV63-6,source_front_temporal_depth,1,0,0,0.43105701988584916,3.4232171596251757e-06,0,0,near base rate

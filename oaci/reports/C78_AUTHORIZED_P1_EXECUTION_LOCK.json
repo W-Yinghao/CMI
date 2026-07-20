@@ -1,0 +1,68 @@
+{
+  "schema_version": "c78_authorized_p1_execution_lock_v1",
+  "milestone": "C78",
+  "parent_no_auth_result_commit": "67bca01949c88ab58360179d19868aa78cfc93b7",
+  "protocol_anchor_commit": "23f549d",
+  "protocol_sha256": "ad6f4e034318b879755ca46a719d39cfd3d3c36d7ee8478771d08778a8b71afc",
+  "authorization": {
+    "received": true,
+    "received_at_utc": "2026-07-10T21:44:52Z",
+    "accepted_channel": "exact_CLI_argument_only",
+    "argument": "--authorization-token",
+    "token_field_path": "authorization.exact_token",
+    "exact_token_sha256": "077241b125cb49982a41767a4e49d2894b930506bd9c65ecb7e2cb7fc915f06f",
+    "prompt_prose_without_token_is_authorization": false,
+    "environment_is_authorization": false
+  },
+  "scope": {
+    "dataset": "BNCI2014_001",
+    "target": 4,
+    "seed": 3,
+    "levels": [0, 1],
+    "ERM_anchors": 2,
+    "OACI_checkpoints": 80,
+    "SRC_units": 0,
+    "total_units": 82
+  },
+  "forbidden": {
+    "full_seed3_field": true,
+    "SRC_training": true,
+    "seed4": true,
+    "BNCI2014_004": true,
+    "target_outcome_retention": true,
+    "selector_or_checkpoint_recommendation": true,
+    "manuscript": true
+  },
+  "process_order": [
+    "assigned_GPU_synthetic_preflight",
+    "source_train_only_training_subjects_1_2_3_7_8_9",
+    "freeze_and_hash_all_82_checkpoints",
+    "postfreeze_source_and_target_view_provisioning",
+    "target_unlabeled_inference_without_label_or_oracle_paths",
+    "aggregate_identity_and_masking_gate",
+    "independent_red_team",
+    "final_report"
+  ],
+  "physical_roles": {
+    "training_process_source_subjects": [1, 2, 3, 7, 8, 9],
+    "training_process_source_audit_subjects": [],
+    "training_process_target_subjects": [],
+    "postfreeze_source_view_subjects": [1, 2, 3, 5, 6, 7, 8, 9],
+    "postfreeze_target_subjects": [4],
+    "primary_instrumentation_target_labels": false,
+    "primary_instrumentation_oracle_path": false
+  },
+  "instrumentation_shards": 2,
+  "implementation_identity_sha256": "991c2927159a40fe5b32c7901e62597ccbd4bac0e47e6a0b7a129faf214a4a12",
+  "implementation_files": [
+    {"path": "oaci/conditioned_ceiling_coverage/c78_seed3_instrumented_pilot.py", "sha256": "fbc700d6d1dbf6d02541c829f08304812eb1ead8036eb7e3b54648205ffad54e"},
+    {"path": "oaci/conditioned_ceiling_coverage/c78_authorized_common.py", "sha256": "b2a2c0ce14154c04ff7c1025c23eaac035dfea3c163d974424ecbc60c3d66658"},
+    {"path": "oaci/conditioned_ceiling_coverage/c78_authorized_train.py", "sha256": "94712e9674ede73f423e427d2502e164dc549cc71d8c78f9306a91bff60e8419"},
+    {"path": "oaci/conditioned_ceiling_coverage/c78_authorized_instrument.py", "sha256": "e2a497e4d0baa77a499c460c34ff186cdd56d8e15b5660c4248cf59c96364088"},
+    {"path": "oaci/slurm_c78_authorized_train.sh", "sha256": "523059459d5136d72ed5b49c42a7caf45671ab3834a5f42f7e011577f06053fe"},
+    {"path": "oaci/slurm_c78_authorized_prepare_views.sh", "sha256": "c95e45891564f94514e2ce07bd44a978e2bb23bd0dd028c0ed31ef2d9076ea05"},
+    {"path": "oaci/slurm_c78_authorized_instrument.sh", "sha256": "e368526c1d9cb3139fab57cee3fb4e78d6ba0e473f3370163375269bd1c285d6"},
+    {"path": "oaci/slurm_c78_authorized_aggregate.sh", "sha256": "1ce988a2da0564e0b2ac23dfb2859defc02812debf628e0152b9c3900acfb2a8"},
+    {"path": "oaci/tests/test_c78_authorized_pilot.py", "sha256": "55d39339920b70b7516eebc720f7953f67dc0aa771cb745fcb261bf767b095eb"}
+  ]
+}

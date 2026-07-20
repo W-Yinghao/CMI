@@ -1,0 +1,2 @@
+reason_id,category,status,blocking,detail
+NONE_OPEN,READINESS,CLOSED,0,"No open C85P protocol, theorem-status, empirical-bridge, or artifact blocker after validation."

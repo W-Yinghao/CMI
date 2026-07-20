@@ -1,0 +1,2 @@
+scope,scratch_pattern,MNE_CACHE_DIR_job_private,TMPDIR_job_private,shared_lock_path,passed
+per_Slurm_job,/tmp/c78f-<stage>-<target>-${SLURM_JOB_ID},1,1,0,1

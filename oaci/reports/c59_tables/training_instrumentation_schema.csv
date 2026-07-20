@@ -1,0 +1,10 @@
+schema_field,required_for,availability,red_team_note
+run_id,all future campaigns,future,pre-registered
+candidate_model_id,candidate-field cache,future,not selected checkpoint
+model_state_digest,replication integrity,future,digest only
+sample_id_order_hash,split-label cache,future,disjointness proof
+logits_probabilities,per-trial predictions,future,quarantined labels
+representation_z,rank-gauge trace,future,no selector tuning
+Wz_projection,representation-head gauge,future,trace only
+leakage_atom_trace,atom proof bridge,future,diagnostic only
+slurm_job_id,resource provenance,future,no login-node heavy work

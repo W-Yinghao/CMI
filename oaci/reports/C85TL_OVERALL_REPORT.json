@@ -1,0 +1,180 @@
+{
+  "schema_version": "c85tl_overall_report_v1",
+  "milestone": "C85TL",
+  "generated_at_utc": "2026-07-16T20:41:31Z",
+  "final_gate": "C85T_PROOF_AND_SYNTHETIC_EXECUTION_IMPLEMENTED_AND_LOCKED_READY_FOR_PI_AUTHORIZATION",
+  "blockers": [],
+  "chronology": {
+    "starting_head": "48022a6ca9683efbe918fb951c8885e107fd8ee4",
+    "protocol_commit": "7e8ffdffcbd8aef5a59e6bfa9a2fe0c5aa20a28f",
+    "principal_implementation_commit": "bf1cef52",
+    "final_implementation_commit": "dad9d39cccf02771d4e643c0649fd66ab660a1c0",
+    "initial_lock_commit_superseded_for_timestamp_metadata": "681012027725e320f7a2739e13f58858cddee6a8",
+    "operative_lock_commit": "9d414ebb889b2cfc3fefa19fa98d7ea5ca9fd691",
+    "protocol_precedes_implementation": true,
+    "implementation_precedes_lock": true
+  },
+  "identity": {
+    "c85p_protocol_sha256": "af4c2cb35a6b6555d6c9ded3105eb7ad4f061ba237d3e8cc3ed6f5a18aede006",
+    "c85r_repair_protocol_sha256": "e37bb444fdd174ba4ca1f95e91d9193378f11dd0ef2aeac3e03cbf6249a34b68",
+    "v2_generator_sha256": "e055c2a785374a3067ce90746a5941b39847b88a4f33e4ff8da5ca8adfde355a",
+    "operationalization_protocol_sha256": "6543d6ebbfccb8158f8f48a4fe6409c6243a708bbb0358d350932dd249e6b7c2",
+    "execution_lock_sha256": "4a289a46040b10855c6f23def53c328bdce0a8b1c71b7e90523887b6c1db7991",
+    "runtime_registry_sha256": "998370ffd3dc7572339b5d3ab1e876519ea4c0bf592842044fe20922d2d30631"
+  },
+  "environment": {
+    "prefix": "/home/infres/yinwang/anaconda3/envs/c84c-eeg2025-v3-exact",
+    "python": "3.13.7",
+    "numpy_runtime": "2.4.4",
+    "numpy_metadata_first_match": "2.3.3",
+    "dual_numpy_metadata_disclosed_and_bound": true,
+    "bound_numpy_files": 11,
+    "bit_generator": "PCG64DXSM",
+    "GPU": 0
+  },
+  "rng_contract": {
+    "namespace": "C85_SYNTHETIC_V1",
+    "seed": "low64_SHA256_little_endian",
+    "replicate_ids": "0..4095",
+    "array_dtype": "float64_unless_exact_rational",
+    "canonical_action_order": true,
+    "parallel_nondeterministic_reduction": false,
+    "registered_stream_requires_future_authorization": true,
+    "shadow_fixture_count": 3
+  },
+  "scenario_modes": {
+    "exact_only": ["S0", "S1", "S2", "S3", "S4", "S5", "S8", "S10"],
+    "exact_plus_4096_monte_carlo": ["S6", "S7", "S9"],
+    "exact_authoritative_where_available": true,
+    "registered_scenarios_executed_C85TL": 0
+  },
+  "S9": {
+    "draw_order": "51_L_then_46_H",
+    "passive_prefix": [51, 13],
+    "neyman_prefix": [18, 46],
+    "all_four_action_estimators": true,
+    "selection": "first_canonical_argmin",
+    "top2": "true_best_in_stable_estimated_top2",
+    "analytic_variance_authoritative": true,
+    "universal_active_superiority_claim": false
+  },
+  "exact_objects": {
+    "S5_candidate_alpha_region": "(13/20,1)",
+    "S5_region_proved_in_C85TL": false,
+    "S8_solver": "exact_rational_vertex_enumeration",
+    "registered_S8_solved_in_C85TL": false
+  },
+  "proof_contract": {
+    "required_artifacts_future": 7,
+    "required_sections_per_artifact": 6,
+    "simulation_can_produce_PROVED": false,
+    "citation_alone_can_produce_PROVED": false,
+    "independent_PASS_required": true,
+    "T5_may_remain_OPEN": true,
+    "canonical_proof_files_created_C85TL": 0,
+    "proof_audits_executed_C85TL": 0,
+    "theorem_status_transitions_C85TL": 0,
+    "theorem_statuses": {
+      "T1": "OPEN",
+      "T2": "OPEN",
+      "T3": "OPEN",
+      "T4": "OPEN",
+      "T5": "OPEN",
+      "T6": "OPEN",
+      "T7": "OPEN"
+    }
+  },
+  "execution_lock": {
+    "schema_version": "c85t_execution_lock_v1",
+    "status": "LOCKED_READY_FOR_DIRECT_PI_AUTHORIZATION_NOT_AUTHORIZED",
+    "authorized": false,
+    "runtime_bound_repository_objects": 106,
+    "runtime_registry_separately_bound": true,
+    "public_entrypoint": "python -m oaci.theory.c85t_execute run-locked --execution-lock <path> --output-root <fresh-root>",
+    "authorization_record_path": "oaci/reports/C85T_PI_AUTHORIZATION_RECORD.json",
+    "authorization_record_present": false,
+    "atomic_publication": true,
+    "failed_staging_preserved": true,
+    "automatic_retry": false
+  },
+  "resource_envelope": {
+    "CPU": 1,
+    "GPU": 0,
+    "RAM_GiB": 8,
+    "wall_minutes": 30,
+    "external_payload_MiB": 64,
+    "runtime_scope_reduction_allowed": false
+  },
+  "shadow_validation": {
+    "C85_family_tests_passed": 92,
+    "new_C85TL_tests": 27,
+    "shadow_normal_raw_replay": "PASS",
+    "shadow_rademacher_raw_replay": "PASS",
+    "shadow_exact_CVaR": "PASS",
+    "shadow_rational_LP": "PASS",
+    "shadow_near_optimal_MC_4096": "PASS",
+    "shadow_full_information_MC_4096": "PASS",
+    "proof_transition_fail_closed": "PASS",
+    "atomic_failure_injections": "3/3 PASS",
+    "registered_result_generated": false
+  },
+  "regression": {
+    "accepted_commit": "9d414ebb889b2cfc3fefa19fa98d7ea5ca9fd691",
+    "initial_complete_pass_superseded_only_for_lock_timestamp_metadata": true,
+    "focused": {"passed": 348, "skipped": 0, "deselected": 0, "runtime_seconds": 6.92, "stdout_sha256": "a64b0717dd8aef5495c0c28643a0fedb1a4c2604818d316a783dd8751c626984", "stderr_bytes": 0},
+    "C65": {"passed": 959, "skipped": 1, "deselected": 3, "runtime_seconds": 68.12, "stdout_sha256": "99bd4822d7d7ea59f972eb3929ce95816a9b358ebee7475bb9a16c6ab77d9579", "stderr_bytes": 0},
+    "C23": {"passed": 1370, "skipped": 1, "deselected": 3, "runtime_seconds": 95.62, "stdout_sha256": "523fedbd550bffd7b28574fc51c966c6437cc0b896201a9e3f2fa6b3fd3e66b5", "stderr_bytes": 0},
+    "full": {"passed": 2294, "skipped": 1, "deselected": 3, "runtime_seconds": 296.85, "stdout_sha256": "fa6a10d4744d848faacedb6eaeeaa75f464c75d8e8dbc35c5fca1fb5c11f387b", "stderr_bytes": 0},
+    "accepted_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "active_C84_C85_OACI_jobs_after_run": 0,
+    "sacct_used": false
+  },
+  "red_team": {
+    "checks": 75,
+    "passed": 75,
+    "failed": 0
+  },
+  "protected_counters": {
+    "registered_S0_S10_executions": 0,
+    "registered_MC_replicates": 0,
+    "canonical_proof_artifacts": 0,
+    "proof_audits": 0,
+    "theorem_status_transitions": 0,
+    "C85T_authorization_records": 0,
+    "real_project_array_access": 0,
+    "selector_or_empirical_inference": 0,
+    "training": 0,
+    "forward": 0,
+    "GPU": 0,
+    "active_acquisition": 0,
+    "C85E_authorization": 0,
+    "new_data_or_model_zoo": 0,
+    "manuscript_work": 0
+  },
+  "artifact_inventory": {
+    "implementation_modules": 6,
+    "contract_tables": 15,
+    "new_tests": 2,
+    "new_test_nodes": 27,
+    "execution_locks": 1,
+    "authorization_records": 0,
+    "proof_files": 0,
+    "scientific_result_files": 0,
+    "implementation_tables_tests_bytes": 127525
+  },
+  "next_boundary": {
+    "direct_statement": "授权 C85T",
+    "authorized_now": false,
+    "future_success_gate": "C85T_DECISION_THEORY_PROOF_AUDIT_AND_SYNTHETIC_VALIDATION_COMPLETE_C85E_PROTOCOL_REVIEW_REQUIRED",
+    "C85E_authorized": false,
+    "active_acquisition_authorized": false,
+    "manuscript_authorized": false
+  },
+  "report_completion": {
+    "readiness_report": "COMPLETE",
+    "red_team_report": "COMPLETE",
+    "regression_report": "COMPLETE",
+    "overall_markdown": "COMPLETE",
+    "overall_json": "COMPLETE"
+  }
+}

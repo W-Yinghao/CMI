@@ -1,0 +1,4 @@
+component,point_mean,bootstrap_mean,ci_low,ci_high,bootstrap_replicates,bootstrap_unit
+target_common_trial,0.48367820041198,0.4834427906739604,0.37702666748064867,0.5759112828663293,2000,target_then_all_four_classes
+checkpoint_candidate,0.3109250899793399,0.31187709999586444,0.21914475503606984,0.4277821452020797,2000,target_then_all_four_classes
+candidate_x_trial_residual,0.20539670960868,0.2046801093301752,0.1751206355293369,0.23825677503215043,2000,target_then_all_four_classes

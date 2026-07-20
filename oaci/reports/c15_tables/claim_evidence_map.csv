@@ -1,0 +1,15 @@
+claim_id,status,evidence_source,metric,value
+C1_measurement,supported_scoped,C8,K1 grouped-permutation null,"54 tests x 2000 perms, source_audit only, target never read"
+C1_measurement,supported_scoped,C8,held-out audit signal is a NULL,"11 nominal, 0 BH survivors / 54"
+C1_measurement,supported_scoped,C10a,selection leakage measurable,"Δsel_leakage mean -0.3261, reduced 54/54"
+C1_measurement,supported_scoped,C10b,source-isolated + reproducible,"identity 216/216, 0 argmax flips, max|Δlogit| ~1.8e-15"
+C2_control_failure_localization,supported_scoped,C10a,selection->audit optimism,"Δsel -0.3261 (54/54) vs Δaudit 0.0076 (25/54), corr 0.004"
+C2_control_failure_localization,supported_scoped,C8,K1 sweep,"stop_no_detectable_heldout_leakage_reduction (11 nominal, 0 Bonferroni & 0 BH survivors / 54)"
+C2_control_failure_localization,supported_scoped,C8,"K2 endpoint (both endpoints, honestly)","stop_no_reproducible_gain: worst_domain_bacc 2 improved / 4 harmed; worst_domain_nll improved on average but NOT reproducibly (worst-fold +0.32, both_levels)"
+C2_control_failure_localization,supported_scoped,C10b,source-audit oracle rescue,"C_oracle_also_fails (oracle_reproducible=False); S0 replay == C8 K2 (stop_no_reproducible_gain); identity 216/216, 0 argmax flips"
+C3_anti_transfer,supported_scoped,C12,every active cell anti-transfers,"6/6 active cells: source-guard NLL down, target NLL up"
+C3_anti_transfer,supported_scoped,C14,"anti-transfer index / instability (n=6, seed 0)","ATI=1.0, STI=1.0, source_nll->target_nll pearson -0.947 (spearman -1.0)"
+C3_anti_transfer,supported_scoped,C12,SRC-caused target-NLL blowups,4/6 active cells (the other 2 of 6/12 are ERM-fallback cells whose NLL already exceeds uniform); tau=0.3 no rescue; level-1 always ERM-fallback
+C4_framework,supported_scoped,C14,battery verdict,"falsified: ['falsified_by_no_endpoint_transfer', 'falsified_by_oracle_failure', 'falsified_by_source_target_antitransfer']"
+C4_framework,supported_scoped,C14,gates,"G0=integrity_ok, G1=selection_optimism_present, G2=weak_nominal_nonmultiplicity_signal, G3=stop_no_reproducible_gain, G4=oracle_fails_to_rescue, G5=source_target_antitransfer_detected"
+C4_framework,supported_scoped,C14,method closure (scoped),OACI + SRC closed_as_control_objective UNDER THIS PROTOCOL (not a general impossibility); support-aware leakage retained_as_measurement

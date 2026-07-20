@@ -1,0 +1,5 @@
+metric,value
+corr_offset_epoch,-0.048516589177144596
+corr_offset_order,-0.12978644770457437
+corr_gauge_pred_epoch,-0.25714592437972444
+offset_is_epoch_proxy,False

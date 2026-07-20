@@ -1,0 +1,6 @@
+artifact,replay,per_unit,required_units,failure_is_blocking
+checkpoint,file_SHA_state_schema_state_hash,1,243,1
+sidecar,canonical_field_set_and_identity,1,243,1
+source_audit,field_shape_row_ID_saved_softmax,1,243,1
+target_unlabeled,field_shape_row_ID_saved_softmax_z_classifier_repeat,1,243,1
+genealogy,parent_ERM_and_previous_trajectory_hash,1,243,1

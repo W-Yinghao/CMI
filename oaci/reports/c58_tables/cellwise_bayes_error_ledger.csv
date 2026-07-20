@@ -1,0 +1,9 @@
+ledger_id,information_class,n_cells,n_candidates,available,best_hit,bayes_error,support_artifact,caveat
+C0_frozen_population,all,162,3804,1,,,C50-C55 committed reports,C58 does not reconstruct all row-level cells; it audits finite-population summaries
+C1_random_tie,G0_random_or_tie,162,3804,1,0.4297233780360411,0.5702766219639589,C52 key null calibration,"fractional tie hit, not integer winner count"
+C2_source,G1_strict_source_observables,162,3804,1,0.5061728395061729,0.49382716049382713,C42/C52,"observed strict-source rule, not universal source Bayes bound"
+C3_key_only,G2_source_plus_key,162,3804,1,0.4876543209876543,0.5123456790123457,C52,best key/source geometry closes 12/162 cells in C53-style accounting
+C4_label_diagnostic,G6_target_label_diagnostic_content,162,3804,1,0.8127572016460904,0.18724279835390956,C52,label-derived diagnostic closes 131/162 cells in C53-style accounting
+C5_endpoint_oracle,G7_same_label_endpoint_oracle,162,3804,1,0.9444444444444444,0.05555555555555558,C54/C55,same-label endpoint scalar; unavailable at selection time
+C6_trajectory_fragmentation,G4/G6_conditioned_diagnostic,162,3804,1,,,C50,trajectory actionability failure fraction 70/162 = 0.432
+C7_split_label_missing,G5_split_label_or_few_label,162,3804,0,,,C53,per-trial split-label cache unavailable

@@ -1,0 +1,4 @@
+dataset,role,status,note
+BNCI2014_001 (this study),internal_development,used,not external
+BNCI2014_004,external_candidate,BARRED_pending_explicit_approval,requires a new protocol + approval; not unbarred by C20
+other MOABB MI cohorts,external_candidate,protocol_only,specify in C20_EXTERNAL_DATASET_PROTOCOL before any execution

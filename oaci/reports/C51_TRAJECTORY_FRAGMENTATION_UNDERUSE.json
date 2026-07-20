@@ -1,0 +1,218 @@
+{
+  "artifact_hygiene": [
+    {
+      "check": "config_hash_unchanged",
+      "passed": true
+    },
+    {
+      "check": "locked_c50_witness_only",
+      "passed": true
+    },
+    {
+      "check": "read_only_committed_artifacts",
+      "passed": true
+    },
+    {
+      "check": "no_training_no_gpu_no_reinference",
+      "passed": true
+    },
+    {
+      "check": "no_bnci2014_004_no_seeds_3_4",
+      "passed": true
+    },
+    {
+      "check": "target_labels_diagnostic_only",
+      "passed": true
+    },
+    {
+      "check": "nulls_and_score_transforms_diagnostic_only",
+      "passed": true
+    },
+    {
+      "check": "no_selection_artifact",
+      "passed": true
+    },
+    {
+      "check": "compact_json_no_row_level_payload",
+      "passed": true
+    }
+  ],
+  "config_hash": "664007686afb520f",
+  "decision": {
+    "best_monotone_gap": 0.33827260702260703,
+    "best_sign_flip_gap": 0.3827160493827161,
+    "best_target_centered_gap": 0.24383834514553482,
+    "best_trajectory_centered_gap": -0.00411522633744843,
+    "decision": "C51-E_target_trajectory_gauge_residual",
+    "diagnostic_gauge_control_closes_gap": true,
+    "max_raw_underuse_gap": 0.40123456790123463,
+    "monotone_closes_gap": false,
+    "n2_fail_fraction_percentile": 0.0,
+    "n3_fail_fraction_percentile": 0.0,
+    "n4_enrichment_null_mean": 0.8342243865476644,
+    "null_like": false,
+    "orientation_closes_gap": false,
+    "residual_stronger_than_null": false,
+    "support_material": false
+  },
+  "diagnostic_only_non_deployable": true,
+  "inherits_from": [
+    "C49",
+    "C50"
+  ],
+  "locked_witness": {
+    "condition": "within_target",
+    "eps_quantile": "q20",
+    "epsilon": 3.2532662364835945,
+    "min_n": 1,
+    "source_objectives": "all_source_objectives"
+  },
+  "milestone": "C51",
+  "n_candidate_rows": 3804,
+  "n_trajectories": 162,
+  "null_calibration": {
+    "n_permutations": 64,
+    "n_rows": 35,
+    "null_names": [
+      "N0_global_label_shuffle",
+      "N1_within_target_label_shuffle",
+      "N2_within_target_trajectory_label_shuffle",
+      "N3_degree_preserving_neighbor_randomization",
+      "N4_source_geometry_permutation_within_target"
+    ]
+  },
+  "observed_c50_replay": {
+    "condition": "within_target",
+    "coverage": 1.0,
+    "enrichment": 2.3597078708023864,
+    "eps_quantile": "q20",
+    "epsilon": 3.2532662364835945,
+    "hit": 1.0,
+    "min_n": 1,
+    "replayed_target_coverage": 1.0,
+    "replayed_target_hit": 1.0,
+    "replayed_trajectory_min_coverage": 1.0,
+    "replayed_trajectory_min_hit": 0.0,
+    "source_objectives": "all_source_objectives",
+    "target_min_coverage": 1.0,
+    "target_min_hit": 1.0,
+    "trajectory_actionability_fail_fraction": 0.43209876543209874,
+    "trajectory_min_coverage": 1.0,
+    "trajectory_min_hit": 0.0
+  },
+  "observed_null_statistics": {
+    "covered_island_enrichment": 2.3597078708023864,
+    "covered_island_hit": 1.0,
+    "max_mean_existing_score_underuse_gap": 0.4308510638297872,
+    "mean_existing_score_underuse_gap": 0.37101063829787234,
+    "trajectory_actionability_fail_fraction": 0.43209876543209874,
+    "trajectory_min_coverage": 1.0,
+    "trajectory_min_hit": 0.0
+  },
+  "red_team": [
+    {
+      "check": "locked_witness_replayed",
+      "finding": "C51 replays the C50 q20/min_n=1 witness and does not search for a new ceiling.",
+      "passed": 1
+    },
+    {
+      "check": "self_neighbor_excluded",
+      "finding": "Within-target distance matrices keep query rows excluded from their own neighborhoods.",
+      "passed": 1
+    },
+    {
+      "check": "target_labels_quarantined",
+      "finding": "Label shuffles and score transforms are diagnostic controls, not deployable rules.",
+      "passed": 1
+    },
+    {
+      "check": "null_calibration_complete",
+      "finding": "N0-N4 null summaries are emitted for all required statistics.",
+      "passed": 1
+    },
+    {
+      "check": "support_grid_complete",
+      "finding": "Support ablation covers q10/q20/q30/q40 and min_n 1/2/3/5.",
+      "passed": 1
+    },
+    {
+      "check": "source_score_attribution_complete",
+      "finding": "Available source score families are audited with sign, monotone, and grouped diagnostic controls.",
+      "passed": 1
+    },
+    {
+      "check": "no_selection_artifact",
+      "finding": "Tables omit selection identifiers and recommendation fields.",
+      "passed": 1
+    },
+    {
+      "check": "no_deployable_claim",
+      "finding": "C51 is reported as failure attribution and source-describability diagnostics only.",
+      "passed": 1
+    }
+  ],
+  "score_underuse_attribution": {
+    "n_rows": 5,
+    "score_names": [
+      "selection_leakage",
+      "R_src",
+      "C30_source_rank",
+      "C19_robust_core",
+      "C43_best_hindsight_scalarization"
+    ]
+  },
+  "self_neighbor_excluded": true,
+  "support_ablation": {
+    "n_rows": 16,
+    "q20_min1": {
+      "coverage": 1.0,
+      "empty_fraction": 0.0,
+      "enrichment": 2.3597078708023864,
+      "eps_quantile": "q20",
+      "epsilon_radius": 3.2532662364835945,
+      "hit": 1.0,
+      "mean_neighbor_count": 54.60725552050473,
+      "median_neighbor_count": 41.0,
+      "min_n": 1,
+      "p10_neighbor_count": 5.0,
+      "singleton_fraction": 0.0002628811777076761,
+      "target_labels_diagnostic_only": 1,
+      "target_min_coverage": 1.0,
+      "target_min_hit": 1.0,
+      "trajectory_actionability_fail_fraction": 0.43209876543209874,
+      "trajectory_min_coverage": 1.0,
+      "trajectory_min_hit": 0.0
+    },
+    "q20_min3": {
+      "coverage": 0.9220324781574136,
+      "empty_fraction": 0.0,
+      "enrichment": 2.3597078708023864,
+      "eps_quantile": "q20",
+      "epsilon_radius": 3.2532662364835945,
+      "hit": 1.0,
+      "mean_neighbor_count": 54.60725552050473,
+      "median_neighbor_count": 41.0,
+      "min_n": 3,
+      "p10_neighbor_count": 5.0,
+      "singleton_fraction": 0.0002628811777076761,
+      "target_labels_diagnostic_only": 1,
+      "target_min_coverage": 0.8618421052631579,
+      "target_min_hit": 1.0,
+      "trajectory_actionability_fail_fraction": 0.5,
+      "trajectory_min_coverage": 0.75,
+      "trajectory_min_hit": 0.0
+    }
+  },
+  "table_row_counts": {
+    "no_selector_artifact_gate": 9,
+    "null_calibration_summary": 35,
+    "red_team_verification": 8,
+    "source_score_underuse_attribution": 5,
+    "support_ablation_grid": 16,
+    "trajectory_failure_ledger": 162
+  },
+  "trajectory_failure_summary": {
+    "fail_fraction": 0.43209876543209874,
+    "n_rows": 162
+  }
+}

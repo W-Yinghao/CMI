@@ -1,0 +1,7 @@
+atom_family,atom_key,n_pairs,atom_available,selected_advantage_sum,selected_advantage_fraction,concentration_rank,concentration_share,interpretation
+probe_fold,not_persisted,114,0,,,,,atom-level leakage contribution unavailable; no class/domain/support atom claim
+class_conditioned,not_persisted,114,0,,,,,atom-level leakage contribution unavailable; no class/domain/support atom claim
+domain_group,not_persisted,114,0,,,,,atom-level leakage contribution unavailable; no class/domain/support atom claim
+source_domain,not_persisted,114,0,,,,,atom-level leakage contribution unavailable; no class/domain/support atom claim
+support_cell,not_persisted,114,0,,,,,atom-level leakage contribution unavailable; no class/domain/support atom claim
+rare_high_variance_cell,not_persisted,114,0,,,,,atom-level leakage contribution unavailable; no class/domain/support atom claim

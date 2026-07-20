@@ -1,0 +1,7 @@
+issue,severity,repair,status
+authorization_ceremony_complexity,governance,direct explicit user authorization plus committed scope-bound lock,closed
+target_loader_structurally_bundles_y,caveat,primary provisioning code never indexes/hashes/emits y; physical target-unlabeled view contains X/IDs only,disclosed
+target4_canary_previously_observed,inference,excluded from every C78S primary test,closed
+seed3_not_target_population_confirmation,claim,exploratory replication field language only,closed
+ERM_OACI_SRC_asymmetry,analysis,ERM anchor never treated as 40-point trajectory,closed
+C78F_generation_not_science,claim,C78S remains not started,closed

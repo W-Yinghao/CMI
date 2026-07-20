@@ -1,0 +1,11 @@
+path_id,registered,runs_regardless_of_interim_result,active_after_Holm_runtime_selection,seed4_outcome_branch,passed
+P1_M_co_primary_measurement,1,1,0,0,1
+P1_A_co_primary_actionability_gate,1,1,0,0,1
+H2R_mandatory_secondary,1,1,0,0,1
+P2_L_co_primary_local_association,1,1,0,0,1
+P2_T_LOTO_co_primary_nested_transport,1,1,0,0,1
+P2_T_LORO_co_primary_nested_transport,1,1,0,0,1
+H4R_mandatory_secondary,1,1,0,0,1
+H5R_mandatory_secondary,1,1,0,0,1
+H6R_mandatory_secondary,1,1,0,0,1
+XSEED_secondary_no_rescue,1,1,0,0,1

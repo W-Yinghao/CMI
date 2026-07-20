@@ -1,0 +1,11 @@
+subagent_id,role,integration_status
+SA1,Proof Auditor,launched_or_locally_integrated
+SA2,Registered Partition Bound Generalizer,launched_or_locally_integrated
+SA3,Rank-Gauge Theorem Stress Agent,launched_or_locally_integrated
+SA4,Empirical Assumption Mapper,launched_or_locally_integrated
+SA5,Gauge Distribution Tail Empiricist,launched_or_locally_integrated
+SA6,Le Cam Fano Repair Agent,launched_or_locally_integrated
+SA7,Source-Observable Adversary,launched_or_locally_integrated
+SA8,Conditional Sufficiency Markov Boundary Agent,launched_or_locally_integrated
+SA9,Instrumentation Blueprint Refiner,launched_or_locally_integrated
+SA10,Integration Red-Team Agent,launched_or_locally_integrated

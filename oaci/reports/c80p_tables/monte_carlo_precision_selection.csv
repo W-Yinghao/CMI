@@ -1,0 +1,5 @@
+candidate_chains,Hoeffding_95_halfwidth,simultaneous_8cell_max_error_p95,bound_criterion,empirical_criterion,bound_pass,empirical_pass,selected,selection_valid
+256,0.08488134473378872,0.08203125,0.035,0.035,0,0,0,1
+512,0.060020174457495044,0.0625,0.035,0.035,0,0,0,1
+1024,0.04244067236689436,0.0419921875,0.035,0.035,0,0,0,1
+2048,0.030010087228747522,0.03076171875,0.035,0.035,1,1,1,1

@@ -1,0 +1,6 @@
+risk,control,residual,status
+Python helper treated as authorization,committed path replay plus external receipt validation,not OS/adversarial Python security,CONTROLLED_GOVERNANCE
+valid-looking partial final root,terminal staging bundle then one rename,filesystem atomic-rename semantics,CONTROLLED
+post-rename process crash,hash-chain recovery classifies valid final as success,external receipt filesystem availability,CONTROLLED
+semantic manifest false positive,artifact-derived counts and deterministic replay,future environment must replay exactly,CONTROLLED
+proof status leakage,C85T candidates only; all formal statuses OPEN,future C85V review quality,DEFERRED_TO_C85V

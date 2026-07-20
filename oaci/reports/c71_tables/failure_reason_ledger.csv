@@ -1,0 +1,6 @@
+reason,status,evidence,blocks_science_claim
+authorization,pass,Exact CLI authorization token supplied to C71 command,0
+protocol_locked_before_t3_access,pass,protocol_sha=984f4ca5a2ab57e679cbb07ab42c6ac0ccb1d937655e6fdab035b670ff19e800; first_access=2026-07-10T02:03:59Z,0
+t3_ho_consumed,pass,rows=605952;units=1052,0
+target_population_generalization,unresolved,C71 remains conditional on nine frozen BNCI2014_001 targets,1
+measurement_control_separation,pass,H1=1;b8_action=0;dense_partial=1,0

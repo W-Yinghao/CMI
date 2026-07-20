@@ -1,0 +1,9 @@
+target,wave,source_train_subjects,source_audit_subjects,target_absent_from_source,partition_complete,expected_source_train_rows,expected_strict_source_rows,expected_target_rows,EEG_data_loaded,target_outcomes_read,passed
+1,B,"[4, 5, 6, 7, 8, 9]","[2, 3]",1,1,3456,4608,576,0,0,1
+2,B,"[1, 5, 6, 7, 8, 9]","[3, 4]",1,1,3456,4608,576,0,0,1
+3,A,"[1, 2, 6, 7, 8, 9]","[4, 5]",1,1,3456,4608,576,0,0,1
+5,B,"[1, 2, 3, 4, 8, 9]","[6, 7]",1,1,3456,4608,576,0,0,1
+6,A,"[1, 2, 3, 4, 5, 9]","[7, 8]",1,1,3456,4608,576,0,0,1
+7,B,"[1, 2, 3, 4, 5, 6]","[8, 9]",1,1,3456,4608,576,0,0,1
+8,A,"[2, 3, 4, 5, 6, 7]","[1, 9]",1,1,3456,4608,576,0,0,1
+9,A,"[3, 4, 5, 6, 7, 8]","[1, 2]",1,1,3456,4608,576,0,0,1

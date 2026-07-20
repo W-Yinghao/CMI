@@ -1,0 +1,13 @@
+target,temp,level,target_nll_blowup,target_bacc_harmed,target_nll_harmed,fallback_erm
+1,0.1,0,True,True,True,False
+1,0.1,1,False,False,False,True
+1,0.3,0,True,True,True,False
+1,0.3,1,False,False,False,True
+3,0.1,0,False,False,True,False
+3,0.1,1,False,False,False,True
+3,0.3,0,False,True,True,False
+3,0.3,1,False,False,False,True
+5,0.1,0,True,True,True,False
+5,0.1,1,True,False,False,True
+5,0.3,0,True,True,True,False
+5,0.3,1,True,False,False,True

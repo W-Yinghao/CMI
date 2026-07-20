@@ -1,0 +1,2 @@
+environment,python_executable,torch,numpy,CUDA_available_on_analysis_node,expected_future_prefix,expected_conda_explicit_sha256,dummy_ABI_passed,real_data_loaded,C78_rule
+/home/infres/yinwang/anaconda3,/home/infres/yinwang/anaconda3/envs/eeg2025/bin/python,2.6.0+cu124,2.4.4,0,/home/infres/yinwang/anaconda3/envs/icml,2c04fc1733a53b55abd071d6b1657eabfda8bbb56ef0bf0ab97e8234171958a1,1,0,rehash exact icml environment and run dummy ABI on assigned GPU before real data

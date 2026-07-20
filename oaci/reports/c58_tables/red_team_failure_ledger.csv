@@ -1,0 +1,13 @@
+gate,failed,finding
+c58_primary_finite_population_scope,0,Finite-population exact scope is limited to registered partitions and endpoint oracle reference.
+lecam_not_overclaimed,0,"Le Cam rows are empirical proxies, not proved two-world bounds."
+fano_not_overclaimed,0,"Fano/Assouad packing is nontrivial only as a candidate audit, not as a bound."
+source_escape_hatch_closed,0,No source-observable escape hatch forces C58-E.
+endpoint_oracle_not_selector,0,Same-label endpoint scalar remains an unavailable diagnostic oracle.
+training_not_run,0,C58 specifies a future training gate but does not authorize or run training.
+no_m1_auto_start,0,C57 is treated as a milestone only; C58 does not start manuscript drafting.
+split_label_future_only,0,Split-label/few-label boundary remains unresolved because the cache is missing.
+missing_atom_trace_documented,0,Atom trace remains missing and is not reconstructed.
+c55_null_boundary_preserved,0,Endpoint scalar beats nulls; template-only does not.
+forbidden_claim_scan_passed,0,Forbidden affirmative claim scan has zero affirmative hits.
+no_selected_checkpoint_artifact,0,C58 emits no selected-candidate field or checkpoint-hash artifact.

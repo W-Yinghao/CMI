@@ -1,0 +1,6 @@
+field,present,blocks,future_training_required
+probability_laws_or_observation_model,0,distributional Le Cam/Fano theorem,0
+pairwise_KL_TV_matrix,0,theorem-grade two-world or packing bound,1
+stable_mutual_information_matrix,0,nontrivial Fano/Assouad packing,1
+representation_tensors_z,0,rank-gauge intervention proof bridge,1
+Wz_components,0,representation gauge trace,1

@@ -1,0 +1,6 @@
+candidate_id,candidate,uses_source_only_inputs,uses_target_labels,hit,cod_proxy,beats_max_null_p95,reliable_escape_hatch,reason
+SADV62-1,strict_source_rank,1,0,0.5061728395061729,0.011594240864770263,0,0,weak nonzero signal but insufficient
+SADV62-2,registered_source_scalarization,1,0,0.5740740740740741,0.009104126354836603,0,0,below max null boundary
+SADV62-3,source_front_depth,1,0,0.43105701988584916,3.4232171596251757e-06,0,0,near base rate
+SADV62-4,kernel_source_neighborhood_score,1,0,,,0,0,requires new registered nested probe; not silently executed
+SADV62-5,matched_source_geometry_without_target_endpoint,1,0,,,0,0,current matched template evidence uses target-label template content

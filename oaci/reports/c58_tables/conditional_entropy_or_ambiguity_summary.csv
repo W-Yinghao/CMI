@@ -1,0 +1,6 @@
+ambiguity_id,proxy,value,source,interpretation
+A1_random_tie,trajectory random/tie hit,0.4297233780360411,C52,high ambiguity without source ordering
+A2_source_rank_mi,discrete MI vs joint-good,0.00871699528126672,C54,source rank carries weak information
+A3_endpoint_mi,endpoint joint-margin MI,0.903,C54,large but tautological endpoint label content
+A4_endpoint_tie_count,mean endpoint scalar top-tie count,1.1111111111111112,C53,low ambiguity once endpoint scalar is read
+A5_pareto_tie_count,mean Pareto endpoint top-tie count,3.2037037037037037,C53,more ambiguity for coarser endpoint families

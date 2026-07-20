@@ -1,0 +1,20 @@
+{
+  "schema_version": "c80r_pre_execution_red_team_v1",
+  "checks": 40,
+  "passed": 40,
+  "failed": 0,
+  "blocking_failures": 0,
+  "scientific_registry_changed": false,
+  "real_budget_outcomes_accessed": 0,
+  "evaluation_label_value_reads": 0,
+  "same_label_oracle_accesses": 0,
+  "target4_primary_rows": 0,
+  "GPU_jobs": 0,
+  "new_C80E_authorization_present": false,
+  "operative_protocol_commit": "e88a24484590636f87d0f22798401a762875046a",
+  "operative_protocol_sha256": "2d72eb5119056a6520fd33fc0ac14ee6270bfd573b59c36b74be6aa3dc25fe39",
+  "operative_adapter_commit": "e5cb41a5cd389674e3ec201d5c5f68a361c2fed3",
+  "operative_lock_commit": "f19acd8775f9b0ddf60401739741bec0019d021c",
+  "operative_lock_sha256": "e18f2b5f1d79b6fcd96207339c5842e30b7aecb5bc22b8939a475487068b1b82",
+  "gate": "C80R_PRE_EXECUTION_RED_TEAM_PASSED"
+}

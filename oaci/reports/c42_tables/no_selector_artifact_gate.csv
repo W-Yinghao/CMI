@@ -1,0 +1,14 @@
+check,passed
+config_hash_unchanged,1
+read_only_committed_artifacts,1
+no_training_no_gpu_no_reinference,1
+no_new_selector_artifact_emitted,1
+score_registry_frozen_before_analysis,1
+c30_source_rank_orientation_fixed,1
+trajectory_conditioned_random_baseline_for_topk,1
+target_centered_rank_marked_non_deployable_diagnostic,1
+no_threshold_tuning_no_feature_selection,1
+no_monolithic_large_json,1
+finite_filtering_applied,1
+no_proxy_target_unlabeled_r3,1
+diagnostic_only_non_deployable,1

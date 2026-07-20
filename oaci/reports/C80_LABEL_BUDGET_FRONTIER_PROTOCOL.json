@@ -1,0 +1,324 @@
+{
+  "schema_version": "c80p_label_budget_frontier_protocol_v1",
+  "milestone": "C80P",
+  "created_at_utc": "2026-07-11T23:12:42Z",
+  "status": "PROTOCOL_LOCKED_REAL_DATA_BUDGET_ANALYSIS_NOT_AUTHORIZED",
+  "parent_head": "dadd1665165cffb173beafa14ee24ea9f41e584a",
+  "epistemic_status": {
+    "designed_after_C79E_outcomes": true,
+    "prospective_to_new_C80_budget_computations": true,
+    "independent_confirmation": false,
+    "retrospective_existing_field_analysis": true,
+    "external_validation": false,
+    "training_seed_robustness_only": false,
+    "cross_seed_existing_data_mapping": true,
+    "same_targets_and_trials_across_seeds": true,
+    "same_label_oracle_used": false,
+    "new_subject_confirmation": false,
+    "new_raw_EEG_confirmation": false
+  },
+  "admission_contract": {
+    "scientific_question": "SQ1_minimal_information_sufficiency_with_limited_SQ3_moderation",
+    "selection_information": "independent_target_construction_labels_only_plus_fixed_nonoutcome_join_keys",
+    "evaluation_object": "physically_disjoint_target_evaluation_view",
+    "transport_axis": "training_seed_stability_of_budget_frontier_only",
+    "primary_metric": "held_evaluation_standardized_regret_and_registered_material_actionability",
+    "independent_unit": "target_with_level_and_seed_repeated_and_trial_checkpoint_dependence",
+    "success_claim": "stable_existing_data_policy_specific_label_budget_frontier",
+    "failure_closure": "no_stable_frontier_under_Q0_and_current_existing_field",
+    "authorization": "direct_PI_authorization_required_for_C80E_after_execution_lock",
+    "outcome_informed_freedom": "fully_declared_and_frozen_before_any_budget_outcome"
+  },
+  "no_outcome_boundary": {
+    "real_seed3_seed4_budget_statistics_before_protocol": 0,
+    "budget_specific_reliability_before_protocol": 0,
+    "budget_specific_topk_before_protocol": 0,
+    "budget_specific_regret_before_protocol": 0,
+    "budget_specific_coverage_before_protocol": 0,
+    "evaluation_label_values_opened_for_C80_before_protocol": 0,
+    "same_label_oracle_accesses": 0,
+    "allowed_prelock_label_operation": "construction_view_per_class_availability_count_only",
+    "availability_operation_scientific_outcome": false
+  },
+  "accepted_inputs": {
+    "C79_protocol_commit": "ec4834c74e58ba8423a357e589d8e20ad6b3f8ba",
+    "C79_protocol_sha256": "e350b7f0c4ee3dfcf6b4f5651c1c7a0e8beac72e478ffb6c1e98e12df814f587",
+    "C79_implementation_repair": "27d078a",
+    "C79_field_lock": "35d0c65",
+    "C79_analysis_lock": "7cebf2e",
+    "C79P_readiness_result": "07943c0",
+    "C79P_handoff": "f176a64",
+    "C79E_final_head": "dadd1665165cffb173beafa14ee24ea9f41e584a",
+    "seed3_field_result": {
+      "path": "oaci/reports/C78F_FULL_SEED3_FIELD.json",
+      "sha256": "8324d1aec1c49ee1fcd9b3007c741ff07b0e9192f503cef994ac5dc19c99b869"
+    },
+    "seed3_complete_manifest": {
+      "path": "oaci/reports/c78f_tables/full_unit_manifest.csv",
+      "sha256": "b90f2d3b9da8ce091c585897c614217fc7064901908c1fb87cbd128d6221e3fc"
+    },
+    "seed3_primary_replay": {
+      "path": "oaci/reports/c78s_tables/field_replay.csv",
+      "sha256": "20ebdd373dae6352736b421262ce3340690205838d6d43db6ada58ed001c261e"
+    },
+    "seed3_primary_route": {
+      "path": "oaci/reports/C78S_PRIMARY_VIEW_ROUTE.json",
+      "sha256": "c99c91fbbcfb7d4316420d12e26c167ea2d81ec7a7d7a5bd59654e71a8286b67"
+    },
+    "seed4_field_result": {
+      "path": "oaci/reports/C79_SEED4_FIELD_GENERATION.json",
+      "sha256": "13fc957b89dcb941fc8f4edeb48f3fdbea5796bb3b5cf8ca86a00eec0c33597e",
+      "external_field_sha256": "98cc58ca719938564298e6804b913114f01397cdd9ca805f86187f40db8f40b4"
+    },
+    "seed4_complete_manifest": {
+      "path": "oaci/reports/c79_tables/seed4_field_manifest.csv",
+      "sha256": "5093ee7f984b336683e629dd10656629f98cd3dd884335a538cfedbd10c8879d"
+    },
+    "seed4_primary_route": {
+      "path": "oaci/reports/C79_SEED4_PRIMARY_VIEW_ROUTE.json",
+      "sha256": "f3de19edc9cece07437db03337d2222005c60106388669f2599cf0f96abf9290"
+    },
+    "shared_label_split": {
+      "path": "oaci/reports/c78s_tables/label_split_isolation.csv",
+      "sha256": "7d718e6c608d388f2993297b08e674cde6ec32ef2effdffdc69c54d89c847721"
+    },
+    "seed4_label_replay": {
+      "path": "oaci/reports/c79_tables/seed4_label_view_access.csv",
+      "sha256": "96bb994f070d55387f592a2e52aa08d8e1968f1c7c004cb5a8defec04b97bb6a"
+    },
+    "C79E_result": {
+      "path": "oaci/reports/C79_SEED4_LOCKED_CONFIRMATION.json",
+      "sha256": "fc48ca0892981759c94fd7669904b305d8aeb9f00b45aaed98c32d73d5d54854"
+    }
+  },
+  "population": {
+    "dataset": "BNCI2014_001_existing_field",
+    "seeds": [3, 4],
+    "primary_targets": [1, 2, 3, 5, 6, 7, 8, 9],
+    "excluded_engineering_target": 4,
+    "levels": [0, 1],
+    "regimes": ["ERM", "OACI", "SRC"],
+    "candidates_per_seed_target_level": 81,
+    "candidate_composition": {"ERM_anchor": 1, "OACI": 40, "SRC": 40},
+    "primary_units_per_seed": 1296,
+    "total_existing_primary_units": 2592,
+    "target4_excluded_from": [
+      "primary_estimands", "budget_curves", "nulls", "confidence_bands",
+      "multiplicity_families", "success_failure_rules", "budget_selection"
+    ],
+    "ERM_role": "single_anchor_not_trajectory",
+    "shared_raw_trials_across_seeds": true
+  },
+  "information_boundary": {
+    "selection_allowed": [
+      "target_construction_view_labels",
+      "candidate_target_predictions_on_sampled_construction_trial_IDs",
+      "target_ID_level_seed_candidate_ID_as_join_or_group_keys",
+      "fixed_regime_and_genealogy_metadata_used_by_exact_C79_rule"
+    ],
+    "selection_forbidden": [
+      "target_evaluation_labels_or_utilities",
+      "same_label_oracle",
+      "trial_ID_or_row_order_as_predictor",
+      "new_target_unlabeled_features",
+      "new_strict_source_features",
+      "seed_specific_retuning",
+      "evaluation_informed_tie_breaking",
+      "per_target_hand_tuning"
+    ],
+    "evaluation_stage": "reads_fixed_evaluation_view_only_after_selection_is_frozen",
+    "same_label_oracle_reachable": false
+  },
+  "budget_design": {
+    "budget_unit": "construction_labels_per_class",
+    "requested_grid": [1, 2, 4, 8, 16, 32, 64, "FULL"],
+    "locked_primary_grid": [1, 2, 4, 8, 16, 32, "FULL"],
+    "removed_before_hash": [
+      {
+        "budget": 64,
+        "reason": "availability_only_infeasible_minimum_class_count_61",
+        "affected_targets": [2, 5, 6, 7, 9],
+        "scientific_outcomes_inspected": 0
+      }
+    ],
+    "FULL_definition": "all_construction_labels_in_exact_shared_split_for_target_and_class",
+    "finite_budget_feasibility_required": true,
+    "availability_table": "oaci/reports/c80p_tables/construction_label_availability.csv"
+  },
+  "acquisition_policy": {
+    "policy_id": "Q0",
+    "description": "stratified_uniform_random_without_replacement_within_class",
+    "nested_sets": true,
+    "nesting": "B1_subset_B2_subset_B4_subset_B8_subset_B16_subset_B32_subset_FULL",
+    "same_trial_subset_across_candidates_within_seed_target_level_chain": true,
+    "shared_split_across_seeds": true,
+    "seed_specific_sampling_streams": true,
+    "active_learning": false,
+    "adaptive_stopping": false,
+    "policy_search": false,
+    "invalid_trial_rule": "fail_cell_and_record_no_replacement_or_budget_drop",
+    "missing_candidate_rule": "block_analysis_no_silent_drop",
+    "candidate_tie_rule": "numpy_argsort_score_default_then_reverse_over_canonical_candidate_order",
+    "canonical_candidate_order": "ERM_then_OACI_then_SRC_then_trajectory_order_then_unit_ID"
+  },
+  "monte_carlo": {
+    "candidate_chain_counts": [256, 512, 1024, 2048],
+    "selected_chain_count": 2048,
+    "selection_rule": "smallest_candidate_with_distribution_free_Hoeffding_95pct_halfwidth_at_most_0.035_for_bounded_0_1_mean",
+    "halfwidth_formula": "sqrt(log(2/0.05)/(2*N))",
+    "candidate_halfwidths": {
+      "256": 0.084878,
+      "512": 0.060018,
+      "1024": 0.042439,
+      "2048": 0.030009
+    },
+    "synthetic_confirmation_required": true,
+    "synthetic_precision_criterion": "95th_percentile_absolute_MC_error_at_most_0.035_and_no_smaller_candidate_passes",
+    "RNG_family": "PCG64",
+    "RNG_base": 8001,
+    "stream_formula": "sha256(C80|seed|target|level|chain)_low32_xor_RNG_base",
+    "draws_are_numerical_integration_not_scientific_samples": true
+  },
+  "selector": {
+    "source": "exact_C79_P1_construction_label_rule",
+    "reference_data_module": "oaci/conditioned_ceiling_coverage/c78s_data.py",
+    "reference_data_sha256": "4f8b9aa5d6ccbc3b078fb0471cfd0174b0c5a9e96a40d0ba9b5f426769ca39ff",
+    "reference_analysis_module": "oaci/conditioned_ceiling_coverage/c78s_seed3_scientific_analysis.py",
+    "reference_analysis_sha256": "785e1a29f64ae03898aeb832914afc0cc4097db5ae5dfd0d0dfddbac1306c4f8",
+    "candidate_metrics": ["balanced_accuracy", "NLL", "ECE"],
+    "orientation": ["higher_bAcc", "lower_NLL", "lower_ECE"],
+    "score_formula": "mean(midrank_percentile(bAcc),midrank_percentile(-NLL),midrank_percentile(-ECE))_within_seed_target_level_over_81_candidates",
+    "class_balance": "balanced_accuracy_equal_class_recall_weight_and_trial_mean_for_NLL_ECE_as_exact_endpoint_metrics",
+    "formula_changes": 0,
+    "reweighting": false,
+    "new_calibration": false,
+    "new_features": false,
+    "seed_specific_tuning": false,
+    "selected_top1": "first_candidate_of_descending_exact_score_order",
+    "selected_topk": [1, 5, 10]
+  },
+  "evaluation": {
+    "evaluation_utility": "mean_within_seed_target_level_midrank(bAcc,-NLL,-ECE)_over_81_candidates_on_full_fixed_evaluation_view",
+    "primary_endpoint": "expected_held_evaluation_standardized_regret",
+    "standardized_regret": "(max_evaluation_utility-selected_evaluation_utility)/(max-min)_or_0_if_range_le_1e-15",
+    "random_policy_expected_regret": "mean_standardized_regret_over_all_81_candidates",
+    "mandatory_secondary": [
+      "top1_hit", "top5_hit", "top10_hit", "joint_good_coverage",
+      "construction_evaluation_reliability", "selected_regime_composition",
+      "per_target_level_regret", "probability_selected_beats_random_expectation"
+    ],
+    "reliability_role": "secondary_measurement_property_not_actionability_precondition"
+  },
+  "materiality": {
+    "exact_P1A_topk_component": "max(top5_improvement_vs_source_bAcc,top10_improvement_vs_source_bAcc)>=0.05",
+    "exact_P1A_regret_component": "source_bAcc_standardized_regret-budget_standardized_regret>=0.05",
+    "exact_P1A_actionability": "topk_component_OR_regret_component",
+    "frontier_primary_material_regret": "mean_target_level_regret_reduction_vs_source_bAcc>=0.05",
+    "minimum_positive_targets": 6,
+    "catastrophic_target_rule": "no_target_mean_regret_reduction_below_-0.10",
+    "coverage_gate": "not_applicable_existing_P1A_has_no_mandatory_coverage_threshold"
+  },
+  "frontier": {
+    "seed_specific_curve": "R_s(B)=target_cluster_mean_expected_standardized_regret_under_Q0",
+    "simultaneous_family": "all_7_locked_budgets_within_seed_and_both_seed_families_reported",
+    "qualification": [
+      "frontier_primary_material_regret_pass",
+      "one_sided_exact_target_signflip_maxT_family_p_le_0.05",
+      "positive_targets_at_least_6_of_8",
+      "no_catastrophic_target_failure",
+      "all_larger_registered_budgets_also_qualify"
+    ],
+    "Bstar": "smallest_budget_whose_qualification_and_every_larger_budget_qualification_equal_true",
+    "Bstar_absent": "no_registered_budget_satisfies_closure",
+    "nonmonotone_rule": "retain_raw_curve_and_apply_larger_budget_closure_no_isotonic_repair_for_primary"
+  },
+  "cross_seed_stability": {
+    "primary_seed_results_separate": true,
+    "Bstar_grid_distance_max": 1,
+    "both_Bstar_required": true,
+    "materiality_concordance": "both_seed_specific_frontiers_qualify_at_respective_Bstar_and_larger",
+    "effect_direction_concordance": "at_least_6_of_8_targets_have_positive_regret_reduction_in_each_seed_at_respective_Bstar",
+    "paired_target_heterogeneity": "absolute_mean_seed4_minus_seed3_regret_reduction_at_common_larger_budget_at_most_0.05_and_simultaneous_95pct_CI_contains_0",
+    "one_or_both_Bstar_absent": "cross_seed_frontier_not_stable",
+    "independent_population_claim": false,
+    "combined_seed_p_value": false
+  },
+  "inference": {
+    "hierarchy": ["seed", "target", "level", "regime", "trajectory", "checkpoint", "trial_ID", "class", "MC_chain", "budget"],
+    "primary_cluster": "target",
+    "targets": 8,
+    "levels_repeated_within_target": true,
+    "seeds_repeated_within_target": true,
+    "nested_budget_dependence": true,
+    "trial_row_iid": false,
+    "checkpoint_iid": false,
+    "MC_chain_scientific_replicate": false,
+    "simultaneous_test": "exact_256_Rademacher_target_sign_patterns_with_max_statistic_across_budgets",
+    "simultaneous_band": "target_cluster_bootstrap_8192_replicates_max_absolute_studentized_deviation",
+    "bootstrap_RNG": 8017,
+    "leave_one_target_out": true,
+    "small_target_limitation_mandatory": true
+  },
+  "secondary_S3": {
+    "variables": ["raw_M", "effective_M_epsilon_0.05", "top_two_gap"],
+    "source": "exact_C79_H2R_endpoint_geometry_columns",
+    "analysis": "descriptive_target_level_Spearman_and_predeclared_low_high_geometry_strata_only",
+    "fitted_replacement_model": false,
+    "qualification_claim": false,
+    "H2_rescue_allowed": false
+  },
+  "synthetic_calibration": {
+    "scenarios": [
+      "S0_no_label_information_flat_random_frontier",
+      "S1_reliable_measurement_no_regret_improvement",
+      "S2_low_budget_actionability_stable_monotone_frontier",
+      "S3_actionability_only_near_FULL",
+      "S4_seed_dependent_frontier",
+      "S5_target_heterogeneous_catastrophic_subgroups",
+      "S6_near_tie_requires_more_labels",
+      "S7_nonmonotone_finite_sample_curve",
+      "S8_pseudoreplication_trap"
+    ],
+    "scenario_replicates": 512,
+    "familywise_false_positive_max": 0.06,
+    "stable_Bstar_recovery_min": 0.90,
+    "seed_heterogeneity_classification_min": 0.90,
+    "small_target_coverage_range": [0.90, 0.99],
+    "pseudoreplication_trap_detection_min": 0.95,
+    "real_data_access_allowed_during_synthetic": false
+  },
+  "scientific_registry": {
+    "path": "oaci/reports/c80p_tables/scientific_registry.csv",
+    "paths": ["P1", "P2", "S1", "S2", "S3"],
+    "categories_per_path": 16,
+    "bound_cells": 80,
+    "blank_cells": 0,
+    "outcome_conditional_paths": 0,
+    "all_paths_unconditional": true
+  },
+  "authorization": {
+    "C80P_requires_authorization": false,
+    "C80E_requires_direct_PI_authorization": true,
+    "future_binding_objects": [
+      "C80_protocol_commit", "C80_protocol_sha256",
+      "C80_analysis_execution_lock_commit", "seed3_seed4_field_and_view_manifests"
+    ],
+    "C80P_authorizes_C80E": false,
+    "magic_token_required": false
+  },
+  "forbidden_scope": {
+    "real_data_budget_analysis_in_C80P": false,
+    "training": false,
+    "forward": false,
+    "reinference": false,
+    "GPU": false,
+    "seed5": false,
+    "target4_primary": false,
+    "same_label_oracle": false,
+    "BNCI2014_004": false,
+    "active_learning": false,
+    "new_feature_kernel_model_search": false,
+    "manuscript": false
+  },
+  "C80P_success_gate": "C80_LABEL_BUDGET_FRONTIER_PROTOCOL_LOCKED_READY_FOR_PI_AUTHORIZATION"
+}

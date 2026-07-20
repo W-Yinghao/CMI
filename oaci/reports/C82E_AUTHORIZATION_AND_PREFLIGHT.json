@@ -1,0 +1,52 @@
+{
+  "schema_version": "c82e_authorization_preflight_v1",
+  "created_at_utc": "2026-07-13T18:10:09Z",
+  "status": "PASS_C82E_LOCKED_EXECUTION_ALLOWED",
+  "repository": {
+    "branch": "oaci",
+    "head": "b1cfa00709bcfd2dd3bbd1f6d11c0f57876241e2",
+    "origin_oaci": "b1cfa00709bcfd2dd3bbd1f6d11c0f57876241e2",
+    "worktree_clean_before_record": true
+  },
+  "binding": {
+    "direct_authorization_present": true,
+    "protocol_commit": "8b0df50b3707dbb3af4a459b6dc6de36c97d562f",
+    "protocol_sha256": "9f58c7a8e6b495a6d8f510c0d72d24ede4485908ef94bc078abe8f124b03a8f3",
+    "analysis_lock_commit": "6c6739c61d362bc33df6d8b016e4cda724772a62",
+    "analysis_lock_sha256": "d5de6d6ff242b9f3d7f9c318cbdd6e1e16c509060bc14cca59292b738a75f5ce",
+    "field_view_manifest_digest": "6180275dcef26bdda4ae4b291d1ef6dc83434462ecacee0350fa94ae9c6a7fef",
+    "selection_manifest_sha256": "4677ed3aba7758ea0008c2093b44d6fb81d425930727e5941950179737ebd519",
+    "selection_payload_sha256": "1ed893acd9190914eb4cb122f3ef26bc1e2355c4103894b816894bd264669257"
+  },
+  "lock_replay": {
+    "protocol_hash": "PASS",
+    "analysis_lock_hash": "PASS",
+    "implementation_objects": "3/3",
+    "registry_artifacts": "19/19",
+    "field_view_objects": "11/11",
+    "method_registry": "34/34",
+    "selection_methods": "19/19",
+    "primary_zero_label_methods": "6/6",
+    "canonical_fields": "16/16",
+    "expected_method_context_rows": 672,
+    "registered_CSV_tables": 23,
+    "taxonomy_same_method_rule": "PASS",
+    "selection_recomputation_allowed": false
+  },
+  "protected_pre_execution_state": {
+    "external_result_directory_absent": true,
+    "authorization_consumption_marker_absent": true,
+    "real_evaluation_view_opens": 0,
+    "scientific_rows": 0,
+    "target4_primary_rows": 0,
+    "same_label_oracle_accesses": 0,
+    "training_forward_reinference_GPU": 0
+  },
+  "execution": {
+    "entrypoint": "python -m oaci.conditioned_ceiling_coverage.c82_post_c81_baseline_recovery run-real",
+    "environment": "/home/infres/yinwang/anaconda3/envs/eeg2025",
+    "allocation": "Slurm CPU only",
+    "single_identity_rerun_allowed": false,
+    "post_evaluation_failure_gate": "C82-E_post_C81_recovery_protocol_implementation_or_provenance_blocker"
+  }
+}

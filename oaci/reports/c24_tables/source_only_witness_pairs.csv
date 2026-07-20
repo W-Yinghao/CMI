@@ -1,0 +1,10 @@
+unit_a,unit_b,source_distance,offset_difference,witness_strength
+t4:S0_full_support,t3:S2_rare_cells,3.7594,0.5316,0.1414
+t3:S0_full_support,t4:S0_full_support,3.8281,0.5098,0.1332
+t4:S0_full_support,t3:S3_nonestimable_cells,4.0301,0.5213,0.1294
+t3:S2_rare_cells,t4:S2_rare_cells,4.3879,0.5287,0.1205
+t3:S3_nonestimable_cells,t4:S3_nonestimable_cells,4.4479,0.5235,0.1177
+t3:S2_rare_cells,t4:S3_nonestimable_cells,4.5468,0.5338,0.1174
+t4:S2_rare_cells,t3:S3_nonestimable_cells,4.4733,0.5184,0.1159
+t3:S0_full_support,t4:S2_rare_cells,4.7812,0.5069,0.106
+t3:S0_full_support,t4:S3_nonestimable_cells,5.1277,0.512,0.0998

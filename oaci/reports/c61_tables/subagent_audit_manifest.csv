@@ -1,0 +1,11 @@
+subagent_id,role,integration_status
+SA1,Framework Translator,launched_or_locally_integrated
+SA2,Diagnostic Specifier,launched_or_locally_integrated
+SA3,Estimator and Null Calibrator,launched_or_locally_integrated
+SA4,Synthetic Rank-Gauge Validator,launched_or_locally_integrated
+SA5,Frozen EEG Information-Ladder Auditor,launched_or_locally_integrated
+SA6,Availability and Same-Label Oracle Auditor,launched_or_locally_integrated
+SA7,Source-Observable Adversary,launched_or_locally_integrated
+SA8,Conditional Sufficiency Screening-Off Agent,launched_or_locally_integrated
+SA9,Instrumentation Implication Agent,launched_or_locally_integrated
+SA10,Integration Red-Team Agent,launched_or_locally_integrated

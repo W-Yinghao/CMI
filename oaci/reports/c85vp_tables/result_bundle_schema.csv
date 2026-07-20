@@ -1,0 +1,7 @@
+object,required_count,role_hash,monte_carlo,atomic
+Stage-A derivations,7,REVIEWER_A,0,1
+Stage-B comparisons,7,REVIEWER_B_COMPARISON,0,1
+adversarial audits,7,REVIEWER_B_ADVERSARIAL,0,1
+final verdicts,7,ADJUDICATOR,0,1
+formal status rows,7,ADJUDICATOR,0,1
+proof retention rows,7,EXTERNAL_IDENTITY,0,1

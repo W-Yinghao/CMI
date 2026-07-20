@@ -1,0 +1,7 @@
+attempt,mode,job_id,status,authorization_exact,training,real_forward,GPU,checkpoint_count,target_rows
+1,protocol_preflight,892932,completed_no_execution,0,0,0,0,0,0
+2,lock_aware_preflight,892950,completed_no_execution,0,0,0,0,0,0
+3,authorized_SRC_training,892951,completed,1,1,1,1,80,0
+4,postfreeze_C78_view_link,892968,completed,1,0,0,0,0,0
+5,CPU_instrumentation_shards,892969+892970,completed,1,0,1,0,80,46080
+6,instrumentation_aggregate,892971,completed,1,0,0,0,80,0

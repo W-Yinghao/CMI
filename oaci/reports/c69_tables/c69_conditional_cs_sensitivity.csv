@@ -1,0 +1,5 @@
+stage,sensitivity,n_permutations,observed_incremental_cod,null_mean,null_p95,passes_proxy_gate,full_cs_claim_allowed
+t1,x2_permutation_global,64,0.00163712,1.057e-05,6.803e-05,1,0
+t1,support_gate,0,0.00163712,,,1,0
+t2,x2_permutation_global,64,0.00291205,1.043e-05,8.613e-05,1,0
+t2,support_gate,0,0.00291205,,,1,0

@@ -1,0 +1,445 @@
+{
+  "boundary_classes": [
+    1,
+    3
+  ],
+  "config_hash": "664007686afb520f",
+  "diagnostic_only_non_deployable": true,
+  "frozen_config": {
+    "diagnostic_label": "tgt__target_bacc_good",
+    "endpoint_features": [
+      "source_guard_worst_bacc",
+      "source_audit_worst_bacc"
+    ],
+    "iters": 800,
+    "l2_C": 1.0,
+    "lr": 0.3,
+    "model": "l2_logistic",
+    "n_perm": 200,
+    "perm_seed": 707,
+    "robust_core_features": [
+      "source_guard_nll",
+      "source_guard_ece",
+      "source_guard_entropy",
+      "source_guard_confidence",
+      "source_guard_margin",
+      "source_guard_logit_norm",
+      "source_guard_conf_on_wrong",
+      "source_audit_nll",
+      "source_audit_ece",
+      "source_audit_entropy",
+      "source_audit_confidence",
+      "source_audit_margin",
+      "source_audit_logit_norm",
+      "source_audit_conf_on_wrong",
+      "selection_leakage_point",
+      "audit_leakage_point"
+    ],
+    "robustness_regimes": [
+      "S0_full_support",
+      "S2_rare_cells",
+      "S3_nonestimable_cells"
+    ],
+    "standardize": true,
+    "static_excluded": [
+      "R_src",
+      "balanced_err",
+      "train_surrogate",
+      "epoch"
+    ],
+    "success_auc_margin": 0.03,
+    "success_p": 0.05,
+    "success_regimes": [
+      "S0_full_support",
+      "S2_rare_cells",
+      "S3_nonestimable_cells"
+    ],
+    "validation": "leave_one_target_out"
+  },
+  "gates": {
+    "feature_registry_frozen": true,
+    "finite_filter": true,
+    "fragile_endpoints_excluded_from_primary": true,
+    "no_selector_artifact": true,
+    "preregistration_config_hash": "664007686afb520f",
+    "static_columns_excluded_from_primary": true,
+    "targets_joined_post_hoc": true
+  },
+  "n_folds": null,
+  "primary": {
+    "per_regime_pass": {
+      "S0_full_support": true,
+      "S2_rare_cells": true,
+      "S3_nonestimable_cells": true
+    },
+    "primary_success": true
+  },
+  "regimes": [
+    "S0_full_support",
+    "S2_rare_cells",
+    "S3_nonestimable_cells"
+  ],
+  "robustness": {
+    "S0_full_support": {
+      "base_rate": 0.47318611987381703,
+      "endpoint_augmented": {
+        "base_rate": 0.5555555555555556,
+        "beats_permutation": true,
+        "features_used": [
+          "source_guard_nll",
+          "source_guard_ece",
+          "source_guard_entropy",
+          "source_guard_confidence",
+          "source_guard_margin",
+          "source_guard_logit_norm",
+          "source_guard_conf_on_wrong",
+          "source_audit_nll",
+          "source_audit_ece",
+          "source_audit_entropy",
+          "source_audit_confidence",
+          "source_audit_margin",
+          "source_audit_logit_norm",
+          "source_audit_conf_on_wrong",
+          "selection_leakage_point",
+          "audit_leakage_point",
+          "source_guard_worst_bacc",
+          "source_audit_worst_bacc"
+        ],
+        "gate": {
+          "counts": {
+            "abstained_constant_or_degenerate_fold": 0,
+            "abstained_insufficient_finite_features": 0,
+            "abstained_source_accuracy_endpoint_nonestimable": 647,
+            "scored": 621
+          },
+          "endpoint_nonestimable_rate": 0.5102523659305994,
+          "insufficient_finite_rate": 0.0,
+          "n_candidates": 1268,
+          "scored_rate": 0.48974763406940064
+        },
+        "loso_auc": 0.5254043268220961,
+        "loto_auc": 0.5531505986137366,
+        "meets_margin": true,
+        "n_endpoint_estimable": 621,
+        "n_features": 18,
+        "n_used": 621,
+        "non_deployable": true,
+        "note": "DIAGNOSTIC-ONLY fixed L2-logistic LOTO probe; no selector emitted.",
+        "passes": true,
+        "per_target_auc": {
+          "1": 0.7911025145067698,
+          "2": 0.7857646229739254,
+          "3": 0.6599099099099099,
+          "4": 0.2855191256830601,
+          "5": 0.6982857142857143,
+          "6": 0.43243243243243246,
+          "7": 0.5632083696599826,
+          "8": 0.6015037593984962,
+          "9": 0.7468982630272953
+        },
+        "permutation_mean_auc": 0.4972232199117832,
+        "permutation_p": 0.004975124378109453
+      },
+      "robust_core": {
+        "base_rate": 0.47318611987381703,
+        "beats_permutation": true,
+        "features_used": [
+          "source_guard_nll",
+          "source_guard_ece",
+          "source_guard_entropy",
+          "source_guard_confidence",
+          "source_guard_margin",
+          "source_guard_logit_norm",
+          "source_guard_conf_on_wrong",
+          "source_audit_nll",
+          "source_audit_ece",
+          "source_audit_entropy",
+          "source_audit_confidence",
+          "source_audit_margin",
+          "source_audit_logit_norm",
+          "source_audit_conf_on_wrong",
+          "selection_leakage_point",
+          "audit_leakage_point"
+        ],
+        "gate": {
+          "counts": {
+            "abstained_constant_or_degenerate_fold": 0,
+            "abstained_insufficient_finite_features": 0,
+            "abstained_source_accuracy_endpoint_nonestimable": 0,
+            "scored": 1268
+          },
+          "endpoint_nonestimable_rate": 0.0,
+          "insufficient_finite_rate": 0.0,
+          "n_candidates": 1268,
+          "scored_rate": 1.0
+        },
+        "loso_auc": 0.5894361277445109,
+        "loto_auc": 0.5607135728542915,
+        "meets_margin": true,
+        "n_features": 16,
+        "n_used": 1268,
+        "non_deployable": true,
+        "note": "DIAGNOSTIC-ONLY fixed L2-logistic LOTO probe; no selector emitted.",
+        "passes": true,
+        "per_target_auc": {
+          "1": 0.7033482142857143,
+          "2": 0.7264619883040936,
+          "3": 0.6676339285714286,
+          "4": 0.7009276437847867,
+          "5": 0.6150017774617845,
+          "6": 0.6386300093196645,
+          "7": 0.6168859649122806,
+          "8": 0.5704484195050232,
+          "9": 0.7317460317460317
+        },
+        "permutation_mean_auc": 0.4757512724550898,
+        "permutation_p": 0.004975124378109453
+      }
+    },
+    "S2_rare_cells": {
+      "base_rate": 0.47318611987381703,
+      "endpoint_augmented": {
+        "base_rate": 0.5555555555555556,
+        "beats_permutation": false,
+        "features_used": [
+          "source_guard_nll",
+          "source_guard_ece",
+          "source_guard_entropy",
+          "source_guard_confidence",
+          "source_guard_margin",
+          "source_guard_logit_norm",
+          "source_guard_conf_on_wrong",
+          "source_audit_nll",
+          "source_audit_ece",
+          "source_audit_entropy",
+          "source_audit_confidence",
+          "source_audit_margin",
+          "source_audit_logit_norm",
+          "source_audit_conf_on_wrong",
+          "selection_leakage_point",
+          "audit_leakage_point",
+          "source_guard_worst_bacc",
+          "source_audit_worst_bacc"
+        ],
+        "gate": {
+          "counts": {
+            "abstained_constant_or_degenerate_fold": 0,
+            "abstained_insufficient_finite_features": 0,
+            "abstained_source_accuracy_endpoint_nonestimable": 647,
+            "scored": 621
+          },
+          "endpoint_nonestimable_rate": 0.5102523659305994,
+          "insufficient_finite_rate": 0.0,
+          "n_candidates": 1268,
+          "scored_rate": 0.48974763406940064
+        },
+        "loso_auc": 0.5293530770846461,
+        "loto_auc": 0.5343205208989708,
+        "meets_margin": true,
+        "n_endpoint_estimable": 621,
+        "n_features": 18,
+        "n_used": 621,
+        "non_deployable": true,
+        "note": "DIAGNOSTIC-ONLY fixed L2-logistic LOTO probe; no selector emitted.",
+        "passes": false,
+        "per_target_auc": {
+          "1": 0.8558994197292069,
+          "2": 0.7251585623678647,
+          "3": 0.6208708708708709,
+          "4": 0.28825136612021857,
+          "5": 0.6674285714285715,
+          "6": 0.42870456663560114,
+          "7": 0.5326939843068875,
+          "8": 0.6090225563909775,
+          "9": 0.7857733664185277
+        },
+        "permutation_mean_auc": 0.4925768220961983,
+        "permutation_p": 0.0945273631840796
+      },
+      "robust_core": {
+        "base_rate": 0.47318611987381703,
+        "beats_permutation": true,
+        "features_used": [
+          "source_guard_nll",
+          "source_guard_ece",
+          "source_guard_entropy",
+          "source_guard_confidence",
+          "source_guard_margin",
+          "source_guard_logit_norm",
+          "source_guard_conf_on_wrong",
+          "source_audit_nll",
+          "source_audit_ece",
+          "source_audit_entropy",
+          "source_audit_confidence",
+          "source_audit_margin",
+          "source_audit_logit_norm",
+          "source_audit_conf_on_wrong",
+          "selection_leakage_point",
+          "audit_leakage_point"
+        ],
+        "gate": {
+          "counts": {
+            "abstained_constant_or_degenerate_fold": 0,
+            "abstained_insufficient_finite_features": 0,
+            "abstained_source_accuracy_endpoint_nonestimable": 0,
+            "scored": 1268
+          },
+          "endpoint_nonestimable_rate": 0.0,
+          "insufficient_finite_rate": 0.0,
+          "n_candidates": 1268,
+          "scored_rate": 1.0
+        },
+        "loso_auc": 0.5840144710578842,
+        "loto_auc": 0.5366566866267465,
+        "meets_margin": true,
+        "n_features": 16,
+        "n_used": 1268,
+        "non_deployable": true,
+        "note": "DIAGNOSTIC-ONLY fixed L2-logistic LOTO probe; no selector emitted.",
+        "passes": true,
+        "per_target_auc": {
+          "1": 0.7604910714285714,
+          "2": 0.6947368421052632,
+          "3": 0.7162946428571428,
+          "4": 0.6883116883116883,
+          "5": 0.6238890863846427,
+          "6": 0.6029822926374651,
+          "7": 0.574780701754386,
+          "8": 0.6451850036755697,
+          "9": 0.7360544217687075
+        },
+        "permutation_mean_auc": 0.48051843812375244,
+        "permutation_p": 0.004975124378109453
+      }
+    },
+    "S3_nonestimable_cells": {
+      "base_rate": 0.47318611987381703,
+      "endpoint_augmented": {
+        "base_rate": 0.5555555555555556,
+        "beats_permutation": true,
+        "features_used": [
+          "source_guard_nll",
+          "source_guard_ece",
+          "source_guard_entropy",
+          "source_guard_confidence",
+          "source_guard_margin",
+          "source_guard_logit_norm",
+          "source_guard_conf_on_wrong",
+          "source_audit_nll",
+          "source_audit_ece",
+          "source_audit_entropy",
+          "source_audit_confidence",
+          "source_audit_margin",
+          "source_audit_logit_norm",
+          "source_audit_conf_on_wrong",
+          "selection_leakage_point",
+          "audit_leakage_point",
+          "source_guard_worst_bacc",
+          "source_audit_worst_bacc"
+        ],
+        "gate": {
+          "counts": {
+            "abstained_constant_or_degenerate_fold": 0,
+            "abstained_insufficient_finite_features": 0,
+            "abstained_source_accuracy_endpoint_nonestimable": 647,
+            "scored": 621
+          },
+          "endpoint_nonestimable_rate": 0.5102523659305994,
+          "insufficient_finite_rate": 0.0,
+          "n_candidates": 1268,
+          "scored_rate": 0.48974763406940064
+        },
+        "loso_auc": 0.5428061331653014,
+        "loto_auc": 0.5302982566687671,
+        "meets_margin": true,
+        "n_endpoint_estimable": 621,
+        "n_features": 18,
+        "n_used": 621,
+        "non_deployable": true,
+        "note": "DIAGNOSTIC-ONLY fixed L2-logistic LOTO probe; no selector emitted.",
+        "passes": true,
+        "per_target_auc": {
+          "1": 0.7514506769825918,
+          "2": 0.696969696969697,
+          "3": 0.545045045045045,
+          "4": 0.32786885245901637,
+          "5": 0.6662857142857143,
+          "6": 0.43056849953401677,
+          "7": 0.5292066259808196,
+          "8": 0.5808270676691729,
+          "9": 0.7882547559966915
+        },
+        "permutation_mean_auc": 0.45911667716866206,
+        "permutation_p": 0.014925373134328358
+      },
+      "robust_core": {
+        "base_rate": 0.47318611987381703,
+        "beats_permutation": true,
+        "features_used": [
+          "source_guard_nll",
+          "source_guard_ece",
+          "source_guard_entropy",
+          "source_guard_confidence",
+          "source_guard_margin",
+          "source_guard_logit_norm",
+          "source_guard_conf_on_wrong",
+          "source_audit_nll",
+          "source_audit_ece",
+          "source_audit_entropy",
+          "source_audit_confidence",
+          "source_audit_margin",
+          "source_audit_logit_norm",
+          "source_audit_conf_on_wrong",
+          "selection_leakage_point",
+          "audit_leakage_point"
+        ],
+        "gate": {
+          "counts": {
+            "abstained_constant_or_degenerate_fold": 0,
+            "abstained_insufficient_finite_features": 0,
+            "abstained_source_accuracy_endpoint_nonestimable": 0,
+            "scored": 1268
+          },
+          "endpoint_nonestimable_rate": 0.0,
+          "insufficient_finite_rate": 0.0,
+          "n_candidates": 1268,
+          "scored_rate": 1.0
+        },
+        "loso_auc": 0.5830713572854291,
+        "loto_auc": 0.5331162674650699,
+        "meets_margin": true,
+        "n_features": 16,
+        "n_used": 1268,
+        "non_deployable": true,
+        "note": "DIAGNOSTIC-ONLY fixed L2-logistic LOTO probe; no selector emitted.",
+        "passes": true,
+        "per_target_auc": {
+          "1": 0.7529017857142857,
+          "2": 0.6992690058479533,
+          "3": 0.6787946428571429,
+          "4": 0.6933209647495362,
+          "5": 0.6317099182367579,
+          "6": 0.625116495806151,
+          "7": 0.5289473684210526,
+          "8": 0.5866209262435678,
+          "9": 0.6764172335600908
+        },
+        "permutation_mean_auc": 0.47055399201596804,
+        "permutation_p": 0.004975124378109453
+      }
+    }
+  },
+  "taxonomy": {
+    "case_label": "robust_core_recovers_weak_competence",
+    "diagnostic_only_non_deployable": true,
+    "endpoint_augmented_success": false,
+    "next_science": "C20 = external / new-regime validation of the diagnostic probe (NOT a DG penalty, NOT a selector).",
+    "per_target_heterogeneity": {
+      "heterogeneous": false,
+      "max": 0.7317460317460317,
+      "min": 0.5704484195050232,
+      "spread": 0.16129761224100847
+    },
+    "primary_success": true
+  }
+}

@@ -1,0 +1,260 @@
+{
+  "schema_version": "c85tr1_execution_guard_rng_persistence_and_proof_review_protocol_v1",
+  "milestone": "C85TR1",
+  "created_at_utc": "2026-07-16T21:24:59Z",
+  "status": "PROTOCOL_LOCKED_BEFORE_V2_IMPLEMENTATION_OR_REGISTERED_EXECUTION",
+  "starting_identity": {
+    "head": "2bebc86f9b42c29f4982b27cc619250948e382b4",
+    "origin_oaci": "2bebc86f9b42c29f4982b27cc619250948e382b4",
+    "branch": "oaci",
+    "c85tl_operationalization_protocol_commit": "7e8ffdffcbd8aef5a59e6bfa9a2fe0c5aa20a28f",
+    "c85tl_operationalization_protocol_sha256": "6543d6ebbfccb8158f8f48a4fe6409c6243a708bbb0358d350932dd249e6b7c2",
+    "c85tl_implementation_commit": "dad9d39cccf02771d4e643c0649fd66ab660a1c0",
+    "historical_execution_lock_commit": "9d414ebb889b2cfc3fefa19fa98d7ea5ca9fd691",
+    "historical_execution_lock_sha256": "4a289a46040b10855c6f23def53c328bdce0a8b1c71b7e90523887b6c1db7991"
+  },
+  "chronology": {
+    "registered_S0_S10_draws_before_repair": 0,
+    "canonical_proof_artifacts_before_repair": 0,
+    "theorem_status_transitions_before_repair": 0,
+    "C85T_authorization_record_before_repair": "ABSENT",
+    "authorization_consumption_before_repair": 0,
+    "repair_outcome_informed": false,
+    "protocol_precedes_V2_implementation": true,
+    "protocol_precedes_V2_execution_lock": true,
+    "protocol_precedes_registered_seed_open": true
+  },
+  "historical_preservation": {
+    "C85T_PROOF_AND_SYNTHETIC_EXECUTION_OPERATIONALIZATION_PROTOCOL.json": "IMMUTABLE",
+    "C85T_EXECUTION_LOCK.json": "IMMUTABLE_SUPERSEDED_BEFORE_AUTHORIZATION_OR_REGISTERED_EXECUTION",
+    "C85T_EXECUTION_LOCK.sha256": "IMMUTABLE",
+    "C85TL_reports_tables_tests_and_regression_evidence": "IMMUTABLE",
+    "C85P_and_C85R_objects": "IMMUTABLE",
+    "in_place_rewrite": false,
+    "additive_supersession_ledger_required": true
+  },
+  "root_cause": {
+    "S9_rng_bytes": "The historical protocol locks Generator.integers dtype=int64 while the implementation requests uint8.",
+    "probability_intervals": "The protocol requires reported probability intervals clipped to [0,1] while implementation persists only unbounded Wald intervals.",
+    "replicate_persistence": "The result schema declares 8192 S6/S7 logical rows and 8192 S9 replicate-design rows while only aggregates and digests are persisted.",
+    "execution_guard": "An exported static string can unlock registered execution.",
+    "authorization": "Authorization consumption is not globally single-use and is not bound to exactly one output root.",
+    "proof_review": "Candidate generation and a same-process token-presence audit cannot constitute independent proof review or justify a formal transition.",
+    "lifecycle": "A one-shot attempt JSON does not durably record execution stage transitions or the last completed stage.",
+    "classification": "C85T_EXECUTION_GUARD_RNG_PERSISTENCE_PROOF_INDEPENDENCE_AND_LIFECYCLE_BLOCKER"
+  },
+  "S9_rng_byte_contract_v2": {
+    "bit_generator": "numpy.random.PCG64DXSM",
+    "integer_call": "Generator.integers(0,2,size=...,dtype=numpy.int64)",
+    "draw_order": ["51 L values", "46 H values"],
+    "mapping": {"0": -1, "1": 1},
+    "raw_persistence_dtype": "little-endian int64",
+    "post_freeze_conversion": "int8 conversion is permitted only after the raw little-endian int64 digest is frozen",
+    "registered_S9_stream_in_C85TR1": false,
+    "shadow_raw_bytes_regenerated": true
+  },
+  "monte_carlo_interval_contract_v2": {
+    "probability_estimands": ["top_1_probability", "outside_A_epsilon_probability"],
+    "raw_interval": "estimate +/- 1.96*Monte_Carlo_SE",
+    "reported_probability_interval": "clip(raw_interval,0,1)",
+    "probability_fields": ["raw_95pct_mc_interval", "reported_95pct_mc_interval", "interval_clipped"],
+    "mean_regret_interval": "unclipped estimate +/- 1.96*Monte_Carlo_SE",
+    "mean_regret_clipped": false
+  },
+  "replicate_persistence_v2": {
+    "S6_and_S7": {
+      "one_NPZ_per_scenario": true,
+      "replicate_count_per_scenario": 4096,
+      "logical_rows_combined": 8192,
+      "arrays": {
+        "replicate_id": "uint16[4096]",
+        "selected_action": "uint16[4096]",
+        "top1": "uint8[4096]",
+        "outside_A_epsilon": "uint8[4096]",
+        "selection_regret": "float64[4096]"
+      }
+    },
+    "S9": {
+      "one_NPZ_with_both_designs": true,
+      "replicate_count_per_design": 4096,
+      "logical_replicate_design_rows": 8192,
+      "per_design_arrays": {
+        "replicate_id": "uint16[4096]",
+        "selected_action": "uint8[4096]",
+        "correct_best": "uint8[4096]",
+        "top2_coverage": "uint8[4096]",
+        "selection_regret": "float64[4096]",
+        "D_hat": "float64[4096]"
+      },
+      "additional_objects": [
+        "raw_L_and_H_int64_draw_digest_per_replicate",
+        "design_allocation_identity",
+        "paired_passive_minus_Neyman_endpoint_arrays"
+      ]
+    },
+    "post_reload_replay": "Every aggregate is recomputed from reloaded saved arrays and must match the aggregate JSON exactly.",
+    "missing_or_duplicate_replicate": "FAIL_CLOSED"
+  },
+  "authorization_contract_v2": {
+    "schema_version": "c85t_direct_pi_authorization_record_v2",
+    "authorization_id": "UUID_OR_256_BIT_RANDOM_NONCE_CREATED_ONLY_AFTER_A_FUTURE_DIRECT_PI_AUTHORIZATION",
+    "direct_statement_exact": "授权 C85T",
+    "execution_lock_sha256": "EXACT_FUTURE_V2_LOCK_SHA256",
+    "execution_lock_commit": "EXACT_FUTURE_V2_LOCK_COMMIT",
+    "output_root": "EXACT_ABSOLUTE_CONTENT_ADDRESSED_RESULT_ROOT",
+    "consumption_ledger_path": "EXACT_ABSOLUTE_PATH_DERIVED_FROM_AUTHORIZATION_SHA256",
+    "protected_false_fields": ["C85E", "active_acquisition", "real_data", "manuscript"],
+    "consumption_operation": "atomic exclusive create with O_CREAT|O_EXCL before any registered seed or proof construction",
+    "receipt_fields": [
+      "authorization_sha256",
+      "authorization_id",
+      "execution_lock_sha256",
+      "execution_lock_commit",
+      "output_root",
+      "attempt_id",
+      "timestamp_utc",
+      "HEAD"
+    ],
+    "existing_receipt": "FAIL_REGARDLESS_OF_PROPOSED_OUTPUT_ROOT",
+    "consumed_after_success_or_failure": true,
+    "pre_lock_direct_statement_reusable": false
+  },
+  "runtime_capability_v2": {
+    "registered_capability": "PRIVATE_OBJECT_CREATED_ONLY_AFTER_SUCCESSFUL_ATOMIC_AUTHORIZATION_CONSUMPTION",
+    "constructor": "requires module-private sentinel",
+    "bound_fields": ["authorization_sha256", "execution_lock_sha256", "attempt_id", "output_root"],
+    "registered_functions_require": "object identity plus exact bound-field replay",
+    "shadow_capability": "distinct private shadow capability for non-registered fixtures",
+    "exported_static_string_authorizes": false,
+    "public_CLI_string_authorizes": false,
+    "cross_attempt_capability_reuse": "FAIL_CLOSED"
+  },
+  "C85T_C85V_separation": {
+    "C85T_allowed": [
+      "execute exact and Monte Carlo registered synthetic scenarios after future authorization",
+      "freeze exact counterexample arithmetic",
+      "write seven self-contained proof candidates",
+      "freeze all synthetic-result and proof-candidate hashes",
+      "run non-dispositive schema and internal-consistency checks"
+    ],
+    "C85T_forbidden": [
+      "transition T1-T7 formal status from OPEN",
+      "claim independent proof review",
+      "use simulation as proof",
+      "use a citation as a complete project proof"
+    ],
+    "C85T_theorem_fields": {
+      "historical_status": "OPEN",
+      "candidate_disposition_allowed": [
+        "PROPOSED_PROOF",
+        "PROPOSED_COUNTEREXAMPLE",
+        "INCOMPLETE_OPEN",
+        "PROPOSED_INVALIDATION"
+      ],
+      "formal_status": "OPEN"
+    },
+    "C85T_internal_check_label": "PROOF_CANDIDATE_SCHEMA_AND_INTERNAL_CONSISTENCY",
+    "C85T_completion_gate": "C85T_SYNTHETIC_VALIDATION_AND_PROOF_CANDIDATES_FROZEN_C85V_REVIEW_REQUIRED",
+    "C85V": "future separate read-only PM-approved independent proof review that does not rerun the Monte Carlo benchmark"
+  },
+  "lifecycle_ledger_v2": {
+    "format": "append-only canonical JSONL",
+    "events": [
+      "PREFLIGHT_STARTED",
+      "PREFLIGHT_COMPLETED",
+      "AUTHORIZATION_CONSUMED",
+      "EXACT_SCENARIOS_STARTED",
+      "EXACT_SCENARIOS_COMPLETED",
+      "MONTE_CARLO_STARTED",
+      "MONTE_CARLO_COMPLETED",
+      "PROOF_CANDIDATES_STARTED",
+      "PROOF_CANDIDATES_COMPLETED",
+      "MANIFEST_STARTED",
+      "MANIFEST_COMPLETED",
+      "ATOMIC_PUBLISH_COMPLETED",
+      "FAILED"
+    ],
+    "event_fields": [
+      "sequence_number",
+      "timestamp_utc",
+      "stage",
+      "authorization_sha256",
+      "execution_lock_sha256",
+      "attempt_id",
+      "artifact_or_receipt_sha256"
+    ],
+    "failure_fields": ["last_completed_stage", "primary_exception_type", "primary_exception_message"]
+  },
+  "result_manifest_v2": {
+    "schema_version": "c85t_atomic_result_manifest_v2",
+    "required_artifacts": [
+      "exact_scenario_results.json",
+      "monte_carlo_summary.json",
+      "S6_replicates.npz",
+      "S7_replicates.npz",
+      "S9_replicates.npz",
+      "S9_raw_draw_digest_registry.csv",
+      "seven proof-candidate Markdown files",
+      "proof_candidate_dispositions.csv",
+      "authorization_consumed.json",
+      "C85T_RESULT.json",
+      "C85T_RESULT_ARTIFACT_MANIFEST.json"
+    ],
+    "exact_counts": {
+      "scenario_results": 11,
+      "S6_S7_logical_replicate_rows": 8192,
+      "S9_logical_replicate_design_rows": 8192,
+      "S9_raw_draw_digest_rows": 4096,
+      "proof_candidates": 7,
+      "formal_theorem_status_OPEN": 7
+    },
+    "protected_counters": {"real_data": 0, "active_acquisition": 0}
+  },
+  "implementation_and_lock": {
+    "historical_lock_operational": false,
+    "new_lock_path": "oaci/reports/C85T_EXECUTION_LOCK_V2.json",
+    "new_lock_sidecar_path": "oaci/reports/C85T_EXECUTION_LOCK_V2.sha256",
+    "new_lock_status": "LOCKED_READY_FOR_DIRECT_PI_AUTHORIZATION_NOT_AUTHORIZED",
+    "bound_objects": [
+      "C85P protocol",
+      "C85R repair protocol and V2 generator",
+      "C85TR1 repair protocol",
+      "int64 RNG implementation and shadow raw bytes",
+      "interval and replicate schemas",
+      "single-use authorization and private capability",
+      "C85T/C85V separation",
+      "append-only lifecycle ledger",
+      "result manifest V2",
+      "all implementation bytes and Git blobs",
+      "exact environment",
+      "fresh output and consumption roots",
+      "failure policy"
+    ]
+  },
+  "C85TR1_execution_boundary": {
+    "allowed": [
+      "protocol and implementation work",
+      "static audits",
+      "shadow RNG fixtures",
+      "shadow replicate persistence and aggregate replay",
+      "authorization and lifecycle failure injection",
+      "focused and cumulative regression tests"
+    ],
+    "forbidden": [
+      "registered S0-S10 stream",
+      "canonical proof result",
+      "theorem status transition",
+      "real project data",
+      "active acquisition",
+      "C85E",
+      "manuscript work"
+    ],
+    "C85T_authorized": false,
+    "C85V_authorized": false,
+    "C85E_authorized": false
+  },
+  "final_gates": {
+    "success": "C85T_EXECUTION_GUARD_RNG_REPLICATE_PERSISTENCE_AND_PROOF_REVIEW_REPAIRED_V2_LOCK_READY_FOR_PI_AUTHORIZATION",
+    "failure": "C85T_AUTHORIZATION_RNG_PERSISTENCE_PROOF_INDEPENDENCE_OR_LIFECYCLE_RECONCILIATION_REQUIRED"
+  }
+}

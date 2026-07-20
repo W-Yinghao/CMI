@@ -1,0 +1,8 @@
+metric,value
+raw_pooled_auc,0.5431489798181415
+source_gauge_loto_auc,0.4684187181193169
+target_centered_oracle_auc,0.6337666333998669
+auc_improve_source_gauge,-0.07473026169882457
+gap_closed_source_gauge,-0.8246766357884945
+success_auc_improve_threshold,0.03
+success_gap_closed_threshold,0.4

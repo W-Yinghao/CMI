@@ -1,0 +1,5 @@
+pair,raw_corr,epoch_residualized_corr
+bacc_delta_vs_nll_improve,0.5895276860885528,0.5044485566983048
+bacc_delta_vs_ece_improve,0.6045200165542912,0.5536805145246209
+nll_improve_vs_ece_improve,0.8914578452696952,
+tradeoff_confirmed,False,coupling_survives_epoch=True

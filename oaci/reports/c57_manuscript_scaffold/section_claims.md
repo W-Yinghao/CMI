@@ -1,0 +1,18 @@
+# C57 - Section Claims
+
+- CL01: Support-aware leakage and estimability gates are retained as falsification instrumentation. (negative_control_result; Support-aware OACI and falsification battery)
+- CL02: OACI is not rescued as a deployable control objective in the observed EEG-DG setting. (negative_control_result; Empirical failure of source-side control)
+- CL03: Good checkpoints are common enough that the failure is localization rather than endpoint scarcity. (observed_in_this_setting; Selector/localization audit)
+- CL04: Source-side measurements contain weak within-target rank information. (empirical_mechanism; Rank-gauge mechanism)
+- CL05: Target competence decomposes empirically into a source-visible rank axis plus a target-specific gauge/offset axis. (empirical_mechanism; Rank-gauge mechanism)
+- CL06: Source scalarization and source Pareto geometry do not provide reliable actionability. (negative_control_result; Empirical failure of source-side control)
+- CL07: Selected OACI misses often incur real continuous and preference-robust local regret. (observed_in_this_setting; Selector/localization audit)
+- CL08: Exact selector mechanics favor the selected source-side candidate over target-better alternatives. (empirical_mechanism; Selector/localization audit)
+- CL09: Conditioning exposes diagnostic local islands and ceilings. (diagnostic_ceiling; Conditioning and local diagnostic ceilings)
+- CL10: Trajectory fragmentation and score underuse prevent those islands from becoming reliable actionability. (empirical_mechanism; Conditioning and local diagnostic ceilings)
+- CL11: Target/trajectory keys alone do not close the residual gauge gap. (information_boundary; Information-boundary closure)
+- CL12: Target-label-derived diagnostic content closes the residual diagnostically. (diagnostic_ceiling; Information-boundary closure)
+- CL13: The strongest endpoint scalar is a same-label endpoint oracle unavailable at selection time. (information_boundary; Endpoint-oracle boundary)
+- CL14: C55 template-only transfer is partial and does not beat the max null p95. (information_boundary; Endpoint-oracle boundary)
+- CL15: Split-label or few-label sufficiency remains future work because the required cache is unavailable. (future_work_only; Discussion / limitations)
+- CL16: C14-C56 are ready to be compressed into a manuscript scaffold rather than extended by another exploratory C-number. (observed_in_this_setting; Discussion / limitations)

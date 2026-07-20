@@ -1,0 +1,13 @@
+check_id,check,passed,blocking,evidence
+PR01,failed_job_preserved,1,0,job_895213
+PR02,job_runtime_zero,1,0,scontrol_RunTime_00:00:00
+PR03,stdout_empty,1,0,0_bytes
+PR04,stderr_empty,1,0,0_bytes
+PR05,locked_entrypoint_not_invoked,1,0,wrapper_HEAD_guard_preceded_python
+PR06,authorization_marker_absent,1,0,external_marker_missing
+PR07,result_directory_absent,1,0,external_result_missing
+PR08,selection_payload_not_opened,1,0,entrypoint_not_invoked
+PR09,evaluation_view_not_opened,1,0,entrypoint_not_invoked
+PR10,scientific_objects_unchanged,1,0,protocol_lock_and_implementation_unchanged
+PR11,outcome_dependent_decision_zero,1,0,no_outcome_access
+PR12,replacement_scope_wrapper_only,1,0,exact_HEAD_operand_correction

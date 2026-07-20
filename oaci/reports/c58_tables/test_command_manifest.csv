@@ -1,0 +1,5 @@
+test_scope,command,status,environment,slurm_partition
+focused_c58,python -m pytest oaci/tests/test_c58_formal_lower_bound_attempt.py -q,green,eeg2025,cpu-high
+c50_c58_slice,python -m pytest oaci/tests/test_c50_conditioned_island_morphology.py ... test_c58_formal_lower_bound_attempt.py -q,green,eeg2025,cpu-high
+c23_c58_regression,python -m pytest oaci/tests/test_c23_score_gauge.py ... test_c58_formal_lower_bound_attempt.py -q,green,eeg2025,cpu-high
+full_oaci_tests,python -m pytest oaci/tests -q,green,eeg2025,cpu-high

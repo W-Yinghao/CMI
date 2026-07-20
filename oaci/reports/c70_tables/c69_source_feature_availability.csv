@@ -1,0 +1,6 @@
+feature_family,available_in_c69_cache,uses_target_labels,uses_eval_labels,available_at_selection_time,diagnostic_only,status
+strict_source_domain_trial_logits,0,0,0,1,0,absent_not_tested
+checkpoint_metadata_seed_level_order,1,0,0,1,1,non_label_metadata_not_strict_source_trial_signal
+target_trial_logits_probabilities,1,0,0,0,1,target_audit_cache_only
+construction_split_target_labels,1,1,0,0,1,split_label_information_class
+same_label_endpoint_oracle,1,1,1,0,1,oracle_boundary_only

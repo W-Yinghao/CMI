@@ -1,0 +1,9 @@
+check,passed
+config_hash_unchanged,True
+source_target_factor_definition_identical,True
+no_target_labels_in_source_factor,True
+target_labels_post_hoc_only,True
+no_feature_selection_or_grid,True
+no_selected_checkpoint_artifact,True
+source_factor_not_called_selector,True
+diagnostic_only_non_deployable,True

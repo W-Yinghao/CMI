@@ -1,0 +1,2 @@
+estimator,paired_eval_rows,independent_checkpoint_units,mse_x1,mse_x1_x2,delta_mse,null_mean_delta,null_p_ge_observed,status,claim
+ridge_increment_proxy_not_full_cs,1768,6,0.251593850583079,0.2247134836935862,0.026880366889492774,-0.11734394330637027,0.0,underpowered_or_unstable,conditional_cs_smoke_not_full_claim

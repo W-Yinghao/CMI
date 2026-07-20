@@ -1,0 +1,48 @@
+{
+  "C78S_replay": {
+    "all_reference_values_match": true,
+    "protocol_sha256": "df85699090a65d1e1766d754bcebd9eb5648cc13e4441d8074a3f4884487c7f8",
+    "provenance_repair_checks_passed": 8,
+    "provenance_repair_checks_total": 8
+  },
+  "blocking_risks": [
+    "C79_protocol_post_C78S_outcome",
+    "C79_protocol_outcome_adaptive_hypothesis_filter",
+    "C79_exact_scientific_registry_incomplete"
+  ],
+  "execution_boundary": {
+    "GPU": 0,
+    "forward_or_reinference": 0,
+    "label_views": 0,
+    "same_label_oracle": 0,
+    "seed4_access": 0,
+    "seed4_artifacts": 0,
+    "seed4_jobs": 0,
+    "training": 0
+  },
+  "final_gate": "C79_PROTOCOL_OR_TIMING_REPAIR_REQUIRED",
+  "milestone": "C79",
+  "mode": "R_review_only",
+  "primary_taxonomy": "C79-F_protocol_timing_provenance_or_isolation_blocker",
+  "protocol": {
+    "adaptive_generator_rule_first_commit": "e561a15865934036bdccbc1e3b2ff126ad84821f",
+    "adaptive_generator_rule_predates_first_outcome": true,
+    "complete_registry_components": 2,
+    "created_at_utc": "2026-07-11T10:43:47Z",
+    "first_commit": "43a046c5ba6632de415bfdbaacfa524d82c5395e",
+    "outcome_adaptive_active_hypotheses": true,
+    "path": "oaci/reports/C79_SEED4_LOCKED_CONFIRMATION_PROTOCOL.json",
+    "predates_first_C78S_outcome": false,
+    "required_registry_components": 16,
+    "sha256": "7732986513793725d58933d487f5bc8f4fc68bfad0857bb4734a450b41ca5dd4",
+    "sha_match": true
+  },
+  "schema_version": "c79_protocol_review_replay_v1",
+  "skeleton": {
+    "eligible_as_final_protocol": false,
+    "first_commit": "23f549d73803bd23e435f7dae581de29bf62285f",
+    "sha256": "cf74cf7de14a432cbd44f90228254b5977a67c773d9755ff9cad472c47b45f42",
+    "status": "SKELETON_ONLY_NOT_FINAL_NOT_AUTHORIZED"
+  },
+  "stop_rule": "Phase_1_failed_no_implementation_lock_no_Mode_E"
+}

@@ -1,0 +1,36 @@
+{
+  "schema_version": "c81p_protocol_readiness_v1",
+  "milestone": "C81P",
+  "primary": "C81P-A_frozen_field_baseline_comparison_protocol_locked_complete",
+  "final_gate": "C81_AAAI_BASELINE_COMPARISON_PROTOCOL_LOCKED_READY_FOR_PI_AUTHORIZATION",
+  "protocol": {
+    "commit": "16a0d2eba4715a1cec78da6a79a182fd416a6629",
+    "sha256": "cbdb42f54956b685c27a1718c37d7c56c513084817a5c69fb29f06bfb67ad3ee"
+  },
+  "method_registry_sha256": "ef48ecf7fcc55188b78b0878d86f07f6239fe4f6c88bbc854829b3a1c7a1a120",
+  "implementation_commit": "d17ffa62a63b929d36d03f74e4ce79794cd9601b",
+  "analysis_lock": {
+    "commit": "541651c2ee3343c12d374a7322c91181a860a2c9",
+    "sha256": "b383707f58063c10f719194a995ab34094f6dcefe08c1e71837644db83dc94f1"
+  },
+  "registered_methods": 34,
+  "primary_family_representatives": 12,
+  "primary_zero_label_representatives": 6,
+  "pre_execution_red_team": {"passed": 43, "total": 43},
+  "synthetic_checks": {"passed": 20, "total": 20},
+  "accepted_regression": {
+    "commit": "e347a06edf9fdcabd999cb848301d7d6b025c36c",
+    "focused": {"job": 894763, "passed": 43, "failed": 0},
+    "C65_C81P": {"job": 894764, "passed": 412, "failed": 0, "skipped": 1, "deselected": 3},
+    "C23_C81P": {"job": 894765, "passed": 823, "failed": 0, "skipped": 1, "deselected": 3},
+    "full_OACI": {"job": 894766, "passed": 1747, "failed": 0, "skipped": 1, "deselected": 3}
+  },
+  "protected_state": {
+    "C81E_authorized": false,
+    "real_baseline_statistics": 0,
+    "evaluation_label_value_reads": 0,
+    "same_label_oracle_accesses": 0,
+    "target4_primary_rows": 0,
+    "training_forward_reinference_GPU": 0
+  }
+}

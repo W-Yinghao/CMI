@@ -1,0 +1,64 @@
+{
+  "authorization": {
+    "authorization_file_sha256": "bb5c11b00c9b3073e45110845eb84f2c777f4d8976eef5f68acf3d6126b794b2",
+    "authorization_id": "c83191ae-0583-4c5d-8ae7-d58483644a0d",
+    "consumption_receipt_path": "/projects/EEG-foundation-model/yinghao/oaci-c85v-authorization-consumption-v1/bb5c11b00c9b3073e45110845eb84f2c777f4d8976eef5f68acf3d6126b794b2.json",
+    "consumption_receipt_sha256": "9b8fed72b8e5cf52707da4b474aecee36cf3e95b1ee93de09ad14532b84faced",
+    "single_use": true
+  },
+  "bundle": {
+    "adjudication_manifest_sha256": "b2359f7be69713f232bf603d9886f8aea3bdd03646d02b8c706d155167808d9e",
+    "artifact_count": 39,
+    "attempt_id": "3caa11bb444f40ac9f591f40399da1eb",
+    "completion_receipt_sha256": "60ae19b5a4e7ad04b02e392c35077e00adbf7aee66dc54d85c50fa47f7ce0d18",
+    "file_count": 42,
+    "lifecycle_sha256": "b1d8bb47efad019675e4bcaf714e105d4b6c511f546c35537c1e029c5d19be94",
+    "manifest_sha256": "952579daf0cd2840bad4eea98a1537c1a25458da96d96a4de89fe205e121ac9c",
+    "output_root": "/projects/EEG-foundation-model/yinghao/oaci-c85v-proof-review-v1/c85v-35cd029ba9cf6859-c83191ae05834c5d",
+    "result_sha256": "49e148f9c9c8e43dc137a896fd0333b79c3496e06a4e41ef572e9b50d2b06b8e",
+    "stage_a_manifest_sha256": "bca3e4b7e6927c447936339efe0444fb2dbc2fe34d92522ad375819494b4f6eb",
+    "stage_b_manifest_sha256": "ea59a7b47f5ccdaa9d75de325e63a5ee9aece774ae68f7f3c7b9a871ad820e4a",
+    "status_registry_sha256": "5fe48d0bf2608f177215b409ebbe236811e5b89a9ce647d5b73618b7bd8fa257",
+    "total_size_bytes": 59451
+  },
+  "execution": {
+    "GPU": 0,
+    "job_id": 900000,
+    "partition": "cpu-high",
+    "requested_CPUs": 1,
+    "requested_memory_GiB": 4,
+    "sacct_used": false,
+    "scheduler_terminal_state_observed": false,
+    "stderr_bytes": 0,
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_bytes": 824,
+    "stdout_sha256": "5469e64e55c2e0c87171f95cede6dd69e6412232dfc4beda193265dbe29a6a8c",
+    "time_limit_minutes": 30
+  },
+  "final_gate": "C85V_INDEPENDENT_PROOF_VERDICTS_AND_THEOREM_STATUSES_FROZEN_C85E_PROTOCOL_REVIEW_REQUIRED",
+  "protected_counters": {
+    "C85E_authorized": false,
+    "active_acquisition": 0,
+    "manuscript_modified": false,
+    "monte_carlo_reruns": 0,
+    "proof_candidates_overwritten": 0,
+    "real_data_access": 0
+  },
+  "repository_and_lock": {
+    "authorization_commit": "c5a818021a9c5d9ecc4cd661be84eb4e9efacbf1",
+    "execution_HEAD": "c5a818021a9c5d9ecc4cd661be84eb4e9efacbf1",
+    "execution_lock_commit": "3c732489407ebca7603e5fb65d03c1ae25d046b6",
+    "execution_lock_sha256": "35cd029ba9cf68599a53d3f23db7a7c0a721440d9fb79be88a084548e452b20f"
+  },
+  "reported_at_utc": "2026-07-17T11:54:29Z",
+  "schema_version": "c85v_result_identity_v1",
+  "theorem_statuses": {
+    "T1": "PROVED",
+    "T2": "COUNTEREXAMPLE",
+    "T3": "PROVED",
+    "T4": "PROVED",
+    "T5": "OPEN",
+    "T6": "COUNTEREXAMPLE",
+    "T7": "PROVED"
+  }
+}

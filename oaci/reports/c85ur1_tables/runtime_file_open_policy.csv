@@ -1,0 +1,3 @@
+stage,allowed,forbidden,pre_access_guard,status
+U1,field/trial/candidate/evaluation metadata; evaluation labels; target artifacts and sidecars,"Stage-B, Q0, method decisions, scientific result",U1 O_EXCL receipt,PASS
+U2,U1 field; candidate ranks; fixed actions; Q0 index/shards; historical decisions,"evaluation labels, target artifacts, logits, construction labels",U2 O_EXCL receipt,PASS

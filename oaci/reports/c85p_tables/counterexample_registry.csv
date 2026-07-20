@@ -1,0 +1,4 @@
+counterexample_id,theorem_id,scenario_id,locked_object,parameter_source,status,executed
+CE_T2,T2,S1,binary perfect experiment versus constant garbling with non-nested fixed policies,prospective simple rational construction,OPEN,0
+CE_T2_GAP,T2,S10,three-state policy-approximation reversal,prospective simple rational construction,OPEN,0
+CE_T6,T6,S5,nine favorable groups and one adverse group,prospective simple rational construction,OPEN,0

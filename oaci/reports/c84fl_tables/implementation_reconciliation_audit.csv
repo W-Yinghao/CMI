@@ -1,0 +1,13 @@
+check_id,object,expected,observed,passed,blocking,interpretation
+L01,external_protocol_V2,levels_enumerated,"[0, 1]",1,0,arithmetic_identity_only
+L02,C84_protocol_family,level_1_training_intervention_and_input_rule,NONE,0,1,level_1_scientific_training_object_unbound
+L03,C84C_training_objects_signature,seed_and_level_parameters,source|torch|np,0,1,canary_training_constructor_is_level0_only
+L04,C84C_training_plan,runtime_seed_parameter,TRAINING_SEED_constant_used,0,0,mechanical_seed_parameterization_required
+L05,C84C_unit_filter,all_locked_panel_seed_level_cells,panel_A_seed5_level0_only,0,0,canary_scope_correct_but_not_full_field_implementation
+L06,C84C_result_scope,engineering_canary_level0_only,0,1,0,no_level1_runtime_evidence
+L07,historical_C78_level_semantics,registered_deleted_cell_drives_level1,target_specific_split_deleted_cell,1,0,historical_semantics_require_an_input_absent_from_C84_fixed_zoo
+L08,C84_fixed_zoo,no_target_specific_retraining,False,1,0,cannot_import_target_specific_C78_deleted_cell
+L09,complete_unit_registry,972_units_per_level,"{""0"": 972, ""1"": 972}",1,0,complete_field_scope
+L10,remaining_training_registry,729_level0_and_972_level1,"{""0"": 729, ""1"": 972}",1,0,972_remaining_units_have_undefined_training_intervention
+L11,C84F_execution_lock,absent_on_protocol_blocker,False,1,0,correct_fail_closed_stop
+L12,protected_state,zero_C84FL_real_access,0,1,0,no_outcome_or_engineering_contamination

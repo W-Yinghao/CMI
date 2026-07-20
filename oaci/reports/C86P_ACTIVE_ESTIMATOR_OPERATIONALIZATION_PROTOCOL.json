@@ -1,0 +1,80 @@
+{
+  "schema_version": "c86p_active_estimator_operationalization_protocol_v1",
+  "milestone": "C86P",
+  "parent_protocol_sha256": "d4feac535f8c1144a55d77cd7f322ae961d5c7d5a899dfd15c371484d88fbb7a",
+  "status": "ADDITIVE_PROSPECTIVE_EXECUTABLE_SEMANTICS_NO_REAL_OR_REGISTERED_SYNTHETIC_EXECUTION",
+  "chronology": {
+    "real_EEG_or_label_access_before_operationalization": 0,
+    "registered_active_acquisition_runs_before_operationalization": 0,
+    "C86_scientific_results_before_operationalization": 0,
+    "low_budget_missing_class_risk_found_by_shadow_contract_review": true,
+    "repair_outcome_informed": false
+  },
+  "balanced_accuracy_plugin": {
+    "reason": "a fixed total-query path can contain no observation from one class at a small budget",
+    "estimated_class_total": "N_times_LURE_mean(I[Y=y])",
+    "estimated_correct_class_total": "N_times_LURE_mean(I[Y=y_and_prediction=y])",
+    "Jeffreys_pseudocount_per_binary_outcome": 0.5,
+    "class_recall": "(estimated_correct_class_total+0.5)/(estimated_class_total+1.0)",
+    "balanced_accuracy": "one_half_times_sum_of_two_smoothed_class_recalls",
+    "missing_queried_class_is_failure": false,
+    "unbiasedness_claim": "NONE_NONLINEAR_SMOOTHED_PLUGIN",
+    "held_evaluation_metric_changed": false,
+    "same_rule_for_active_and_P0": true
+  },
+  "budget_specific_LURE_replay": {
+    "rule": "for_each_budget_M_recompute_v_m^M_from_the_frozen_query_probability_prefix",
+    "query_path_nested": true,
+    "linear_moment_unbiasedness_claim_unchanged": true,
+    "weight_clipping": false
+  },
+  "plausible_best_set": {
+    "loss": "NLL",
+    "pairwise_difference": "d_hat_ab=LURE_NLL_a-LURE_NLL_b",
+    "weighted_terms": "z_j_ab=v_j^m*(NLL_j_a-NLL_j_b)",
+    "standard_error": "sample_standard_deviation(z_1_ab_through_z_m_ab)/sqrt(m)",
+    "family_alpha": 0.05,
+    "normal_critical_value": "Phi_inverse(1-0.05/(2*4*81*80))",
+    "candidate_a_retained": "for_every_b_d_hat_ab-critical_value*SE_ab<=0",
+    "minimum_update_step": 4,
+    "empty_set_rule": "restore_all_candidates_tied_for_minimum_estimated_NLL",
+    "coverage_claim": "HEURISTIC_DEVELOPMENT_CONFIDENCE_SET_NO_FINITE_SAMPLE_COVERAGE_CLAIM"
+  },
+  "method_score_precision": {
+    "A1_candidate_set": "all_81_candidates",
+    "A1_score": "mean_expected_NLL_over_all_81_candidates",
+    "A2_candidate_pairs": "all_unordered_pairs_among_81_candidates",
+    "A2_score": "maximum_expected_absolute_pairwise_NLL_difference",
+    "A3_candidate_set": "all_81_candidates",
+    "A3_score": "one_minus_max_hard_prediction_vote_fraction",
+    "A4_candidate_pairs": "all_unordered_pairs_in_current_plausible_best_set",
+    "A4_score": "maximum_expected_absolute_pairwise_NLL_difference",
+    "predictive_label_law": "equal_weight_mean_of_softmax_probabilities_over_the_score_candidate_set",
+    "supersedes_parent_current_plausible_wording_for_A2_and_A3": true
+  },
+  "selection_and_coverage": {
+    "selected_action": "first_canonical_argmax_of_the_smoothed_plugin_historical_composite",
+    "all_2048_chains_required": true,
+    "missing_class_no_longer_invalidates_chain": true,
+    "nonfinite_weight_probability_or_component_invalidates_context": true,
+    "primary_stopping": "fixed_budget",
+    "FULL_uses_unsmoothed_exact_historical_acquisition_pool_metric": true,
+    "FULL_active_passive_superiority_test": false
+  },
+  "complexity": {
+    "P0": "O(N)",
+    "A1": "O(NM)",
+    "A2": "O(NM^2)",
+    "A3": "O(NM)",
+    "A4": "O(NM^2)",
+    "M": 81,
+    "production_resource_benchmark_required_before_C86D_or_C86H": true
+  },
+  "claim_boundary": {
+    "Jeffreys_smoothing_is_historical_C84_metric": false,
+    "plugin_composite_is_unbiased": false,
+    "A4_set_has_proved_coverage": false,
+    "T7_assumptions_established": false,
+    "real_execution_authorized": false
+  }
+}

@@ -1,0 +1,7 @@
+scope_id,path,exists,role,searched_for_weights
+S0_oaci_checkout,/home/infres/yinwang/CMI_AAAI_oaci,1,primary,1
+S1_primary_oaci_project_store,/projects/EEG-foundation-model/yinghao/oaci-loso-seeds012,1,recovered_frozen_oaci_store,1
+S2_adjacent_cmi_checkout,/home/infres/yinwang/CMI_AAAI,1,adjacent_not_primary,1
+S3_s2p_checkout,/home/infres/yinwang/CMI_AAAI_s2p,1,external_not_oaci,1
+S4_slurm_logs,/home/infres/yinwang/slurm_logs,1,logs,1
+S5_oaci_slurm_logs,/home/infres/yinwang/oaci_c64_slurm_logs,1,logs,1

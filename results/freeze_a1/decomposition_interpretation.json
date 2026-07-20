@@ -1,0 +1,7 @@
+{
+  "decomposition_interpretation_corrections": {
+    "delta_protocol": "PD exactly 0 (EQUIVALENT). SCZ -0.17pp: judge equivalence ONLY by the un-rounded cohort CI vs the pre-registered EPS_EQ_PP band, NOT the displayed -0.50. Ruled OUT: encoder-vs-full selection is NOT the cause of the historical magnitude drop.",
+    "delta_implementation": "MUST NOT be causally split into P2.2/drop_last/determinism contributions: the historical pipeline had CUDA nondeterminism AND bundled multiple implementation differences. Accurate statement: the current DETERMINISTIC implementation yields ~1.2pp LOWER gain on SCZ vs historical; the PD historical difference is imprecisely estimated (wide CI from cohort heterogeneity).",
+    "current_estimates": "SCZ +1.8, PD +2.3 are 2-SEED point estimates of the current frozen pipeline = the current Freeze A1 estimates, NOT final cohort-level confirmatory inference. Precision is added ONLY per the already-frozen seed/confirmatory plan, never result-driven."
+  }
+}

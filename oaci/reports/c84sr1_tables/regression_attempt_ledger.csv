@@ -1,0 +1,10 @@
+job_id,suite,commit_or_worktree,status,accepted,passed,failed,skipped,deselected,stderr_bytes,disposition
+897830,focused,pre_lock_dirty_worktree,PASS,0,19,0,0,0,0,superseded_by_clean_pushed_lock_commit_run
+897831,C65,pre_test_lifecycle_repair,FAIL,0,826,6,1,3,0,six_stale_current_tree_lock_enumerations_repaired
+897832,C23,pre_test_lifecycle_repair,FAIL,0,1237,6,1,3,0,same_six_stale_current_tree_lock_enumerations_repaired
+897833,full,pre_test_lifecycle_repair,CANCEL_REQUESTED,0,0,0,0,0,84,canceled_after_deterministic_C65_C23_failure_class_was_established
+897835,focused,4774f72d4c2674fed409bab950bce8ce70df2264,PREFLIGHT_REJECTED,0,0,0,0,0,0,executor_supplied_wrong_expected_commit_to_submission_guard_no_pytest_started
+897836,focused,4774f72d4c2674fed409bab950bce8ce70df2264,PASS,1,19,0,0,0,0,accepted
+897837,C65,4774f72d4c2674fed409bab950bce8ce70df2264,PASS,1,832,0,1,3,0,accepted
+897838,C23,4774f72d4c2674fed409bab950bce8ce70df2264,PASS,1,1243,0,1,3,0,accepted
+897839,full,4774f72d4c2674fed409bab950bce8ce70df2264,PASS,1,2167,0,1,3,0,accepted

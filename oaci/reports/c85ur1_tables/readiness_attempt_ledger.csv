@@ -1,0 +1,5 @@
+attempt_id,phase,command_scope,result,passed,failed,protected_reads,lock_objects_written,disposition
+C85UR1-TEST-INITIAL,shadow_focused,"process isolation; protected replay; acceptance transaction",FAILED,12,4,0,0,PRESERVED_IMPLEMENTATION_FAILURE
+C85UR1-TEST-REPAIRED,shadow_focused,"process isolation; protected replay; acceptance transaction",PASS,16,0,0,0,ACCEPTED_PRELOCK_SHADOW_RUN
+C85UR1-LOCK-INITIAL,lock_build,"incorrect manually expanded implementation commit",FAILED,0,1,0,0,PRESERVED_FAIL_CLOSED_LOCK_ATTEMPT
+C85UR1-LOCK-ACCEPTED,lock_build,"exact implementation commit 5917cf54d33bbd5de906428bea5aaee22f45aabb",PASS,1,0,0,3,ACCEPTED_V2_LOCK_BUILD

@@ -1,0 +1,11 @@
+case,established,evidence
+A1_exact_atom_replay_supported,0,"selection_identity=48/76, audit_additive=76/76"
+A2_point_advantage_cell_concentrated,0,concentrated_pair_fraction=0.0
+A3_broad_point_leakage_advantage,0,broad_pair_fraction=0.9473684210526315
+A4_class_specific_leakage_conflict,0,max_class_positive_share=0.27965167065812924
+A5_domain_or_group_specific_leakage_conflict,0,max_domain_positive_share=0.2045194585034194
+A6_support_edge_or_low_mass_driven,0,support_artifact_pair_fraction=0.0
+A7_selection_audit_atom_instability,0,"mean_atom_sign_preservation_rate=0.5187969924812029, selection_to_audit_inversion_rate=0.4473684210526316"
+A8_atom_target_gauge_conflict,0,atom_target_gauge_conflict_fraction=0.9210526315789473
+A9_atom_decomposition_irrecoverable,1,exact point atom identity failed or audit additive identity failed
+A10_ucl_quantile_atom_limit,1,UCL is a bootstrap quantile; C39 does not sum per-atom UCLs

@@ -1,0 +1,4 @@
+dataset,canonicalization_rule,fixed_midline_aliases,scientific_channel_substitution,FCz_to_Fz_substitution
+Lee2019_MI,identity_exact_case,NONE,0,0
+Cho2017,identity_exact_case,NONE,0,0
+PhysionetMI,strip_trailing_period;uppercase_then_restore_midline_case_from_fixed_map,AFZ->AFz|PZ->Pz|FPZ->Fpz|FCZ->FCz|FP1->Fp1|CZ->Cz|OZ->Oz|POZ->POz|IZ->Iz|CPZ->CPz|FP2->Fp2|FZ->Fz,0,0

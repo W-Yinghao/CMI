@@ -1,0 +1,9 @@
+field,payload_class,target_label_derived,target_unlabeled,available_under_strict_source_DG,stored_external,required
+Wz,target_unlabeled_representation,0,1,0,1,1
+Wz_plus_b,target_unlabeled_representation,0,1,0,1,1
+logits,target_unlabeled_representation,0,1,0,1,1
+predicted_class,target_unlabeled_representation,0,1,0,1,1
+probabilities,target_unlabeled_representation,0,1,0,1,1
+target_id,target_unlabeled_representation,0,1,0,1,1
+target_trial_id,target_unlabeled_representation,0,1,0,1,1
+z,target_unlabeled_representation,0,1,0,1,1

@@ -1,0 +1,17 @@
+{
+  "schema_version": "c84sr1_direct_pi_authorization_record_v1",
+  "direct_explicit_PI_authorization": true,
+  "direct_statement": "授权 C84S",
+  "authorized_at_utc": "2026-07-16T06:26:39Z",
+  "authorized_stage": "C84S",
+  "repair_protocol_sha256": "3bdfbf67f1e1697a1488ccb5b7148494db06586ea9ff4318f16e030b88e7be2a",
+  "analysis_lock_sha256": "15d8a84b7870021a90b1f0f103a8a4d733523b249321b143a89091978c0aa9fc",
+  "analysis_lock_commit": "4774f72d4c2674fed409bab950bce8ce70df2264",
+  "complete_field_manifest_sha256": "cfffcac1a55148941b809b69bed2c9a8957a94729ed7f2c2c29ed8d48c0134d8",
+  "historical_V2_authorization_migrated": false,
+  "training": false,
+  "forward": false,
+  "GPU": false,
+  "same_label_oracle": false,
+  "C85": false
+}

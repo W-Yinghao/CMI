@@ -1,0 +1,8 @@
+view,provisioned,source_y_allowed,target_X_allowed,target_y_allowed,purpose,deletion_allowed,scientific_metric_allowed
+source_training_pre_deletion,1,1,0,0,support_validation_only,0,0
+source_training_post_deletion,1,1,0,0,training,1,0
+source_audit,1,1,0,0,instrumentation_only_no_metric,0,0
+target_unlabeled,1,0,1,0,instrumentation_without_y,0,0
+target_construction,0,0,0,0,not_provisioned,0,0
+target_evaluation,0,0,0,0,not_provisioned,0,0
+same_label_oracle,0,0,0,0,unreachable,0,0

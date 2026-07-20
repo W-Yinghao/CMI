@@ -1,0 +1,5 @@
+quantity_id,name,definition,interpretation,information_content_claim
+RP1,action_divergence,P[delta_E(Z_E)!=delta_0] under an explicit coupling/realized-action convention,realized departure from reference,0
+RP2,action_entropy,H(delta_E(Z_E)),realized action diversity,0
+RP3,incremental_fixed_policy_risk_value,R(delta_0)-R(delta_E),value realized through one fixed policy,0
+RP4,policy_collapse,delta_E(Z_E)=delta_0 almost surely,identical realized action losses under common evaluation distribution,0

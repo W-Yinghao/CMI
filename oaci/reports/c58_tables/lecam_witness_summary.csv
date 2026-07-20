@@ -1,0 +1,4 @@
+witness_id,conditioning,source_neighborhood_divergent_q10,target_divergent_pair_count,two_point_proxy,formal_status,note
+LC1_within_target_q10,within_target,0.004842615012106538,632,0.4975786924939467,empirical_proxy_not_TV,"near source-neighborhood ambiguity exists, but no distributional two-world construction is proved"
+LC2_within_trajectory_q10,within_trajectory,0.13287671232876713,632,0.43356164383561646,empirical_proxy_not_TV,trajectory conditioning is less ambiguous than cross-target mixing but still not a theorem
+LC3_cross_target_q10,cross_target,0.9369369369369369,632,0.03153153153153154,shows_cross_target_comparability_break,cross-target source equivalence strongly breaks target utility comparability

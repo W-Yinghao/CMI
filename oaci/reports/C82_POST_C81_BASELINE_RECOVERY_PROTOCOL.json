@@ -1,0 +1,292 @@
+{
+  "schema_version": "c82_post_c81_baseline_recovery_protocol_v1",
+  "milestone": "C82P",
+  "created_at_utc": "2026-07-13T16:46:23Z",
+  "parent_commit": "6f73bbc0ecdbe61db07e6d57cffabb98faab468d",
+  "status": "PROTOCOL_LOCK_READY_FOR_MECHANICAL_IMPLEMENTATION_NO_REAL_EXECUTION",
+  "epistemic_status": {
+    "designed_after_C81_evaluation_label_access": true,
+    "prospective_only_to_new_C82_computation_and_result_freeze": true,
+    "reuses_selection_fixed_before_C81_evaluation_access": true,
+    "reconstructs_C81_unfrozen_rows": false,
+    "overwrites_C81_E": false,
+    "untouched_confirmation": false,
+    "independent_replication": false,
+    "new_subject_or_dataset_evidence": false,
+    "external_validation": false,
+    "new_method_search": false
+  },
+  "historical_C81": {
+    "overall_report_commit": "d64f16ba4cd04ac6e716b0eb2522e47ef3c8522c",
+    "audit_addendum_commit": "6f73bbc0ecdbe61db07e6d57cffabb98faab468d",
+    "audit_addendum_paths": [
+      "oaci/reports/C81_OVERALL_REPORT_GITHUB_AUDIT_ADDENDUM.md",
+      "oaci/reports/C81_OVERALL_REPORT_GITHUB_AUDIT_ADDENDUM.json",
+      "oaci/reports/C81_OVERALL_REPORT_GITHUB_AUDIT_ADDENDUM.sha256"
+    ],
+    "final_gate": "C81-E_protocol_input_implementation_or_provenance_blocker",
+    "C81_A_B_C_D_available": false,
+    "latest_valid_science": "C80E"
+  },
+  "base_scientific_registry": {
+    "protocol_commit": "16a0d2eba4715a1cec78da6a79a182fd416a6629",
+    "protocol_path": "oaci/reports/C81_AAAI_BASELINE_COMPARISON_PROTOCOL.json",
+    "protocol_sha256": "cbdb42f54956b685c27a1718c37d7c56c513084817a5c69fb29f06bfb67ad3ee",
+    "method_registry_path": "oaci/reports/C81_BASELINE_METHOD_REGISTRY.json",
+    "method_registry_sha256": "ef48ecf7fcc55188b78b0878d86f07f6239fe4f6c88bbc854829b3a1c7a1a120",
+    "method_count": 34,
+    "method_registry_changed": false
+  },
+  "frozen_selection": {
+    "manifest_path": "/projects/EEG-foundation-model/yinghao/oaci-c81-baselines/protocol_cbdb42f54956b685/repair_ba0434b4ea796569/implementation_b922139e77265d11/selection/C81_SELECTIONS_FROZEN.json",
+    "manifest_file_sha256": "b02cf6b80127858ef0ab57f5c6e4954715dc9d5aaea77b64cdb9bf13f09ea8a4",
+    "manifest_self_sha256": "4677ed3aba7758ea0008c2093b44d6fb81d425930727e5941950179737ebd519",
+    "payload_path": "/projects/EEG-foundation-model/yinghao/oaci-c81-baselines/protocol_cbdb42f54956b685/repair_ba0434b4ea796569/implementation_b922139e77265d11/selection/payload/c81_locked_baseline_selection_sha256_1ed893acd9190914.npz",
+    "payload_sha256": "1ed893acd9190914eb4cb122f3ef26bc1e2355c4103894b816894bd264669257",
+    "payload_bytes": 415284,
+    "contexts": 32,
+    "selection_methods": 19,
+    "selection_recomputation_allowed": false,
+    "score_rank_or_selected_candidate_change_allowed": false,
+    "scientific_value_inspection_in_C82P_allowed": false
+  },
+  "field_and_view_binding": {
+    "manifest_digest": "6180275dcef26bdda4ae4b291d1ef6dc83434462ecacee0350fa94ae9c6a7fef",
+    "primary_targets": [1, 2, 3, 5, 6, 7, 8, 9],
+    "seeds": [3, 4],
+    "levels": [0, 1],
+    "candidates_per_context": 81,
+    "primary_candidate_units": 2592,
+    "target4_primary": false,
+    "same_label_oracle_reachable": false,
+    "evaluation_after_exact_selection_replay": true,
+    "construction_labels_reloaded_for_Q0_scoring": false
+  },
+  "fixed_methods": {
+    "selection_method_ids": [
+      "B1", "B2", "B3", "B4O", "B4S", "S1", "S2",
+      "U1", "U2", "U3", "U4", "U5", "U6", "U7", "U11",
+      "U12", "U13", "U14", "U15"
+    ],
+    "primary_zero_label_method_ids": ["U7", "U5", "U11", "U13", "U14", "U15"],
+    "strict_source_primary": "S1",
+    "labeled_primary": "L1_frozen_Q0_B1",
+    "labeled_ceiling": "L7_frozen_Q0_FULL",
+    "random_control": "B0_analytic_uniform_over_81",
+    "evaluation_ceiling": "B5_oracle_best_denominator_not_selector",
+    "primary_representative_substitution_allowed": false,
+    "new_method_allowed": false
+  },
+  "C80_Q0_comparators": {
+    "budgets": [1, 2, 4, 8, 16, 32, "FULL"],
+    "immutable": true,
+    "target_level_regret": {
+      "path": "oaci/reports/c80e_tables/target_level_regret.csv",
+      "sha256": "bbc8015db0be61a7121f335dc909dcf1904e072004a42ff32af919b243e1e79f"
+    },
+    "topk_coverage": {
+      "path": "oaci/reports/c80e_tables/topk_coverage_summary.csv",
+      "sha256": "dab3db12e19424529cc7de846778688cc0f6c98659bd9b07a56dbf52da49a0c4"
+    },
+    "regime_selection": {
+      "path": "oaci/reports/c80e_tables/regime_selection_summary.csv",
+      "sha256": "23e80062ad187d360ae3a6e6e019657e9b44c6e3ccc53f5dc2528ce778ff3661"
+    },
+    "result": {
+      "path": "oaci/reports/C80_LABEL_BUDGET_FRONTIER.json",
+      "sha256": "90074280c4d05acdaeb5f33e7fcd7d0e6f1c27417ed5fd1467b86083ac967675"
+    }
+  },
+  "canonical_method_context_schema": {
+    "expected_rows": 672,
+    "row_formula": "32_contexts_x_21_rows_19_selectors_plus_B0_plus_B5",
+    "field_order": [
+      "seed",
+      "target",
+      "level",
+      "method_id",
+      "standardized_regret",
+      "selected_utility",
+      "top1",
+      "top5",
+      "top10",
+      "coverage_top1",
+      "coverage_top5",
+      "coverage_top10",
+      "selected_regime",
+      "evaluation_label_access_after_selection_freeze",
+      "same_label_oracle_accessed",
+      "target4_primary"
+    ],
+    "dictionary_insertion_order_semantic": false,
+    "unknown_fields_rejected": true,
+    "missing_fields_rejected": true,
+    "types_and_finite_values_checked": true,
+    "validate_all_rows_before_opening_final_output": true
+  },
+  "scientific_questions": {
+    "Q1": {
+      "contrast": "S1_regret_minus_zero_label_method_regret",
+      "endpoint": "held_evaluation_standardized_regret",
+      "material_margin": 0.05,
+      "minimum_favorable_targets": 6,
+      "catastrophic_floor": -0.10
+    },
+    "Q2": {
+      "contrast": "zero_label_method_regret_minus_frozen_Q0_B1_regret",
+      "endpoint": "held_evaluation_standardized_regret",
+      "noninferiority_margin": 0.05,
+      "minimum_favorable_targets": 6,
+      "catastrophic_excess": 0.20
+    },
+    "Q3": {
+      "role": "objective_dependence",
+      "endpoints": ["standardized_regret", "top1", "top5", "top10"],
+      "success_rule": "report_endpoint_specific_decisions_without_substituting_topk_for_regret"
+    },
+    "Q4": {
+      "role": "paired_seed_same_method_and_LOTO_stability",
+      "same_method_required_across_seeds": true,
+      "LOTO_preservation_min": 12,
+      "LOTO_total": 16
+    },
+    "Q5": {
+      "role": "fixed_information_class_summary",
+      "ordered_classes": ["I0", "IS", "IU_ISU", "ILc"],
+      "representatives_fixed_before_C81_outcomes": true,
+      "field_specific_only": true
+    }
+  },
+  "inference": {
+    "principal_cluster": "target",
+    "seed_role": "paired_training_factor",
+    "levels_regimes_checkpoints_trials_pairs_iid": false,
+    "alpha": 0.05,
+    "exact_shared_target_sign_vectors": 256,
+    "Q1_maxT_family": "six_primary_zero_label_methods_x_two_seeds",
+    "Q2_simultaneous_family": "six_primary_zero_label_methods_x_two_seeds",
+    "method_identity_preserved_in_full_panel_and_LOTO": true,
+    "score_directions_ties_priors_temperatures_thresholds": "unchanged_from_C81"
+  },
+  "same_method_taxonomy": {
+    "A_seed_definition": "methods_passing_Q1_and_Q2_within_seed",
+    "B_seed_definition": "methods_passing_Q1_within_seed",
+    "C82_A_rule": "A_seed3_intersection_A_seed4_nonempty_and_stability_passes",
+    "C82_B_rule": "A_intersection_empty_and_B_seed3_intersection_B_seed4_nonempty_and_stability_passes",
+    "C82_C_rule": "B_seed3_intersection_B_seed4_empty_and_stability_passes",
+    "C82_D_rule": "seed_category_mismatch_or_same_method_identity_failure_or_LOTO_below_12_of_16",
+    "different_methods_may_not_support_A_or_B": true
+  },
+  "taxonomy_precedence": [
+    {
+      "priority": 1,
+      "label": "C82-E_post_C81_recovery_protocol_implementation_or_provenance_blocker"
+    },
+    {
+      "priority": 2,
+      "label": "C82-D_zero_label_comparison_training_seed_method_identity_or_target_heterogeneous"
+    },
+    {
+      "priority": 3,
+      "label": "C82-A_same_zero_label_selector_matches_one_label_frontier_across_seeds"
+    },
+    {
+      "priority": 4,
+      "label": "C82-B_same_zero_label_selector_improves_source_but_not_one_label_frontier"
+    },
+    {
+      "priority": 5,
+      "label": "C82-C_no_registered_zero_label_selector_materially_improves_source"
+    }
+  ],
+  "secondary_measurement": {
+    "applicability_registry": "oaci/reports/c82p_tables/method_metric_applicability.csv",
+    "metrics": [
+      "within_context_Spearman",
+      "within_context_Kendall",
+      "pairwise_ordering_accuracy",
+      "utility_estimation_MAE",
+      "incremental_R2",
+      "calibration",
+      "U16_Accuracy_on_the_Line",
+      "selected_regime_distribution",
+      "coverage",
+      "catastrophic_target_failures"
+    ],
+    "inapplicable_metric_may_not_be_manufactured": true
+  },
+  "LORO": {
+    "decision": "REMOVED_FROM_OPERATIVE_C82_INFERENCE",
+    "reason": "C81_did_not_define_a_coherent_executable_regime_restricted_estimand_for_the_mixed_81_candidate_context",
+    "cross_regime_selector_transport_claim": false,
+    "post_outcome_LORO_invention_allowed": false
+  },
+  "atomic_result_freeze": {
+    "validate_all_672_rows_in_memory_first": true,
+    "staging_directory_required": true,
+    "final_directory_absent_during_staging": true,
+    "all_required_tables_hashed_and_cross_validated": true,
+    "artifact_manifest_required": true,
+    "final_machine_result_written_after_manifest_validation": true,
+    "atomic_directory_rename_required": true,
+    "partial_final_directory_allowed": false
+  },
+  "output_registry_path": "oaci/reports/c82p_tables/output_table_registry.csv",
+  "synthetic_end_to_end": {
+    "same_public_recovery_entrypoint_as_real_with_injected_manifests": true,
+    "real_field_or_label_view_allowed": false,
+    "required_success_cases": [
+      "different_dictionary_order_same_fields",
+      "same_method_A_across_seeds",
+      "same_method_B_across_seeds",
+      "stable_C",
+      "Q3_Q5_U16_measurement_outputs",
+      "complete_atomic_artifact_freeze"
+    ],
+    "required_failure_cases": [
+      "missing_method_context_field",
+      "unknown_method_context_field",
+      "different_methods_pass_in_different_seeds",
+      "partial_table_write_injection",
+      "post_evaluation_exception_consumes_authorization"
+    ],
+    "all_taxonomy_branches": ["C82-A", "C82-B", "C82-C", "C82-D", "C82-E"]
+  },
+  "failure_policy": {
+    "preauthorization_or_pre_evaluation_defect": "additive_repair_new_lock_and_new_authorization_required",
+    "post_evaluation_exception": "consume_authorization_and_classify_C82_E",
+    "same_identity_rerun_after_post_evaluation_exception": false,
+    "failed_staging_directory_removed_or_quarantined": true,
+    "failed_attempt_preserved_in_ledger": true,
+    "outcome_dependent_retry": false
+  },
+  "authorization": {
+    "C82P_requires_execution_authorization": false,
+    "C82E_direct_PI_authorization_required_after_readiness": true,
+    "sufficient_future_statement": "授权 C82E",
+    "magic_token_required": false,
+    "hash_recital_required": false,
+    "current_pre_readiness_statement_consumable": false,
+    "authorization_inherited_from_C81": false
+  },
+  "scope": {
+    "real_evaluation_access_in_C82P": false,
+    "selection_payload_scientific_value_inspection_in_C82P": false,
+    "selection_recomputation": false,
+    "training": false,
+    "forward": false,
+    "reinference": false,
+    "GPU": false,
+    "target4_primary": false,
+    "same_label_oracle": false,
+    "seed5": false,
+    "BNCI2014_004": false,
+    "active_acquisition": false,
+    "new_method_feature_kernel_model_search": false,
+    "manuscript_experiments": false
+  },
+  "C82P_final_gates": [
+    "C82_POST_C81_COMPARATIVE_RECOVERY_PROTOCOL_AND_IMPLEMENTATION_LOCKED_READY_FOR_PI_AUTHORIZATION",
+    "C82_PROTOCOL_IMPLEMENTATION_OR_FROZEN_SELECTION_RECONCILIATION_REQUIRED"
+  ]
+}

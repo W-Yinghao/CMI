@@ -1,0 +1,16 @@
+feature,family,computed_in_recovering_r3
+target_confidence_mean,confidence_entropy,True
+target_confidence_std,confidence_entropy,True
+target_entropy_mean,confidence_entropy,True
+target_entropy_std,confidence_entropy,True
+target_margin_mean,margin_logitnorm,True
+target_margin_std,margin_logitnorm,True
+target_logit_norm_mean,margin_logitnorm,True
+target_logit_norm_std,margin_logitnorm,True
+target_pred_prop_c0,pred_class_prop,True
+target_pred_prop_c1,pred_class_prop,True
+target_pred_prop_c2,pred_class_prop,True
+target_pred_prop_c3,pred_class_prop,True
+(none),target_feature_moments,False
+(none),source_target_distance,False
+(none),finite_feature_availability,False

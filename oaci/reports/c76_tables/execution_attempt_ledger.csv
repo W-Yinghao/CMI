@@ -1,0 +1,17 @@
+attempt,job_or_commit,phase,status,superseded,reason
+1,bfeb47e,protocol_definition,passed,0,metadata-only protocol generator
+2,939fc00,protocol_lock,passed,0,protocol and registries committed before payload read
+3,8ab725b,pre_payload_implementation,passed,0,implementation committed before orbit extraction
+4,892659,orbit_extraction,passed,0,29 variants x 216 T2 units; no T3/forward
+5,892662,analysis_replay_gate,stopped,1,C75 RBF arithmetic-order replay mismatch; no result emitted
+6,d6ad161,exact_replay_repair,passed,0,bit-exact C75 pairwise-distance arithmetic
+7,892666,analysis_initial,completed_then_superseded,1,orbit audit covered only the C75 RBF path and synthetic top1 lacked baseline context
+8,b221ee6,full_family_repair,passed,0,all registered kernel/statistic paths and centered synthetic metrics
+9,892668,analysis_full_family,completed_then_superseded,1,F4 mixed 20-d geometry with 15-d Wz/logit-redundant tail
+10,be748ca,mixed_block_repair,passed,0,formal candidate restricted to F4[0:20]; full F4 retained only for C75 replay
+11,892674,analysis_geometry_isolated,completed_then_superseded,1,summary mislabeled non-surviving strict-source path as strict-best
+12,77de0ee,association_semantics_repair,passed,0,separation requires all six nulls and failed strict-source is explicit
+13,892677,analysis_semantics_candidate,cancelled,1,static red-team found S5 known-case top1 improvement contradicted no-action contract
+14,8eb8fbf,synthetic_S5_repair,passed,0,random extreme winner preserves bulk association but removes architecture top1 control
+15,892679,analysis_final_candidate,passed,0,all registered analyses recomputed
+16,892694,independent_red_team,running_or_passed,0,input rehash and independent table/gate reconstruction

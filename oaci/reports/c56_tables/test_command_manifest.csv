@@ -1,0 +1,5 @@
+test_scope,command,status,environment,slurm_partition
+focused_c56,python -m pytest oaci/tests/test_c56_mechanism_closure_review_gauntlet.py -q,passed,eeg2025,cpu-high
+c50_c56_slice,python -m pytest oaci/tests/test_c50_conditioned_island_morphology.py ... test_c56_mechanism_closure_review_gauntlet.py -q,passed,eeg2025,cpu-high
+c23_c56_regression,python -m pytest oaci/tests/test_c23_score_gauge.py ... test_c56_mechanism_closure_review_gauntlet.py -q,passed,eeg2025,cpu-high
+full_oaci_tests,python -m pytest oaci/tests -q,passed,eeg2025,cpu-high

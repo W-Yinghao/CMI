@@ -1,0 +1,6 @@
+diagnostic_id,conditional_set,mi_or_delta_hit_proxy,screens_off,artifact
+CMI1_source_rank_vs_joint_good,cell,0.00871699528126672,0,C54/C58
+CMI2_key_given_source,source,-0.0185185185185186,0,C52/C58
+CMI3_label_diagnostic_given_key,source+key,0.3251028806584361,0,C52/C58
+CMI4_endpoint_given_template,best template,0.2407407407407407,1,C55/C58
+CMI5_split_label,future disjoint cache,,0,missing

@@ -1,0 +1,10 @@
+case,established,evidence
+T1_exact_ucl_prefers_selected,1,ucl_prefers_selected_fraction=1.0
+T2_exact_ucl_prefers_better,0,ucl_prefers_better_fraction=0.0
+T3_point_ucl_disagreement,0,point_ucl_disagreement_fraction=0.0
+T4_ucl_plateau_uncertainty,0,ucl_plateau_fraction=0.13157894736842105
+T5_selection_audit_inversion_confirmed,1,selection_audit_inversion_exact_rate=0.4473684210526316
+T6_source_pareto_conflict_survives_exact_trace,1,source_pareto_conflict_fraction=1.0
+T7_selector_trace_irrecoverable,0,p0_pass=True; all_recovered=True
+T8_actual_selector_misdirection_supported,1,exact UCL must clearly favor selected despite robust target utility
+T9_selector_not_misdirected_trace_incomplete_elsewhere,0,exact UCL does not support selected-favoring misdirection

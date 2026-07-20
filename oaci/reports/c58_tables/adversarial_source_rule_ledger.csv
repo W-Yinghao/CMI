@@ -1,0 +1,9 @@
+rule_id,source_observable,target_label_derived,hit,status
+AR1_random,0,0,0.4297233780360411,baseline
+AR2_leakage,1,0,0.42592592592592593,fails
+AR3_R_src,1,0,0.3888888888888889,fails
+AR4_source_rank,1,0,0.5061728395061729,weak_not_reliable
+AR5_source_scalarization,1,0,0.5740740740740741,hindsight_not_selector
+AR6_key_geometry,1,0,0.4876543209876543,fails
+AR7_template,0,1,0.7037037037037037,partial_diagnostic
+AR8_endpoint_scalar,0,1,0.9444444444444444,oracle_reference

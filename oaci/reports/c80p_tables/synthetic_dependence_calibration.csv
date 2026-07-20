@@ -1,0 +1,5 @@
+audit,observed,lower,upper,passed
+target_cluster_bootstrap_coverage,0.953125,0.9,0.99,1
+correct_target_level_false_positive,0.033203125,0.0,0.06,1
+naive_row_iid_false_positive_negative_control,0.9140625,0.5,1.0,1
+pseudoreplication_trap_detected,1,0.95,1.0,1

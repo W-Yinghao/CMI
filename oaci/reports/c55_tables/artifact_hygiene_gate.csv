@@ -1,0 +1,14 @@
+check,passed
+config_hash_unchanged,1
+c54_replay_identity_passed,1
+best_key_only_replayed_0_488,1
+same_cell_scalar_replayed_0_944,1
+template_only_cross_cell_partial_0_704,1
+endpoint_scalar_transfer_requires_test_scalar,1
+endpoint_scalar_transfer_uses_no_same_cell_template_labels,1
+availability_ledger_emitted,1
+split_label_budget_unavailable,1
+source_key_baselines_below_gate,1
+no_training_no_gpu_no_reinference,1
+no_bnci2014_004_no_seeds_3_4,1
+compact_json_no_row_level_payload,1

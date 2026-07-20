@@ -1,0 +1,266 @@
+{
+  "authorization": {
+    "accepted_interface": "exact CLI argument only",
+    "argument": "--authorization-token",
+    "authorized_scope": "P0 then conditional P1 over all 216 predeclared T2 units",
+    "exact_token_sha256": "101103c04294e102764d895ab8e69eb7fcfb60a5274be11948f220d9556c1472",
+    "prompt_protocol_environment_inference_allowed": false
+  },
+  "c65_checkpoint_map_sha256": "7e6cf8740e3023c642fdc4e854d549c4e48ef1c48f8fffb0b1b2e786f707b99f",
+  "c73_final_gate": "C72_DECOMPOSITION_UNSTABLE_REQUIRES_REPAIR",
+  "c73_metric_semantics_gate": "reconciled_mean_of_target_normalized_shares",
+  "c73_primary": "C73-E_C72_decomposition_order_sensitive_or_unstable",
+  "cache": {
+    "W_b_storage": "once per checkpoint unit",
+    "content_addressing": "SHA256 per immutable shard and manifest",
+    "external_root": "/projects/EEG-foundation-model/yinghao/oaci-c74-t2-source-wz",
+    "lossy_compression_before_identity": false,
+    "precision": "float32",
+    "target_labels": "separate content-addressed views; absent from target-unlabeled shard",
+    "z_Wz_storage": "row-level external NPZ shards"
+  },
+  "diagnostic_only_non_deployable": true,
+  "execution_boundary": {
+    "BNCI2014_004": false,
+    "CPU_only": true,
+    "GPU": false,
+    "T2_units_only": true,
+    "T3_HO_z_Wz_generation_or_inspection": false,
+    "checkpoint_recommendations": false,
+    "frozen_checkpoints_only": true,
+    "manuscript_drafting": false,
+    "model_eval": true,
+    "parameter_updates": false,
+    "raw_cache_in_git": false,
+    "reserved_seeds_3_4": false,
+    "selector_artifacts": false,
+    "torch_no_grad": true,
+    "training": false
+  },
+  "expansion": {
+    "rule": "run only after every P0 identity/ABI/preprocessing/masking/determinism/schema/storage gate passes",
+    "same_token_scope_valid": true,
+    "silent_escalation_allowed": false,
+    "units": 162
+  },
+  "final_gates": [
+    "T2_SOURCE_WZ_CAMPAIGN_READY_BUT_NOT_AUTHORIZED",
+    "T2_SOURCE_WZ_CAMPAIGN_EXECUTED_AND_MANIFESTED",
+    "PILOT_VALID_FULL_T2_BLOCKED",
+    "ABI_PREPROCESSING_MASKING_OR_STORAGE_BLOCKER",
+    "C73_METRIC_SEMANTICS_REPAIR_REQUIRED",
+    "SOURCE_OR_REPRESENTATION_PATH_NOT_RECOVERABLE",
+    "T3_HO_NEW_VARIABLE_HOLDOUT_READY_BUT_NOT_AUTHORIZED"
+  ],
+  "forbidden_claims": [
+    "representation-projection mechanism validated",
+    "target gauge validated",
+    "strict source-only escape hatch absent",
+    "strict source-only escape hatch found and deployable",
+    "target-unlabeled Wz is a source-only feature",
+    "new selector or calibration method",
+    "few-label sufficiency",
+    "target-population generalization"
+  ],
+  "future_holdout_use_contract": {
+    "C74_T3_HO_z_Wz_access_allowed": false,
+    "future_stage": "C76 after C75 hypothesis lock and separate exact authorization",
+    "path": "oaci/reports/C74_T3_HO_NEW_VARIABLE_HOLDOUT_CONTRACT.md",
+    "sha256": "eb11725361e0ca081c3ab4d6d51a3932b29501e952cfdc56294a23c87f0f0f16"
+  },
+  "future_protocol_drafts": [
+    "C75_T2_REPRESENTATION_CONSTRUCT_ANALYSIS_PROTOCOL_DRAFT.json",
+    "C76_T3_HO_NEW_VARIABLE_HOLDOUT_PROTOCOL_DRAFT.json"
+  ],
+  "identity_tolerances": {
+    "Wz_plus_b_logits_max_abs": 1e-06,
+    "Wz_plus_b_logits_max_relative": 1e-05,
+    "failed_rows": 0,
+    "failed_units": 0,
+    "repeat_forward_max_abs": 1e-06,
+    "softmax_probability_max_abs": 1e-07
+  },
+  "locked_unit_tables": {
+    "c73_attribution_metric_semantics.csv": {
+      "path": "oaci/reports/c74_tables/c73_attribution_metric_semantics.csv",
+      "rows": 6,
+      "sha256": "6691e5506a3888593fec451c7730863fe802f4aed3b661506ced77e640c52015",
+      "size_bytes": 2194
+    },
+    "c73_protocol_replay.csv": {
+      "path": "oaci/reports/c74_tables/c73_protocol_replay.csv",
+      "rows": 3,
+      "sha256": "e5d2c52d95ccc7a3e91c08fb40134eeea414be039eab92c7a60f66814b3e1e53",
+      "size_bytes": 522
+    },
+    "full_t2_unit_manifest.csv": {
+      "path": "oaci/reports/c74_tables/full_t2_unit_manifest.csv",
+      "rows": 216,
+      "sha256": "860acf1485554dd2f6884a44eb26f6089e477aeea3e7ab8474c18f3050fe3a36",
+      "size_bytes": 80178
+    },
+    "pilot_unit_manifest.csv": {
+      "path": "oaci/reports/c74_tables/pilot_unit_manifest.csv",
+      "rows": 54,
+      "sha256": "7e0f058606ba05657d511f7976b1ab2492ccd0c6d9567ca562f675d0a57943e6",
+      "size_bytes": 20042
+    },
+    "t2_sampling_blindness_audit.csv": {
+      "path": "oaci/reports/c74_tables/t2_sampling_blindness_audit.csv",
+      "rows": 25,
+      "sha256": "865e22ceff661ebbc2757cc93b6a9a793e2c27378e2f6aaa6300783bf338f90b",
+      "size_bytes": 2334
+    },
+    "t2_t3_ho_new_variable_split.csv": {
+      "path": "oaci/reports/c74_tables/t2_t3_ho_new_variable_split.csv",
+      "rows": 1268,
+      "sha256": "8b29e22ada540934d699f32c2f9dbe746f9d72966f0a98f6373d8f6a548a47c4",
+      "size_bytes": 478504
+    },
+    "t3_ho_holdout_unit_manifest.csv": {
+      "path": "oaci/reports/c74_tables/t3_ho_holdout_unit_manifest.csv",
+      "rows": 1052,
+      "sha256": "d7c7114fbe125a712ec560bce2a8bb94e895859068a62210bd513b96c8078980",
+      "size_bytes": 397518
+    }
+  },
+  "milestone": "C74",
+  "model_instrumentation": {
+    "W_shape": "[4,800]",
+    "b_shape": "[4]",
+    "checkpoint_ABI_source": "C65 map + checkpoint sidecar + strict state_dict load",
+    "class_count": 4,
+    "hook": "classifier forward-pre-hook cross-checked against ModelOutput.z",
+    "input_shape": "[batch,22,385]",
+    "model_factory": "ShallowConvNet",
+    "preprocessing_signature": "94ace185295aa3d42584d8a7b730ba2ba774045aa6df1b1437c3ce31f13500aa",
+    "z_shape": "[batch,800]"
+  },
+  "new_variable_roles": {
+    "T2": {
+      "role": "representation/source-feature discovery and calibration",
+      "units": 216
+    },
+    "T3_HO": {
+      "independent_target_dataset_confirmation": false,
+      "role": "untouched future z/Wz new-variable holdout",
+      "units": 1052
+    }
+  },
+  "parent_c73_artifact_manifest_sha256": "790192807f524b7c34d759fb6c7645ca15afe005ddeccb378124490aaee02d38",
+  "parent_c73_protocol_commit": "26d3d34",
+  "parent_c73_protocol_sha256": "482fc0cf485e51f2892a42210a71a1394232eb950d6d9df19dc1e48ba541e912",
+  "parent_c73_result_commit": "2aa551ee2db140b8b5015a749544b1321c85249f",
+  "parent_c73_summary_sha256": "b75a73101e63e686ccef3809a26f5f444ad5982d7d69797a78e25901e1bf60d6",
+  "physical_views": {
+    "same_label_oracle_view": {
+      "diagnostic_only": true,
+      "evaluation_labels": true,
+      "primary_smoke_access": false,
+      "target_labels": true
+    },
+    "strict_source_trial_view": {
+      "source_labels": true,
+      "strict_source_DG": true,
+      "target_labels": false
+    },
+    "target_construction_view": {
+      "diagnostic_only": true,
+      "evaluation_labels": false,
+      "target_labels": true
+    },
+    "target_evaluation_view": {
+      "diagnostic_only": true,
+      "evaluation_labels": true,
+      "target_labels": true
+    },
+    "target_unlabeled_representation_view": {
+      "source_labels": false,
+      "target_labels": false,
+      "target_unlabeled": true
+    }
+  },
+  "pilot": {
+    "balance": "seed 2/2/2 and level 3/3 per target; regime support is S0_full_support only",
+    "forbidden_fields": [
+      "target bAcc",
+      "target NLL/ECE",
+      "joint-good",
+      "target margin",
+      "C72 residual",
+      "endpoint scalar",
+      "z/Wz"
+    ],
+    "per_target": 6,
+    "selection": "metadata-only greedy category-count balance with SHA256 tie-break",
+    "selection_salt": "C74_P0_V1",
+    "units": 54
+  },
+  "pilot_gates": [
+    "checkpoint_load",
+    "preprocessing",
+    "CPU_device",
+    "hook_identity",
+    "repeat_determinism",
+    "schema",
+    "physical_masking",
+    "hash_content_addressing",
+    "storage_quota",
+    "no_forbidden_columns"
+  ],
+  "protocol_lock_source_commit": "2aa551ee2db140b8b5015a749544b1321c85249f",
+  "protocol_lock_timestamp_utc": "2026-07-10T12:41:55Z",
+  "risk_registry": [
+    "C73_metric_semantics_ambiguity",
+    "protocol_timing",
+    "authorization_token_scope",
+    "pilot_to_full_silent_escalation",
+    "T2_T3_HO_variable_contamination",
+    "target_outcome_based_unit_sampling",
+    "source_target_view_leakage",
+    "target_label_in_unlabeled_view",
+    "evaluation_label_in_construction_view",
+    "hook_layer_mismatch",
+    "Wz_logit_identity_failure",
+    "precision_or_compression_drift",
+    "checkpoint_ABI_mismatch",
+    "preprocessing_mismatch",
+    "cache_rows_not_independent",
+    "pilot_overinterpretation",
+    "representation_claim_without_holdout",
+    "strict_source_escape_hatch_overclaim",
+    "raw_cache_in_git",
+    "unauthorized_training_or_GPU"
+  ],
+  "schema_version": "c74_t2_source_wz_instrumentation_protocol_v1",
+  "smoke_analyses": [
+    "strict-source path availability",
+    "target-common/candidate projection variance",
+    "projection split stability",
+    "cross-fit incremental prediction feasibility",
+    "registered projection residual counterfactual feasibility"
+  ],
+  "smoke_analysis_scope": "T2 feasibility/power only; no mechanism or action-rule confirmation",
+  "taxonomy": {
+    "primary": [
+      "C74-A_T2_source_Wz_instrumentation_executed_and_validated",
+      "C74-B_pilot_valid_full_T2_instrumentation_blocked",
+      "C74-C_ABI_preprocessing_or_masking_blocker",
+      "C74-D_C73_metric_semantics_repair_required",
+      "C74-E_source_or_representation_path_not_recoverable"
+    ],
+    "secondary": [
+      "C74-S1_54_unit_pilot_passed",
+      "C74-S2_full_216_T2_units_manifested",
+      "C74-S3_Wz_logit_identity_exact",
+      "C74-S4_physical_view_isolation_passed",
+      "C74-S5_strict_source_trial_path_recovered",
+      "C74-S6_target_unlabeled_zWz_path_recovered",
+      "C74-S7_candidate_specific_projection_construct_feasible",
+      "C74-S8_candidate_specific_projection_construct_unstable",
+      "C74-S9_T3_HO_new_variable_holdout_preserved",
+      "C74-S10_full_T3_HO_campaign_ready_but_not_authorized",
+      "C74-S11_new_training_still_not_justified"
+    ]
+  }
+}

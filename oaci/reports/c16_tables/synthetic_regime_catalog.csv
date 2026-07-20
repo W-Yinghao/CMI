@@ -1,0 +1,4 @@
+regime,rho,expected
+positive_transfer,0.9,control_hypothesis_supported
+decoupled,0.0,falsified
+anti_transfer,-0.9,falsified

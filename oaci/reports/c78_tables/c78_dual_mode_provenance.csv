@@ -1,0 +1,3 @@
+mode,commit,gate,training,forward,checkpoints,status
+no_auth_P0,67bca01949c88ab58360179d19868aa78cfc93b7,PILOT_READY_BUT_NOT_AUTHORIZED,0,0,0,guard_baseline
+authorized_P1,24eaffebf3a0b48600617c0e21677bb6577b28d2,runtime_complete_pending_red_team,1,1,82,executed

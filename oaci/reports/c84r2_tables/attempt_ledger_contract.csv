@@ -1,0 +1,12 @@
+order,stage,inside_failure_ledger,before_real_data,access_counters_persisted
+1,preauthorization_bound_replay,0,1,0
+2,authorization_consumption,0,1,0
+3,attempt_ledger_start,1,1,1
+4,package_imports_and_versions,1,1,1
+5,CUDA_check,1,1,1
+6,loader_source_replay,1,1,1
+7,loader_import,1,1,1
+8,dataset_access,1,0,1
+9,training,1,0,1
+10,instrumentation,1,0,1
+11,manifest_publication,1,0,1

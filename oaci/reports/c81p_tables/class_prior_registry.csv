@@ -1,0 +1,5 @@
+method_id,analysis_role,prior,target_labels_used,integer_support_rule
+U12,primary,source_empirical,0,largest_remainder_tie_class_id
+U12,secondary_sensitivity,uniform,0,largest_remainder_tie_class_id
+U13,primary,source_empirical,0,largest_remainder_tie_class_id
+U13,secondary_sensitivity,uniform,0,largest_remainder_tie_class_id

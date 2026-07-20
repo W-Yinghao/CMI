@@ -1,0 +1,199 @@
+{
+  "schema_version": "c85u_candidate_utility_reconstruction_protocol_v1",
+  "milestone": "C85URP",
+  "epistemic_role": "POST_C84S_EXPLORATORY_DERIVED_INPUT_PRODUCTION_NOT_CONFIRMATION",
+  "chronology": {
+    "C84_and_C85_aggregate_outcomes_known": true,
+    "historical_formula_immutable": true,
+    "persisted_output_prospective": true,
+    "real_evaluation_label_rows_opened_before_protocol": 0,
+    "real_target_logit_arrays_opened_before_protocol": 0,
+    "candidate_level_result_objects_opened_before_protocol": 0,
+    "Q0_shards_opened_before_protocol": 0,
+    "direct_C84S_tables_opened_before_protocol": 0,
+    "filesystem_path_and_size_metadata_inspected": true,
+    "new_metric_grid_method_selector_threshold_pvalue_or_theorem_status": false
+  },
+  "historical_preservation": {
+    "C85EP_blocker_gate": "C85E_FROZEN_CANDIDATE_UTILITY_OR_SELECTION_INPUT_UNAVAILABLE",
+    "C85EP_retroactively_ready": false,
+    "C84F_complete_field_modified": false,
+    "C84S_stage_A_B_C_modified": false,
+    "C84A_or_C85P_through_C85V_modified": false,
+    "C85E_protocol_modified": false
+  },
+  "frozen_inputs": {
+    "C84F_complete_field_manifest": {
+      "path": "/projects/EEG-foundation-model/yinghao/oaci-c84-full-field-target-replay-v2/lock_f0c369ee273352b47e36/C84F_COMPLETE_FIELD_MANIFEST.json",
+      "sha256": "cfffcac1a55148941b809b69bed2c9a8957a94729ed7f2c2c29ed8d48c0134d8",
+      "bytes": 6334399,
+      "field_descriptors": 1944
+    },
+    "target_trial_registry": {
+      "path": "/projects/EEG-foundation-model/yinghao/oaci-c84-full-field-target-replay-v2/lock_f0c369ee273352b47e36/C84F_TARGET_UNLABELED_TRIAL_REGISTRY.json",
+      "sha256": "52526aaf7d9bd941bac693a0947971dc35b9083c1c783619f97055926aceabb8",
+      "rows": 9621
+    },
+    "C84S_V5_analysis_lock": {
+      "path": "oaci/reports/C84S_ANALYSIS_EXECUTION_LOCK_V5.json",
+      "sha256": "030be9c9ebac401ca9e7ae5e51bb1ce99b592faceac00fac8781070420b0b846",
+      "commit": "2d03eb05e0cec352d08cdb6f48170be56876e77b"
+    },
+    "C84S_selection_freeze": {
+      "path": "/projects/EEG-foundation-model/yinghao/oaci-c84s-analysis-v5/stage_b_selection_freeze/C84S_SELECTION_FREEZE_MANIFEST_V3.json",
+      "sha256": "30ad539c8758a15701a582f0391671682107beb694860c9c531856425f2c7df4",
+      "contexts": 944
+    },
+    "C84S_scientific_result": {
+      "path": "/projects/EEG-foundation-model/yinghao/oaci-c84s-analysis-v5/stage_c_scientific_result/C84S_RESULT.json",
+      "sha256": "5590f85c3552ec0176a015e34296059a950dd2c5853a51aa140657cf53d79ee7"
+    },
+    "C84S_result_manifest": {
+      "path": "/projects/EEG-foundation-model/yinghao/oaci-c84s-analysis-v5/stage_c_scientific_result/C84S_RESULT_ARTIFACT_MANIFEST.json",
+      "sha256": "516ae135125d66233c9ee87aa71e5b40941fcb9140a63c036f58b40fce11a2b5",
+      "tables": 18
+    },
+    "historical_stage_A_evaluation_seal": {
+      "path": "/projects/EEG-foundation-model/yinghao/oaci-c84s-analysis-v3/stage_a_labels/C84S_STAGE_A_EVALUATION_SEAL.json",
+      "sha256": "54e06dff60d80255631dc4faa20c8c7db651f2af8fc5415671dd9ab6681b5502",
+      "bytes": 587
+    },
+    "evaluation_label_view_manifest": {
+      "path": "/projects/EEG-foundation-model/yinghao/oaci-c84s-analysis-v3/stage_a_labels/target_evaluation_label_view/manifest.json",
+      "sha256": "6fad247629eb48340a4badf9ab1a0669652757a58216e46826e4dfd8bfd608bd",
+      "bytes": 347
+    },
+    "evaluation_label_table": {
+      "path": "/projects/EEG-foundation-model/yinghao/oaci-c84s-analysis-v3/stage_a_labels/target_evaluation_label_view/labels.csv",
+      "sha256": "ea76c34663edac1e6e7e844fee6af3f06058aaaf3846febda1dff94df343a371",
+      "bytes": 394109,
+      "rows": 4848
+    }
+  },
+  "metadata_only_registry_contract": {
+    "post_protocol_manifest_reads_allowed": true,
+    "bind_target_artifact_identities": 1944,
+    "bind_field_descriptors": 1944,
+    "bind_context_descriptors": 944,
+    "bind_candidates_per_context": 81,
+    "target_artifact_payload_opened_at_readiness": false,
+    "evaluation_label_rows_opened_at_readiness": false,
+    "missing_path_hash_or_count_blocks_lock": true
+  },
+  "historical_utility_implementation": {
+    "context_candidate_utility": "oaci.multidataset.c84s_evaluation.context_candidate_utility",
+    "endpoint_metrics": "oaci.multidataset.c84s_q0_budget.endpoint_metrics",
+    "midrank_percentile": "oaci.multidataset.c84s_q0_budget.midrank_percentile",
+    "c84s_evaluation_sha256": "5fd1b86478ee06e1cebe7b15f228266afce4fa30ae21314e6e0565e395e29ad0",
+    "c84s_q0_budget_sha256": "27c938bf81dd27e677d6a257a88dc5f071502bd6ec2c976f3cd5873f8ab1340f",
+    "metrics": ["balanced_accuracy", "NLL", "ECE"],
+    "oriented_components": ["midrank_percentile_bAcc", "midrank_percentile_negative_NLL", "midrank_percentile_negative_ECE"],
+    "composite": "arithmetic_mean_of_three_oriented_components",
+    "canonical_best": "first_canonical_argmax",
+    "standardized_regret": "(max_utility-candidate_utility)/(max_utility-min_utility)_else_zero_when_spread_le_1e-15",
+    "formula_rewrite_or_cleanup": false
+  },
+  "stage_U1": {
+    "inputs": ["evaluation_label_seal_and_view", "C84F_target_artifacts", "field_and_context_descriptors"],
+    "forbidden_inputs": ["construction_labels", "Stage_B_scores_or_ranks", "fixed_selections", "Q0_shards", "method_context_decisions", "Q1_Q2_tables", "taxonomy"],
+    "contexts": 944,
+    "candidates_per_context": 81,
+    "candidate_rows": 76464,
+    "training": false,
+    "forward": false,
+    "model_loading": false,
+    "GPU": false,
+    "persisted_target_logits_only": true,
+    "atomic_complete_freeze_required": true
+  },
+  "artifact_contract": {
+    "context_schema": "c85u_candidate_utility_context_v1",
+    "index_schema": "c85u_candidate_utility_index_v1",
+    "manifest_schema": "c85u_complete_utility_manifest_v1",
+    "context_artifacts": 944,
+    "context_format": "compressed_NPZ_non_object_dtypes",
+    "index_path": "candidate_utility_index.csv",
+    "index_rows": 76464,
+    "manifest_path": "C85U_CANDIDATE_UTILITY_MANIFEST.json",
+    "manifest_sidecar_path": "C85U_CANDIDATE_UTILITY_MANIFEST.sha256",
+    "forbidden_output_fields": ["EEG", "logits", "probabilities", "labels"],
+    "candidate_fields": [
+      "context_id", "dataset", "target_subject_id", "panel", "training_seed", "level",
+      "candidate_index", "candidate_id", "regime", "trajectory_order", "epoch",
+      "evaluation_trial_count", "balanced_accuracy", "NLL", "ECE",
+      "bAcc_midrank_percentile", "negative_NLL_midrank_percentile",
+      "negative_ECE_midrank_percentile", "composite_utility", "utility_rank_midrank",
+      "canonical_utility_order_position", "standardized_regret", "is_canonical_best",
+      "is_in_canonical_top5", "is_in_canonical_top10"
+    ],
+    "context_identity_fields": [
+      "candidate_id_order_sha256", "evaluation_trial_id_sha256",
+      "evaluation_label_view_manifest_sha256", "target_artifact_input_sha256",
+      "metric_matrix_sha256", "utility_vector_sha256", "best_candidate_id",
+      "best_candidate_index", "utility_min", "utility_max", "utility_spread",
+      "exact_comaximizer_count"
+    ]
+  },
+  "persistence_and_numerical_replay": {
+    "all_float_arrays": "float64_little_endian",
+    "metric_and_utility_max_abs_tolerance": 1e-12,
+    "oriented_midranks": "exact",
+    "identity_digest_order_and_shape": "exact",
+    "all_values_finite": true,
+    "tolerance_runtime_widening": false,
+    "shadow_tolerance_failure_disposition": "STOP_BEFORE_LOCK_AND_RECONCILE_PROSPECTIVELY"
+  },
+  "stage_U2": {
+    "release_requires_complete_U1_manifest": true,
+    "inputs": ["U1_utility_artifacts", "C84S_Stage_B_frozen_actions", "method_context_decisions"],
+    "forbidden_inputs": ["evaluation_label_root", "target_logit_root", "construction_label_root"],
+    "method_context_rows": 18432,
+    "replay_fields": ["selected_utility", "standardized_regret", "top1", "top5", "top10", "selected_regime"],
+    "finite_Q0": "read_existing_2048_chain_action_records_and_integrate_without_sampling",
+    "other_methods": ["B0_analytic", "B5_oracle_ceiling", "fixed_defaults", "score_method_actions", "Q0_FULL"],
+    "forbidden_analysis": ["Q1", "Q2", "max_T", "LOTO", "label_frontier", "taxonomy", "new_pvalues", "new_scientific_gate"],
+    "output_path": "C85U_HISTORICAL_DECISION_REPLAY.json",
+    "mismatch_accepts_U1_for_C85E": false
+  },
+  "process_isolation": {
+    "U1_imports_Stage_B_selection_or_Q0_builder": false,
+    "U1_receives_construction_or_selection_artifacts": false,
+    "U2_receives_label_or_logit_roots": false,
+    "inference_training_forward_GPU_theorem_active_C86_manuscript": false
+  },
+  "authorization": {
+    "schema_version": "c85u_direct_pi_authorization_record_v1",
+    "direct_statement_exact": "授权 C85U",
+    "record_path": "oaci/reports/C85U_PI_AUTHORIZATION_RECORD.json",
+    "single_use_external_O_EXCL_receipt": true,
+    "historical_authorization_reuse": false,
+    "authorized_now": false
+  },
+  "resource_envelope": {
+    "partition": "cpu-high",
+    "CPU": 48,
+    "RAM_GiB": 128,
+    "GPU": 0,
+    "wall_hours": 2,
+    "target_artifact_read_bytes_approx": 48072941176,
+    "external_result_bytes_max": 2147483648
+  },
+  "failure_policy": {
+    "before_authorization_consumption": "NO_LABEL_OR_LOGIT_ACCESS_AUTHORIZATION_UNCONSUMED_PREFLIGHT_BLOCKER",
+    "U1_failure": "NO_PARTIAL_FINAL_MANIFEST_PRESERVE_ROOT_AND_PRIMARY_EXCEPTION_NO_AUTOMATIC_RETRY",
+    "U2_failure": "U1_FROZEN_NOT_ACCEPTED_FOR_C85E_NO_LABEL_OR_LOGIT_REOPEN",
+    "runtime_mismatch": "NO_FORMULA_TOLERANCE_OR_SCHEMA_CHANGE_STOP_FOR_PM_REVIEW",
+    "implementation_change": "ADDITIVE_PROTOCOL_AND_FRESH_LOCK_REQUIRED"
+  },
+  "immutable_results": {
+    "C84_primary": "C84-D_external_dataset_source_panel_seed_level_or_target_heterogeneous",
+    "C84_frontier": "C84-L4",
+    "C85_theorem_statuses": {
+      "T1": "PROVED", "T2": "COUNTEREXAMPLE", "T3": "PROVED",
+      "T4": "PROVED", "T5": "OPEN", "T6": "COUNTEREXAMPLE", "T7": "PROVED"
+    }
+  },
+  "readiness_success_gate": "C85U_HELD_EVALUATION_CANDIDATE_UTILITY_RECONSTRUCTION_LOCKED_READY_FOR_PI_AUTHORIZATION",
+  "readiness_failure_gate": "C85U_EVALUATION_VIEW_TARGET_ARTIFACT_UTILITY_SCHEMA_OR_PROVENANCE_RECONCILIATION_REQUIRED",
+  "future_completion_gate": "C85U_COMPLETE_CANDIDATE_UTILITY_FIELD_FROZEN_C85E_REVIEW_REQUIRED"
+}

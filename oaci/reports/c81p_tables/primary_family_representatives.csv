@@ -1,0 +1,13 @@
+representative_id,method_id,available,selection_locked_before_outcomes,replacement_after_outcomes_allowed
+R0,B0_uniform_random,1,1,0
+R1,B1_ERM_anchor,1,1,0
+R2,S1_source_validation_balanced_accuracy,1,1,0
+R3,U7_ATC_MC,1,1,0
+R4,U5_normalized_nuclear_norm,1,1,0
+R5,U11_MaNo_p4,1,1,0
+R6,U13_COTT_source_empirical_prior,1,1,0
+R7,U14_SND_softmax_tau_0.05,1,1,0
+R8,U15_ALine_all_pairs,1,1,0
+R9,UNAVAILABLE_NO_FAITHFUL_TRAINING_FREE_IMPORTANCE_WEIGHTING_MEMBER,0,1,0
+R10,L1_frozen_Q0_B1,1,1,0
+R11,L7_frozen_Q0_FULL,1,1,0

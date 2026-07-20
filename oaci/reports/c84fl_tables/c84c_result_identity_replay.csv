@@ -1,0 +1,6 @@
+object,identity,replay_pass,C84F_reuse_role
+C84C_final_HEAD,f7bbd27579308e01ed5c0388cb728cc7417978ac,1,ancestry
+C84C_result,bec3a8b205a3d13fdb848ce1f82f71f903d05a97f746fdae25b3b4cce40e67f0,1,engineering_evidence
+C84C_complete_manifest,530471ef370d5fa13a88e7e53cf1add558b8444b66675496187aa192b0606f2b,1,243_unit_source
+C84C_valid_external_root,/projects/EEG-foundation-model/yinghao/oaci-c84-canary-v4/lock_c198607fb9e46ea2353f,1,read_only_reuse
+failed_job_895366,/projects/EEG-foundation-model/yinghao/oaci-c84-canary-v3/lock_2e38dcd63c02a887b1dc,1,rejected

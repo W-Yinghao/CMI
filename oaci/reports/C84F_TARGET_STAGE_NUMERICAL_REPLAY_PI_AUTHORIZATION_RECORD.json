@@ -1,0 +1,16 @@
+{
+  "schema_version": "c84fr2_direct_pi_authorization_record_v1",
+  "direct_explicit_PI_authorization": true,
+  "authorized_stage": "C84F_TARGET_STAGE_NUMERICAL_REPLAY_REPAIR",
+  "repair_protocol_sha256": "4480530f05f0814b712edf23a51f08e64820ddea220d6b26f4dc7bb0f2a541bf",
+  "target_instrumentation_protocol_v2_sha256": "2387b3a1a81dd061b7cc723820d41829e0237e5be0f243bc423422a173f72671",
+  "execution_lock_sha256": "f0c369ee273352b47e36ce426108d78a2d4193180afbf0aecfbbeb3d4980ba47",
+  "execution_lock_commit": "34eb5efad16f1f8a320b08435363939089c8037a",
+  "model_field_manifest_sha256": "d8931b81a3d68f4b1e098ac6e3ede3cd44cdb6c70cdef9f18a76e0a8c62ecdb2",
+  "target_trial_registry_sha256": "52526aaf7d9bd941bac693a0947971dc35b9083c1c783619f97055926aceabb8",
+  "model_retraining": false,
+  "target_labels": false,
+  "scientific_metrics": false,
+  "same_label_oracle": false,
+  "C84S": false
+}

@@ -1,0 +1,20 @@
+pattern,total_hits,affirmative_hits,files,passed
+EEG distribution theorem,1,0,oaci/reports/c60_tables/proof_audit_checklist.csv,1
+distribution-free minimax theorem,0,0,,1
+minimax theorem established,0,0,,1
+theorem-grade Le Cam bound,0,0,,1
+theorem-grade Fano,0,0,,1
+source-only rescue,0,0,,1
+OACI rescue,0,0,,1
+deployable selector,0,0,,1
+checkpoint recommendation artifact,0,0,,1
+selected_candidate_id,0,0,,1
+chosen checkpoint,0,0,,1
+few-label sufficiency,0,0,,1
+new real EEG training,0,0,,1
+silent re-inference,0,0,,1
+GPU job,0,0,,1
+BNCI2014_004 used,0,0,,1
+"seeds [3,4] used",0,0,,1
+M1 manuscript drafting,0,0,,1
+manuscript drafting starts,0,0,,1

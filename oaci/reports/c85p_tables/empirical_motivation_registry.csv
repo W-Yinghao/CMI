@@ -1,0 +1,5 @@
+motivation_id,frozen_label,compact_observation,allowed_role,forbidden_use,confirmatory_gate_changed
+M1,COTT_like_average_tail_separation,positive mean and Q2 pass with registered target-tail floor failures,motivate mean/worst/CVaR separation,choose alpha or robust threshold,0
+M2,MaNo_like_policy_collapse,Cho MaNo is exactly B1-equivalent in 160/160 contexts,motivate realized action dependence,claim experiment contains no information,0
+M3,Cho_like_cohort_specific_qualification,qualified fixed policy in one cohort only,motivate environment-indexed risk,set synthetic state probabilities,0
+M4,label_frontier_heterogeneity,B* absent/8/absent under registered Q0,motivate information-policy separation,infer label information order,0

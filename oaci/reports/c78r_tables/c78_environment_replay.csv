@@ -1,0 +1,2 @@
+rows,source_sha256,C78_environment_hash_match,C78_V100_snapshot_up,C78_GPU_model,C78_measured_GPU_hours,passed
+4,6cb8a9e4a0a0db6b6441d22a29af97d14bf62d082489ad1ca58eb2317d95962b,1,1,Tesla V100-PCIE-32GB,0.5436387952168783,1

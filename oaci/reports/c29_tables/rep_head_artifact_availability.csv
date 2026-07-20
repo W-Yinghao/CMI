@@ -1,0 +1,5 @@
+artifact,available,note
+target_logits_C26,True,
+head_params_b_norms_angles,True,
+source_logits_C18,True,
+target_pre_classifier_z,False,not persisted; W.z=(logit-b) captures ALL offset-relevant representation info -> not needed

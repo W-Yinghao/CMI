@@ -1,0 +1,6 @@
+evidence_target,minimum_requirement,current_status
+split_label_sufficiency,disjoint construction/evaluation target splits,missing
+full_conditional_cs,paired sample-level X1/X2/Y matrices,missing
+time_series_hankel_cs,past-window source states and response variables,missing
+atom_trace,per-domain x class x checkpoint x split atom tensors,missing
+replication,independent checkpoint field with preregistered pass/fail criteria,missing

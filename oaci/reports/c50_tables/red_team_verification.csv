@@ -1,0 +1,8 @@
+check,passed,finding
+self_neighbor_excluded,1,Locked epsilon neighborhoods inherit C48 distance matrices with diagonal set to infinity.
+query_row_excluded_from_own_neighborhood,1,Per-query morphology was audited against masks where the query row is excluded.
+target_labels_quarantined,1,Target endpoint labels appear only as diagnostic labels and report fields carry quarantine flags.
+group_conditioned_baselines_reported,1,"Same-group random, locked local-Bayes, and source-score baselines are emitted by group type."
+reason_coded_failure_ledger_emitted,1,Failed actionability groups carry predeclared reason codes.
+no_selector_or_checkpoint_recommendation,1,Tables omit selector-facing identifiers and checkpoint recommendations.
+no_deployable_claim,1,Report language is diagnostic-only and non-deployable.

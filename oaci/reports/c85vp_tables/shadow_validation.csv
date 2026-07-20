@@ -1,0 +1,9 @@
+case,expected,observed,formal_status_transition
+Stage A signature has no candidate path,PASS,PASS,0
+forbidden candidate-generator import,0,0,0
+forbidden Monte Carlo import,0,0,0
+T2 exact rational replay,PASS,PASS,0
+T4 factor and TV boundaries,PASS,PASS,0
+T6 CVaR boundary,PASS,PASS,0
+T7 deterministic and empty boundaries,PASS,PASS,0
+T1-T7 remain OPEN in readiness,7,7,0

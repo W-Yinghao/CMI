@@ -1,0 +1,46 @@
+check,status,blocking,evidence
+protocol_sha_exact,PASS,0,df85699090a65d1e1766d754bcebd9eb5648cc13e4441d8074a3f4884487c7f8
+protocol_authoritative_sha,PASS,0,df85699090a65d1e1766d754bcebd9eb5648cc13e4441d8074a3f4884487c7f8
+route_sha_exact,PASS,0,c99c91fbbcfb7d4316420d12e26c167ea2d81ec7a7d7a5bd59654e71a8286b67
+lock_sha_exact,PASS,0,aee520820cb7b2b94ab43f4e2bf8a30278a36f479296e145c24eaada99df36ad
+direct_authorization_received,PASS,0,"{""evidence_sha256"": ""5eff48864c41d3953389a5ae6607ef0188fc4fed722c53b10209654b3dc937ff"", ""mode"": ""direct_explicit_user_authorization"", ""received"": true, ""scope_bound"": true}"
+direct_authorization_mode,PASS,0,"{""evidence_sha256"": ""5eff48864c41d3953389a5ae6607ef0188fc4fed722c53b10209654b3dc937ff"", ""mode"": ""direct_explicit_user_authorization"", ""received"": true, ""scope_bound"": true}"
+authorization_evidence_hash,PASS,0,5eff48864c41d3953389a5ae6607ef0188fc4fed722c53b10209654b3dc937ff
+scope_bound,PASS,0,"{""BNCI2014_004"": false, ""C79"": false, ""GPU"": false, ""analysis_only"": true, ""forward"": false, ""manuscript"": false, ""primary_targets"": [1, 2, 3, 5, 6, 7, 8, 9], ""reinference"": false, ""same_label_oracle"": false, ""seed"": 3, ""seed4"": false, ""target4_primary"": false, ""training"": false}"
+primary_targets_exact,PASS,0,"[1, 2, 3, 5, 6, 7, 8, 9]"
+target4_excluded,PASS,0,"[1, 2, 3, 5, 6, 7, 8, 9]"
+seed3_only,PASS,0,3
+seed4_blocked,PASS,0,"{""BNCI2014_004"": false, ""C79"": false, ""GPU"": false, ""analysis_only"": true, ""forward"": false, ""manuscript"": false, ""primary_targets"": [1, 2, 3, 5, 6, 7, 8, 9], ""reinference"": false, ""same_label_oracle"": false, ""seed"": 3, ""seed4"": false, ""target4_primary"": false, ""training"": false}"
+C79_blocked,PASS,0,"{""BNCI2014_004"": false, ""C79"": false, ""GPU"": false, ""analysis_only"": true, ""forward"": false, ""manuscript"": false, ""primary_targets"": [1, 2, 3, 5, 6, 7, 8, 9], ""reinference"": false, ""same_label_oracle"": false, ""seed"": 3, ""seed4"": false, ""target4_primary"": false, ""training"": false}"
+BNCI004_blocked,PASS,0,"{""BNCI2014_004"": false, ""C79"": false, ""GPU"": false, ""analysis_only"": true, ""forward"": false, ""manuscript"": false, ""primary_targets"": [1, 2, 3, 5, 6, 7, 8, 9], ""reinference"": false, ""same_label_oracle"": false, ""seed"": 3, ""seed4"": false, ""target4_primary"": false, ""training"": false}"
+training_blocked,PASS,0,"{""BNCI2014_004"": false, ""C79"": false, ""GPU"": false, ""analysis_only"": true, ""forward"": false, ""manuscript"": false, ""primary_targets"": [1, 2, 3, 5, 6, 7, 8, 9], ""reinference"": false, ""same_label_oracle"": false, ""seed"": 3, ""seed4"": false, ""target4_primary"": false, ""training"": false}"
+forward_blocked,PASS,0,"{""BNCI2014_004"": false, ""C79"": false, ""GPU"": false, ""analysis_only"": true, ""forward"": false, ""manuscript"": false, ""primary_targets"": [1, 2, 3, 5, 6, 7, 8, 9], ""reinference"": false, ""same_label_oracle"": false, ""seed"": 3, ""seed4"": false, ""target4_primary"": false, ""training"": false}"
+reinference_blocked,PASS,0,"{""BNCI2014_004"": false, ""C79"": false, ""GPU"": false, ""analysis_only"": true, ""forward"": false, ""manuscript"": false, ""primary_targets"": [1, 2, 3, 5, 6, 7, 8, 9], ""reinference"": false, ""same_label_oracle"": false, ""seed"": 3, ""seed4"": false, ""target4_primary"": false, ""training"": false}"
+GPU_blocked,PASS,0,"{""BNCI2014_004"": false, ""C79"": false, ""GPU"": false, ""analysis_only"": true, ""forward"": false, ""manuscript"": false, ""primary_targets"": [1, 2, 3, 5, 6, 7, 8, 9], ""reinference"": false, ""same_label_oracle"": false, ""seed"": 3, ""seed4"": false, ""target4_primary"": false, ""training"": false}"
+manuscript_blocked,PASS,0,"{""BNCI2014_004"": false, ""C79"": false, ""GPU"": false, ""analysis_only"": true, ""forward"": false, ""manuscript"": false, ""primary_targets"": [1, 2, 3, 5, 6, 7, 8, 9], ""reinference"": false, ""same_label_oracle"": false, ""seed"": 3, ""seed4"": false, ""target4_primary"": false, ""training"": false}"
+same_label_oracle_blocked,PASS,0,"{""BNCI2014_004"": false, ""C79"": false, ""GPU"": false, ""analysis_only"": true, ""forward"": false, ""manuscript"": false, ""primary_targets"": [1, 2, 3, 5, 6, 7, 8, 9], ""reinference"": false, ""same_label_oracle"": false, ""seed"": 3, ""seed4"": false, ""target4_primary"": false, ""training"": false}"
+oracle_descriptor_absent,PASS,0,oracle tokens absent
+four_views_per_target,PASS,0,"{""1"": [""instrumentation_manifest"", ""strict_source_input"", ""target_construction_view"", ""target_evaluation_view"", ""target_unlabeled_input""], ""2"": [""instrumentation_manifest"", ""strict_source_input"", ""target_construction_view"", ""target_evaluation_view"", ""target_unlabeled_input""], ""3"": [""instrumentation_manifest"", ""strict_source_input"", ""target_construction_view"", ""target_evaluation_view"", ""target_unlabeled_input""], ""5"": [""instrumentation_manifest"", ""strict_source_input"", ""target_construction_view"", ""target_evaluation_view"", ""target_unlabeled_input""], ""6"": [""instrumentation_manifest"", ""strict_source_input"", ""target_construction_view"", ""target_evaluation_view"", ""target_unlabeled_input""], ""7"": [""instrumentation_manifest"", ""strict_source_input"", ""target_construction_view"", ""target_evaluation_view"", ""target_unlabeled_input""], ""8"": [""instrumentation_manifest"", ""strict_source_input"", ""target_construction_view"", ""target_evaluation_view"", ""target_unlabeled_input""], ""9"": [""instrumentation_manifest"", ""strict_source_input"", ""target_construction_view"", ""target_evaluation_view"", ""target_unlabeled_input""]}"
+route_targets_exact,PASS,0,"[""1"", ""2"", ""3"", ""5"", ""6"", ""7"", ""8"", ""9""]"
+trial_id_not_predictor,PASS,0,join_split_and_dependence_cluster_only_never_predictor
+row_order_not_predictor,PASS,0,alignment_only_never_predictor
+implementation_file_count,PASS,0,9
+implementation_hash::c78s_protocol.py,PASS,0,4c9ad2c3e3516167716b79b73893f3714ce14aba99bc3ed21dd9c6d20a0a8ef7
+implementation_hash::c78s_data.py,PASS,0,4f8b9aa5d6ccbc3b078fb0471cfd0174b0c5a9e96a40d0ba9b5f426769ca39ff
+implementation_hash::c78s_modeling.py,PASS,0,372f4b5e0315d487c452e74ce78736583c105a16c027362e4d96cc713d8175ca
+implementation_hash::c78s_seed3_scientific_analysis.py,PASS,0,785e1a29f64ae03898aeb832914afc0cc4097db5ae5dfd0d0dfddbac1306c4f8
+implementation_hash::c78s_red_team.py,PASS,0,c382e30cf53f1bb35cf3498275ff152d2d6dc019de2c24757cfd62c4c3630a00
+implementation_hash::test_c78s_seed3_scientific_analysis.py,PASS,0,2f56fc1017b3042388944b60772b185860017abfc0ad3aaf2bc1d2f3eb83e855
+implementation_hash::slurm_c78s_analysis.sh,PASS,0,b0d87eeb7b4c958a6e6928ba8540a7abcbaf5031b889675187a3a124c88b50a2
+implementation_hash::slurm_c78s_red_team.sh,PASS,0,06178f12014b889d3268c0fd76093aa4eea3de1413a45ded32ecac3ef4bda06b
+implementation_hash::slurm_c78s_regression.sh,PASS,0,6818c47a24087b741df09404c2b9587c2d16dbe58da5b5a2e2ebcb35d1f3fe7b
+analysis_no_torch_import,PASS,0,"[""__future__"", ""argparse"", ""collections"", ""joblib"", ""json"", ""math"", ""numpy"", ""os"", ""pathlib"", ""typing""]"
+analysis_no_EEG_loader_import,PASS,0,"[""__future__"", ""argparse"", ""collections"", ""joblib"", ""json"", ""math"", ""numpy"", ""os"", ""pathlib"", ""typing""]"
+H1_H6_exact,PASS,0,"[""H1"", ""H2"", ""H3"", ""H4"", ""H5"", ""H6""]"
+null_replicates_locked,PASS,0,499
+bootstrap_replicates_locked,PASS,0,2000
+feature_paths_locked,PASS,0,"[""strict_source_F2_given_F0_F1"", ""target_unlabeled_F4_geometry_given_F0_F1_F3"", ""target_unlabeled_F4_full_mixed_secondary"", ""construction_F5_given_F0_F1_F3_F4_geometry""]"
+geometry_prefixes_locked,PASS,0,"[5, 10, 20, 40]"
+oracle_stage_not_run,PASS,0,not_run_in_C78S
+no_label_payload_read_before_lock,PASS,0,"{""quarantined_label_payload_reads_by_C78S"": 0, ""scientific_outcomes_computed_by_C78S"": 0, ""seed4_access"": 0}"
+no_outcomes_before_lock,PASS,0,"{""quarantined_label_payload_reads_by_C78S"": 0, ""scientific_outcomes_computed_by_C78S"": 0, ""seed4_access"": 0}"

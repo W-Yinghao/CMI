@@ -1,0 +1,45 @@
+{
+  "milestone": "C51R",
+  "scope": "conditioned coverage audit code refactor",
+  "artifact_semantics_changed": false,
+  "refactor_units": [
+    {
+      "unit": "shared_audit_infrastructure",
+      "files_added": [
+        "oaci/conditioned_ceiling_coverage/audit_utils.py",
+        "oaci/conditioned_ceiling_coverage/locked_witness.py"
+      ],
+      "red_team": "pass"
+    },
+    {
+      "unit": "shared_island_morphology_metrics",
+      "files_added": [
+        "oaci/conditioned_ceiling_coverage/island_metrics.py"
+      ],
+      "red_team": "pass"
+    },
+    {
+      "unit": "shared_score_diagnostics",
+      "files_added": [
+        "oaci/conditioned_ceiling_coverage/score_diagnostics.py"
+      ],
+      "red_team": "pass"
+    }
+  ],
+  "artifact_equivalence": {
+    "c49_c50_c51_regenerated": true,
+    "report_table_diff_after_regeneration": false
+  },
+  "guardrails": {
+    "no_training": true,
+    "no_gpu": true,
+    "no_reinference": true,
+    "no_selector_artifact": true,
+    "no_checkpoint_recommendation": true,
+    "no_scientific_claim_change": true
+  },
+  "validation": {
+    "focused_c49_c51_green": 35,
+    "full_c23_c51_regression_green": 271
+  }
+}

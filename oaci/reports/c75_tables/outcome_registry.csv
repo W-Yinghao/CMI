@@ -1,0 +1,7 @@
+outcome,orientation,primary,definition
+continuous_joint_utility,higher_better,1,"within-target mean of midrank percentiles for eval bAcc,-NLL,-ECE"
+bAcc,higher_better,0,held-out evaluation balanced accuracy over four classes
+negNLL,higher_better,0,negative held-out evaluation NLL
+negECE,higher_better,0,negative 15-bin held-out evaluation ECE
+primary_joint_good,higher_better,0,all three held-out oriented within-target percentiles >=0.75
+unexplained_candidate_specific_residual,signed,0,outer-LOTO target-centered continuous utility residual after fixed F0+F1+F3+F5 functional/label-diagnostic baseline; never called gauge

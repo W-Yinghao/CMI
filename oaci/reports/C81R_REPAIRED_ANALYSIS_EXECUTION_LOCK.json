@@ -1,0 +1,147 @@
+{
+  "schema_version": "c81r_repaired_analysis_execution_lock_v2",
+  "milestone": "C81R",
+  "status": "REPAIRED_LOCK_READY_FOR_DIRECT_PI_REAUTHORIZATION_NOT_AUTHORIZED",
+  "created_at_utc": "2026-07-13T13:01:48Z",
+  "protocol": {
+    "commit": "16a0d2eba4715a1cec78da6a79a182fd416a6629",
+    "path": "oaci/reports/C81_AAAI_BASELINE_COMPARISON_PROTOCOL.json",
+    "sha256": "cbdb42f54956b685c27a1718c37d7c56c513084817a5c69fb29f06bfb67ad3ee"
+  },
+  "repair_protocol": {
+    "commit": "6371b2220979b61cabfb105521036bb02f47aaea",
+    "path": "oaci/reports/C81R_SOURCE_SHARD_SCHEMA_REPAIR_PROTOCOL.json",
+    "sha256": "ba0434b4ea7965691dafaf506547af64f851c57bdca330a0a5c88e4fa7ba1b15"
+  },
+  "supersedes_analysis_lock": {
+    "commit": "541651c2ee3343c12d374a7322c91181a860a2c9",
+    "sha256": "b383707f58063c10f719194a995ab34094f6dcefe08c1e71837644db83dc94f1",
+    "history_preserved": true,
+    "reason": "pre_evaluation_source_shard_exact_subset_schema_verifier_failure"
+  },
+  "supersedes_repaired_lock_revision": {
+    "commit": "6633fd75fead18889249b0e336790a8a65bba454",
+    "sha256": "bea92b798d47c35cc11aa19d7619c60de0b899336577e354338a10d798ec13cc",
+    "history_preserved": true,
+    "reason": "pre_reauthorization_malformed_historical_implementation_commit_identity"
+  },
+  "provenance_correction": {
+    "commit": "29f4555b65273bf2329c0154704233cc746ce8f0",
+    "path": "oaci/reports/C81R_LOCK_PROVENANCE_CORRECTION.json",
+    "sha256": "f0a9db5f3327af20b186a70398432322679d2c340c4eca32a9e0dd5373227dcd"
+  },
+  "method_registry": {
+    "commit": "16a0d2eba4715a1cec78da6a79a182fd416a6629",
+    "path": "oaci/reports/C81_BASELINE_METHOD_REGISTRY.json",
+    "sha256": "ef48ecf7fcc55188b78b0878d86f07f6239fe4f6c88bbc854829b3a1c7a1a120",
+    "methods": 34,
+    "primary_zero_label_representatives": ["U7", "U5", "U11", "U13", "U14", "U15"],
+    "all_registered_methods_unconditional": true
+  },
+  "implementation": [
+    {
+      "commit": "570316310ccb2b0b2acb8a10952ac73431ffd2ae",
+      "path": "oaci/conditioned_ceiling_coverage/c81_baseline_comparison.py",
+      "sha256": "b922139e77265d11135982d494832e63204c22ff2a29b7619055ad4259463f02",
+      "role": "locked_scores_two_stage_real_adapter_repaired_source_schema_guard_dependence_inference_and_taxonomy"
+    },
+    {
+      "commit": "d17ffa62a63b929d36d03f74e4ce79794cd9601b",
+      "path": "oaci/conditioned_ceiling_coverage/c81_synthetic_baseline_benchmark.py",
+      "sha256": "bd9e69691917b9e57f2ceaa50c52addb8dd373b4c36f97ce4335cceb672bd6e3",
+      "role": "locked_synthetic_calibration"
+    }
+  ],
+  "registry_artifacts": [
+    {"path":"oaci/reports/c81p_tables/baseline_reference_fidelity.csv","sha256":"2fefbe67bf99d51ad67bd542a1b9249ac32be5266b865c0740550e097abd38e2"},
+    {"path":"oaci/reports/c81p_tables/primary_family_representatives.csv","sha256":"2473272bfdb6047f7fd4fc3bb4b5089642dfb9e8a7d133412bcee0e247d38771"},
+    {"path":"oaci/reports/c81p_tables/method_hyperparameter_registry.csv","sha256":"745c93271ea059fb7f7cab889dee7ad5506a4004d53b14c5edec0b2d9a480246"},
+    {"path":"oaci/reports/c81p_tables/class_prior_registry.csv","sha256":"1d7a9c92e2d4264eb14f8b30d872921b97c0e320dd0af8c3e9562ff41a39e19a"},
+    {"path":"oaci/reports/c81p_tables/score_direction_registry.csv","sha256":"a1c29e9d531fd5e0044d0dfae67389eb5122c94d6ffa44d999739b64b1d88c64"},
+    {"path":"oaci/reports/c81p_tables/tie_and_randomness_registry.csv","sha256":"30acf56364c6e7dcda1767628e54ce9d800744d495757dc31785f2232ff75ebf"},
+    {"path":"oaci/reports/c81p_tables/comparative_estimand_registry.csv","sha256":"dd6ede9125ea8a8765e2321edaff446c9209df87123222c726cf63a21e456a23"},
+    {"path":"oaci/reports/c81p_tables/multiplicity_and_inference_registry.csv","sha256":"d7006b4556f14e5ba5f110b097916016022a604a255d4251ac8c7293e7e9616b"}
+  ],
+  "field_and_view_manifests": [
+    {"role":"seed3_complete_field_manifest","path":"oaci/reports/c78f_tables/full_unit_manifest.csv","sha256":"b90f2d3b9da8ce091c585897c614217fc7064901908c1fb87cbd128d6221e3fc"},
+    {"role":"seed3_primary_view_route","path":"oaci/reports/C78S_PRIMARY_VIEW_ROUTE.json","sha256":"c99c91fbbcfb7d4316420d12e26c167ea2d81ec7a7d7a5bd59654e71a8286b67"},
+    {"role":"seed3_unlabeled_cache_manifest","path":"/projects/EEG-foundation-model/yinghao/oaci-c78s-seed3-science/protocol_df85699090a65d1e/implementation_5d268e2eeec6bea0/unlabeled_feature_cache_manifest.json","sha256":"3c829d801aa64a06627dd8fee19fcff89db19dedd232a3b29169e95f21fcf325"},
+    {"role":"seed3_primary_nonoracle_freeze","path":"/projects/EEG-foundation-model/yinghao/oaci-c78s-seed3-science/protocol_df85699090a65d1e/implementation_5d268e2eeec6bea0/PRIMARY_NON_ORACLE_INPUTS_FROZEN.json","sha256":"5fee79021d98008017d72f642f305b42b3aadcd26b075c0989c066e3f40555eb"},
+    {"role":"seed4_complete_field_manifest","path":"oaci/reports/c79_tables/seed4_field_manifest.csv","sha256":"5093ee7f984b336683e629dd10656629f98cd3dd884335a538cfedbd10c8879d"},
+    {"role":"seed4_field_generation_identity","path":"oaci/reports/C79_SEED4_FIELD_GENERATION.json","sha256":"13fc957b89dcb941fc8f4edeb48f3fdbea5796bb3b5cf8ca86a00eec0c33597e"},
+    {"role":"seed4_external_full_field_freeze_current","path":"/projects/EEG-foundation-model/yinghao/oaci-c79-seed4/protocol_e350b7f0c4ee3dfc/implementation_dd4043ad7dd67552/gates/FULL_SEED4_FIELD_FROZEN.json","sha256":"c39b9c53a490005e2592e225ba3fbdeed3b1b00d7a48dc7d96aff4b869c68e49"},
+    {"role":"seed4_primary_view_route","path":"oaci/reports/C79_SEED4_PRIMARY_VIEW_ROUTE.json","sha256":"f3de19edc9cece07437db03337d2222005c60106388669f2599cf0f96abf9290"},
+    {"role":"seed4_unlabeled_cache_manifest","path":"/projects/EEG-foundation-model/yinghao/oaci-c79-seed4/analysis/protocol_e350b7f0c4ee3dfc/implementation_dd4043ad7dd67552/unlabeled_feature_cache_manifest.json","sha256":"e1f126e6d574962f9d0d9f0dece03d06dd368bd1a036259bdc598a13af34636d"},
+    {"role":"seed4_primary_nonoracle_freeze","path":"/projects/EEG-foundation-model/yinghao/oaci-c79-seed4/analysis/protocol_e350b7f0c4ee3dfc/implementation_dd4043ad7dd67552/PRIMARY_NON_ORACLE_INPUTS_FROZEN.json","sha256":"4a85c9e8aedb609148beda4261b97703ebd834a7f75f0a6d5e75e7fc491a1e79"},
+    {"role":"shared_construction_evaluation_split","path":"oaci/reports/c78s_tables/label_split_isolation.csv","sha256":"7d718e6c608d388f2993297b08e674cde6ec32ef2effdffdc69c54d89c847721"}
+  ],
+  "field_view_manifest_digest": "6180275dcef26bdda4ae4b291d1ef6dc83434462ecacee0350fa94ae9c6a7fef",
+  "runtime_inputs": {
+    "seed3": {"unlabeled_cache_manifest_path":"/projects/EEG-foundation-model/yinghao/oaci-c78s-seed3-science/protocol_df85699090a65d1e/implementation_5d268e2eeec6bea0/unlabeled_feature_cache_manifest.json","unlabeled_cache_manifest_sha256":"3c829d801aa64a06627dd8fee19fcff89db19dedd232a3b29169e95f21fcf325","primary_route_path":"oaci/reports/C78S_PRIMARY_VIEW_ROUTE.json","primary_route_sha256":"c99c91fbbcfb7d4316420d12e26c167ea2d81ec7a7d7a5bd59654e71a8286b67","units":1296},
+    "seed4": {"unlabeled_cache_manifest_path":"/projects/EEG-foundation-model/yinghao/oaci-c79-seed4/analysis/protocol_e350b7f0c4ee3dfc/implementation_dd4043ad7dd67552/unlabeled_feature_cache_manifest.json","unlabeled_cache_manifest_sha256":"e1f126e6d574962f9d0d9f0dece03d06dd368bd1a036259bdc598a13af34636d","primary_route_path":"oaci/reports/C79_SEED4_PRIMARY_VIEW_ROUTE.json","primary_route_sha256":"f3de19edc9cece07437db03337d2222005c60106388669f2599cf0f96abf9290","units":1296}
+  },
+  "runtime": {
+    "entrypoint": "python -m oaci.conditioned_ceiling_coverage.c81_baseline_comparison run-real",
+    "selection_only_callable": "_selection_stage(_real_runtime_context(require_c81e_authorization()))",
+    "external_result_root": "/projects/EEG-foundation-model/yinghao/oaci-c81-baselines/protocol_cbdb42f54956b685/repair_ba0434b4ea796569/implementation_b922139e77265d11",
+    "selection_stage_evaluation_label_access": false,
+    "selection_manifest_freeze_required": true,
+    "evaluation_requires_selection_hash_replay": true,
+    "all_registered_methods_unconditional": true,
+    "target_is_principal_cluster": true,
+    "seed_is_paired_factor": true
+  },
+  "inference": {
+    "material_regret_margin": 0.05,
+    "noninferiority_margin": 0.05,
+    "maxT_family": "six_available_zero_label_primary_representatives_x_two_seeds",
+    "target_sign_vectors": 256,
+    "LOTO_preservation_min": "12_of_16",
+    "pairs_checkpoints_trials_and_MC_as_scientific_N": false
+  },
+  "taxonomy_precedence": [
+    "C81-E_protocol_input_implementation_or_provenance_blocker",
+    "C81-D_baseline_comparison_training_seed_or_target_heterogeneous",
+    "C81-A_zero_label_selector_matches_one_label_frontier",
+    "C81-B_zero_label_improves_source_but_not_one_label_frontier",
+    "C81-C_no_registered_zero_label_selector_materially_improves_source"
+  ],
+  "report_schema": {
+    "selection_freeze": "C81_SELECTIONS_FROZEN.json",
+    "context_results": "c81e_tables/method_context_results.csv",
+    "primary_comparison": "c81e_tables/primary_comparison.csv",
+    "LOTO": "c81e_tables/leave_one_target_out_sensitivity.csv",
+    "result": "C81_FROZEN_FIELD_BASELINE_COMPARISON.json"
+  },
+  "scope": {
+    "existing_seed3_seed4_primary_fields_read_only": true,
+    "training": false,
+    "forward": false,
+    "reinference": false,
+    "GPU": false,
+    "seed5": false,
+    "target4_primary": false,
+    "same_label_oracle": false,
+    "BNCI2014_004": false,
+    "active_acquisition": false,
+    "new_feature_kernel_model_search": false,
+    "manuscript": false
+  },
+  "authorization": {
+    "direct_PI_reauthorization_required": true,
+    "magic_token_required": false,
+    "PI_hash_recital_required": false,
+    "prior_authorization_reusable": false,
+    "authorization_record_present": false
+  },
+  "protected_state_at_lock": {
+    "failed_selection_attempts_preserved": 1,
+    "selection_manifests": 0,
+    "real_baseline_statistics": 0,
+    "new_candidate_rankings_frozen": 0,
+    "baseline_specific_evaluation_label_reads": 0,
+    "same_label_oracle_accesses": 0,
+    "target4_primary_rows": 0,
+    "GPU_jobs": 0
+  }
+}

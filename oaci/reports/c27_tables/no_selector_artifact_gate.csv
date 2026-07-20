@@ -1,0 +1,9 @@
+check,passed
+config_hash_unchanged,True
+factor_families_frozen,True
+no_feature_selection,True
+no_labels_in_factor_construction,True
+labels_quarantined_post_hoc_only,True
+identity_reported_with_recovery,True
+no_selected_checkpoint_artifact,True
+diagnostic_only_non_deployable,True

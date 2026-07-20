@@ -1,0 +1,6 @@
+gate,observed,operator,threshold,passed,scope
+null_association_FPR,0.023626543209876543,<=,0.075,1,all registered null cells pooled; cellwise values disclosed
+stable_local_association_power,0.9796759259259259,>=,0.8,1,association_strength=0.5;transport_heterogeneity=0
+heterogeneity_reduces_transport,0.10370370370370374,>,0.0,1,strength=0.5 stable minus heterogeneity=1.5
+effective_multiplicity_reduces_actionability,0.007499999999999951,>,0.0,1,effective multiplicity 2 minus 20 under stable signal
+all_cells_completed,486,==,486,1,8 content-disjoint Slurm shards

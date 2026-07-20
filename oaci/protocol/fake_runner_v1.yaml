@@ -1,0 +1,106 @@
+# OACI deterministic two-level FAKE runner manifest — status='smoke', dataset FAKE_TWO_LEVEL only.
+# A fully-specified, GPU-free synthetic fixture for exercising the in-memory runner + artifact stack
+# end to end. It is rejected by assert_confirmatory(); the fake_fixture block is allowed ONLY here.
+protocol_id: oaci-fake-runner-v1
+status: smoke
+seeds:
+  split: 101
+  deletion: 202
+  model: [0, 1]
+  selection_bootstrap: 303
+  audit_bootstrap: 404
+fake_fixture:
+  source_domain_ids: [S0, S1, S2]
+  target_domain_ids: [T0]
+  source_train_groups_per_domain: 4
+  source_audit_groups_per_domain: 3
+  target_groups_per_domain: 4
+  windows_per_unit_cycle: [1, 2, 3]
+  input_dim: 8
+  class_signal_scale: 1.0
+  domain_signal_scale: 0.8
+  recording_signal_scale: 0.3
+  window_noise_scale: 0.1
+  data_seed: 1701
+datasets:
+  FAKE_TWO_LEVEL:
+    enabled: true
+    cohort_ids: [FAKE_TWO_LEVEL]
+    class_names: [c0, c1]
+    outer_target_factor: domain_id
+    domain_factor: domain_id
+    group_factor: group_id
+    support_unit_factor: support_unit_id
+    eval_unit_factor: eval_unit_id
+    support_m: 3
+    channels: [x0, x1, x2, x3, x4, x5, x6, x7]
+    preprocessing: {kind: deterministic_synthetic_identity}
+risk:
+  metric: balanced_ce
+  epsilon: 0.03
+backbone:
+  name: mlp
+  mlp_z_dim: 6
+  mlp_hidden: 12
+methods:
+  names: [ERM, OACI, global_lpc, uniform]
+  global_lpc_laplace_smoothing: 1.0
+  critic_capacity: 8
+evaluation: {alpha: 0.05, delta_bacc: 0.02, ece_bins: 15, paired_bootstrap: 50, invalid_draw_threshold: 0.5, min_clusters: 2, prediction_prob_floor: 1.0e-6}
+optimizer:
+  name: adam
+  lr_stage1: 5.0e-2
+  lr_encoder: 1.0e-1
+  lr_critic: 5.0e-2
+  weight_decay: 0.0
+  dual_lr: 0.5
+  lambda_init: 0.3
+  lambda_max: 20.0
+  lambda_floor: 0.0
+  gradient_clip: 0.0
+  critic_gradient_clip: 0.0
+training:
+  stage1_epochs: 2
+  stage2_epochs: 2
+  stage1_steps_per_epoch: 2
+  stage2_steps_per_epoch: 2
+  task_batch_size: 6
+  warmup_steps: 1
+  critic_steps: 1
+  checkpoint_every: 1
+  guard_chunk_size: 64
+  feature_chunk_size: 64
+  prediction_chunk_size: 64
+  numerical_tol: 1.0e-4
+  stage2_bn_mode: frozen_erm_running_stats
+  selection_score_tolerance: 1.0e-8
+  deterministic_algorithms: true
+sampler:
+  min_per_eligible_cell: 1
+  min_per_observed_cell: 1
+  adv_microbatch_size: 3
+  adv_accumulation_steps: 2
+  replacement_mode: auto
+probe:
+  capacities: [0, 4]
+  folds: 3
+  selection_bootstrap: 8
+  audit_bootstrap: 8
+  l2_C: 1.0
+  max_iter: 100
+  prob_floor: 1.0e-6
+  feature_seed_base: 10000
+  max_candidate_multiplier: 8
+  max_invalid_draw_rate: 0.5
+  solver: lbfgs
+  tol: 1.0e-4
+  fit_intercept: true
+smoke:
+  subjects: null
+  target_subjects: null
+  source_audit_subjects: null
+  source_train_subjects: null
+  deletion_levels: [0, 1]
+  deleted_cell_level1: {domain_id: S0, class_name: c1}
+k1: {statistic: smoke, split_role: source_audit, permutation_scheme: paired_swap_within_y_recording_group, n_permutations: 10, alpha: 0.1, decision_rule: smoke, seed: 0}
+k2: {endpoints: [worst_domain_bacc], min_seeds: 1, level_policy: both_levels, bacc_margin: 0.0, nll_margin: 0.0, decision_rule: smoke}

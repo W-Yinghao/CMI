@@ -1,0 +1,2 @@
+path,incremental_R2,max_stat_corrected_p,leave_target_median,positive_targets,leave_regime_median,material_actionability,all_registered_gates_pass,gate_interpretation,qualified,allowed_interpretation
+strict_source_F2,-0.09628764196416528,1.0,-0.03355392125730883,2,0.07374428251777959,1,0,no_registered_candidate_qualification,0,registered_F2_candidate_status_only

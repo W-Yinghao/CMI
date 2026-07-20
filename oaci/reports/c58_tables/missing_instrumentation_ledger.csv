@@ -1,0 +1,6 @@
+missing_id,missing_artifact,blocks,future_training_required
+M1_split_label_cache,disjoint construction/evaluation target-label cache,few-label or split-label information class,1
+M2_per_trial_predictions,"per-trial logits, probabilities, predicted labels",target-unlabeled geometry and split-label audit,1
+M3_atom_trace,per-candidate leakage atom table,atom-level formal mechanism proof,1
+M4_bootstrap_trace,bootstrap replicate aggregate leakage and order,uncertainty trace reconstruction,1
+M5_independent_fields,independent checkpoint-field replication,distributional lower-bound attempt,1

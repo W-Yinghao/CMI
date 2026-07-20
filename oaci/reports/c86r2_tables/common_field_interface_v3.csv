@@ -1,0 +1,6 @@
+interface_id,dataset_or_interface,role,native_EEG_channels,common_channel_count,common_channels,channel_identity_public_metadata_verified,resample_Hz,epoch_half_open_seconds,bandpass_Hz,events,target_in_own_training,same_candidate_zoo_across_primary_cohorts,metadata_interface_status
+C86_C84SOURCE_TARGET_11CH_160HZ_0_3S_V3,Lee2019_MI,LEGACY_SOURCE,62,11,FC5|FC1|FC2|FC6|C3|Cz|C4|CP5|CP1|CP2|CP6,1,160,0|3,4|38,left_hand|right_hand,0,1,PASS
+C86_C84SOURCE_TARGET_11CH_160HZ_0_3S_V3,Cho2017,LEGACY_SOURCE,64,11,FC5|FC1|FC2|FC6|C3|Cz|C4|CP5|CP1|CP2|CP6,1,160,0|3,4|38,left_hand|right_hand,0,1,PASS
+C86_C84SOURCE_TARGET_11CH_160HZ_0_3S_V3,PhysionetMI,LEGACY_SOURCE,64,11,FC5|FC1|FC2|FC6|C3|Cz|C4|CP5|CP1|CP2|CP6,1,160,0|3,4|38,left_hand|right_hand,0,1,PASS
+C86_C84SOURCE_TARGET_11CH_160HZ_0_3S_V3,Brandl2020_CANONICAL_ADULT_V1,UNTOUCHED_TARGET,63,11,FC5|FC1|FC2|FC6|C3|Cz|C4|CP5|CP1|CP2|CP6,1,160,0|3,4|38,left_hand|right_hand,0,1,PASS
+C86_C84SOURCE_TARGET_11CH_160HZ_0_3S_V3,OpenNeuro_ds007221_HYBRID_ADULT_V1,UNTOUCHED_TARGET,69,11,FC5|FC1|FC2|FC6|C3|Cz|C4|CP5|CP1|CP2|CP6,1,160,0|3,4|38,left_hand|right_hand,0,1,PASS

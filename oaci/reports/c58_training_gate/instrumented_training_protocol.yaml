@@ -1,0 +1,26 @@
+gate: C58_instrumented_real_eeg_training
+decision: TRAINING_NEEDED_BUT_NOT_AUTHORIZED
+run_training_in_c58: false
+slurm:
+  required: true
+  preferred_partition: cpu-high
+  gpu_partition: only_after_explicit_gpu_gate
+datasets:
+  allowed_now:
+    - existing_committed_BNCI2014_001_artifacts
+  reserved_until_user_release:
+    - BNCI2014_004
+seeds:
+  allowed_now:
+    - 0
+    - 1
+    - 2
+  reserved_until_user_release:
+    - 3
+    - 4
+guardrails:
+  no_selector_construction: true
+  no_method_tuning: true
+  no_target_label_checkpoint_selection: true
+  split_label_disjointness_required: true
+  fixed_protocol_before_submission: true

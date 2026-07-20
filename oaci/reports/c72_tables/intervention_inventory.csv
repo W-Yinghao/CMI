@@ -1,0 +1,9 @@
+intervention,name,primary_or_secondary,evaluation_labels_fit,available_at_selection_time,diagnostic_only,status
+I0,no_intervention,primary,0,0,0,executed
+I1,utility_common_offset,primary,0,1,0,executed
+I2,all_class_common_logit_scalar,primary,0,1,0,executed
+I3,shared_target_class_vector,primary,0,0,1,executed
+I4,shared_target_temperature,primary,0,0,1,executed
+I5,candidate_specific_perturbation,primary,0,0,1,executed
+I6,same_label_oracle,post_primary_or_conditional,1,0,1,executed_after_primary_freeze
+I7,representation_projection,post_primary_or_conditional,0,0,1,unsupported_cache_fields

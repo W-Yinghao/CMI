@@ -1,0 +1,59 @@
+{
+  "schema_version": "c86p_untouched_cohort_variant_eligibility_correction_v1",
+  "status": "PROSPECTIVE_METADATA_ONLY_CORRECTION_BEFORE_C86P_READINESS_RESULT",
+  "historical_protocol_preserved": true,
+  "historical_protocol_sha256": "d4feac535f8c1144a55d77cd7f322ae961d5c7d5a899dfd15c371484d88fbb7a",
+  "reason": {
+    "catalog_behavior": "The installed summary_imagery.csv row combines Yang2025 2C and 3C variants as 62 subjects and three classes.",
+    "loader_behavior": "The canonical Yang2025 default interface is paradigm_type=2C with subjects 1..51 and events left_hand/right_hand.",
+    "audit_defect": "The first metadata pass treated only the combined catalog row and therefore failed to evaluate the canonical 2C loader variant under the already locked interface rule."
+  },
+  "prospective_correction": {
+    "dataset": "Yang2025",
+    "interface_variant": "paradigm_type=2C;subjects=1..51",
+    "healthy_subjects": 51,
+    "task": "native exact binary left_hand/right_hand motor imagery",
+    "sessions_per_subject": 3,
+    "trials_per_session": 200,
+    "minimum_total_trials_per_subject": 600,
+    "EEG_channels": 59,
+    "sample_rate_Hz": 1000,
+    "event_interval_seconds": 4.0,
+    "license": "CC-BY-4.0",
+    "loader_source_sha256": "b6a1ea3ee0e415a43d6a4dc04c0d798160b9e740efedd08cf4fd82b35c35220f",
+    "decision": "ELIGIBLE_ALL_RULES_PASS"
+  },
+  "corrected_all_eligible_confirmation_interfaces": [
+    "Brandl2020",
+    "Dreyer2023",
+    "Kumar2024",
+    "Yang2025_2C"
+  ],
+  "unchanged_objects": [
+    "availability/interface-only selection rule",
+    "all-passing-cohorts inclusion rule",
+    "81-candidate action set",
+    "total-query grid",
+    "active and passive method registry",
+    "estimator semantics",
+    "endpoints and robust-risk functionals",
+    "inference and multiplicity",
+    "taxonomy and claim boundaries"
+  ],
+  "chronology": {
+    "new_EEG_downloaded_or_opened_before_correction": false,
+    "new_target_labels_opened_before_correction": false,
+    "active_acquisition_executed_before_correction": false,
+    "registered_C86_synthetic_results_before_correction": 0,
+    "C86_scientific_results_before_correction": 0,
+    "performance_outcomes_used": false,
+    "correction_outcome_informed": false
+  },
+  "execution_boundary": {
+    "C86L_authorized": false,
+    "C86D_authorized": false,
+    "C86H_authorized": false,
+    "new_data_access_authorized": false,
+    "real_execution_lock_created": false
+  }
+}

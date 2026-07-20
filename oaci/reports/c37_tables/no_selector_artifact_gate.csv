@@ -1,0 +1,13 @@
+check,passed
+config_hash_unchanged,True
+c35_preference_robust_pairs_imported,True
+p0_selected_ucl_identity_before_better_claims,True
+better_candidate_ucl_recovered,True
+no_proxy_selector_score,True
+target_labels_not_loaded_for_ucl_replay,True
+no_training_no_reinference,True
+no_selected_checkpoint_method_artifact,True
+ucl_identity_tolerance_frozen,True
+ucl_plateau_eps_frozen,True
+finite_filtering_applied,True
+diagnostic_only_non_deployable,True

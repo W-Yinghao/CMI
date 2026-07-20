@@ -1,0 +1,38 @@
+check_id,check,observed,blocking,status
+RT01,repair_protocol_hash,cdbdb9a25dc29b6a37ac9eb65f130f44efa120042dfb7ddb140cf3db103ec196,0,PASS
+RT02,canary_V4_hash,cc54b5e6f92e4b0d338bf297c92823b4d60a8628a55dcff547ef9d808ee43afb,0,PASS
+RT03,field_V4_hash,eff7ebbc2e4f91830a3df1d679adfcae6eae2ab8a1e91c64ed28df7fce96aa12,0,PASS
+RT04,execution_lock_V3_hash,c198607fb9e46ea2353ffa57d6b71bfa966c36e8ece53fdc40292681bba8bd1a,0,PASS
+RT05,runtime_bound_object_replay,72,0,PASS
+RT06,protocol_binding_replay,7,0,PASS
+RT07,implementation_file_count,33,0,PASS
+RT08,candidate_unit_count,243,0,PASS
+RT09,candidate_unit_digest,4ada05be758975e7c28429819d804b4064a1bdcfd99fe7a4752a3bdbded6d396,0,PASS
+RT10,montage_digest,988e8f89c3001a5144172a10f3a8b30eb50c28d485b900210b91ed1a0cf04f04,0,PASS
+RT11,historical_lock_nonoperative,True,0,PASS
+RT12,historical_authorization_consumed,895366,0,PASS
+RT13,prior_target_y_access,0,0,PASS
+RT14,prior_target_scientific_metrics,0,0,PASS
+RT15,prior_complete_units,0,0,PASS
+RT16,failed_root_reusable,False,0,PASS
+RT17,replacement_external_root_absent,True,0,PASS
+RT18,fresh_authorization_record_absent,True,0,PASS
+RT19,C84F_execution_lock_absent,True,0,PASS
+RT20,C84S_execution_lock_absent,True,0,PASS
+RT21,linear_replay_tolerance,1e-05,0,PASS
+RT22,strict_identity_tolerance,1e-06,0,PASS
+RT23,historical_training_formulas_unchanged,True,0,PASS
+RT24,scientific_interface_unchanged,True,0,PASS
+RT25,full_replacement_units,243,0,PASS
+RT26,source_artifact_complete_gate,243,0,PASS
+RT27,target_artifact_complete_gate,243,0,PASS
+RT28,synthetic_cases_pass,12/12,0,PASS
+RT29,focused_regression,102 passed,0,PASS
+RT30,C65_regression,588 passed,0,PASS
+RT31,C23_regression,999 passed,0,PASS
+RT32,full_regression,1923 passed,0,PASS
+RT33,all_regression_stderr_empty,True,0,PASS
+RT34,tracked_payload_below_50MiB,True,0,PASS
+RT35,tracked_weight_cache_extensions_absent,True,0,PASS
+RT36,active_C84_jobs_absent,True,0,PASS
+RT37,verification_HEAD_equals_origin,True,0,PASS

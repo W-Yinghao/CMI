@@ -1,0 +1,6 @@
+claim,paper_id,paper_title,url,axis,use_in_c56
+"source observables are measurements, not controls",DomainBed_2007_01434,In Search of Lost Domain Generalization,https://arxiv.org/abs/2007.01434,domain_generalization_model_selection,motivation/model-selection limitation
+invariance is not enough under conditional shift/gauge,ZhaoInvariantDA_1901_09453,On Learning Invariant Representation for Domain Adaptation,https://arxiv.org/abs/1901.09453,invariant_representation_lower_bounds,theory framing
+invariance target is still useful as contrast,IRM_1907_02893,Invariant Risk Minimization,https://arxiv.org/abs/1907.02893,invariance_and_ood_generalization,related work contrast
+same-label endpoint closure must not be reused as action evidence,PostSelection_1401_3889,Exact Post-Selection Inference for Sequential Regression Procedures,https://arxiv.org/abs/1401.3889,post_selection_inference,claim discipline
+future lower-bound route,InteractiveLowerBounds_2410_05117,"Assouad, Fano, and Le Cam with Interaction",https://arxiv.org/abs/2410.05117,future_information_lower_bound_language,future theory

@@ -1,0 +1,7 @@
+risk,control,residual,status
+protected input opened before authorization,metadata-only readiness plus O_EXCL guard,filesystem administrator access,CONTROLLED
+selection influences utility construction,U1 subprocess has no Stage-B/Q0 input,historical formula dependency,CONTROLLED
+U2 reopens labels/logits,separate subprocess and no protected-input argument,OS-level access is outside governance claim,CONTROLLED
+partial U1 accepted,944-artifact semantic replay before atomic rename,filesystem rename semantics,CONTROLLED
+historical endpoint mismatch,"18,432-row exact identity and 1e-12 value replay",runtime mismatch blocks,CONTROLLED
+post-outcome artifact overinterpreted,exploratory infrastructure claim contract,downstream reporting discipline,CONTROLLED_BY_C85EP2

@@ -6,11 +6,17 @@ mutates `cmi`; the two coexist in the repo. The whole pipeline runs without real
 controllable mechanism simulator, so every component is exercised by one smoke test.
 
 ```
-conda run -n icml python -m h2cmi.tests.test_smoke          # end-to-end smoke test
-conda run -n icml python -m h2cmi.run_synthetic --epochs 20 # full report on a held-out site
+# fast correctness unit tests (standalone; pytest-compatible too):
+for t in test_source_dag_remap test_cmi_null_and_power test_cmi_gradient_sign \
+         test_tta test_leakage_group_split; do
+  conda run -n icml python -m h2cmi.tests.$t
+done
+conda run -n icml python -m h2cmi.tests.test_smoke          # slow end-to-end (integration)
+conda run -n icml python -m h2cmi.run_synthetic --epochs 20 # report on a held-out site
 ```
 
-See [`THEORY.md`](THEORY.md) for the four corrected derivations (P0-2…P0-5).
+See [`THEORY.md`](THEORY.md) for the four corrected derivations (P0-2…P0-5) and
+[`CHANGES.md`](CHANGES.md) for the correctness fixes from the second code review.
 
 ## Why this exists (the review's verdict, in one line)
 
@@ -73,17 +79,37 @@ python -m h2cmi.gate.safety_gate            # harm AUROC on synthetic signal
 python -m h2cmi.label.site_mechanism        # confusion-matrix EM recovery
 ```
 
-## Example result (recoverable covariance shift, unseen target site)
+## Minimal trustworthy core (default)
 
-`python -m h2cmi.run_synthetic --epochs 20 --concept 0.0`
+After the second review, `run_synthetic` defaults to `core_config` (`config.py`): encoder +
+`p_phi(z_c|y)` + hierarchical CMI + offline **diagonal** TTA. Everything whose optimisation
+direction or evaluation protocol still needs work is **off by default** and re-enabled only
+once validated piece by piece:
 
-* strict-DG balanced acc **0.83** (3-class), worst-domain **0.74**
-* offline TTA **Δ bAcc +0.12**, ΔNLL/ΔBrier/ΔECE all improve; domain-clustered bootstrap
-  CI **[0.04, 0.27]**, `P(Δ>0)=1.0`
-* cross-fitted signed leakage flags **site** & **subject** above the permutation null,
-  discounts **session** (excess ≈ 0)
+| deferred | why (review) | flag |
+|---|---|---|
+| disentanglement | min-min adversary surrogate needs alternating Step A/B | `--full` |
+| SSL reconstruction | `z_c`→raw-EEG fights the CMI objective; mask is on output not input | `--full` |
+| source canonicaliser | absorbable by the fusion layer (not identifiable) | `--full` |
+| safety gate | not yet a truly nested inner-LOSO (pseudo-targets saw training) | `--full` |
+| online transform | deferred; only prior-only streaming is causal today | — |
+| reference alignment | needs domain-class-balanced batches / LOO reference | `--full` |
 
-Switch on concept shift (`--concept 0.6 --concept_frac 0.5`) to drive the harm-gate study.
+## Example result (minimal core, recoverable covariance shift, deterministic target site)
+
+`python -m h2cmi.run_synthetic --epochs 20 --concept 0.0 --target_site 0`
+
+* strict-DG balanced acc **~0.73** (3-class), worst-domain **0.67**
+* offline diagonal TTA **Δ bAcc ≈ −0.04** here (coverage 1.0, gate off): the cross-fit
+  *evidence* check passes but *accuracy* does not improve — an honest demonstration that
+  density-evidence gain ≠ accuracy gain, which is exactly what the **safety gate** (on true
+  held-out gain) is for. This is one underpowered run (3 target subjects), **not** the
+  experiment — use leave-one-site-out × 10 seeds (review §10).
+* cross-fitted **grouped** signed leakage (refit-under-permutation null) flags **site** &
+  **subject** above the null (excess > 0), discounts **session** (excess ≈ 0)
+
+Switch on concept shift (`--concept 0.6 --concept_frac 0.5`) for the harm study, or `--full`
+to enable every module.
 
 ## Scaling to real EEG
 

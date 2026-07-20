@@ -1,0 +1,11 @@
+artifact_need,present,sufficient_for_c58,needed_for_future_training,artifact,note
+finite_population_candidate_registry,1,1,0,C50-C55 summaries,supports registered finite-population bounds
+key_number_provenance,1,1,0,C57 key table,43 verified key numbers inherited
+source_equivalent_target_divergent_pairs,1,1,0,C45 pair table,empirical Le Cam witness only
+conditioning_boundary_q10,1,1,0,C46,conditioning boundary locked
+c55_nulls,1,1,0,C55/C56,endpoint scalar vs template null boundary preserved
+split_label_cache,0,0,1,missing,blocks split/few-label sufficiency
+per_trial_logits_probabilities,0,0,1,missing,needed for independent split-label and target-unlabeled geometry
+atom_trace_table,0,0,1,C39/C40 missing trace fields,blocks atom-level theorem bridge
+bootstrap_replicate_order,0,0,1,C40,needed to recover leakage atom uncertainty
+independent_checkpoint_field_replication,0,0,1,missing,needed to test theorem-critical independence assumptions

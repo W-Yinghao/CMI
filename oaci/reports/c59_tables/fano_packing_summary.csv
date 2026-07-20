@@ -1,0 +1,4 @@
+packing_id,M,mi_proxy,log_M,fano_candidate,status,stable
+F1_source_rank_binary,2,0.00871699528126672,0.6931471805599453,0.0,trivial_due_log2_term,0
+F2_key_cells,162,,5.087596335232384,,missing_stable_MI,0
+F3_endpoint_oracle_binary,2,0.903,0.6931471805599453,0.0,tautological_endpoint_oracle,0

@@ -1,0 +1,9 @@
+regime,n_dropped,loto_auc,permutation_p,beats_permutation,univariate_verdict
+S0_full_support,0,0.6023104389834069,0.008264462809917356,True,weak_accuracy_needs_multivariate
+S1_label_marginal_skew,0,0.6023104389834069,0.008264462809917356,True,weak_accuracy_needs_multivariate
+S2_rare_cells,1,0.5915353917244276,0.008264462809917356,True,weak_accuracy_needs_multivariate
+S3_nonestimable_cells,2,0.563505566057551,0.008264462809917356,True,weak_accuracy_needs_multivariate
+S4_missing_cells,5,0.5583280823356438,0.008264462809917356,True,weak_accuracy_needs_multivariate
+S5_block_class_by_domain,2,0.563505566057551,0.008264462809917356,True,weak_accuracy_needs_multivariate
+S6_boundary_aligned_mask,3,0.5820205839109431,0.008264462809917356,True,weak_accuracy_needs_multivariate
+S7_random_matched_mask,3,0.5820205839109431,0.008264462809917356,True,weak_accuracy_needs_multivariate

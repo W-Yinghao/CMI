@@ -1,0 +1,115 @@
+{
+  "identity": {
+    "n": 8,
+    "n_match": 8,
+    "ok": true
+  },
+  "note": "C18-P0 gate; full C18-P replay may run only on PASS.",
+  "persistence_roundtrip": {
+    "all_ok": true,
+    "checks": [
+      {
+        "level": "level-0",
+        "logits_shape": [
+          21,
+          3456,
+          4
+        ],
+        "n_cand": 21,
+        "n_domains": 6,
+        "n_units": 3456,
+        "ok": true,
+        "role": "source_guard"
+      },
+      {
+        "level": "level-0",
+        "logits_shape": [
+          21,
+          1152,
+          4
+        ],
+        "n_cand": 21,
+        "n_domains": 2,
+        "n_units": 1152,
+        "ok": true,
+        "role": "source_audit"
+      },
+      {
+        "featz": "selection",
+        "level": "level-0",
+        "n_cand": 21,
+        "n_rows": 3456,
+        "ok": true,
+        "z_dim": 800
+      },
+      {
+        "featz": "audit",
+        "level": "level-0",
+        "n_cand": 21,
+        "n_rows": 1152,
+        "ok": true,
+        "z_dim": 800
+      },
+      {
+        "level": "level-1",
+        "logits_shape": [
+          21,
+          3312,
+          4
+        ],
+        "n_cand": 21,
+        "n_domains": 6,
+        "n_units": 3312,
+        "ok": true,
+        "role": "source_guard"
+      },
+      {
+        "level": "level-1",
+        "logits_shape": [
+          21,
+          1152,
+          4
+        ],
+        "n_cand": 21,
+        "n_domains": 2,
+        "n_units": 1152,
+        "ok": true,
+        "role": "source_audit"
+      },
+      {
+        "featz": "selection",
+        "level": "level-1",
+        "n_cand": 21,
+        "n_rows": 3312,
+        "ok": true,
+        "z_dim": 800
+      },
+      {
+        "featz": "audit",
+        "level": "level-1",
+        "n_cand": 21,
+        "n_rows": 1152,
+        "ok": true,
+        "z_dim": 800
+      }
+    ]
+  },
+  "s0_vs_c10": {
+    "n_all_ok": 42,
+    "n_candidates": 42,
+    "ok": true,
+    "worst_abs_diff_by_key": {
+      "R_src": 0.0,
+      "audit_leakage_point": 0.0,
+      "balanced_err": 0.0,
+      "selection_leakage_point": 0.0,
+      "source_audit_worst_bacc": 0.0,
+      "source_audit_worst_nll": 0.0,
+      "source_guard_worst_bacc": 0.0,
+      "source_guard_worst_nll": 0.0
+    }
+  },
+  "seed": 0,
+  "target": 1,
+  "verdict": "PASS"
+}

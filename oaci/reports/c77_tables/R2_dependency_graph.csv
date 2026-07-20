@@ -1,0 +1,5 @@
+stage,depends_on,output,executes_in_C77
+R1_seed3,C77_pass+future_exact_authorization,instrumented pilot and protocol-debug field,0
+R1_seed4,seed3 freeze+C79 final protocol hash+new authorization,locked same-dataset checkpoint-field confirmation,0
+R2_external,R1 verdict+external protocol lock+dataset authorization,independent target/dataset replication,0
+R3_non_EEG,R2/general-object justification,optional generality,0

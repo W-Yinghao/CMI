@@ -1,0 +1,5 @@
+stratum,R,joint_probability,loss_action_0,loss_action_1,loss_action_2,loss_action_3,loss1_minus_loss0,population_mean_loss_action_0,population_mean_loss_action_1,population_mean_loss_action_2,population_mean_loss_action_3,stratum_pairwise_mean,stratum_pairwise_sd,support_in_0_1,status
+L,-1,2/5,3/10,33/100,13/20,17/20,3/100,3/10,7/20,13/20,17/20,1/20,1/50,1,SEMANTICALLY_VALIDATED_NOT_SCIENTIFICALLY_EXECUTED
+L,1,2/5,3/10,37/100,13/20,17/20,7/100,3/10,7/20,13/20,17/20,1/20,1/50,1,SEMANTICALLY_VALIDATED_NOT_SCIENTIFICALLY_EXECUTED
+H,-1,1/10,3/10,3/20,13/20,17/20,-3/20,3/10,7/20,13/20,17/20,1/20,1/5,1,SEMANTICALLY_VALIDATED_NOT_SCIENTIFICALLY_EXECUTED
+H,1,1/10,3/10,11/20,13/20,17/20,1/4,3/10,7/20,13/20,17/20,1/20,1/5,1,SEMANTICALLY_VALIDATED_NOT_SCIENTIFICALLY_EXECUTED

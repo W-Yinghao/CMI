@@ -1,0 +1,10 @@
+metric,c54_reported_value,c55_replayed_value,abs_diff,pass
+best_key_only_hit,0.4876543209876543,0.4876543209876543,0.0,1
+c52_trajectory_diagnostic_hit,0.8127572016460904,0.8127572016460904,0.0,1
+best_scalar_field,target_joint_margin_raw:high,target_joint_margin_raw:high,0.0,1
+binary_sign_hit,0.9444444444444444,0.9444444444444444,0.0,1
+threshold_overlap,1.0,1.0,0.0,1
+auc_vs_joint_good,1.0,1.0,0.0,1
+same_cell_scalar_hit,0.9444444444444444,0.9444444444444444,0.0,1
+cross_cell_transfer_hit,0.7037037037037037,0.7037037037037037,0.0,1
+split_label_budget_available,0,0,0.0,1

@@ -1,0 +1,5 @@
+utility_cone_category,n_pairs,target_unlabeled_misranking_rate,target_unlabeled_agreement_rate,target_unlabeled_flat_rate,random_baseline,mean_target_unlabeled_R3_delta,non_source_only
+preference_robust_regret,114,0.39473684210526316,0.34210526315789475,0.2631578947368421,0.5,0.0009693771175357461,1
+preference_dependent_regret,27,0.4444444444444444,0.5555555555555556,0.0,0.5,-0.03493197289596784,1
+narrow_scalarization_regret,12,1.0,0.0,0.0,0.5,-0.1887574078602714,1
+no_regret,0,,,,0.5,,1

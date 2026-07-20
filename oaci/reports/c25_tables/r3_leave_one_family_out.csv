@@ -1,0 +1,4 @@
+dropped_family,remaining_features,gap_closed,perm_p,survives_permutation
+confidence_entropy,8,0.5018630918146334,0.015968063872255488,True
+margin_logitnorm,8,0.45145559784138356,0.029940119760479042,True
+pred_class_prop,8,-0.5610353773296293,0.8922155688622755,False

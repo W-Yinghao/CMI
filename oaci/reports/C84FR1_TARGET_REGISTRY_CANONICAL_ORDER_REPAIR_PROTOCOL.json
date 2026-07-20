@@ -1,0 +1,103 @@
+{
+  "authorization": {
+    "fresh_direct_PI_authorization_required_after_relock": true,
+    "historical_C84F_authorization_reusable": false,
+    "shortest_future_statement": "授权 C84F target-stage repair"
+  },
+  "chronology": {
+    "designed_after_C84F_target_X_access": true,
+    "designed_after_scientific_outcome_access": false,
+    "failure_evidence_commit": "d35fc3d",
+    "protocol_precedes_implementation": true,
+    "scientific_statistics_before_repair": 0,
+    "selector_scores_before_repair": 0,
+    "target_EEG_arrays_loaded_before_repair": 118,
+    "target_labels_before_repair": 0,
+    "target_unlabeled_artifacts_before_repair": 0
+  },
+  "failure": {
+    "error": "'<' not supported between instances of 'dict' and 'dict'",
+    "error_type": "TypeError",
+    "failed_job": 896185,
+    "failed_root": "/projects/EEG-foundation-model/yinghao/oaci-c84-full-field-v1/lock_f9df9dcefea59b05bfea",
+    "failure_evidence_sha256": "9e1ee2fa7da99eb6469dbf32b44229a44ed39315af6e81aa6dafc525154054fb",
+    "line": 245,
+    "module": "oaci.multidataset.c84f_target_instrumentation",
+    "stage": "complete_target_unlabeled_registry_after_model_freeze"
+  },
+  "final_gate": "C84_MULTI_DATASET_DUAL_LEVEL_FIXED_ZOO_FIELD_EXECUTED_AND_MANIFESTED_ANALYSIS_NOT_STARTED",
+  "fixed_scientific_objects": {
+    "candidate_units": 1944,
+    "external_protocol_v3_sha256": "cd338bf1b97180b27dd42471dd2a67768194b74ed9896275424591d17e970ce0",
+    "field_protocol_v7_sha256": "9db0219befecb11cf72386b96e28ee9d9430c3df5d7947298f102492f072b737",
+    "full_field_protocol_v2_sha256": "dafc44dbc24ea5d4d1cea61207479cbd986c9f8129b111682a00f15a44b1d15d",
+    "levels": [0, 1],
+    "operative_unit_registry_sha256": "b0117d94f221eaab1b49b7181f3a026a77ee19ee4e1f7e8e9b9de541c7d45591",
+    "science_protocol_v3_sha256": "bf6c7f718413b4b2ac2ad9786aa2e47dc045a536e7237d5d8c0464b6598130b8",
+    "target_contexts": 944,
+    "target_subjects": 118,
+    "target_slices": 76464
+  },
+  "frozen_external_inputs": {
+    "authorization_consumption_sha256": "aaff628205f3c85c8eea292790bdd00b0e8c8f815a8545cd7726f3d3845f11cf",
+    "execution_attempts_sha256": "1512de2fb37153bee9abee54be92fb1e2843052cae979557f415492ea86328c1",
+    "model_field_manifest_sha256": "d8931b81a3d68f4b1e098ac6e3ede3cd44cdb6c70cdef9f18a76e0a8c62ecdb2",
+    "partial_artifact_manifest_sha256": "445dfd93118ad77d4ad2cf8131170ec611bf72cc66d4943bc2ab08ef38eebb2b",
+    "target_raw_input_manifest_sha256": "9539747e903dfe67295ee04a97441b85c0bb2179c9ef1bd2177788865e0ba5fd"
+  },
+  "implementation_contract": {
+    "canonical_raw_file_fields": ["path", "bytes", "sha256"],
+    "canonical_raw_file_sort_key": ["path", "bytes", "sha256"],
+    "dictionary_insertion_order_semantically_irrelevant": true,
+    "missing_or_unknown_raw_file_fields_fail": true,
+    "new_output_root_required": true,
+    "old_failed_root_read_only": true,
+    "old_model_field_manifest_replayed_before_target_access": true,
+    "old_target_raw_manifest_exact_replay_required": true,
+    "target_stage_imports_no_training_module": true,
+    "target_stage_training_callable": false,
+    "target_trial_registry_written_before_forward": true
+  },
+  "numerical_gates": {
+    "linear_in_memory_max_abs": 0.00002,
+    "linear_persisted_max_abs": 0.00002,
+    "repeat_logits_max_abs": 0.000001,
+    "repeat_z_max_abs": 0.000001,
+    "saved_softmax_max_abs": 0.000001,
+    "runtime_widening_allowed": false
+  },
+  "repair": {
+    "allowed_change": "replace direct dictionary ordering with explicit canonical tuple-key ordering",
+    "candidate_identity_change": false,
+    "field_threshold_change": false,
+    "model_state_change": false,
+    "retraining_allowed": false,
+    "scientific_protocol_change": false,
+    "target_X_reload_after_fresh_authorization": true,
+    "target_label_access": false
+  },
+  "retry": {
+    "canary_witnesses_replayed": 486,
+    "complete_model_field_reused": true,
+    "failed_authorization_reused": false,
+    "failed_model_artifacts_reused_as_frozen_accepted_field": true,
+    "failed_target_artifacts_reused": false,
+    "fresh_content_addressed_target_root": true,
+    "model_artifact_hash_replay_required": true,
+    "training_invocations": 0
+  },
+  "schema_version": "c84fr1_target_registry_canonical_order_repair_protocol_v1",
+  "scope": "target_unlabeled_registry_instrumentation_and_complete_field_manifest_only",
+  "status": "PROTOCOL_ONLY_NOT_AUTHORIZED",
+  "success_readiness_gate": "C84F_TARGET_STAGE_CANONICAL_REGISTRY_REPAIR_LOCKED_READY_FOR_PI_REAUTHORIZATION",
+  "forbidden": {
+    "C84S": true,
+    "construction_labels": true,
+    "evaluation_labels": true,
+    "model_retraining": true,
+    "same_label_oracle": true,
+    "scientific_metrics": true,
+    "selector_scores": true,
+    "target_outcome_retention_or_retry": true
+  }
+}

@@ -1,0 +1,15 @@
+candidate,prior,primary_outcome,gate,operator,threshold,all_required
+F2_strict_source,F0+F1,continuous_joint_utility,incremental_R2,>=,0.02,1
+F2_strict_source,F0+F1,continuous_joint_utility,observed_incremental_R2,>,primary_nested_null_p95,1
+F2_strict_source,F0+F1,continuous_joint_utility,leave_target_out_median_target_rho,>,0,1
+F2_strict_source,F0+F1,continuous_joint_utility,positive_target_count,>=,7,1
+F2_strict_source,F0+F1,continuous_joint_utility,max_stat_corrected_p,<,0.05,1
+F2_strict_source,F0+F1,continuous_joint_utility,nonredundant_with_logits_probabilities,==,1,1
+F2_strict_source,F0+F1,continuous_joint_utility,target_label_leakage,==,0,1
+F4_target_unlabeled,F0+F1+F3,continuous_joint_utility,incremental_R2,>=,0.02,1
+F4_target_unlabeled,F0+F1+F3,continuous_joint_utility,observed_incremental_R2,>,primary_nested_null_p95,1
+F4_target_unlabeled,F0+F1+F3,continuous_joint_utility,leave_target_out_median_target_rho,>,0,1
+F4_target_unlabeled,F0+F1+F3,continuous_joint_utility,positive_target_count,>=,7,1
+F4_target_unlabeled,F0+F1+F3,continuous_joint_utility,max_stat_corrected_p,<,0.05,1
+F4_target_unlabeled,F0+F1+F3,continuous_joint_utility,nonredundant_with_logits_probabilities,==,1,1
+F4_target_unlabeled,F0+F1+F3,continuous_joint_utility,target_label_leakage,==,0,1

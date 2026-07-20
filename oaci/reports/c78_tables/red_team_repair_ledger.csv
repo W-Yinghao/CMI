@@ -1,0 +1,8 @@
+item,status,finding,resolution
+R1_protocol_parent_semantics,repaired_before_compute,initial implementation treated the C78 protocol anchor as a child of the later C77 result,replay now requires the anchor to be an ancestor of accepted C77 result 285ba1d; it correctly retains C76 as its lock-time parent
+R2_authorization_phrase,guard_confirmed,PM later wrote a generic explicit-authorization sentence without the exact CLI token,generic prompt text was rejected; training/forward/GPU/data counters remain zero
+R3_execution_taxonomy,claim_narrowed,a no-auth P0 cannot activate C78-A or C78-B-E,all primary execution taxonomy remains not evaluable; only readiness gate and boundary secondaries are reported
+R4_runtime_identity,claim_narrowed,dummy Wz identity cannot stand in for 82-unit real identity,dummy and real identity tables are separate; real rows/units checked remain explicitly zero
+R5_SRC_coverage,boundary_enforced,locked pilot has no SRC execution path,full seed-3 field remains blocked behind prospective SRC canary or exact-path proof and new PM review
+R6_power_materiality,caveat_preserved,C77 effective-multiplicity synthetic contrast is only 0.0075,C78 makes no H2/materiality claim and requires future power re-lock
+R7_partition_row_normalization,repaired_after_blocking_red_team,the first red-team pass treated the environment-summary row's empty partition cell as a scheduler row,partition checks now operate only on rows with a non-empty partition; job 892802 is retained as the blocking failed attempt

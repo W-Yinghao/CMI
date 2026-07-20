@@ -1,0 +1,6 @@
+risk,control,residual
+post_outcome_interpretation,POST_C84S_EXPLORATORY tag on every row,DESCRIPTIVE_ONLY
+scale_interchange,raw gap and standardized regret APIs are separate,FAIL_CLOSED
+direct_protected_input,"1,955-object exact read-only registry",FAIL_CLOSED
+Q0_pseudoreplication,"2,048 chains remain numerical integration",NO_CHAIN_N
+theorem_overtransfer,prospective applicability labels,NO_STATUS_CHANGE

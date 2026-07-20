@@ -1,0 +1,2 @@
+case_label,summary,next_science
+collapsed_by_accuracy_endpoint_nonestimability,weak signal survives cell-present stress; collapses under cell DELETION via accuracy-endpoint non-estimability,"the limiter is estimator-level accuracy-endpoint availability under cell deletion, not signal loss; a pre-registered competence probe should use deletion-robust (calibration/leakage) observables + report endpoint estimability. Still diagnostic, NOT deployable."

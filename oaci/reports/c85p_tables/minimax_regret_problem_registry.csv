@@ -1,0 +1,4 @@
+problem_id,action_class,objective,finite_form,solver_status
+MMR1,pure,min_a sup_{u in U(z)} max_j u_j-u_a,enumerate actions and registered extreme points,CONTRACT_ONLY
+MMR2,randomized,min_q sup_u sum_a q_a(max_j u_j-u_a),LP: min t; q>=0; sum q=1; scenario regret constraints,CONTRACT_ONLY
+MMR3,point_identified,choose argmax utility,zero minimax regret when optimum is known,CONTRACT_ONLY

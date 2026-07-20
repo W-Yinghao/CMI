@@ -1,0 +1,9 @@
+item,value,unit,locked
+direct statement,授权 C85U,exact string,1
+single use,O_CREAT|O_EXCL,external receipt,1
+CPU,48,cores,1
+RAM,128,GiB,1
+GPU,0,devices,1
+wall,2,hours,1
+output maximum,2,GiB,1
+target read bytes,48018748054,bytes,1

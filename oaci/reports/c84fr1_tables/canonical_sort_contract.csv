@@ -1,0 +1,2 @@
+object,required_fields,sort_key,dictionary_insertion_order_semantic,missing_field_policy,unknown_field_policy,status
+raw_file_identity,path|bytes|sha256,path|bytes|sha256,0,FAIL,FAIL,LOCKED

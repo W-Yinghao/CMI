@@ -1,0 +1,2 @@
+item,status,blocking,reason
+no_failure,protocol_ready,0,all static protocol and recovery gates passed; execution remains unauthorized

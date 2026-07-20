@@ -1,0 +1,24 @@
+risk,severity,status_at_C77,blocking_open,mitigation_or_boundary
+new_training_used_for_method_rescue,block,mitigated,0,regimes fixed to historical ERM/OACI/SRC; no selector objective
+target_outcome_driven_regime_selection,block,mitigated,0,regime set locked by history and PM before outcomes
+regime_not_exactly_recoverable,block,mitigated,0,all three primary identities hash-bound
+seed3_seed4_contamination,block,mitigated,0,physical roots and protocols separate
+seed4_access_before_protocol_lock,block,mitigated,0,seed4 forbidden in C78; C79 final hash required
+target_label_training_leakage,block,mitigated,0,RunProvenance and physical views
+checkpoint_retention_based_on_target_outcome,block,mitigated,0,retain complete fixed-cadence field
+instrumentation_schema_drift,block,mitigated,0,schema hash per shard and checkpoint
+physical_view_leakage,block,mitigated,0,separate content-addressed roots
+row_iid_inference,block,mitigated,0,hierarchical plan mandatory
+pooled_association_called_transport,block,mitigated,0,leave-target/trajectory/regime required
+local_association_called_control,block,mitigated,0,material actionability gate required
+orbit_robustness_called_causality,block,mitigated,0,H7 expressly forbids origin inference
+effective_multiplicity_not_reported,block,mitigated,0,H2 and every field report require it
+small_target_count,limitation,open_limitation,0,nine targets; no population claim
+multiple_regimes_multiple_testing,block,mitigated,0,H1-H7 max-stat/Holm family
+training_failure_selective_reporting,block,mitigated,0,all planned units reason-coded; retries retained
+BNCI2014_004_early_access,block,mitigated,0,explicit denylist and zero-access ledger
+raw_cache_or_weights_in_git,block,mitigated,0,external content-addressed roots only
+manuscript_drafting,block,mitigated,0,not authorized
+ERM_trajectory_asymmetry,limitation,open_limitation,0,ERM is one shared stage1 anchor; OACI/SRC are comparable 40-point fields
+SRC_historical_negative_control_overread,block,mitigated,0,"SRC is falsification regime, never rescue candidate"
+C76_T2_branch_reopened,block,mitigated,0,no additional C76 feature/kernel mining

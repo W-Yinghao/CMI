@@ -1,0 +1,101 @@
+{
+  "schema_version": "c84sr2_stage_b_field_descriptor_compatibility_repair_protocol_v1",
+  "milestone": "C84SR2",
+  "designed_after": {
+    "authorized_job": 897843,
+    "authorization_commit": "9f6aa4187b9dbb0c9da5f99995ddaab24e7737b2",
+    "authorization_consumed": true,
+    "authorization_consumption_sha256": "d120a10b03a43f9973018c7360038fe4f146c5663e47837d9adf33eb7ee779fd",
+    "failed_stage": "Stage_B_context_enumeration",
+    "failure_type": "KeyError",
+    "failure_key": "level_intervention_id"
+  },
+  "historical_v3_lock": {
+    "sha256": "15d8a84b7870021a90b1f0f103a8a4d733523b249321b143a89091978c0aa9fc",
+    "commit": "4774f72d4c2674fed409bab950bce8ce70df2264",
+    "operative_for_retry": false,
+    "preserved": true
+  },
+  "evidence_boundary": {
+    "target_registry_rows": 9621,
+    "target_subjects": 118,
+    "construction_rows": 4773,
+    "evaluation_rows": 4848,
+    "construction_evaluation_overlap": 0,
+    "construction_label_access": 1,
+    "evaluation_label_access": 0,
+    "selector_score_contexts": 0,
+    "scientific_result_rows": 0,
+    "training": 0,
+    "forward": 0,
+    "GPU": 0,
+    "same_label_oracle": 0
+  },
+  "preserved_stage_a": {
+    "root": "/projects/EEG-foundation-model/yinghao/oaci-c84s-analysis-v3/stage_a_labels",
+    "complete_sha256": "29e77b600184f3f96b65858a40767f562e664e81eb848e2546e5486886ed35bd",
+    "construction_handoff_sha256": "29b0848b8bbc40d5d346722d7cc479c69995406444ee8b9688f663f9c4256223",
+    "evaluation_seal_sha256": "54e06dff60d80255631dc4faa20c8c7db651f2af8fc5415671dd9ab6681b5502",
+    "construction_manifest_sha256": "8b86722c6b795ceec7bdf211b53b01e720c5a07ae5ddefa2139ca1fcee91be40",
+    "construction_table_sha256": "fdf36052d36ad9546cda06cbc567f68cdcced7ad08fd1311ab949471218b3134",
+    "evaluation_manifest_sha256": "6fad247629eb48340a4badf9ab1a0669652757a58216e46826e4dfd8bfd608bd",
+    "evaluation_table_sha256": "ea76c34663edac1e6e7e844fee6af3f06058aaaf3846febda1dff94df343a371",
+    "reuse_under_new_lock": true,
+    "reload_target_labels": false,
+    "evaluation_descriptor_released_to_stage_b": false
+  },
+  "root_cause": {
+    "complete_field_descriptors_with_level_intervention_id": 1944,
+    "sidecars_with_level_intervention_id": 1701,
+    "sidecars_without_level_intervention_id": 243,
+    "missing_group": "exact reused C84C panel-A seed-5 level-0 units",
+    "missing_group_provenance": "C84C",
+    "missing_group_expected_intervention": "C84_LEVEL0_FULL_SOURCE_PANEL_V1",
+    "classification": "historical_sidecar_schema_compatibility_gap_before_level_protocol"
+  },
+  "operative_repair": {
+    "authoritative_level_intervention_source": "frozen_complete_field_descriptor",
+    "level_0_intervention_id": "C84_LEVEL0_FULL_SOURCE_PANEL_V1",
+    "level_1_intervention_id": "C84_LEVEL1_FIXED_PANEL_LEFT_HAND_CELL_DELETION_V1",
+    "sidecar_present_rule": "must_equal_field_descriptor_and_level_definition",
+    "sidecar_missing_rule": "allowed_only_for_exact_C84C_reused_panel_A_seed_5_level_0_units",
+    "all_other_missing_or_mismatch": "fail_closed",
+    "candidate_identity_change": false,
+    "method_or_score_change": false,
+    "selection_change": false,
+    "scientific_threshold_change": false
+  },
+  "replacement_execution": {
+    "new_lock": "C84S_ANALYSIS_EXECUTION_LOCK_V4.json",
+    "new_authorization_record": "C84S_V4_PI_AUTHORIZATION_RECORD.json",
+    "fresh_direct_authorization_required": true,
+    "historical_authorization_reusable": false,
+    "fresh_output_root": "/projects/EEG-foundation-model/yinghao/oaci-c84s-analysis-v4",
+    "stage_a_mode": "immutable_replay_only",
+    "stage_b_evaluation_descriptor_available": false,
+    "automatic_retry": false
+  },
+  "validation": {
+    "real_field_descriptor_enumeration_without_array_access": true,
+    "exact_243_missing_sidecars": true,
+    "exact_944_contexts": true,
+    "exact_81_candidates_per_context": true,
+    "full_scale_production_synthetic_rerun": true,
+    "focused_C65_C23_full_regressions": true
+  },
+  "forbidden": {
+    "evaluation_label_open_during_repair": true,
+    "selector_score_during_repair": true,
+    "scientific_statistic_during_repair": true,
+    "target_label_reload_during_repair": true,
+    "candidate_or_method_change": true,
+    "threshold_or_budget_change": true,
+    "training": true,
+    "forward": true,
+    "GPU": true,
+    "same_label_oracle": true,
+    "C85": true
+  },
+  "success_gate": "C84S_STAGE_B_FIELD_DESCRIPTOR_COMPATIBILITY_REPAIRED_AND_V4_LOCK_READY_FOR_FRESH_PI_AUTHORIZATION",
+  "failure_gate": "C84S_STAGE_A_REUSE_FIELD_DESCRIPTOR_COMPATIBILITY_OR_V4_LOCK_RECONCILIATION_REQUIRED"
+}

@@ -1,0 +1,5 @@
+candidate_id,candidate,allowed_source_only,cod_proxy,hit,beats_max_null_p95,reliable_escape_hatch,reason
+CODADV1,source_rank,1,0.009104126354836603,0.5061728395061729,0,0,weak source rank
+CODADV2,source_scalarization,1,0.009104126354836603,0.5740740740740741,0,0,below reliability
+CODADV3,source_pareto_front,1,3.4232171596251757e-06,0.43105701988584916,0,0,near base rate
+CODADV4,kernel_source_probe,1,,,0,0,not executable without new nested probe design

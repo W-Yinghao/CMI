@@ -1,0 +1,9 @@
+gauge,gap_closed,survives
+full_carrier,0.5238775560151255,True
+parameter_bias_removed_carrier,0.5104626830969548,True
+effective_mean_removed_carrier,-0.3126904391879488,False
+effective_bias_gauge,-0.054727174830822546,False
+parameter_bias_gauge,-0.9427856434856028,False
+projection_mean_gauge,-0.0848762221759936,False
+parameter_bias_drives_offset,False,
+representation_projection_drives_offset,True,

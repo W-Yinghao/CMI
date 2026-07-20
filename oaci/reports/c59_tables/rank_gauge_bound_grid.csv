@@ -1,0 +1,8 @@
+grid_id,gamma_abs_alpha_r_over_beta_sigma,two_candidate_error_lower_bound_normal_gauge,two_candidate_hit_upper_bound,top1_loss_lower_bound_n10_independent_challenger_proxy,proof_status
+gamma_0.00,0.0,0.5,0.5,0.998046875,analytic_for_two_candidate_normal_gauge
+gamma_0.25,0.25,0.4012936743170763,0.5987063256829237,0.9901161847087769,analytic_for_two_candidate_normal_gauge
+gamma_0.50,0.5,0.3085375387259869,0.6914624612740131,0.9638658810816362,analytic_for_two_candidate_normal_gauge
+gamma_0.75,0.75,0.2266273523768682,0.7733726476231317,0.9010309794489626,analytic_for_two_candidate_normal_gauge
+gamma_1.00,1.0,0.15865525393145707,0.8413447460685429,0.7887649978935638,analytic_for_two_candidate_normal_gauge
+gamma_1.50,1.5,0.06680720126885809,0.9331927987311419,0.46328663638508916,analytic_for_two_candidate_normal_gauge
+gamma_2.00,2.0,0.02275013194817922,0.9772498680518208,0.18707480436832136,analytic_for_two_candidate_normal_gauge

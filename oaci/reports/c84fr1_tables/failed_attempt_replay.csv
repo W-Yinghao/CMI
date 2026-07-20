@@ -1,0 +1,2 @@
+job_id,stage,error_type,target_X_arrays,target_y_accesses,scientific_metrics,model_units_frozen,target_artifacts,status
+896185,complete_target_unlabeled_registry_after_model_freeze,TypeError,118,0,0,1944,0,FAILED_PRESERVED_NO_OUTCOME_CONTAMINATION

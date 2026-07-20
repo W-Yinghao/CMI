@@ -1,0 +1,13 @@
+question_id,supporting_milestones,answer_type,forbidden_overclaim_guard
+RQ01,"C31,C42-C55",evidence_bounded,Do not generalize to all DG.
+RQ02,"C31,C42,C43",evidence_bounded,Do not claim absence.
+RQ03,C52-C55,evidence_bounded,Do not present target-label diagnostics as source-available.
+RQ04,"C48,C49,C50",evidence_bounded,Ceiling is not an action rule.
+RQ05,"C47,C50",evidence_bounded,Conditioning is a separate problem class.
+RQ06,"C54,C55",evidence_bounded,Endpoint scalar unavailable under original source-only DG.
+RQ07,C52-C55,evidence_bounded,Do not mix information classes.
+RQ08,C55,evidence_bounded,C55 closes full-transfer escape hatch.
+RQ09,C53-C55,evidence_bounded,Leave as future work.
+RQ10,"C55,C56",evidence_bounded,Do not overstate template-only null result.
+RQ11,C56 literature,evidence_bounded,No broad survey or SOTA claim.
+RQ12,C56,evidence_bounded,Only targeted repair if a named inconsistency appears.

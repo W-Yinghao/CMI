@@ -1,0 +1,17 @@
+gate,failed,finding
+no_training_or_reinference_authorized,0,C65 remains recovery/readiness only.
+checkout_inventory_boundary_preserved,0,Checkout-only inventory remains incomplete.
+external_oaci_store_recovered,0,Mounted OACI frozen store is recovered by artifact index.
+non_oaci_weights_not_accepted,0,Adjacent S2P weights are not accepted as OACI frozen checkpoints.
+abi_validation_does_not_load_weights,0,No real checkpoint CPU load was attempted.
+preprocess_and_data_contract_recovered,0,Preprocess code and artifact-context data contract are recovered.
+mapping_complete,0,C50 singleton rows map to physical checkpoint files.
+trial_schema_ready,0,Trial cache schema is specified.
+split_label_guard_ready,0,Split-label grid forbids same-label reuse.
+full_cs_cache_missing,0,Full sample-level CS remains unsupported now.
+atom_trace_future_only,0,Atom trace requires future hooks or training instrumentation.
+reserved_holdout_preserved,0,Reserved dataset and seeds remain unused.
+mock_only_no_real_data,0,Mock ABI dry-runs use toy payloads only.
+forbidden_scan_passed,0,Forbidden affirmative claim scan passed.
+large_artifact_scan_passed,0,All listed artifacts are under 50MB.
+abi_no_torch_load_boundary_recorded,0,ABI metadata is sidecar-only; no torch load occurred.

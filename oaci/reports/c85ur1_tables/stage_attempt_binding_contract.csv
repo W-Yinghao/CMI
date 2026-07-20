@@ -1,0 +1,3 @@
+stage,authorization,lock,attempt,root,prerequisite,receipt
+U1,same,same,same,same,protected replay V2,O_EXCL
+U2,same,same,same,same,complete U1 handoff,O_EXCL

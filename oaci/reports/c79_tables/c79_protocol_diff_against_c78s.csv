@@ -1,0 +1,5 @@
+item,C78S_preoutcome,C79_postoutcome,difference,blocking
+adaptive_generator_timing,e561a15865934036bdccbc1e3b2ff126ad84821f,43a046c5ba6632de415bfdbaacfa524d82c5395e,generator_rule_precommitted_but_materialized_protocol_postoutcome,0
+hypothesis_scope,H1-H6,"[""H3"", ""H4"", ""H5""]",outcome_adaptive_filter,1
+protocol_role,seed3_scientific_analysis,seed4_confirmation,new_role_not_bound_preoutcome,1
+exact_analysis_registry,implemented_in_e561a15,references_blocks_nulls_without_exact_H1-H6_registry,mechanical_mapping_not_locked,1

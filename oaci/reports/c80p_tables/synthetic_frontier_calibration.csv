@@ -1,0 +1,10 @@
+scenario,expected_seed3_Bstar,expected_seed4_Bstar,expected_stable,seed3_recovery,seed4_recovery,stability_classification,reliability_parameter,passed
+S0_no_label_information_flat_random_frontier,,,0,1.0,1.0,1.0,0.0,1
+S1_reliable_measurement_no_regret_improvement,,,0,1.0,1.0,1.0,0.85,1
+S2_low_budget_actionability_stable_monotone_frontier,8,8,1,1.0,1.0,1.0,0.75,1
+S3_actionability_only_near_FULL,FULL,FULL,1,1.0,1.0,1.0,0.65,1
+S4_seed_dependent_frontier,8,32,0,1.0,1.0,1.0,0.7,1
+S5_target_heterogeneous_catastrophic_subgroups,,,0,1.0,1.0,1.0,0.7,1
+S6_near_tie_requires_more_labels,32,32,1,0.978515625,0.96484375,1.0,0.6,1
+S7_nonmonotone_finite_sample_curve,16,16,1,1.0,1.0,1.0,0.55,1
+S8_pseudoreplication_trap,,,0,1.0,1.0,1.0,0.0,1

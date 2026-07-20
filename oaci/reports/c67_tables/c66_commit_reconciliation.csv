@@ -1,0 +1,10 @@
+item,value,status,notes
+current_head_at_generation,b369f59,observed,C67 generation head
+current_branch,oaci,expected,C67 is generated on branch oaci
+origin_oaci_head,b369f59,observed,remote branch head when generation started
+authoritative_c66_authorized_commit,b369f59,present,git log C66 authorized trial cache microcampaign
+historical_c66_noauth_commit,635ccbc,present,git log C66 reinference microcampaign gate
+c66_json_primary,C66-A_reinference_only_microcampaign_authorized_and_executed,authorized,committed C66 compact JSON
+c66_json_final_gate,REINFERENCE_ONLY_MICROCAMPAIGN_EXECUTED_AND_CACHE_MANIFESTED,authorized,committed C66 compact JSON
+noauth_baseline_row,1,historical_baseline_not_authoritative,combined_authorization_comparison.csv keeps C66-B as baseline only
+raw_cache_git_tracked,0,pass,raw trial CSV must stay outside git

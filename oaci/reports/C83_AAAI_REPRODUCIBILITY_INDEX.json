@@ -1,0 +1,137 @@
+{
+  "schema_version": "c83_aaai_reproducibility_index_v1",
+  "milestone": "C83P",
+  "no_new_scientific_computation": true,
+  "raw_EEG_or_label_arrays_in_git": false,
+  "model_weights_or_caches_in_Git": false,
+  "items": [
+    {
+      "object_id": "C80_protocol",
+      "category": "protocol",
+      "path": "oaci/reports/C80R_ADDITIVE_REPAIR_PROTOCOL.json",
+      "sha256": "2d72eb5119056a6520fd33fc0ac14ee6270bfd573b59c36b74be6aa3dc25fe39",
+      "bytes": 6635,
+      "raw_payload_copied": false
+    },
+    {
+      "object_id": "C80_operational_lock",
+      "category": "execution_lock",
+      "path": "oaci/reports/C80R_REPAIRED_ANALYSIS_EXECUTION_LOCK.json",
+      "sha256": "2149895865bd44b4ab8358c76848bb6774abb59d4a203b261864be0ec599ff62",
+      "bytes": 13451,
+      "raw_payload_copied": false
+    },
+    {
+      "object_id": "C80_result",
+      "category": "result",
+      "path": "oaci/reports/C80_LABEL_BUDGET_FRONTIER.json",
+      "sha256": "90074280c4d05acdaeb5f33e7fcd7d0e6f1c27417ed5fd1467b86083ac967675",
+      "bytes": 1058,
+      "raw_payload_copied": false
+    },
+    {
+      "object_id": "C81_protocol",
+      "category": "protocol",
+      "path": "oaci/reports/C81_AAAI_BASELINE_COMPARISON_PROTOCOL.json",
+      "sha256": "cbdb42f54956b685c27a1718c37d7c56c513084817a5c69fb29f06bfb67ad3ee",
+      "bytes": 10263,
+      "raw_payload_copied": false
+    },
+    {
+      "object_id": "C81_method_registry",
+      "category": "method_registry",
+      "path": "oaci/reports/C81_BASELINE_METHOD_REGISTRY.json",
+      "sha256": "ef48ecf7fcc55188b78b0878d86f07f6239fe4f6c88bbc854829b3a1c7a1a120",
+      "bytes": 15474,
+      "raw_payload_copied": false
+    },
+    {
+      "object_id": "C81_audit_addendum",
+      "category": "repair_ledger",
+      "path": "oaci/reports/C81_OVERALL_REPORT_GITHUB_AUDIT_ADDENDUM.json",
+      "sha256": "e8a223723c929153959692c392a961b3be66d4d256757919d4829b4ea1fe2957",
+      "bytes": 2911,
+      "raw_payload_copied": false
+    },
+    {
+      "object_id": "C82_protocol",
+      "category": "protocol",
+      "path": "oaci/reports/C82_POST_C81_BASELINE_RECOVERY_PROTOCOL.json",
+      "sha256": "9f58c7a8e6b495a6d8f510c0d72d24ede4485908ef94bc078abe8f124b03a8f3",
+      "bytes": 11950,
+      "raw_payload_copied": false
+    },
+    {
+      "object_id": "C82_execution_lock",
+      "category": "execution_lock",
+      "path": "oaci/reports/C82_ANALYSIS_EXECUTION_LOCK.json",
+      "sha256": "d5de6d6ff242b9f3d7f9c318cbdd6e1e16c509060bc14cca59292b738a75f5ce",
+      "bytes": 14361,
+      "raw_payload_copied": false
+    },
+    {
+      "object_id": "C82_authorization",
+      "category": "authorization",
+      "path": "oaci/reports/C82E_PI_AUTHORIZATION_RECORD.json",
+      "sha256": "8e55a9e2b091208598a3b2d87e4e0acf9867b73561046039dac8a550a629ba3a",
+      "bytes": 2453,
+      "raw_payload_copied": false
+    },
+    {
+      "object_id": "C82_result",
+      "category": "result",
+      "path": "oaci/reports/C82_POST_C81_BASELINE_RECOVERY.json",
+      "sha256": "d8060e6636adf7fcca7a0ace0e47bb7043676b7681569e09fb8705dcb8d5a8b7",
+      "bytes": 1362,
+      "raw_payload_copied": false
+    },
+    {
+      "object_id": "C82_result_manifest",
+      "category": "artifact_manifest",
+      "path": "oaci/reports/c82e_tables/result_artifact_manifest.json",
+      "sha256": "910e2ff1d8445dae262be82d417140cd44fc48be1306f2bbe5a439ec3549f0a2",
+      "bytes": 4419,
+      "raw_payload_copied": false
+    },
+    {
+      "object_id": "C82_scientific_red_team",
+      "category": "red_team",
+      "path": "oaci/reports/c82e_tables/scientific_result_red_team.csv",
+      "sha256": "614f65bec801f53ed04970e58ffa086fa56869088388f21c868cabf5f50c42c2",
+      "bytes": 3532,
+      "raw_payload_copied": false
+    },
+    {
+      "object_id": "C82_final_red_team",
+      "category": "red_team",
+      "path": "oaci/reports/c82e_tables/final_report_red_team.csv",
+      "sha256": "054915443991d9303f5b61f2e065eded04a856a8f2dbfeb39e3974d661a0b56c",
+      "bytes": 2853,
+      "raw_payload_copied": false
+    },
+    {
+      "object_id": "C82_regression",
+      "category": "regression",
+      "path": "oaci/reports/c82e_tables/regression_attempt_ledger.csv",
+      "sha256": "b53861b20c4cdfe0dc82a3fd8d836c7282984aed0676b348b785087c9d5773f3",
+      "bytes": 4100,
+      "raw_payload_copied": false
+    },
+    {
+      "object_id": "C82_PM_addendum",
+      "category": "interpretation_addendum",
+      "path": "oaci/reports/C82E_PM_GITHUB_AUDIT_ADDENDUM.json",
+      "sha256": "168f125a4316e1d15303bc689e18405988b104e7eb61a867d1c7c5ddac522b69",
+      "bytes": 2439,
+      "raw_payload_copied": false
+    },
+    {
+      "object_id": "C82_external_result_root",
+      "category": "external_payload_location",
+      "path": "/projects/EEG-foundation-model/yinghao/oaci-c82-baseline-recovery/protocol_9f58c7a8e6b495a6/implementation_9a88ddf2c6eabc9e/result",
+      "sha256": "910e2ff1d8445dae262be82d417140cd44fc48be1306f2bbe5a439ec3549f0a2",
+      "bytes": 181976,
+      "raw_payload_copied": false
+    }
+  ]
+}

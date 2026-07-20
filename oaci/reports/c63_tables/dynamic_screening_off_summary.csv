@@ -1,0 +1,6 @@
+condition_set,candidate_added,hit_before,hit_after,endpoint_remaining_gain,screens_off_endpoint,causal_claim,status
+static_source,endpoint_scalar,0.5061728395061729,0.9444444444444444,0.43827160493827155,0,0,static_source_no_screen_off
+static_source_plus_dynamic,endpoint_scalar,0.5740740740740741,0.9444444444444444,0.37037037037037035,0,0,dynamic_source_no_screen_off
+static_source_plus_template,endpoint_scalar,0.7037037037037037,0.9444444444444444,0.2407407407407407,0,0,template_no_screen_off
+source_dynamic_plus_template,endpoint_scalar,0.720679012345679,0.9444444444444444,0.22376543209876543,0,0,dynamic_template_no_screen_off
+endpoint_scalar,endpoint_self_redundancy,0.9444444444444444,0.9444444444444444,0.0,1,0,endpoint_screens_itself_only

@@ -1,0 +1,71 @@
+{
+  "schema_version": "c80e_authorization_and_preflight_v1",
+  "recorded_at_utc": "2026-07-13T08:19:25Z",
+  "authorization": {
+    "received": true,
+    "record_path": "oaci/reports/C80E_PI_AUTHORIZATION_RECORD.json",
+    "protocol_commit": "f5d83b3ca2297a4cc9511aa55ef300bb976d107c",
+    "protocol_sha256": "c6292597f5610cb96e8eaf0313eaa741f8fa9b11dd89ff9e4d84db1fa33add85",
+    "analysis_lock_commit": "972f47c"
+  },
+  "replay": {
+    "head_at_preflight": "0a55fff588325a12eb09fff68ac8149ceb5e9167",
+    "origin_oaci_at_preflight": "0a55fff588325a12eb09fff68ac8149ceb5e9167",
+    "worktree_clean_before_preflight_artifacts": true,
+    "protocol_hash_pass": true,
+    "analysis_lock_hash": "05a99e7ccc357b90b6675756caa680fd16541358bb697fdded89351f1e7ae4a8",
+    "locked_core_implementation_hashes_pass": "4/4",
+    "accepted_input_hashes_pass": "10/10",
+    "registry_bound_cells": 80,
+    "registry_blank_cells": 0,
+    "registered_paths_unconditional": 5,
+    "budget_grid": [1, 2, 4, 8, 16, 32, "FULL"],
+    "minimum_class_availability": 61,
+    "same_label_oracle_reachable": false,
+    "target4_primary": false
+  },
+  "blocking_findings": [
+    {
+      "id": "B1_missing_locked_taxonomy_precedence",
+      "evidence": "No C80-A through C80-E decision table, overlap precedence, or near-FULL definition exists in the committed protocol, analysis lock, registry, claim contract, implementation, or tests.",
+      "conflict": "The C80E handoff requires the exact precedence and decision table in the committed protocol and forbids executor interpretation.",
+      "blocking": true
+    },
+    {
+      "id": "B2_locked_authorization_guard_schema_mismatch",
+      "evidence": "assert_c80e_authorized reads lock.get('protocol_sha256'), but the locked JSON stores the value at lock['protocol']['sha256'].",
+      "conflict": "The locked run-real guard cannot pass for a correctly bound authorization record.",
+      "blocking": true
+    },
+    {
+      "id": "B3_real_data_adapter_not_bound_by_analysis_lock",
+      "evidence": "The locked module states that it has no real-data loader and run-real raises RuntimeError after authorization. The lock hashes only the pure frontier module, synthetic module, C80P tests, and regression script.",
+      "conflict": "No hashed executor binds selection freeze, simultaneous target bands, paired cross-seed heterogeneity, S1/S2/S3 execution, result freeze, or report schemas to the external field arrays.",
+      "blocking": true
+    }
+  ],
+  "protected_state": {
+    "real_budget_statistics_computed": 0,
+    "evaluation_label_values_read_for_C80E": 0,
+    "same_label_oracle_accesses": 0,
+    "target4_primary_rows": 0,
+    "training": 0,
+    "forward": 0,
+    "reinference": 0,
+    "GPU": 0,
+    "seed5": 0,
+    "BNCI2014_004": 0
+  },
+  "repair_contract": {
+    "additive_only": true,
+    "historical_protocol_and_lock_preserved": true,
+    "required_before_any_budget_outcome": [
+      "prospectively bind the complete C80-A through C80-E precedence and define near-FULL",
+      "repair and test the authorization guard against the actual nested lock schema",
+      "implement, test, hash, and lock the real-data execution adapter without changing registered estimands",
+      "issue a new operative protocol hash and analysis lock",
+      "obtain new direct PI authorization bound to the repaired objects"
+    ]
+  },
+  "final_gate": "C80E_AUTHORIZATION_PROTOCOL_LOCK_VIEW_OR_DEPENDENCE_BLOCKER"
+}

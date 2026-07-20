@@ -1,0 +1,6 @@
+paper_object,project_variable,current_artifact,sample_level_required,supported_now
+past window,past K checkpoint source state,C63 support-only proxy,1,0
+response,held-out target trial correctness/logit margin at checkpoint t,endpoint summaries only,1,0
+conditioning X1,source-observable trajectory state,source score summaries,1,0
+increment X2,split-label diagnostic or target-unlabeled geometry,same-label endpoint oracle only,1,0
+diagnostic Y,trial correctness / NLL / margin / joint-good bin,candidate-level bins,1,0

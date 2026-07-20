@@ -1,0 +1,4 @@
+component,auc,note
+within_target_rank,0.658600107451297,source-visible
+gauge_centered_pooled,0.6337666333998669,needs target grouping (non-deployable)
+rank_plus_gauge_upper_bound,0.6337666333998669,"DIAGNOSTIC UPPER BOUND, not a selector"

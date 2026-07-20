@@ -1,0 +1,21 @@
+check_id,passed,blocking,evidence
+C82_commit_chain,1,0,11/11
+C82_result_identity,1,0,13/13
+C82_23_table_hashes_and_rows,1,0,23/23
+C82_regression_replay,1,0,4/4
+claim_contract_C1_C10,1,0,20
+forbidden_claim_contract,1,0,10 minimum
+claim_artifact_referential_integrity,1,0,all paths exist
+number_ids_unique,1,0,928
+number_registry_exact_replay,1,0,928/928
+figure_table_number_ids_resolve,1,0,188
+figure_table_values_exact,1,0,source value identity
+LOTO_wording_contract,1,0,narrow wording present
+Q5_descriptive_wording_contract,1,0,required wording present
+target4_primary_zero,1,0,672/672
+same_label_oracle_zero,1,0,672/672
+C81_gate_unchanged,1,0,C81-E_protocol_input_implementation_or_provenance_blocker
+C82_gate_exact,1,0,C82-D_zero_label_comparison_training_seed_method_identity_or_target_heterogeneous
+no_new_scientific_result_file,1,0,absent
+no_tracked_payload_over_50MiB,1,0,[]
+forbidden_claim_scanner,1,0,{}

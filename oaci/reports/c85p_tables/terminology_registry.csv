@@ -1,0 +1,19 @@
+term,standard_definition,c85_mapping,source_ids,status
+statistical_experiment,A measurable observation space and state-indexed family of laws.,"E=(Z,{P_theta^E})",L01|L02,STANDARD_TERM_NO_NEW_FIELD
+Blackwell_order,One experiment is obtainable from another by an observation-only randomization; equivalently under the theorem conditions it is no better in every decision problem.,"information comparison, not frozen-policy comparison",L01,STANDARD_TERM_NO_NEW_FIELD
+Le_Cam_deficiency,Directed distance measuring how closely one experiment can simulate another through randomization.,future approximate experiment comparison,L02,STANDARD_TERM_NO_NEW_FIELD
+Bayes_risk,Prior-averaged expected loss of a decision rule.,R_mean under a state prior,L01|L02,STANDARD_TERM_NO_NEW_FIELD
+minimax_regret,Choose a rule minimizing the maximum loss relative to the statewise best action over an ambiguity set.,finite identified-set LP,L07|L08,STANDARD_TERM_NO_NEW_FIELD
+partial_identification,Observables and assumptions restrict a target to a set rather than a singleton.,utility identified set U(z),L07,STANDARD_TERM_NO_NEW_FIELD
+distributionally_robust_optimization,Optimize risk against a registered set of distributions or groups.,future robust selector objective,L13,STANDARD_TERM_NO_NEW_FIELD
+worst_group_risk,Maximum conditional expected loss over predeclared groups.,R_worst,L13,STANDARD_TERM_NO_NEW_FIELD
+CVaR_expected_shortfall,Average upper-tail loss represented by the Rockafellar-Uryasev variational form.,"R_CVaR,alpha",L05|L06,STANDARD_TERM_NO_NEW_FIELD
+best_arm_identification,Pure-exploration identification of the action with best mean under arm-wise observations.,contrast class; not the C85 full-information query,L11,STANDARD_TERM_NO_NEW_FIELD
+top_k_identification,Identify a set containing the best actions under an explicit error criterion.,near-optimal/top-k endpoint,L11,STANDARD_TERM_NO_NEW_FIELD
+near_optimal_action_set,Actions within epsilon utility of the statewise optimum.,A_epsilon(theta),PROJECT_DEFINITION,STANDARD_TERM_NO_NEW_FIELD
+Rashomon_set,A prespecified class of models with near-optimal predictive performance.,"analogy for candidate multiplicity, not an empirical C84 geometry claim",L09,STANDARD_TERM_NO_NEW_FIELD
+predictive_multiplicity,Multiple similarly performing models can make different predictions or decisions.,future action-geometry audit,L09,STANDARD_TERM_NO_NEW_FIELD
+active_testing,Select test examples to label for sample-efficient model evaluation with design correction.,future full-information label acquisition,L14,STANDARD_TERM_NO_NEW_FIELD
+active_model_selection,Allocate a budget of model probes to identify the best model.,related but observation structure differs from C85 labels,L12,STANDARD_TERM_NO_NEW_FIELD
+experimental_design,Choose observations or allocations to optimize a registered inferential objective.,future pairwise-difference variance design,L14,STANDARD_TERM_NO_NEW_FIELD
+Hill_effective_size,Effective number associated with a diversity order; order two is inverse squared mass.,gap-softmax action multiplicity,L10,STANDARD_TERM_NO_NEW_FIELD

@@ -1,0 +1,6 @@
+null_id,applies_to,observed_reference_hit,null_p95_hit,endpoint_beats_null,template_beats_null,interpretation
+N1_permute_X2_within_source_cells,key/template/endpoint increments,0.9444444444444444,0.7712962962962961,1,0,endpoint oracle beats max null p95; template-only does not
+N2_permute_Y_within_target_trajectory,binary-Y plug-in COD,0.9444444444444444,0.7712962962962961,1,0,cell-preserving endpoint shuffles preserve the oracle boundary check
+N3_cell_preserving_endpoint_scalar_shuffle,same-label endpoint scalar,0.9444444444444444,0.4726543209876543,1,,scalar-value permutation destroys endpoint ordering
+N4_template_vs_max_null_p95,matched source-geometry template,0.7037037037037037,0.7712962962962961,,0,template partial signal is not reliability claim
+N5_source_scalarization_vs_max_null_p95,source-only adversary,0.5740740740740741,0.7712962962962961,,0,source scalarization remains below null boundary

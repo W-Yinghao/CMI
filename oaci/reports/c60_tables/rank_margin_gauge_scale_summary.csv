@@ -1,0 +1,7 @@
+field,hit,error_tail_proxy,normal_tail_equivalent_gamma,interpretation
+random_tie,0.4297233780360411,0.5702766219639589,-0.17707846623861487,negative gamma means anti-rank/no positive margin
+strict_source,0.5061728395061729,0.49382716049382713,0.015473631502458951,larger gamma means less gauge overwrite
+source_scalarization,0.5740740740740741,0.42592592592592593,0.1867561210637371,larger gamma means less gauge overwrite
+key_only,0.4876543209876543,0.5123456790123457,-0.03095096901638078,negative gamma means anti-rank/no positive margin
+label_diagnostic,0.8127572016460904,0.18724279835390956,0.8881025396035587,larger gamma means less gauge overwrite
+endpoint_oracle,0.9444444444444444,0.05555555555555558,1.59321881802305,larger gamma means less gauge overwrite

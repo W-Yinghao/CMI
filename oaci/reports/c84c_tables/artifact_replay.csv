@@ -1,0 +1,9 @@
+replay,expected_units,observed_units,max_abs_error,tolerance,status
+checkpoint_state,243,243,NA,EXACT_HASH_SCHEMA,PASS
+optimizer_state,243,243,NA,EXACT_LOAD_LABEL_STEPS,PASS
+sidecar_schema,243,243,NA,CANONICAL_SCHEMA,PASS
+source_audit_artifact,243,243,NA,EXACT_FIELDS_ROWS_HASH,PASS
+target_unlabeled_artifact,243,243,6.67572021484375e-06,1e-05,PASS
+softmax,243,243,0.0,1e-06,PASS
+repeat_logits,243,243,0.0,1e-06,PASS
+repeat_z,243,243,0.0,1e-06,PASS

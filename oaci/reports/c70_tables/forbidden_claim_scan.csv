@@ -1,0 +1,16 @@
+pattern,total_hits,affirmative_hits,files,passed
+few-label sufficiency,1,0,oaci/reports/C70_SPLIT_LABEL_INFORMATION_BUDGET.md,1
+deployable selector,0,0,,1
+checkpoint recommendation,1,0,oaci/reports/c70_tables/C71_T3_CONFIRMATORY_PROTOCOL.json,1
+source-only rescue,1,0,oaci/reports/C70_SPLIT_LABEL_INFORMATION_BUDGET.md,1
+oaci rescue,0,0,,1
+target-population generalization established,0,0,,1
+full conditional-cs established,0,0,,1
+same-label endpoint scalar available at selection time,0,0,,1
+t1 and t2 are independent confirmation,0,0,,1
+row-level iid,0,0,,1
+new training is justified,0,0,,1
+gpu used,0,0,,1
+forward pass executed,0,0,,1
+re-inference executed,0,0,,1
+manuscript drafting,0,0,,1

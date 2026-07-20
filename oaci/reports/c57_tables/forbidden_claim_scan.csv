@@ -1,0 +1,13 @@
+pattern,total_hits,affirmative_hits,files,passed
+source-only rescue,0,0,,1
+OACI rescue,1,0,oaci/reports/c57_tables/contribution_map.csv,1
+deployable selector,0,0,,1
+few-label sufficiency,5,0,oaci/reports/C57_REVIEWER_QA_DOSSIER.md;oaci/reports/c57_manuscript_scaffold/section_claims.md;oaci/reports/c57_tables/remaining_caveats.csv;oaci/reports/c57_tables/reviewer_answer_evidence_map.csv;oaci/reports/c57_tables/reviewer_question_bank.csv,1
+formal theorem without proof,0,0,,1
+same-label endpoint oracle available at selection time,0,0,,1
+target-unlabeled geometry is source-only,0,0,,1
+target-grouped diagnostic is source-only,0,0,,1
+all DG methods fail,0,0,,1
+EEG transfer impossible,3,0,oaci/reports/C57_REVIEWER_QA_DOSSIER.md;oaci/reports/c57_tables/reviewer_answer_evidence_map.csv;oaci/reports/c57_tables/reviewer_question_bank.csv,1
+good checkpoints are absent,0,0,,1
+template-only C55 transfer beats max null p95,0,0,,1

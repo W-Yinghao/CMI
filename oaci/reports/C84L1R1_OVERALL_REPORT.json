@@ -1,0 +1,60 @@
+{
+  "authorization": {
+    "fresh_direct_statement_required": "授权 C84L1C",
+    "historical_authorization_consumed": true,
+    "historical_authorization_reusable": false,
+    "replacement_authorization_present": false
+  },
+  "execution_lock": {
+    "commit": "afc5a6b5aedbb0e9d9b09acba0997657513e5268",
+    "implementation_files": 44,
+    "protocol_bindings": 5,
+    "runtime_bound_objects": 125,
+    "sha256": "f9ebd88c72915bb41ba2d2d84a2a00c6748272021d48043c299bce52a1ad3813"
+  },
+  "failed_attempt": {
+    "complete_units": 73,
+    "job_id": 895928,
+    "linear_error": 0.00001239776611328125,
+    "partial_artifacts_reusable": false,
+    "partial_manifest_sha256": "ba67a4a0f8a516085b3eb020c353c401c2eafdd1981eb880c5c63587ac31b091",
+    "target_scientific_metrics": 0,
+    "target_y_access": 0
+  },
+  "final_gate": "C84L1C_FLOAT32_REPLAY_REPAIRED_AND_RELOCKED_READY_FOR_FRESH_PI_AUTHORIZATION",
+  "milestone": "C84L1R1",
+  "protocols": {
+    "canary_v2_sha256": "6e6bcb6b60726c76c8db0afc48e954d0e4a1cf68bfd29796987bfd6828355616",
+    "field_v6_sha256": "cd8646403a7564e9d1a7e3d64104483cbd56ac85bebaafa1244afdde8a8ed310",
+    "repair_commit": "e35ba0bfb412fbdcbc6fb127db05af1d91f51440",
+    "repair_sha256": "2e199f6f63dffd1b02c1e31102ed189e31bf6e4961465394230f8e9de1d4ddf0"
+  },
+  "regression": {
+    "C23": "1072 passed, 1 skipped, 3 deselected",
+    "C65": "661 passed, 1 skipped, 3 deselected",
+    "focused": "175 passed",
+    "full": "1996 passed, 1 skipped, 3 deselected",
+    "stderr_empty": true
+  },
+  "repair": {
+    "linear_replay_abs_tolerance_after": 0.00002,
+    "linear_replay_abs_tolerance_before": 0.00001,
+    "replacement_retrain_units": 243,
+    "scientific_registry_changed": false,
+    "strict_identity_abs_tolerance": 0.000001
+  },
+  "replacement_execution": {
+    "C84F_authorized": false,
+    "C84S_authorized": false,
+    "external_root_present": false,
+    "real_data_access": 0,
+    "scientific_metrics": 0,
+    "target_y_access": 0
+  },
+  "schema_version": "c84l1r1_overall_report_v1",
+  "verification": {
+    "final_red_team": "44/44 PASS",
+    "risk_register": "19/19 NONBLOCKING",
+    "synthetic_calibration": "12/12 PASS"
+  }
+}

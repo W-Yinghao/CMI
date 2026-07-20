@@ -1,0 +1,7 @@
+dataset,panel,source_training_subjects,source_training_count,source_audit_subjects,source_audit_count,sets_disjoint,target_overlap,source_labels_allowed,target_rows_in_training,interface_id
+Lee2019_MI,A,31|28|5|32|21|54|18|10|13|4|24|15,12,33|53|34|40,4,1,0,1,0,C84_LEFT_RIGHT_20CH_160HZ_0_3S_V2
+Lee2019_MI,B,16|39|44|49|36|7|2|27|3|38|23|30,12,43|42|20|51,4,1,0,1,0,C84_LEFT_RIGHT_20CH_160HZ_0_3S_V2
+Cho2017,A,17|38|49|52|33|51|18|46|19|28|35|23,12,34|11|25|14,4,1,0,1,0,C84_LEFT_RIGHT_20CH_160HZ_0_3S_V2
+Cho2017,B,37|8|13|29|5|27|42|32|26|6|22|15,12,44|7|39|9,4,1,0,1,0,C84_LEFT_RIGHT_20CH_160HZ_0_3S_V2
+PhysionetMI,A,103|9|99|101|24|28|18|25|19|89|84|83,12,59|39|72|40,4,1,0,1,0,C84_LEFT_RIGHT_20CH_160HZ_0_3S_V2
+PhysionetMI,B,109|49|14|91|26|51|6|66|81|2|11|46,12,27|73|65|31,4,1,0,1,0,C84_LEFT_RIGHT_20CH_160HZ_0_3S_V2

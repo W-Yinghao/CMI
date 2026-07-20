@@ -1,0 +1,207 @@
+{
+  "schema_version": "c84sr3_q0_secondary_budget_availability_and_atomic_failure_repair_protocol_v1",
+  "milestone": "C84SR3",
+  "created_at_utc": "2026-07-16T10:49:41Z",
+  "status": "PROTOCOL_LOCKED_BEFORE_IMPLEMENTATION_NO_REAL_EXECUTION_AUTHORIZED",
+  "chronology": {
+    "historical_V4_authorization_consumed": true,
+    "historical_V4_authorization_reusable": false,
+    "historical_V4_job": "898192",
+    "historical_V4_blocker_commit": "e5bddf7535ee898b1e1323293b7f084d450edbd3",
+    "historical_V4_blocker_recorded_before_repair_implementation": true,
+    "evaluation_label_access_before_repair": 0,
+    "selector_score_contexts_before_repair": 0,
+    "scientific_result_rows_before_repair": 0,
+    "repair_uses_construction_availability_only": true,
+    "repair_uses_scientific_outcomes": false
+  },
+  "historical_V4": {
+    "analysis_lock_sha256": "582e5074b4b17d62ff1e5fbfd992f037dd3082b7763b22d707630aa19db81c3d",
+    "authorization_record_sha256": "4419303f8282ab132d2f95a5b76993bfb73191b29e7257e8220cefdde408ff5a",
+    "authorization_consumption_sha256": "6dfc058e67ea8fa1ea8ddc0c1d398a4b468c4213a42455b5f864ced800fb0866",
+    "lifecycle_sha256": "38bf0c660ebe53d9a02248fb297c59cac9686114f54f99272d233e76eda68477",
+    "stage_b_stderr_sha256": "796604da8f76e0d5255d6854c5818b1d628cc47650134ac28d45d462d9114068",
+    "blocker_markdown_sha256": "70bb1b60ce211bc2a8fb2db30207484c1b390246ca7c0cc66ad61e96f4596428",
+    "blocker_json_sha256": "fffef61ae621fc23c952a6fd9f163cc4a93dcae6baa96d52d6ed21a0c2904ffd",
+    "selection_freeze_published": false,
+    "evaluation_descriptor_remained_sealed": true,
+    "failed_root_preserved": true
+  },
+  "frozen_scientific_objects": {
+    "complete_field_manifest_sha256": "cfffcac1a55148941b809b69bed2c9a8957a94729ed7f2c2c29ed8d48c0134d8",
+    "model_field_manifest_sha256": "d8931b81a3d68f4b1e098ac6e3ede3cd44cdb6c70cdef9f18a76e0a8c62ecdb2",
+    "target_raw_manifest_sha256": "9539747e903dfe67295ee04a97441b85c0bb2179c9ef1bd2177788865e0ba5fd",
+    "target_trial_registry_sha256": "52526aaf7d9bd941bac693a0947971dc35b9083c1c783619f97055926aceabb8",
+    "construction_label_table_sha256": "fdf36052d36ad9546cda06cbc567f68cdcced7ad08fd1311ab949471218b3134",
+    "method_registry_sha256": "ef48ecf7fcc55188b78b0878d86f07f6239fe4f6c88bbc854829b3a1c7a1a120",
+    "candidate_units": 1944,
+    "target_contexts": 944,
+    "candidate_context_slices": 76464,
+    "candidates_per_context": 81
+  },
+  "root_cause": {
+    "primary": "Lee2019_MI has exactly 25 construction labels per class for all 22 targets, so registered secondary Q0 B=32 per class is physically unavailable under uniform sampling without replacement",
+    "secondary": "NFS staging cleanup raised errno 39 and masked the primary C84SContractError in the Stage-B attempt ledger",
+    "primary_grid_affected": false,
+    "scientific_outcome_informed": false
+  },
+  "construction_availability": {
+    "budget_unit": "labels_per_class",
+    "primary_minimum_required": 8,
+    "datasets": {
+      "Lee2019_MI": {
+        "targets": 22,
+        "minimum_labels_per_class": 25,
+        "maximum_labels_per_class": 25,
+        "feasible_finite_budgets": [1, 2, 4, 8, 16],
+        "unavailable_registered_secondary_budgets": [32]
+      },
+      "Cho2017": {
+        "targets": 20,
+        "minimum_labels_per_class": 50,
+        "maximum_labels_per_class": 50,
+        "feasible_finite_budgets": [1, 2, 4, 8, 16, 32],
+        "unavailable_registered_secondary_budgets": []
+      },
+      "PhysionetMI": {
+        "targets": 76,
+        "minimum_labels_per_class": 9,
+        "maximum_labels_per_class": 15,
+        "feasible_finite_budgets": [1, 2, 4, 8],
+        "unavailable_registered_secondary_budgets": []
+      }
+    }
+  },
+  "operative_budget_contract": {
+    "primary_all_datasets": [1, 2, 4, 8, "FULL"],
+    "primary_contract_changed": false,
+    "secondary_by_dataset": {
+      "Lee2019_MI": [16],
+      "Cho2017": [16, 32],
+      "PhysionetMI": []
+    },
+    "Lee_B32_status": "REGISTERED_HISTORICAL_SECONDARY_INPUT_UNAVAILABLE_NO_SELECTION_OR_RESULT_ROW",
+    "target_specific_budget_skipping": false,
+    "sampling_with_replacement": false,
+    "budget_redefinition_as_total_labels": false,
+    "FULL_substitution_for_B32": false,
+    "budget_or_grid_search": false,
+    "secondary_budget_enters_primary_taxonomy": false,
+    "secondary_budget_enters_primary_label_frontier": false
+  },
+  "exact_repaired_arithmetic": {
+    "candidate_score_rows": 535248,
+    "candidate_rank_rows": 535248,
+    "fixed_default_rows": 4720,
+    "q0_shards": 944,
+    "q0_records": {
+      "Lee2019_MI": 1802416,
+      "Cho2017": 1966240,
+      "PhysionetMI": 4981344,
+      "total": 8750000
+    },
+    "q0_sample_digest_rows": 1093750,
+    "q0_regime_distribution_rows": 15648,
+    "q0_coverage_rows": 5216,
+    "method_context_rows": {
+      "Lee2019_MI": 3520,
+      "Cho2017": 3360,
+      "PhysionetMI": 11552,
+      "total": 18432
+    },
+    "methods_per_context": {
+      "Lee2019_MI": 20,
+      "Cho2017": 21,
+      "PhysionetMI": 19
+    }
+  },
+  "selection_and_evaluation_contract": {
+    "score_methods": ["S1", "U5", "U7", "U11", "U13", "U14", "U15"],
+    "fixed_methods": ["B1", "B2", "B3", "B4O", "B4S"],
+    "analytic_random": "B0",
+    "evaluation_ceiling": "B5",
+    "Q0_chains": 2048,
+    "one_FULL_record_per_context": true,
+    "selection_freeze_before_evaluation": true,
+    "evaluation_cannot_change_selection": true,
+    "measurement_applicability_unchanged": true,
+    "stage_B_manifest_schema": "c84sr3_selection_freeze_manifest_v3",
+    "method_context_schema": "c84sr3_method_context_v3",
+    "budget_availability_table_required": true
+  },
+  "scientific_contract_preservation": {
+    "methods_changed": false,
+    "formulas_changed": false,
+    "score_directions_changed": false,
+    "thresholds_changed": false,
+    "Q1_Q2_changed": false,
+    "primary_label_frontier_changed": false,
+    "maxT_changed": false,
+    "LOTO_changed": false,
+    "level_heterogeneity_changed": false,
+    "taxonomy_changed": false,
+    "primary_claim_scope_changed": false,
+    "secondary_disclosure_added": "Lee Q0 B=32 is unavailable because FULL construction capacity is 25 labels per class"
+  },
+  "atomic_failure_contract": {
+    "final_root_visible_on_failure": false,
+    "stream_handles_closed_before_cleanup": true,
+    "primary_exception_preserved": true,
+    "cleanup_exception_may_mask_primary": false,
+    "cleanup_retry_bounded": true,
+    "residual_hidden_staging_preserved_and_reported_if_cleanup_fails": true,
+    "partial_selection_freeze_valid": false,
+    "automatic_retry": false
+  },
+  "readiness_scope": {
+    "real_label_reload": false,
+    "evaluation_label_access": false,
+    "real_selector_computation": false,
+    "scientific_statistics": false,
+    "training": false,
+    "forward": false,
+    "GPU": false,
+    "same_label_oracle": false,
+    "synthetic_only": true
+  },
+  "synthetic_requirements": {
+    "production_entrypoints": true,
+    "contexts": 944,
+    "chains": 2048,
+    "q0_records": 8750000,
+    "method_context_rows": 18432,
+    "Lee_labels_per_class": 25,
+    "Lee_B32_absent": true,
+    "Cho_B32_present": true,
+    "primary_grid_all_datasets": true,
+    "atomic_primary_exception_fixture": true,
+    "atomic_cleanup_exception_fixture": true,
+    "all_C84_taxonomy_branches": true,
+    "all_label_frontier_branches": true
+  },
+  "future_execution": {
+    "analysis_lock": "C84S_ANALYSIS_EXECUTION_LOCK_V5.json",
+    "fresh_direct_PI_authorization_required": true,
+    "shortest_authorization": "授权 C84S",
+    "historical_authorization_migrates": false,
+    "fresh_output_root_required": true,
+    "historical_stage_A_reuse_mode": "IMMUTABLE_REPLAY_ONLY",
+    "evaluation_descriptor_remains_sealed_until_complete_selection_freeze": true
+  },
+  "forbidden": {
+    "reuse_V4_authorization": true,
+    "reuse_V4_partial_stage_B": true,
+    "evaluation_before_selection_freeze": true,
+    "target_specific_budget_substitution": true,
+    "with_replacement_Q0": true,
+    "threshold_change": true,
+    "method_change": true,
+    "training": true,
+    "forward": true,
+    "GPU": true,
+    "same_label_oracle": true,
+    "C85": true
+  },
+  "success_gate": "C84S_SECONDARY_Q0_AVAILABILITY_AND_ATOMIC_FAILURE_REPAIRED_V5_LOCK_READY_FOR_FRESH_PI_AUTHORIZATION",
+  "failure_gate": "C84S_Q0_AVAILABILITY_ARITHMETIC_ATOMIC_PUBLICATION_OR_V5_LOCK_RECONCILIATION_REQUIRED"
+}

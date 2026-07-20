@@ -1,0 +1,152 @@
+{
+  "schema": "c86h_field_training_manifest_v1",
+  "role": "exact candidate-training + field-generation identity for the C86H terminal untouched confirmation",
+  "authorization_boundary": "protocol/implementation preparation only; real training/forward/label access requires a separate 授权 C86H",
+  "effective_program_v3_sha256": "c6b7e490e0f78f74f820428cee138782caff1dc0033422723593a7d8e3c5f77e",
+
+  "candidate_zoo": {
+    "legacy_source_cohorts": ["Lee2019_MI", "Cho2017", "PhysionetMI"],
+    "dataset_order": ["Lee2019_MI", "Cho2017", "PhysionetMI"],
+    "role": "LEGACY_SOURCE",
+    "panels": {"names": ["A", "B"], "subjects_per_panel": 16,
+               "source_training_per_panel": 12, "source_audit_per_panel": 4,
+               "source_audit_rows_used_in_training": 0,
+               "note": "two disjoint 16-subject panels per source; 12 train, 4 held-out source-audit (never trained on)"},
+    "training_seeds": [5, 6],
+    "levels": {
+      "0": {"id": "C84_LEVEL0_FULL_SOURCE_PANEL_V1", "intervention": "none"},
+      "1": {"id": "C84_LEVEL1_FIXED_PANEL_LEFT_HAND_CELL_DELETION_V1",
+            "intervention": "fixed_panel_left_hand_cell_deletion",
+            "salt": "C84_FIXED_ZOO_LEFT_RIGHT_20CH_LEVEL1_SUPPORT_DELETION_V1",
+            "paired_with_level0": "identical model init, disjoint deleted-index support"}
+    },
+    "candidates_per_context": 81,
+    "candidate_composition": {"ERM": 1, "OACI": 40, "SRC": 40},
+    "regimes": {
+      "ERM": "stage-1 final anchor checkpoint (train_stage1; epoch 199; trajectory_order 0)",
+      "OACI": "stage-2 40-checkpoint trajectory from the ERM anchor via OACIObjective(support, adv_hidden=16) over bundle.oaci_plan",
+      "SRC": "stage-2 40-checkpoint negative-control trajectory from the SAME ERM anchor via SRCObjective(2, n_domains, smooth_temperature=0.1) over bundle.full_plan"
+    },
+    "genealogy_rule": "shared_level_specific_ERM_parent_then_fixed_regime_trajectory_order",
+    "checkpoint_cadence": {"epochs": "range(4,200,5)", "count_per_stage2_regime": 40,
+                           "checkpoint_every": 5, "stage2_epochs": 200,
+                           "erm_checkpoint": "epoch 199 (single)"},
+    "candidate_id_rule": "c86_ + SHA256(interface_id | field_training_manifest_sha256 | panel | seed | level | regime | epoch)[:24]",
+    "candidate_id_namespace": "C86-specific; the fresh 11-channel weights are disjoint from the historical c84_ 20-channel candidate-ID namespace; the SAME candidate ID is used for a candidate across BOTH untouched cohorts",
+    "canonical_candidate_index": "0=ERM ; 1..40=OACI (epochs 4,9,...,199) ; 41..80=SRC (epochs 4,9,...,199)",
+    "tie_rule": "first_canonical_candidate_index",
+    "unique_trained_models": 648,
+    "unique_models_basis": "2 panels * 2 seeds * 2 levels * 81 = 648",
+    "training_phases": 24,
+    "training_phases_basis": "2 panels * 2 seeds * 2 levels * 3 regimes"
+  },
+
+  "training_engine": {
+    "optimizer": "adam", "weight_decay": 0.0,
+    "metric": "balanced_ce", "epsilon": 0.03, "numerical_tol": 1e-4,
+    "stage1_epochs": 200, "stage1_steps_per_epoch": 1, "lr_stage1": 0.005,
+    "stage2_epochs": 200, "steps_per_epoch": 20, "warmup_steps": 60, "critic_steps": 5,
+    "checkpoint_every": 5, "guard_chunk_size": 1024,
+    "lr_encoder": 0.01, "lr_critic": 0.01, "dual_lr": 0.5,
+    "lambda_init": 0.3, "lambda_max": 20.0, "lambda_floor": 0.0,
+    "gradient_clip": 0.0, "critic_gradient_clip": 0.0,
+    "deterministic_algorithms": true, "stage2_bn_mode": "frozen_erm_running_stats",
+    "sampler": {"task_batch_size": 256, "adv_microbatch_size": 256,
+                "adv_accumulation_steps": 4, "steps_per_epoch": 20, "replacement_mode": "auto"},
+    "base_seed": "training_seed", "backbone": "shallow_convnet"
+  },
+
+  "interface": {
+    "c84_training_interface": {"id": "C84_LEFT_RIGHT_20CH_160HZ_0_3S_V2", "in_chans": 20,
+                               "note": "C84 zoo backbone was trained on a 20-channel montage"},
+    "c86_common_interface": {"id": "C86_C84SOURCE_TARGET_11CH_160HZ_0_3S_V3", "in_chans": 11,
+                             "channels": ["FC5","FC1","FC2","FC6","C3","Cz","C4","CP5","CP1","CP2","CP6"],
+                             "sfreq_hz": 160, "window_s": [0.0, 3.0], "band_hz": [4.0, 38.0],
+                             "events": ["left_hand", "right_hand"]},
+    "candidate_retention_from_C84_outcomes": false,
+    "fresh_training_required": true,
+    "fresh_training_note": "C86 re-declares the SAME 81-candidate zoo STRUCTURE on the 11-channel source+target common montage and does NOT reuse C84's 20-channel trained outcomes; the C86H field is trained FRESH on the 11-channel interface",
+    "eleven_channel_retarget_requirements": [
+      "shallow_convnet in_chans 20 -> 11 in every _model_factory (training-build + checkpoint-load-for-instrumentation)",
+      "MOABB MotorImagery paradigm channels = the 11 INTERFACE_CHANNELS (not the 20-ch EXPECTED_CHANNELS)",
+      "all shape guards (array.shape[1]==20 in _epochs_array_and_interface / target instrumentation) -> 11",
+      "regenerate montage_sha256, model-init hashes, and INTERFACE_ID-derived identities for 11 channels",
+      "ds007221 has NO MOABB class -> requires a new OpenNeuro/NEMAR BIDS (mne-bids) adapter to the 11-ch interface; Brandl2020 is native MOABB and reuses the MotorImagery path"
+    ]
+  },
+
+  "targets": {
+    "primary_untouched_cohorts": {
+      "Brandl2020_CANONICAL_ADULT_V1": {"native": "Brandl2020", "n_adult": 16,
+        "subjects": ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16"],
+        "task_events": ["left_hand", "right_hand"], "min_trials_per_subject": 504,
+        "license": "CC-BY-NC-ND-4.0",
+        "loader_or_bids_identity": "MOABB_Brandl2020_brandl2020.py_sha256_313c912ac42ea89d0a176a7baa972330067b6ca559cdef81acde074757416edd"},
+      "OpenNeuro_ds007221_HYBRID_ADULT_V1": {"native": "OpenNeuro_ds007221", "n_adult": 37,
+        "subjects": ["sub-37","sub-38","sub-39","sub-40","sub-41","sub-42","sub-43","sub-44","sub-45","sub-46","sub-47","sub-48","sub-49","sub-50","sub-51","sub-52","sub-53","sub-54","sub-55","sub-56","sub-57","sub-58","sub-59","sub-60","sub-61","sub-62","sub-63","sub-64","sub-65","sub-66","sub-67","sub-68","sub-69","sub-70","sub-71","sub-72","sub-73"],
+        "task": "hybrid", "task_events": ["left_hand", "right_hand"], "min_trials_per_subject": 600,
+        "license": "CC0",
+        "loader_or_bids_identity": "OpenNeuro_ds007221_v1.0.1_NEMAR_on007221_v1.0.0_task-hybrid",
+        "deterministic_inclusion_rule": "include every file with subject in sub-37..sub-73 AND task-hybrid AND events in {left_hand,right_hand}; exact and exhaustive; NO outcome-based acquisition filtering; any pre-registered acquisition that cannot be parsed -> C86-E field blocker (no substitution)"}
+    },
+    "n_targets": 53, "n_targets_basis": "16 + 37",
+    "canonical_target_subject_id": "integer (frozen C86D query server casts int): Brandl2020 = 1..16 ; OpenNeuro_ds007221 = numeric suffix of sub-NN = 37..73",
+    "target_in_own_training": false,
+    "same_candidate_zoo_across_primary_cohorts": true,
+    "unit_cohort_artifacts": 1296, "unit_cohort_artifacts_basis": "648 unique models * 2 target cohorts",
+    "contexts_per_target": 8, "contexts_per_target_basis": "2 panels * 2 seeds * 2 levels",
+    "target_contexts": 424, "target_contexts_basis": "53 * 8",
+    "candidate_context_slices": 34344, "candidate_context_slices_basis": "424 * 81"
+  },
+
+  "label_blind_split": {
+    "salt": "C86_TARGET_SPLIT_V1",
+    "order": "sort by (SHA256(salt|dataset|subject|trial_id), trial_id)",
+    "pool": "first floor(n/2)", "held_evaluation": "remainder",
+    "min_trials": 80, "min_pool": 40, "min_evaluation": 40, "min_class_support": 8,
+    "on_support_failure": "C86-E blocker: NO resplit, NO drop of unfavorable subject, NO cohort substitution (risk R10)"
+  },
+
+  "held_evaluation": {
+    "primary_risk": "target-first held standardized regret",
+    "tail": "exact target-tail CVaR at alpha {0.50,0.75,0.90}, CVaR_0.90 primary + all-alpha nonnegative",
+    "near_optimal": "indicator-first raw held composite-utility gap; epsilon grid {0.005,0.01,0.02,0.05}, primary 0.05",
+    "note": "held evaluation is the target's OWN label-blind held split (opened only in H2), NOT a C85U historical replay"
+  },
+
+  "content_hashes": {
+    "montage_sha256": "988e8f89c3001a5144172a10f3a8b30eb50c28d485b900210b91ed1a0cf04f04",
+    "operative_complete_unit_registry_sha256": "462fa840f7048511cb3e1a41b55f60441435d14f665014b856fe5fd8d66ac1b0",
+    "method_registry_sha256": "ef48ecf7fcc55188b78b0878d86f07f6239fe4f6c88bbc854829b3a1c7a1a120",
+    "c86r2_implementation_byte_sha256": "3aaafb470abd42e128df6a529d0830fd6506078bf033c45cb35712dfe3c6b9de",
+    "c86r2_implementation_commit": "ccc1807479a2f3b3273991f6b3ca0ab5514184f1",
+    "c86r2_protocol_sha256": "2e88e2fef7500b12ca8b3c5b19e6aab06df5a7f388781855b73793a1fe75df92",
+    "c86r2_protocol_commit": "0da4ec39f26ac4bc0d89035e9ad951f452217f05",
+    "common_field_interface_v3_csv_sha256": "2e22863fbc447054d196376a48340e09192d99310c01639b67b51879019c99b4",
+    "final_adult_untouched_cohort_registry_v3_csv_sha256": "82f329a1125a8ffe106c22ad490589aef84c239077105c22e6301d2e39593737",
+    "c79_field_lock_commit_erm_oaci": "35d0c65d76a6a094dd4a73cd3412363a70764f7c",
+    "src_c11_negative_control_commit": "2555b36"
+  },
+
+  "resource_envelope": {
+    "locked_for_real_execution": 0,
+    "primary_adult_target_subjects": 53,
+    "unique_candidate_units": 648,
+    "training_phases": 24,
+    "target_contexts": 424,
+    "candidate_context_slices": 34344,
+    "unit_cohort_artifacts": 1296,
+    "raw_download_storage_gib": {"estimate": 192, "envelope": 256},
+    "target_prediction_field_storage_gib": {"estimate": 48, "envelope": 64},
+    "total_scratch_storage_gib": {"estimate": 640, "envelope": 768},
+    "gpu_time_gpu_hours": {"estimate": 24, "envelope": 96},
+    "ram_gib": {"estimate": 128, "envelope": 128},
+    "active_testing_chains": 2048,
+    "maxT_draws_per_cohort": 65536,
+    "brandl_exact_sign_configurations": 65536,
+    "brandl_maxT_exhaustive": true,
+    "ds007221_exact_sign_configurations": 137438953472,
+    "ds007221_maxT_monte_carlo": true,
+    "plus_one_min_p": "1/65537"
+  }
+}

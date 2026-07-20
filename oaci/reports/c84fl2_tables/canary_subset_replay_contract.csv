@@ -1,0 +1,7 @@
+source,dataset,level,target_subject,candidate_units,historical_scope,complete_target_artifact_reusable,C84F_recompute_complete_target_artifact,trial_ID_exact_match_required,candidate_ID_exact_match_required,logits_probabilities_z_strict_tolerance,retention_or_retry_use_allowed
+C84C,Lee2019_MI,0,19,81,one_target_subject_slice,0,1,1,1,1e-06,0
+C84C,Cho2017,0,24,81,one_target_subject_slice,0,1,1,1,1e-06,0
+C84C,PhysionetMI,0,106,81,one_target_subject_slice,0,1,1,1,1e-06,0
+C84L1C,Lee2019_MI,1,19,81,one_target_subject_slice,0,1,1,1,1e-06,0
+C84L1C,Cho2017,1,24,81,one_target_subject_slice,0,1,1,1,1e-06,0
+C84L1C,PhysionetMI,1,106,81,one_target_subject_slice,0,1,1,1,1e-06,0

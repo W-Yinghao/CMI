@@ -1,0 +1,3 @@
+failure_id,object,reason,blocking,disposition
+C84FR1-HIST-001,job_896185,direct_dict_sort_TypeError,0,PRESERVED_AND_SUPERSEDED_BY_TARGET_STAGE_REPAIR
+C84FR1-AUTH-001,replacement_execution,fresh_PI_authorization_absent,0,EXPECTED_READINESS_STOP

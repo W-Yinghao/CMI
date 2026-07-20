@@ -1,0 +1,4 @@
+dataset,event_anchor,native_interval_seconds,locked_tmin_seconds,locked_tmax_seconds,endpoint_semantics,resample_sfreq_hz,expected_n_times,terminal_native_endpoint_action,padding,event_compatibility
+Lee2019_MI,official_MOABB_left/right_imagery_event_onset,0-4,0.0,3.0,"half_open_[0.0,3.0)",160,480,drop_if_present_after_resample,MNE_Epochs.resample_default_pad_edge,PASS_METADATA_ONLY
+Cho2017,official_MOABB_left/right_imagery_event_onset,0-3,0.0,3.0,"half_open_[0.0,3.0)",160,480,drop_if_present_after_resample,MNE_Epochs.resample_default_pad_edge,PASS_METADATA_ONLY
+PhysionetMI,official_MOABB_left/right_imagery_event_onset,0-3,0.0,3.0,"half_open_[0.0,3.0)",160,480,drop_if_present_after_resample,MNE_Epochs.resample_default_pad_edge,PASS_METADATA_ONLY

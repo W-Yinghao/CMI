@@ -1,0 +1,269 @@
+{
+  "schema_version": "c85t_overall_report_v1",
+  "generated_at_utc": "2026-07-17T02:17:37Z",
+  "milestone": "C85T_V3",
+  "final_gate": "C85T_SYNTHETIC_VALIDATION_AND_PROOF_CANDIDATES_FROZEN_C85V_REVIEW_REQUIRED",
+  "execution_identity": {
+    "readiness_HEAD": "3f0bd59142f0d6b1807f267851fe49704a410601",
+    "authorization_and_execution_HEAD": "b26b21f6b8378188dd59890c5701944c41fad823",
+    "authorization_commit": "b26b21f6b8378188dd59890c5701944c41fad823",
+    "execution_lock_commit": "b1a5ba3aca002de7e302fc375298cc69c1ed82a8",
+    "execution_lock_sha256": "3ee51a994969ebaaad9c1228d52df76e5222284c38eadbc77a50ce6178cdc8a9",
+    "bound_repository_objects": 160
+  },
+  "authorization": {
+    "schema_version": "c85t_direct_pi_authorization_record_v3",
+    "direct_explicit_PI_authorization": true,
+    "direct_statement_exact": "授权 C85T",
+    "authorization_id": "9ec012be-dbf2-4f1f-ab99-a5406596c31c",
+    "authorization_binding_sha256": "38b8c3f2111df926c388ba7ab60292aa43714b9f0dace1a2beaa978f30a918fc",
+    "authorization_file_sha256": "b0c283967c7741ebe7eecd0c0207c7dbec7e3f8ccd435db4ae594de41e19e501",
+    "consumption_receipt_sha256": "81651f69513fe5986a47975a5616ede4a2bcab2c82696ab620efc61a9c855d67",
+    "consumed": true,
+    "single_use": true,
+    "C85V": false,
+    "C85E": false,
+    "active_acquisition": false,
+    "real_data": false,
+    "new_data_or_model_zoo": false,
+    "manuscript": false
+  },
+  "scheduler": {
+    "job_id": 899524,
+    "job_name": "C85T-V3",
+    "partition": "cpu-high",
+    "node": "nodecpu01",
+    "state": "COMPLETED",
+    "exit_code": "0:0",
+    "runtime_seconds": 7,
+    "time_limit_minutes": 30,
+    "requested_CPUs": 1,
+    "allocated_CPUs": 2,
+    "tasks": 1,
+    "CPUs_per_task": 1,
+    "memory_GiB": 8,
+    "GPU": 0,
+    "stdout_sha256": "dbecc8961ab0793586c703b5b767e519dbcbba84b8d738f8409992772cec82ea",
+    "stdout_bytes": 1312,
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_bytes": 0,
+    "squeue_used": true,
+    "scontrol_used": true,
+    "sacct_used": false
+  },
+  "bundle": {
+    "schema_version": "c85t_atomic_execution_bundle_v3",
+    "root": "/projects/EEG-foundation-model/yinghao/oaci-c85t-synthetic-v3/c85t-v3-3ee51a994969ebaa-9ec012bedbf24f1f",
+    "attempt_id": "3ced6e5b117a4a95b9982a5fd22b5e4a",
+    "created_at_utc": "2026-07-17T02:05:38Z",
+    "file_count": 21,
+    "manifest_artifact_count": 18,
+    "total_size_bytes": 1325040,
+    "staging_absent": true,
+    "result_sha256": "ecaff65e942dbb81d93a3bdb61589fa9f1f6590f7188947688e6b30617140cec",
+    "manifest_sha256": "a727beebcb45598ea0f92f37bed8ef32369b1c793ecad9efc2f5d9941bd5bb0e",
+    "lifecycle_sha256": "b27baf359038301bab74e7443750583b2f858c8685456f63bc5b8c0e8f9e17c1",
+    "completion_receipt_sha256": "418f74e4c3cf60847b11bf18a890ffebf870ed8adee1a75d304b01075646e65d",
+    "semantic_replay_receipt_sha256": "735edf13a24c074cb3c18e56d168ebd905b3a7bcb29e3c273b3652bb1b7dcc6e",
+    "exact_scenario_results_sha256": "dde13367e7c43403d54e196a250dc7c6b5692f7fc0323b1ceb015d0aa0e39d0f",
+    "monte_carlo_summary_sha256": "60c60f4f020710e7e825330e30ea31c218cfa66b154a7b1b44a35a4b72c6b594",
+    "S6_replicates_sha256": "6e967deff1f0bcda82ae7424256326fa4da35fba7c9c18629c0c8d7d57742321",
+    "S7_replicates_sha256": "bc62b5c73956ff094241d72f5756eb80b66cd23f4b61272a10382540061e9781",
+    "S9_replicates_sha256": "9e7e1d29ab8acab69f2e753465e69481fe139af877d92321f45b9222ef66b9c3",
+    "S9_digest_registry_sha256": "7211ed0ac6a4f43ab76a0604bcaab35bdc65218fc83eb8ad8d98ad1df279bb5d",
+    "proof_candidate_dispositions_sha256": "17a279f0f240ab2316c5371f08be0727cd58a992c31fe6bd99a1509c5db4601e"
+  },
+  "lifecycle": {
+    "schema_version": "c85t_append_only_lifecycle_ledger_v3",
+    "event_count": 12,
+    "first_timestamp_utc": "2026-07-17T02:05:34Z",
+    "last_timestamp_utc": "2026-07-17T02:05:38Z",
+    "events": [
+      "PREFLIGHT_STARTED",
+      "PREFLIGHT_COMPLETED",
+      "AUTHORIZATION_CONSUMED",
+      "EXACT_SCENARIOS_STARTED",
+      "EXACT_SCENARIOS_COMPLETED",
+      "MONTE_CARLO_STARTED",
+      "MONTE_CARLO_COMPLETED",
+      "PROOF_CANDIDATES_STARTED",
+      "PROOF_CANDIDATES_COMPLETED",
+      "MANIFEST_STARTED",
+      "MANIFEST_COMPLETED",
+      "ATOMIC_PUBLISH_COMMIT_READY"
+    ],
+    "terminal": true,
+    "single_final_rename": true,
+    "required_operations_after_rename": 0,
+    "completion_chain_replay": "PASS",
+    "external_copy_receipt_identity": "PASS"
+  },
+  "semantic_replay": {
+    "schema_version": "c85t_result_semantic_replay_receipt_v3",
+    "status": "SEMANTIC_REPLAY_PASS",
+    "scenario_results": 11,
+    "scenario_keys": ["S0", "S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9", "S10"],
+    "S6_rows": 4096,
+    "S7_rows": 4096,
+    "S6_S7_rows": 8192,
+    "S9_design_rows": 8192,
+    "S9_digest_rows": 4096,
+    "S9_rng_digest_replay_rows": 4096,
+    "proof_candidates": 7,
+    "formal_OPEN_statuses": 7,
+    "protected_counters_zero": true
+  },
+  "exact_results": {
+    "S0": {
+      "optimal_constant_risk": "1/2"
+    },
+    "S1": {
+      "coarse_registered_risk": "1/2",
+      "rich_registered_risk": "1",
+      "rich_unrestricted_risk": "0"
+    },
+    "S2": {
+      "action_divergence": "0",
+      "reference_risk": "7/25",
+      "registered_risk": "7/25"
+    },
+    "S3": {
+      "selected_action": 1,
+      "regret": 0.0050000000000000044,
+      "spearman": -0.2571428571428571
+    },
+    "S4": {
+      "top4_localization": 1,
+      "selected_regret": "4/5"
+    },
+    "S5": {
+      "candidate_alpha_region": "(13/20,1)",
+      "endpoints_excluded": true,
+      "status": "CANDIDATE_PROOF_TARGET_NOT_PROVED_BY_EXECUTION_MODE"
+    },
+    "S6": {
+      "near_optimal_count": 5,
+      "hill_2_effective_size": 4.902454545613457,
+      "entropy_effective_size": 4.950568827806065,
+      "t7_primary_union_bound": 1.3863432936411313e-49
+    },
+    "S7": {
+      "near_optimal_count": 1,
+      "hill_2_effective_size": 1.000000000027776,
+      "entropy_effective_size": 1.0000000003610865,
+      "t7_primary_union_bound": 1.1769109439216723e-34
+    },
+    "S8": {
+      "identified_set_infinity_diameter": "1",
+      "optimal_randomized_action_distribution": ["8/21", "1/3", "2/7"],
+      "minimax_regret": "44/105",
+      "pure_action_minimax_regret": "4/5",
+      "randomization_gain": "8/21",
+      "constraint_slacks": ["0", "0", "0"]
+    },
+    "S9": {
+      "passive_allocation": [51, 13],
+      "neyman_allocation": [18, 46],
+      "passive_analytic_variance": "1327/10359375",
+      "neyman_analytic_variance": "317/6468750",
+      "population_means": ["3/10", "7/20", "13/20", "17/20"]
+    },
+    "S10": {
+      "coarse_risk": "11/40",
+      "rich_unrestricted_risk": "0",
+      "rich_registered_risk": "3/5",
+      "registered_policy_reversal": "13/40"
+    }
+  },
+  "monte_carlo": {
+    "aggregate_source": "RELOADED_SAVED_REPLICATE_ARRAYS",
+    "S6": {
+      "replicates": 4096,
+      "top1_probability": 0.25048828125,
+      "outside_A_epsilon_probability": 0.0,
+      "mean_regret": 0.0017648925781250015,
+      "selected_action_counts": [1026, 894, 830, 709, 637]
+    },
+    "S7": {
+      "replicates": 4096,
+      "top1_probability": 1.0,
+      "outside_A_epsilon_probability": 0.0,
+      "mean_regret": 0.0,
+      "selected_action_counts": [4096]
+    },
+    "S9": {
+      "replicates": 4096,
+      "passive": {
+        "correct_best_probability": 1.0,
+        "top2_coverage": 1.0,
+        "mean_selection_regret": 0.0,
+        "D_hat_mean": 0.050232142015460016,
+        "D_hat_sample_variance": 0.00012466963074279542
+      },
+      "neyman": {
+        "correct_best_probability": 1.0,
+        "top2_coverage": 1.0,
+        "mean_selection_regret": 0.0,
+        "D_hat_mean": 0.05010110016606279,
+        "D_hat_sample_variance": 4.8891890271740703e-05
+      },
+      "universal_active_superiority_claim": false
+    }
+  },
+  "proof_candidates": {
+    "check_class": "PROOF_CANDIDATE_SCHEMA_AND_INTERNAL_CONSISTENCY",
+    "independent_review": false,
+    "T1": {"disposition": "PROPOSED_PROOF", "formal_status": "OPEN", "sha256": "57ef99b65846ff62dc1471de311433c8a605774721bd0dbaf89c8a1bd0de98cf"},
+    "T2": {"disposition": "PROPOSED_COUNTEREXAMPLE", "formal_status": "OPEN", "sha256": "417a7496bebff41a8ca1c0240c5a5c7d690124b8fe33c49194d4c51458f2b6fc"},
+    "T3": {"disposition": "PROPOSED_PROOF", "formal_status": "OPEN", "sha256": "cdeda8e9feae09a13617dabc82735633fe39affe7fcd7b9a3aca628e957088d1"},
+    "T4": {"disposition": "PROPOSED_PROOF", "formal_status": "OPEN", "sha256": "9238f914c1bb5efbf5980050b02e0e72e20c934ea30f1287967f2ecc70755d03"},
+    "T5": {"disposition": "INCOMPLETE_OPEN", "formal_status": "OPEN", "sha256": "a6a38358dc3bf1bc2b39e1fda8bdece0a2a416b7627bb16bd671047724d90188"},
+    "T6": {"disposition": "PROPOSED_COUNTEREXAMPLE", "formal_status": "OPEN", "sha256": "d9325fab96d634b5164a3528c0bb9da484d4b20714116027f5bb39d5826b917f"},
+    "T7": {"disposition": "PROPOSED_PROOF", "formal_status": "OPEN", "sha256": "1316236128ae0389f681459ff28dfa99a248b3ad73357208821bb3220476a857"}
+  },
+  "regression": {
+    "job_id": 899525,
+    "focused": {"passed": 409, "deselected": 1, "pytest_seconds": 13.35, "stdout_sha256": "b54f97aa2740b990a28900d75bbec3b41c84a7e39f2ed42c4dbd27e7f74ba337", "stderr_bytes": 0},
+    "C65": {"passed": 1020, "skipped": 1, "deselected": 4, "pytest_seconds": 79.05, "stdout_sha256": "d3f5e8dccbac8d1152f2b39a941b7c56af62d2117f43d969581e5fadd488952d", "stderr_bytes": 0},
+    "C23": {"passed": 1431, "skipped": 1, "deselected": 4, "pytest_seconds": 111.41, "stdout_sha256": "2a9df371d5b4370bd2d267bd2898deb3517b453591a086accf62be61f1cd1994", "stderr_bytes": 0},
+    "full": {"passed": 2355, "skipped": 1, "deselected": 4, "pytest_seconds": 306.20, "stdout_sha256": "6d8fcdcc7a3d7010016404a4c971c6e64b2b7d5c663ba98309a082ad370b5c2f", "stderr_bytes": 0},
+    "accepted_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "registered_benchmark_rerun": false
+  },
+  "nonaccepted_operational_invocations": [
+    {
+      "type": "wrong_python_read_only_collector",
+      "effect": "Import failed before manifest replay; no registered scenario or write occurred."
+    },
+    {
+      "type": "stale_slurm_job_id_regression_submission",
+      "effect": "srun rejected before allocation and pytest; accepted regression job was 899525."
+    }
+  ],
+  "final_red_team": {
+    "checks": 80,
+    "passed": 80,
+    "failed": 0
+  },
+  "protected_boundaries": {
+    "real_project_data_access": 0,
+    "EEG_access": 0,
+    "label_access": 0,
+    "logit_access": 0,
+    "training": 0,
+    "forward": 0,
+    "GPU": 0,
+    "active_acquisition": 0,
+    "theorem_status_transitions": 0,
+    "C85V_authorized": false,
+    "C85E_authorized": false,
+    "new_data_or_model_zoo": false,
+    "manuscript_modified": false
+  },
+  "next_boundary": {
+    "stage": "C85V",
+    "authorized": false,
+    "requires_separate_PM_review": true,
+    "may_rerun_monte_carlo": false
+  }
+}

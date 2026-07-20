@@ -1,0 +1,5 @@
+campaign,walltime_class,cpu_high_ok,gpu_required,storage_class,checkpoint_universe_changes,authorized_in_c65
+P1_reinference_only_trial_cache,unknown_until_checkpoint_count,1,0,medium,0,0
+P2_representation_Wz_cache,unknown_until_checkpoint_count,1,0,high,0,0
+P3_new_instrumented_training,high,0,not_requested,high,1,0
+P4_independent_replication,high,0,not_requested,high,1,0

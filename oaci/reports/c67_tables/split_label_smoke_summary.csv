@@ -1,0 +1,2 @@
+analysis,checkpoint_units,construct_threshold,eval_threshold,hit_rate,majority_baseline,same_label_oracle_hit,construct_eval_corr,null_mean_hit,null_p_ge_observed,status,claim
+construct_bacc_predicts_eval_bacc_high,6,0.4707689982780282,0.4382275059197143,1.0,0.5,1.0,0.98736478698437,0.4895833333333333,0.0625,completed_underpowered,diagnostic_smoke_not_sufficiency

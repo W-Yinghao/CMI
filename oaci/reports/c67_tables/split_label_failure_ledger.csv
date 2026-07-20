@@ -1,0 +1,4 @@
+risk,value,threshold,blocks_sufficiency_claim,notes
+independent_checkpoint_units,6,20,1,six checkpoint-level units only
+same_label_oracle_boundary,1,0,1,oracle hit is diagnostic-only and unavailable at selection time
+source_only_selector_claim,0,0,1,not a selector or source-only rescue

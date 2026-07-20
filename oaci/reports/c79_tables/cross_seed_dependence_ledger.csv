@@ -1,0 +1,5 @@
+level,shared_across_seeds,independent_rows,handling
+target,1,0,paired_target_cluster
+trial_id,1,0,shared_trial_cluster
+checkpoint,0,0,aligned_by_regime_level_cadence_only
+training_seed,0,0,two_fixed_seeds_no_random_effects

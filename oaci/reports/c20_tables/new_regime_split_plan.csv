@@ -1,0 +1,9 @@
+role,regime
+development,S0_full_support
+development,S2_rare_cells
+development,S3_nonestimable_cells
+held_out,S4_missing_cells
+held_out,S5_block_class_by_domain
+held_out,S6_boundary_aligned_mask
+held_out,S7_random_matched_mask
+noop_negative_control,S1_label_marginal_skew

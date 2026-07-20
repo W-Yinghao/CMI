@@ -1,0 +1,6 @@
+reason,status,scope
+none_blocking,closed,C78R authorized SRC canary
+CPU_peak_RAM_unavailable,open_nonblocking_caveat,resource reporting only
+ERM_OACI_phase_time_not_separately_instrumented,open_nonblocking_caveat,compute plan uses measured combined context cost
+single_target_scientific_inference_forbidden,boundary,technical compatibility only
+full_seed3_expansion_unauthorized,boundary,C78F requires new protocol and approval

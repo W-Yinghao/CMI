@@ -1,0 +1,15 @@
+check,passed
+config_hash_unchanged,1
+read_only_committed_artifacts,1
+no_training_no_gpu_no_reinference,1
+source_objective_registry_inherited,1
+distance_metrics_frozen,1
+no_feature_selection,1
+no_target_labels_in_source_space_construction,1
+target_endpoint_labels_diagnostic_only,1
+target_gauge_non_source_only,1
+witness_rates_have_baselines,1
+no_selected_checkpoint_artifact,1
+compact_json_no_monolithic_payload,1
+finite_filtering_applied,1
+diagnostic_only_non_deployable,1

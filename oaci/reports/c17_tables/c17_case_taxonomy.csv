@@ -1,0 +1,7 @@
+quantity,value
+case_label,case_III_multivariate_weak_identifiability
+univariate_verdict,weak_accuracy_needs_multivariate
+multivariate_loto_auc,0.6023104389834069
+multivariate_beats_permutation,True
+source_signals_calibration_biased,True
+next_science,a low-freedom source-only competence probe MAY be pre-registered; not deployable yet

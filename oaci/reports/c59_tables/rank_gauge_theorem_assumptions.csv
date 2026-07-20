@@ -1,0 +1,7 @@
+assumption_id,statement,needed_for_proof,empirical_anchor,scope
+RG-A1,Two candidates differ by observed rank gap r and unobserved target gauge gap g,1,rank-gauge chain C30-C55,synthetic model
+RG-A2,Source observes sign(r) but not g,1,source/key/template boundary remains open,synthetic model
+RG-A3,Target utility gap is alpha*r + beta*g,1,C58 synthetic map,synthetic model
+RG-A4,Gauge gap has symmetric continuous distribution with nonzero tail,1,target-specific gauge interpretation,model assumption
+RG-A5,"For n-candidate top-1 corollary, challenger gauge gaps are conditionally independent lower-tail events",0,not verified in EEG artifacts,optional corollary
+RG-A6,The theorem does not assert a theorem about EEG distributions,1,C58-D,claim guardrail

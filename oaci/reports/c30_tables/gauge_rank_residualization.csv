@@ -1,0 +1,5 @@
+metric,value
+score_within_target_auc,0.658600107451297
+score_within_target_auc_ctrl_R_src,0.6128410727093443
+rank_survives_R_src_control,True
+gauge_contaminates_rank,False

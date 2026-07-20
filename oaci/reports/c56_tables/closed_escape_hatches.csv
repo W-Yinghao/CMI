@@ -1,0 +1,9 @@
+escape_hatch,closing_milestone,status,closure_reason
+accuracy_calibration_tradeoff_main_mechanism,C31,closed,accuracy and calibration largely move together; joint-good points are common
+source_rank_reliable_topk,C42,closed,top1 remains below reliability gate
+source_scalarization_reliable_topk,C43,closed,best source scalarization top1 remains weak
+source_pareto_front_selection,C44,closed,front fraction is nearly all candidates and non-discriminative
+global_source_equivalence,"C45,C46",closed,cross-target source equivalence breaks target comparability
+conditioning_actionability_rescue,C47-C50,closed_as_action_rule,conditioning reveals ceilings but actionability fragments
+key_only_gauge_recovery,C52,closed,best key-only hit remains below label-derived closure
+endpoint_template_full_transfer,C55,closed,template-only 0.704 does not reproduce endpoint-scalar 0.944

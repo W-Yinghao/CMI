@@ -1,0 +1,2 @@
+null,permutations,observed_delta_mse,null_mean_delta,null_max_delta,p_ge_observed,status
+checkpoint_x2_permutation,64,0.026880366889492774,-0.11734394330637027,0.0262525944465567,0.0,underpowered_n6

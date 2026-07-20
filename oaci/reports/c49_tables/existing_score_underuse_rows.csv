@@ -1,0 +1,13 @@
+group_scope,group_key,score,target,seed,level,regime,trajectory_id,source_space,neighborhood,min_neighbor_count,label,coverage,local_bayes_top1_expected_hit,source_score_top_expected_hit,top_score_island_fraction,underuse_gap,score_range,top_minus_best_island_score,score_flat_at_island,wrong_direction_miss,target_labels_diagnostic_only,no_candidate_id_emitted
+within_target,2,selection_leakage,2,mixed,mixed,mixed,mixed,all_source_objectives,eps_q01,5,primary_joint_good,0.08835341365461848,1.0,0.0,0.0,1.0,0.857419433889394,0.8476712444414461,0,1,1,1
+within_target,2,R_src,2,mixed,mixed,mixed,mixed,all_source_objectives,eps_q01,5,primary_joint_good,0.08835341365461848,1.0,0.0,0.0,1.0,0.3751068367546967,0.0011104979685417904,0,1,1,1
+within_target,2,C30_source_rank,2,mixed,mixed,mixed,mixed,all_source_objectives,eps_q01,5,primary_joint_good,0.08835341365461848,1.0,0.0,0.0,1.0,0.6302922942946297,0.012044735151043984,0,1,1,1
+within_target,2,C19_robust_core,2,mixed,mixed,mixed,mixed,all_source_objectives,eps_q01,5,primary_joint_good,0.08835341365461848,1.0,0.0,0.0,1.0,0.6302922942946297,0.012044735151043984,0,1,1,1
+within_target,3,selection_leakage,3,mixed,mixed,mixed,mixed,all_source_objectives,eps_q01,5,primary_joint_good,0.07017543859649122,1.0,0.0,0.0,1.0,0.6697018100197103,0.6682772937268613,0,1,1,1
+within_target,3,R_src,3,mixed,mixed,mixed,mixed,all_source_objectives,eps_q01,5,primary_joint_good,0.07017543859649122,1.0,0.0,0.0,1.0,0.355648228302623,0.14865795211261323,0,1,1,1
+within_target,3,C30_source_rank,3,mixed,mixed,mixed,mixed,all_source_objectives,eps_q01,5,primary_joint_good,0.07017543859649122,1.0,0.0,0.0,1.0,0.7241305190631739,0.07923132049160797,0,1,1,1
+within_target,3,C19_robust_core,3,mixed,mixed,mixed,mixed,all_source_objectives,eps_q01,5,primary_joint_good,0.07017543859649122,1.0,0.0,0.0,1.0,0.7241305190631739,0.07923132049160797,0,1,1,1
+within_target,4,selection_leakage,4,mixed,mixed,mixed,mixed,all_source_objectives,eps_q01,5,primary_joint_good,0.0457516339869281,1.0,1.0,0.0,0.0,0.5230013032755767,0.24236316422356485,0,0,1,1
+within_target,4,R_src,4,mixed,mixed,mixed,mixed,all_source_objectives,eps_q01,5,primary_joint_good,0.0457516339869281,1.0,1.0,0.0,0.0,0.2932381945050767,0.2868659587032586,0,0,1,1
+within_target,4,C30_source_rank,4,mixed,mixed,mixed,mixed,all_source_objectives,eps_q01,5,primary_joint_good,0.0457516339869281,1.0,0.0,0.0,1.0,0.4286391253848671,0.38249480569620575,0,1,1,1
+within_target,4,C19_robust_core,4,mixed,mixed,mixed,mixed,all_source_objectives,eps_q01,5,primary_joint_good,0.0457516339869281,1.0,0.0,0.0,1.0,0.4286391253848671,0.38249480569620575,0,1,1,1

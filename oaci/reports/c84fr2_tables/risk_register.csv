@@ -1,0 +1,13 @@
+risk,status,blocking
+historical_failed_attempt_overwritten,CLOSED,0
+partial_target_artifact_reused,CLOSED,0
+model_retraining,CLOSED,0
+cross_backend_error_used_as_functional_gate,CLOSED,0
+same_backend_gate_widened,CLOSED,0
+persisted_array_digest_not_exact,CLOSED,0
+target_registry_drift,CLOSED,0
+target_y_access,CLOSED,0
+scientific_metric_access,CLOSED,0
+same_label_oracle,CLOSED,0
+C84S_execution,CLOSED,0
+fresh_PI_authorization_absent,EXPECTED_STOP,0

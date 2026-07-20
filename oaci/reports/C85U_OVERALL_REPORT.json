@@ -1,0 +1,88 @@
+{
+  "schema_version": "c85u_overall_report_v1",
+  "gate": "C85U_COMPLETE_CANDIDATE_UTILITY_FIELD_FROZEN_C85E_REVIEW_REQUIRED",
+  "readiness_HEAD": "be2fad4868407b1aa8f7adf6a59d151efb68e02b",
+  "authorization_execution_HEAD": "f4b05c3dbed962348efe9cab56374854120a3667",
+  "authorization": {
+    "authorization_id": "91a42848-8a63-4268-b865-dc1b6f933a1b",
+    "authorization_file_sha256": "024d95b6364651d6faa7b7cbeb5e0a1d896fe56e122d3b4ad2d6ba284ac1b6db",
+    "authorization_binding_sha256": "a866bb820251b603ad29fc9c13b2e1997025678fa9b1a243ff0cf55cc62b1ea7",
+    "consumption_receipt_sha256": "f2ae41730a005d5622280ad7617efcd198ab308805604894cddb25d8eb5726b9",
+    "consumed_once": true
+  },
+  "execution": {
+    "job_id": 900451,
+    "attempt_id": "147245c8846d40e5a6059e353fce5b8b",
+    "output_root": "/projects/EEG-foundation-model/yinghao/oaci-c85u-candidate-utility-v2/c85u-v2-77382c16a593f7c2-91a428488a634268",
+    "execution_lock_commit": "672670d05e9d7adfbe12673d4a64bfd499413162",
+    "execution_lock_sha256": "77382c16a593f7c2bdeb4dcacdfa21df11dcfd59982e9bfb982d6b88f5f04d1d",
+    "application_lifecycle_seconds": 150.61127466,
+    "classification": "SUCCESS",
+    "stderr_bytes": 0,
+    "sacct_evidence": "UNAVAILABLE_CONNECTION_REFUSED"
+  },
+  "coverage": {
+    "target_artifacts_replayed": 1944,
+    "target_artifact_bytes_replayed": 48018748054,
+    "target_sidecars_replayed": 1944,
+    "evaluation_label_rows_read_by_U1": 4848,
+    "contexts": 944,
+    "candidates_per_context": 81,
+    "candidate_utility_rows": 76464,
+    "context_artifacts": 944,
+    "historical_method_context_rows_replayed": 18432,
+    "finite_Q0_action_records_replayed": 8749056
+  },
+  "frozen_identities": {
+    "protected_replay_sha256": "9013c5223bf271edcefe477443add3c1404381d5bf9c884b8d283ac3bc94651e",
+    "U1_manifest_sha256": "95bdbc04f05103a090d46dd4419dc12c766ab45f807c8466ebf883a1171b05c6",
+    "U1_handoff_sha256": "2fad474bff7d80c55243a825ae3c15fa0afab45e8c841343d2a0aa20cefe1975",
+    "candidate_utility_index_sha256": "83bddf56290c4e06a306d64dadfc9611115a177f479d433fe0e4485b0c181509",
+    "U2_result_sha256": "84177e80c9883611ef0bc0e9d27a4c38867a45db9b0458d7b090c422b23c39be",
+    "U2_handoff_sha256": "bb0b7bbad5b198eefdfc4a38f1bf353b96b60cecdcbf47815f2ff8ccbda789dc",
+    "final_result_sha256": "d19b11c24a811c1e8677cc0681d3d57bcb437a1d43702a5df8b2e1c92d43f83c",
+    "acceptance_manifest_sha256": "dfcf84569beb1b34b786cbe72233a22fd3928a4475b7e345f23b40cdb6671620",
+    "completion_receipt_sha256": "5d8bdc9888106f6382531f52150613744cce3e15fbc73e0b557b3eaa89e7a129",
+    "lifecycle_sha256": "c7ade7f29723fdcaa4f4472e2b431a1ec3c581e07f157f1c4d1d49d60125b2b7"
+  },
+  "replay": {
+    "U1_status": "PASS_PROVISIONAL_U1_REPLAY",
+    "U2_status": "PASS_PROVISIONAL_U2_REPLAY",
+    "final_acceptance": "PASS",
+    "selected_regime_mismatches": 0,
+    "maximum_endpoint_absolute_error": 0.0,
+    "residual_staging_roots": 0,
+    "external_file_count": 972,
+    "external_total_bytes": 44028286
+  },
+  "protected_counters": {
+    "construction_label_access": 0,
+    "Q0_resampling": 0,
+    "selector_recomputation": 0,
+    "scientific_inference": 0,
+    "theorem_status_writes": 0,
+    "C85E": 0,
+    "C86": 0
+  },
+  "validation": {
+    "red_team": "64/64 PASS",
+    "focused": "395 passed, 1 deselected",
+    "C65": "1087 passed, 1 skipped, 6 deselected",
+    "C23": "1498 passed, 1 skipped, 6 deselected",
+    "full": "2422 passed, 1 skipped, 6 deselected",
+    "accepted_stderr_bytes": 0
+  },
+  "immutable_results": {
+    "C84_primary": "C84-D_external_dataset_source_panel_seed_level_or_target_heterogeneous",
+    "C84_frontier": "C84-L4",
+    "T1": "PROVED",
+    "T2": "COUNTEREXAMPLE",
+    "T3": "PROVED",
+    "T4": "PROVED",
+    "T5": "OPEN",
+    "T6": "COUNTEREXAMPLE",
+    "T7": "PROVED"
+  },
+  "C85E_authorized": false,
+  "C86_authorized": false
+}

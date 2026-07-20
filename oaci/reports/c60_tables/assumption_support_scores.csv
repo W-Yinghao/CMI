@@ -1,0 +1,9 @@
+bridge_axis,support_score,support_class,key_number,interpretation
+source_visible_rank,0.35,partial,0.5061728395061729,rank exists but weak
+source_scalarization,0.45,partial,0.5740740740740741,best registered source rule improves but misses null boundary
+key_only_conditioning,0.2,weak,0.4876543209876543,keys do not expose gauge by themselves
+label_diagnostic_content,0.75,strong_diagnostic,0.8127572016460904,target-label diagnostic content closes much residual
+endpoint_oracle,0.95,oracle,0.9444444444444444,same-label endpoint content nearly closes field
+cross_target_gauge_break,0.8,partial,0.9369369369369369,global source comparability break is large
+direct_gauge_distribution,0.0,missing,,no direct G samples
+observation_law_for_eeg_theorem,0.0,missing,,no theorem-grade observation law

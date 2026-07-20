@@ -1,0 +1,5 @@
+caveat_id,caveat,status,guardrail
+CV1,split-label/few-label calibration remains unresolved,future_work,do not claim few-label sufficiency
+CV2,formal lower-bound theorem is not proved,future_theory,label formalism empirical
+CV3,endpoint scalar is same-label target endpoint content,diagnostic_only,unavailable at selection time
+CV4,EEG-specific related work should be expanded during M1,M1_bibliography,does not block claim contract

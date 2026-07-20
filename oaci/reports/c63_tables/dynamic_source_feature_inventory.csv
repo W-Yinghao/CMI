@@ -1,0 +1,8 @@
+feature_id,feature_name,summary_proxy_hit,uses_target_labels,uses_endpoint_scalar,source_only_candidate,supported_from_artifacts,proxy_only,notes
+D1,source_history_window,0.5740740740740741,0,0,1,1,1,registered source-history/rank scalarization proxy
+D2,source_delta_window,0.48148148148148145,0,0,1,1,1,finite-difference proxy remains near static source
+D3,source_rank_history,0.5740740740740741,0,0,1,1,1,rank aggregation proxy below reliability boundary
+D4,source_front_history,0.43105701988584916,0,0,1,1,1,front/depth proxy near base rate
+D5,source_leakage_history,0.4074074074074074,0,0,1,1,1,leakage history misaligned with dynamic islands
+D6,source_endpoint_history,,0,0,1,0,1,not reconstructable from compact summaries
+D7,regime_seed_epoch_history,0.4876543209876543,0,0,1,1,1,metadata key proxy does not close gauge

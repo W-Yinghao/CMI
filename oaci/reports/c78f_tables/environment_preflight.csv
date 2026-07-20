@@ -1,0 +1,2 @@
+python_path,python_exists,GPU_runtime_check,CUBLAS_WORKSPACE_CONFIG,locked_partition,instrumentation_partition,passed
+/home/infres/yinwang/anaconda3/envs/icml/bin/python,1,per_job_before_EEG_load,:4096:8,V100,cpu-high,1

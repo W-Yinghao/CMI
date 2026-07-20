@@ -1,0 +1,154 @@
+{
+  "config_hash": "664007686afb520f",
+  "diagnostic_only_non_deployable": true,
+  "error_geometry": {
+    "source_audit": {
+      "note": "source class-conditioned confidence aligns with SOURCE per-class recall but not the TARGET factor -> it tracks source error geometry, not target competence (explains source->target decoupling)",
+      "role": "source_audit",
+      "source_factor_vs_source_recall": 0.3925513375383708,
+      "source_factor_vs_target_factor": 0.25726114137877226,
+      "tracks_source_error_only": true
+    },
+    "source_guard": {
+      "note": "source factor does not cleanly track source-only error geometry",
+      "role": "source_guard",
+      "source_factor_vs_source_recall": 0.6615240614563916,
+      "source_factor_vs_target_factor": 0.38141652998131054,
+      "tracks_source_error_only": false
+    }
+  },
+  "homology": {
+    "source_audit": {
+      "aligned": false,
+      "centered_alignment": 0.18037116459933247,
+      "classwise_corr": 0.25726114137877226,
+      "cosine_mean": 0.9830243240355793,
+      "informative_alignment": 0.25726114137877226,
+      "misaligned": true,
+      "note": "raw cosine 0.983 is high but CENTERED alignment is only 0.180 (mean-structure artifact) -> the source and target factors share the confidence baseline but their OFFSET-RELEVANT variation is weakly aligned; the carrier lives in target decision occupancy, not source logit geometry",
+      "raw_cosine_mean_dominated": true,
+      "role": "source_audit",
+      "sign_agreement": 0.5800473186119873
+    },
+    "source_guard": {
+      "aligned": false,
+      "centered_alignment": 0.33282004643555224,
+      "classwise_corr": 0.38141652998131054,
+      "cosine_mean": 0.9855640368634468,
+      "informative_alignment": 0.38141652998131054,
+      "misaligned": true,
+      "note": "raw cosine 0.986 is high but CENTERED alignment is only 0.333 (mean-structure artifact) -> the source and target factors share the confidence baseline but their OFFSET-RELEVANT variation is weakly aligned; the carrier lives in target decision occupancy, not source logit geometry",
+      "raw_cosine_mean_dominated": true,
+      "role": "source_guard",
+      "sign_agreement": 0.6305205047318612
+    }
+  },
+  "mode": "in_regime",
+  "n_candidates": 1268,
+  "offset_prediction": {
+    "best_source_gap": -0.3783667201018121,
+    "best_source_gauge": "source_carrier__source_guard",
+    "note": "the source-only class-conditioned confidence gauge does NOT recover the target offset -> source-unobservability confirmed at the logit-factor level",
+    "per_gauge": {
+      "source_carrier__source_audit": {
+        "auc_improve": -0.072183410955866,
+        "gap_closed": -0.7965711768376992,
+        "loto_r2": -1.7422808063108963,
+        "perm_p": 0.9560878243512974,
+        "survives_permutation": false
+      },
+      "source_carrier__source_guard": {
+        "auc_improve": -0.03428670436903969,
+        "gap_closed": -0.3783667201018121,
+        "loto_r2": -0.5392743169970973,
+        "perm_p": 0.9820359281437125,
+        "survives_permutation": false
+      },
+      "source_global_confidence__source_audit": {
+        "auc_improve": -0.056769239299179375,
+        "gap_closed": -0.6264699763824807,
+        "loto_r2": -1.7441562718461787,
+        "perm_p": 0.9840319361277445,
+        "survives_permutation": false
+      },
+      "source_global_confidence__source_guard": {
+        "auc_improve": -0.03717176757595919,
+        "gap_closed": -0.41020448120999997,
+        "loto_r2": -0.7853877121106303,
+        "perm_p": 0.9740518962075848,
+        "survives_permutation": false
+      },
+      "source_occupancy__source_audit": {
+        "auc_improve": -0.04522039254823684,
+        "gap_closed": -0.4990240947637633,
+        "loto_r2": -0.9426614441958567,
+        "perm_p": 0.8982035928143712,
+        "survives_permutation": false
+      },
+      "source_occupancy__source_guard": {
+        "auc_improve": 0.03475715236194277,
+        "gap_closed": 0.38355829121746443,
+        "loto_r2": -0.11769348186410511,
+        "perm_p": 0.13373253493013973,
+        "survives_permutation": false
+      },
+      "target_carrier_reference": {
+        "auc_improve": 0.04747255489021962,
+        "gap_closed": 0.5238775560151255,
+        "loto_r2": 0.1467960665545477,
+        "perm_p": 0.031936127744510975,
+        "survives_permutation": true
+      }
+    },
+    "source_predicts_offset": false,
+    "target_carrier_gap": 0.5238775560151255
+  },
+  "raw_pooled": 0.5431489798181415,
+  "residual_decomposition": {
+    "full_target_carrier": {
+      "auc_improve": 0.04747255489021962,
+      "gap_closed": 0.5238775560151255,
+      "loto_r2": 0.1467960665545477,
+      "perm_p": 0.031936127744510975,
+      "survives_permutation": true
+    },
+    "note": "neither the source-explained component nor the residual cleanly dominates the offset recovery",
+    "residual_carries_offset": false,
+    "residual_over_source_explained": true,
+    "role": "source_guard",
+    "source_explained": {
+      "auc_improve": -0.03428670436903969,
+      "gap_closed": -0.3783667201018121,
+      "loto_r2": -0.5392743025222781,
+      "perm_p": 0.9820359281437125,
+      "survives_permutation": false
+    },
+    "source_explained_carries_offset": false,
+    "target_residual": {
+      "auc_improve": 0.02351990463517406,
+      "gap_closed": 0.25955102240604955,
+      "loto_r2": -1.2330643982140175,
+      "perm_p": 0.249500998003992,
+      "survives_permutation": false
+    }
+  },
+  "target_centered_oracle": 0.6337666333998669,
+  "taxonomy": {
+    "diagnostic_only_non_deployable": true,
+    "established": [
+      "H7_logit_factor_confirms_source_unobservability",
+      "H2_source_factor_misaligned",
+      "H4_source_factor_tracks_source_error_only",
+      "H5_target_residual_carries_offset"
+    ],
+    "interpretation": "a source analog of the carrier exists but CANNOT identify the target offset -> source-unobservability is confirmed at the logit-factor level (C23 explained, not overturned).",
+    "primary_case": "H7_logit_factor_confirms_source_unobservability",
+    "raw_cosine_mean_dominated": true,
+    "source_predicts_offset": false,
+    "source_target_informatively_aligned": false,
+    "source_target_misaligned": true,
+    "source_tracks_source_error_only": true,
+    "target_residual_carries_offset": false,
+    "target_residual_weakly_carries": true
+  }
+}

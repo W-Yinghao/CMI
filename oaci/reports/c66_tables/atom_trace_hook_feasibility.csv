@@ -1,0 +1,7 @@
+trace,recoverable_by_reinfer_only,requires_forward_hook,requires_new_training,available_now,claim_allowed_now
+logits_probabilities,1,0,0,1,0
+representation_z,1,1,0,0,0
+projection_Wz,1,1,0,0,0
+class_conditioned_confidence,1,1,0,1,0
+optimizer_step_atom_contribution,0,1,1,0,0
+domain_class_leakage_atom_identity,0,1,1,0,0

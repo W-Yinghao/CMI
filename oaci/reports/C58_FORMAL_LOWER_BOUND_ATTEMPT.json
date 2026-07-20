@@ -1,0 +1,89 @@
+{
+  "c57_decision": "C57-A_manuscript_scaffold_ready",
+  "config_hash": "664007686afb520f",
+  "decision": {
+    "active": [
+      "C58-A_finite_population_lower_bound_established",
+      "C58-D_empirical_boundary_only_formal_bound_not_yet_supported",
+      "C58-F_formalization_requires_new_instrumented_real_eeg_training",
+      "C58-H_new_training_not_justified_yet"
+    ],
+    "inactive": [
+      "C58-B_lecam_style_two_point_bound_established_under_empirical_assumptions",
+      "C58-C_fano_assouad_packing_bound_nontrivial",
+      "C58-E_source_observable_escape_hatch_found",
+      "C58-G_new_training_campaign_scientifically_authorized"
+    ],
+    "primary": "C58-A_finite_population_lower_bound_established",
+    "recommended_next_direction": "wait for remote review; do not start M1 or training without explicit user instruction",
+    "red_team_failure_count": 0,
+    "secondary": [
+      "C58-S1_sigma_field_ladder_locked",
+      "C58-S2_selector_measurability_contract_locked",
+      "C58-S3_empirical_bayes_ceiling_nontrivial",
+      "C58-S4_indistinguishable_target_divergent_pairs_found",
+      "C58-S5_packing_set_too_small_or_unstable",
+      "C58-S6_mutual_information_estimates_unstable",
+      "C58-S7_rank_gauge_synthetic_model_matches_C30_C55",
+      "C58-S8_theorem_assumptions_too_strong",
+      "C58-S9_training_needed_for_split_label_cache",
+      "C58-S10_training_needed_for_atom_trace",
+      "C58-S11_no_manuscript_drafting"
+    ],
+    "training_gate": "TRAINING_NEEDED_BUT_NOT_AUTHORIZED"
+  },
+  "diagnostic_only_non_deployable": true,
+  "finite_population_reference": {
+    "endpoint_oracle_hit": 0.9444444444444444,
+    "n_candidates": 3804,
+    "n_cells": 162,
+    "random_tie_hit": 0.4297233780360411
+  },
+  "key_numbers": {
+    "best_key_only_hit": 0.4876543209876543,
+    "best_label_derived_hit": 0.8127572016460904,
+    "best_source_scalarization_hit": 0.5740740740740741,
+    "best_strict_source_hit": 0.5061728395061729,
+    "best_template_only_hit": 0.7037037037037037,
+    "max_null_p95": 0.7712962962962961,
+    "same_label_endpoint_scalar_hit": 0.9444444444444444
+  },
+  "milestone": "C58",
+  "recommended_next_step": "wait for remote review; do not start M1 or training without explicit user instruction",
+  "table_row_counts": {
+    "adversarial_source_rule_ledger": 8,
+    "artifact_manifest": 43,
+    "artifact_sufficiency_for_lower_bounds": 10,
+    "assumption_gap_ledger": 6,
+    "cellwise_bayes_error_ledger": 8,
+    "conditional_entropy_or_ambiguity_summary": 5,
+    "conditional_sufficiency_summary": 5,
+    "empirical_to_synthetic_parameter_map": 6,
+    "failed_and_successful_escape_hatches": 8,
+    "fano_packing_summary": 3,
+    "finite_population_bound_summary": 10,
+    "forbidden_claim_scan": 13,
+    "large_artifact_scan": 43,
+    "lecam_witness_summary": 3,
+    "markov_boundary_candidate_ledger": 5,
+    "missing_instrumentation_ledger": 5,
+    "mutual_information_proxy_summary": 4,
+    "packing_cell_ledger": 4,
+    "packing_null_calibration": 3,
+    "partition_bayes_error_by_information_class": 10,
+    "red_team_failure_ledger": 12,
+    "regret_to_endpoint_oracle": 10,
+    "schema_validation_summary": 31,
+    "selector_measurability_contract": 8,
+    "sigma_field_ladder": 8,
+    "source_equivalent_target_divergent_pairs": 4,
+    "source_escape_hatch_attack_summary": 6,
+    "subagent_audit_manifest": 10,
+    "synthetic_simulation_summary": 5,
+    "test_command_manifest": 4,
+    "training_gate_decision_table": 5,
+    "two_point_bound_candidates": 3,
+    "utility_and_loss_definitions": 6
+  },
+  "training_gate_decision": "TRAINING_NEEDED_BUT_NOT_AUTHORIZED"
+}

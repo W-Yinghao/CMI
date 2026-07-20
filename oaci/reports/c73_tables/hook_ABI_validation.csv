@@ -1,0 +1,7 @@
+sample_index,checkpoint_path_hash,model_factory,input_shape,state_load_passed,state_schema_passed,state_hash_passed,representation_shape,classifier_weight_shape,classifier_bias_shape,logit_shape,hook_matches_output_z_max_abs,Wz_plus_b_logit_max_abs,CPU_only,dummy_tensor_only,real_EEG_loaded,real_EEG_forward,passed
+0,8e62e2bf3f318a3d40933d33d4c1ebca4a0b35e6fbca9e53653232be22752e03,shallow_convnet,"[2,22,385]",1,1,1,"[2, 800]","[4, 800]",[4],"[2, 4]",0.0,0.0,1,1,0,0,1
+1,5227b75b2023d9adddb5918373bfb3412815939ee80e2a2579e3cc9dd8e20f8d,shallow_convnet,"[2,22,385]",1,1,1,"[2, 800]","[4, 800]",[4],"[2, 4]",0.0,0.0,1,1,0,0,1
+2,74d4683b323115cdcfd9b575ad9aac3e7bacce1e7663346dbe3461a0ad0ccd42,shallow_convnet,"[2,22,385]",1,1,1,"[2, 800]","[4, 800]",[4],"[2, 4]",0.0,0.0,1,1,0,0,1
+3,4e1f0be1ce63a5fdbec23129923ce963cae6fbf15d9c7ae58b0ff70239bd75c6,shallow_convnet,"[2,22,385]",1,1,1,"[2, 800]","[4, 800]",[4],"[2, 4]",0.0,0.0,1,1,0,0,1
+4,737da50451811fdb707f615672d0a983e35e4b14331891025861aa0125e65645,shallow_convnet,"[2,22,385]",1,1,1,"[2, 800]","[4, 800]",[4],"[2, 4]",0.0,0.0,1,1,0,0,1
+5,a595d9ee9d416c5e0d5519e26a7870853b05bb47c2133ce7b3d5d3d24f21dfff,shallow_convnet,"[2,22,385]",1,1,1,"[2, 800]","[4, 800]",[4],"[2, 4]",0.0,0.0,1,1,0,0,1

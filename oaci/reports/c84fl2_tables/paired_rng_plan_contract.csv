@@ -1,0 +1,13 @@
+dataset,panel,training_seed,levels,model_init_seed_rule,same_model_init_across_levels,plan_seed,plans_materialized_per_level_population_signature,architecture_optimizer_epochs_cadence_identical,outcome_dependent_seed_choice
+Lee2019_MI,A,5,0|1,"derive_seed(training_seed,dataset,model_init)",1,5,1,1,0
+Lee2019_MI,A,6,0|1,"derive_seed(training_seed,dataset,model_init)",1,6,1,1,0
+Lee2019_MI,B,5,0|1,"derive_seed(training_seed,dataset,model_init)",1,5,1,1,0
+Lee2019_MI,B,6,0|1,"derive_seed(training_seed,dataset,model_init)",1,6,1,1,0
+Cho2017,A,5,0|1,"derive_seed(training_seed,dataset,model_init)",1,5,1,1,0
+Cho2017,A,6,0|1,"derive_seed(training_seed,dataset,model_init)",1,6,1,1,0
+Cho2017,B,5,0|1,"derive_seed(training_seed,dataset,model_init)",1,5,1,1,0
+Cho2017,B,6,0|1,"derive_seed(training_seed,dataset,model_init)",1,6,1,1,0
+PhysionetMI,A,5,0|1,"derive_seed(training_seed,dataset,model_init)",1,5,1,1,0
+PhysionetMI,A,6,0|1,"derive_seed(training_seed,dataset,model_init)",1,6,1,1,0
+PhysionetMI,B,5,0|1,"derive_seed(training_seed,dataset,model_init)",1,5,1,1,0
+PhysionetMI,B,6,0|1,"derive_seed(training_seed,dataset,model_init)",1,6,1,1,0

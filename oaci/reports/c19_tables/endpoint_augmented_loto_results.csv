@@ -1,0 +1,4 @@
+regime,n_used,n_endpoint_estimable,n_features,loto_auc,loso_auc,beats_permutation,meets_margin,passes
+S0_full_support,621,621,18,0.5531505986137366,0.5254043268220961,True,True,True
+S2_rare_cells,621,621,18,0.5343205208989708,0.5293530770846461,False,True,False
+S3_nonestimable_cells,621,621,18,0.5302982566687671,0.5428061331653014,True,True,True

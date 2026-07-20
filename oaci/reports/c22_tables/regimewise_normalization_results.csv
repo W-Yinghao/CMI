@@ -1,0 +1,3 @@
+mode,target_normalization_recovers,pooled_none,best_target_normalized_pooled
+in_regime,True,0.5431489798181415,0.648321551341761
+cross_regime,True,0.5184367203093813,0.6275958239770459

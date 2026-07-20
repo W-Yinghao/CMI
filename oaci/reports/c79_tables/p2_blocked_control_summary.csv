@@ -1,0 +1,7 @@
+null,path,kernel,bandwidth_factor,statistic,observed,null_mean,null_p95,uncorrected_p,global_family_max_stat_p,bandwidth_selected_inside_null,null_replicates
+target_block_permutation,target_unlabeled,laplacian,1.0,centered_hsic,0.10952463346637258,0.08499566330567437,0.09553010812076332,0.002,0.002,1,499
+checkpoint_block_permutation,target_unlabeled,laplacian,1.0,centered_hsic,0.10952463346637258,0.0514556436184409,0.057049782776460924,0.002,0.002,1,499
+trajectory_preserving_permutation,target_unlabeled,laplacian,1.0,centered_hsic,0.10952463346637258,0.05168363841042357,0.0579354566879505,0.002,0.002,1,499
+candidate_within_target_regime_permutation,target_unlabeled,laplacian,1.0,centered_hsic,0.10952463346637258,0.04997315671121968,0.05716801434741038,0.002,0.002,1,499
+identity_only_matched_null,target_unlabeled,laplacian,1.0,centered_hsic,0.10952463346637258,0.10434361091751877,0.11079149179896161,0.09,0.092,1,499
+nested_bandwidth_null,target_unlabeled,laplacian,1.0,centered_hsic,0.10952463346637258,0.05182071711971619,0.05791348702705253,0.002,0.002,1,499

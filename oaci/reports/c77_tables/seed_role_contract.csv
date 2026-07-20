@@ -1,0 +1,3 @@
+seed,role,confirmation_claim_allowed,may_change_seed4_protocol,access_in_C77,execution_authorized,may_change_protocol_after_first_access
+3,instrumentation_pilot_and_protocol_debug,0,1,0,0,
+4,locked_confirmation,1,,0,0,0

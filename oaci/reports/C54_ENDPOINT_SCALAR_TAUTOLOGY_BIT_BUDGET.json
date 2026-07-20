@@ -1,0 +1,170 @@
+{
+  "artifact_hygiene": [
+    {
+      "check": "config_hash_unchanged",
+      "passed": true
+    },
+    {
+      "check": "c53_identity_replay_passed",
+      "passed": true
+    },
+    {
+      "check": "target_joint_margin_marked_same_label_oracle",
+      "passed": true
+    },
+    {
+      "check": "same_label_not_split_label",
+      "passed": true
+    },
+    {
+      "check": "no_training_no_gpu_no_reinference",
+      "passed": true
+    },
+    {
+      "check": "no_bnci2014_004_no_seeds_3_4",
+      "passed": true
+    },
+    {
+      "check": "target_label_fields_unavailable_at_selection_time",
+      "passed": true
+    },
+    {
+      "check": "target_labels_diagnostic_only",
+      "passed": true
+    },
+    {
+      "check": "no_selection_artifact",
+      "passed": true
+    },
+    {
+      "check": "compact_json_no_row_level_payload",
+      "passed": true
+    }
+  ],
+  "best_endpoint_scalar": {
+    "available_at_selection_time": false,
+    "closed_fraction_vs_c53_gap": 1.0,
+    "hit": 0.9444444444444444,
+    "name": "target_joint_margin_raw:high",
+    "same_label_derived": true,
+    "semantic_class": "S5_same_label_oracle_margin",
+    "target_label_derived": true
+  },
+  "bit_budget": {
+    "binary_sufficient": true,
+    "minimal_bits_for_90pct_gap_closure": 1,
+    "minimal_bits_for_cell_close_count_ge_114": 1,
+    "minimal_bits_for_hit_ge_0_90": 1
+  },
+  "c53_replay": {
+    "best_key_only_hit": 0.4876543209876543,
+    "best_scalar_field": "target_joint_margin_raw:high",
+    "best_strict_source_hit": 0.5061728395061729,
+    "c52_trajectory_diagnostic_hit": 0.8127572016460904,
+    "c53_best_scalar_endpoint_hit": 0.9444444444444444,
+    "random_tie_hit": 0.429723378036041
+  },
+  "component_ablation": {
+    "best_single_endpoint_component": "target_bacc_delta:high",
+    "best_single_endpoint_component_hit": 0.9259259259259259,
+    "joint_margin_dominates_components": true
+  },
+  "config_hash": "664007686afb520f",
+  "decision": {
+    "artifact_or_null_like": false,
+    "best_cross_cell_transfer_hit": 0.7037037037037037,
+    "best_single_endpoint_component": "target_bacc_delta:high",
+    "best_single_endpoint_component_hit": 0.9259259259259259,
+    "binary_threshold_sufficient": true,
+    "direct_joint_label_tautology": true,
+    "primary": "C54-A_direct_joint_endpoint_tautology",
+    "same_cell_minus_best_transfer_gap": 0.2407407407407407,
+    "secondary": [
+      "C54-S1_nontransferable_cell_local_endpoint_content",
+      "C54-S2_component_endpoint_asymmetry",
+      "C54-S3_joint_margin_dominates_components",
+      "C54-S4_binary_threshold_already_sufficient",
+      "C54-S5_transfer_partially_but_not_fully_closes",
+      "C54-S6_no_split_label_budget_available"
+    ]
+  },
+  "diagnostic_only_non_deployable": true,
+  "inherits_from": [
+    "C49",
+    "C50",
+    "C51",
+    "C52",
+    "C53"
+  ],
+  "milestone": "C54",
+  "n_candidate_rows": 3804,
+  "n_trajectories": 162,
+  "nulls": {
+    "cell_preserving_permutation_mean": 0.4296682098765432,
+    "observed_minus_null_mean": 0.5147762345679012,
+    "percentile": 1.0
+  },
+  "red_team": [
+    {
+      "check": "c53_identity_replay",
+      "finding": "C54 replays C53 best key-only, C52 diagnostic, best scalar, field identity, and cell count.",
+      "passed": 1
+    },
+    {
+      "check": "same_label_oracle_flagged",
+      "finding": "target_joint_margin_raw:high is classified as same-label endpoint oracle content.",
+      "passed": 1
+    },
+    {
+      "check": "binary_endpoint_bit_sufficient",
+      "finding": "The sign bit of target_joint_margin_raw closes the C53 scalar gap.",
+      "passed": 1
+    },
+    {
+      "check": "null_controls_pass",
+      "finding": "Same-cell scalar success exceeds cell-preserving scalar and label nulls.",
+      "passed": 1
+    },
+    {
+      "check": "transfer_not_full_closure",
+      "finding": "Cross-cell endpoint templates remain below same-cell endpoint scalar content.",
+      "passed": 1
+    },
+    {
+      "check": "split_label_boundary_unresolved",
+      "finding": "No per-trial target prediction/label cache is available; no split-label sufficiency is claimed.",
+      "passed": 1
+    },
+    {
+      "check": "target_label_fields_unavailable_at_selection_time",
+      "finding": "Target endpoint scalars are marked target-label-derived and unavailable at selection time.",
+      "passed": 1
+    },
+    {
+      "check": "no_selection_artifact",
+      "finding": "C54 emits only diagnostic inventory, curves, nulls, and ledgers.",
+      "passed": 1
+    }
+  ],
+  "split_label_budget_available": false,
+  "split_label_unavailable_reason": "required per-trial target prediction/label cache unavailable",
+  "table_row_counts": {
+    "c53_replay_identity": 8,
+    "endpoint_bit_budget_curve": 76,
+    "endpoint_component_ablation": 11,
+    "endpoint_label_null_summary": 7,
+    "endpoint_oracle_cell_ledger": 162,
+    "endpoint_scalar_inventory": 20,
+    "endpoint_tautology_distance": 19,
+    "endpoint_transfer_cell_ledger": 972,
+    "endpoint_transfer_template_summary": 6,
+    "no_selector_artifact_gate": 10,
+    "red_team_verification": 8
+  },
+  "transfer": {
+    "best_cross_cell_transfer_hit": 0.7037037037037037,
+    "same_cell_hit": 0.9444444444444444,
+    "same_cell_minus_transfer_gap": 0.2407407407407407,
+    "transfer_fully_reproduces_same_cell": false
+  }
+}

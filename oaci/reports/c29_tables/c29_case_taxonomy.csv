@@ -1,0 +1,2 @@
+primary_case,established,destroyers,interpretation
+R2_effective_logit_bias_from_target_representation,R2_effective_logit_bias_from_target_representation;R3_target_representation_shift_drives_offset;R6_source_representation_tracks_source_error_only,effective_mean_removed;global_scale_removed;source_mean_centered_projection,"the offset-carrying effective class bias is an EFFECTIVE logit bias induced by the target representation projection mean(W.z), NOT the parameter head-bias b."

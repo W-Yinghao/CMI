@@ -1,0 +1,4 @@
+comparator,same_total_budget,class_known_before_query,without_replacement,primary,fairness_status
+P0,1,0,1,1,PRIMARY_FAIR
+P1,1,1,1,0,SECONDARY_CLASS_AWARE
+O1,0,1,1,0,EVALUATION_CEILING_ONLY

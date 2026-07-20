@@ -1,0 +1,2 @@
+repair_protocol_commit,repair_protocol_sha256,failed_job_id,replacement_job_id,root_cause,repair,training,forward,GPU,target_labels,target_metrics,original_locked_collector_unchanged,status
+f0d49c2ff038c91779d7d580e8562068b1ad0706,60c4c4f2a9a78e7d68af995a6319989c0d9cb46f331d9af54260f3d7e76b508e,893052,893055,c74_cache descriptor ABI uses row_count; collector requested rows,map descriptor row_count to compact table rows without touching payloads,0,0,0,0,0,1,closed

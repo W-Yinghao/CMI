@@ -1,0 +1,66 @@
+{
+  "authorization": {
+    "failed_authorization_consumed": true,
+    "fresh_direct_C84C_authorization_required_after_new_lock": true,
+    "historical_authorization_reusable": false,
+    "shortest_future_statement": "\u6388\u6743 C84C"
+  },
+  "base": {
+    "C84C_V2_lock_commit": "270fbb0d9f47f9bf6a2888ee58fd7ca6eadff0ea",
+    "C84C_V2_lock_sha256": "2e38dcd63c02a887b1dcf7eaa26749709dbfb5187373de7808efae21afb0285b",
+    "C84R2_repair_protocol_sha256": "ff7c01f1760aaa19f2019672ad5426c8c28eba6c7071cd3b78b39bfe69dc8874",
+    "canary_protocol_V3_sha256": "34cf9e9daca2578ed22c64345e014c0b9fa08b31c4c04939ba13c112c5f57dac",
+    "failed_attempt_job": 895366,
+    "failed_attempt_manifest_sha256": "9506941f8d5fcb21ca9625f61359d5903572ee41080b2f2cadef733fff5740d3"
+  },
+  "epistemic_status": {
+    "designed_after_engineering_failure": true,
+    "real_EEG_access_occurred": true,
+    "source_labels_read": true,
+    "target_scientific_outcome_access_occurred": false,
+    "target_y_access_occurred": false
+  },
+  "failure": {
+    "complete_units": 0,
+    "error_type": "C84CCanaryV2Error",
+    "observed_Wz_plus_b_max_abs_error": 2.86102294921875e-06,
+    "repeat_logits_max_abs_error": 0.0,
+    "repeat_z_max_abs_error": 0.0,
+    "softmax_max_abs_error": 0.0,
+    "stage": "training_and_instrumentation:Lee2019_MI"
+  },
+  "forbidden": {
+    "C84F_or_C84S_execution_or_lock": true,
+    "reuse_failed_partial_artifacts": true,
+    "same_label_oracle": true,
+    "scientific_metric_or_threshold_change": true,
+    "silent_rerun": true,
+    "target_outcome_driven_decision": true
+  },
+  "milestone": "C84R3",
+  "repair": {
+    "candidate_IDs_changed": false,
+    "data_views_changed": false,
+    "linear_reconstruction_abs_tolerance": 1e-05,
+    "model_or_training_changed": false,
+    "new_external_content_addressed_root_required": true,
+    "new_scope_specific_execution_lock_required": true,
+    "scientific_registry_changed": false,
+    "softmax_repeat_logits_repeat_z_abs_tolerance": 1e-06,
+    "source_subjects_targets_channels_epochs_changed": false,
+    "tolerance_scope": "float32_1040_term_z_classifier_linear_reconstruction_only"
+  },
+  "required_validation": {
+    "observed_2_861e_6_fixture_passes": true,
+    "perturbation_above_1e_5_fails": true,
+    "persisted_numpy_reconstruction_uses_same_linear_tolerance": true,
+    "strict_identity_checks_remain_1e_6": true,
+    "synthetic_and_full_regressions_required": true
+  },
+  "retry": {
+    "failed_root_preserved": true,
+    "retrain_all_243_units": true,
+    "reuse_optimizer_or_checkpoint": false
+  },
+  "schema_version": "c84r3_float32_linear_replay_repair_protocol_v1"
+}

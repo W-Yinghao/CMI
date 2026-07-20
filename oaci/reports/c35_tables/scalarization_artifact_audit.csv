@@ -1,0 +1,13 @@
+pair_id,seed,target,level,regime,fraction_weights_alt_beats_selected,utility_cone_category,mean_regret_over_simplex,min_regret_over_simplex,max_regret_over_simplex
+0|5|1|S0_full_support|nearest_continuous_better|16|17,0,5,1,S0_full_support,0.03896103896103896,narrow_scalarization_regret,-0.09062725148567878,-0.2591237649360685,0.015625000000000056
+1|4|0|S0_full_support|nearest_continuous_better|17|16,1,4,0,S0_full_support,0.07792207792207792,narrow_scalarization_regret,-0.009034963067622645,-0.01929291190815796,0.005208333333333315
+1|4|1|S0_full_support|nearest_continuous_better|22|14,1,4,1,S0_full_support,0.05194805194805195,narrow_scalarization_regret,-0.012410882484527317,-0.02277633083590125,0.00520833333333337
+2|5|1|S0_full_support|nearest_continuous_better|16|13,2,5,1,S0_full_support,0.1774891774891775,narrow_scalarization_regret,-0.05503709029832036,-0.1991519819318106,0.02015182214796063
+0|5|1|S2_rare_cells|nearest_continuous_better|16|17,0,5,1,S2_rare_cells,0.03896103896103896,narrow_scalarization_regret,-0.09062725148567878,-0.2591237649360685,0.015625000000000056
+1|4|0|S2_rare_cells|nearest_continuous_better|17|16,1,4,0,S2_rare_cells,0.07792207792207792,narrow_scalarization_regret,-0.009034963067622645,-0.01929291190815796,0.005208333333333315
+1|4|1|S2_rare_cells|nearest_continuous_better|22|14,1,4,1,S2_rare_cells,0.05194805194805195,narrow_scalarization_regret,-0.012410882484527317,-0.02277633083590125,0.00520833333333337
+2|5|1|S2_rare_cells|nearest_continuous_better|16|13,2,5,1,S2_rare_cells,0.1774891774891775,narrow_scalarization_regret,-0.05503709029832036,-0.1991519819318106,0.02015182214796063
+0|5|1|S3_nonestimable_cells|nearest_continuous_better|16|17,0,5,1,S3_nonestimable_cells,0.03896103896103896,narrow_scalarization_regret,-0.09062725148567878,-0.2591237649360685,0.015625000000000056
+1|4|0|S3_nonestimable_cells|nearest_continuous_better|17|16,1,4,0,S3_nonestimable_cells,0.07792207792207792,narrow_scalarization_regret,-0.009034963067622645,-0.01929291190815796,0.005208333333333315
+1|4|1|S3_nonestimable_cells|nearest_continuous_better|22|14,1,4,1,S3_nonestimable_cells,0.05194805194805195,narrow_scalarization_regret,-0.012410882484527317,-0.02277633083590125,0.00520833333333337
+2|5|1|S3_nonestimable_cells|nearest_continuous_better|16|13,2,5,1,S3_nonestimable_cells,0.1774891774891775,narrow_scalarization_regret,-0.05503709029832036,-0.1991519819318106,0.02015182214796063

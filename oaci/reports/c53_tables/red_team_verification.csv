@@ -1,0 +1,9 @@
+check,passed,finding
+c52_replay_exact,1,C53 replays C52's key-only and label-diagnostic cell counts before new analysis.
+key_only_not_conflated_with_label_content,1,Cell prior/key-only content remains insufficient while candidate-specific scalar label content closes.
+same_label_guard,1,"Scalar endpoint closure is reported as same-label diagnostic content, not split-label sufficiency."
+nulls_do_not_explain_scalar_closure,1,Candidate-specific scalar endpoint closure exceeds key-preserving shuffle controls.
+class_conditioned_not_overclaimed,1,Candidate-level class-conditioned label content is marked unavailable rather than inferred from aggregate tables.
+transfer_not_full_closure,1,Cross-cell transfer is weaker than same-cell scalar endpoint label content.
+split_label_unavailable_documented,1,"Per-trial target prediction/label cache is unavailable, so split-label budget claims are not made."
+no_selection_artifact,1,C53 emits only diagnostic tables and no selected-candidate fields.

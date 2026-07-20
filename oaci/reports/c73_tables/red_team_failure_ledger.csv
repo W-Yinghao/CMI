@@ -1,0 +1,26 @@
+gate,failed,finding
+protocol_sha_and_pre_outcome_commit,0,C73 protocol SHA and separate pre-outcome commit replay.
+protocol_timing_chain,0,"Lock, commit, earliest persisted execution, and current recompute are monotonically ordered."
+retrospective_status_explicit,0,All frozen outcomes were consumed before C73; no independent-confirmation label.
+C72_provenance_and_metric_replay,0,"C72 protocol, caches, metrics, and prior repairs replay independently."
+all_120_orders,0,Each registered budget/endpoint analysis contains all 120 component orders.
+order_value_accounting,0,Every sequential order closes to the same registered value difference.
+strict_dominance_rule,0,Dominance flags reproduce the registered CI and 90-percent order rule.
+residual_construct_language,0,A failed construct gate retains unexplained-residual terminology.
+H3_SESOI_not_pvalue,0,"Shared calibration uses SESOI intervals, not a nonsignificant-p shortcut."
+H4_identity_separated_from_origin,0,Algebraic crossings are exact and do not identify residual origin.
+H5_local_locked_no_T3_tuning,0,Symmetric alpha audit preserves the C72 zero lock and does not tune on T3-HO.
+candidate_count_confounding,0,"Raw M, effective multiplicity, and top-gap adjustments are all emitted."
+hierarchical_not_row_IID,0,"Target, checkpoint, trial-ID, crossed, and leave-group inference do not treat cache rows as IID."
+theory_scope,0,Repaired bounds retain finite-population/model-proxy scope.
+synthetic_controls,0,Locked aggregate synthetic grid passes identities without raw payload.
+dummy_ABI_only,0,Representation/Wz readiness uses CPU dummy tensors only.
+Wz_reconstruction_identity,0,Dummy logits reconstruct as Wz+b within tolerance.
+no_forward_training_gpu,0,"No real EEG forward, re-inference, training, GPU, or real EEG tensor load."
+no_forbidden_data_or_control,0,No reserved data/seed or control artifact.
+raw_cache_external,0,T2/T3-HO caches remain external and read-only.
+risk_register_no_blocker,0,No open blocking risk.
+schema_validation,0,Every C73 table is nonempty and parseable.
+large_artifact_scan,0,Every listed C73 artifact is below 50 MB.
+forbidden_claim_scan,0,No affirmative forbidden claim.
+tests_green,0,"Focused, slice, C23-C73, and full suites are recorded green."

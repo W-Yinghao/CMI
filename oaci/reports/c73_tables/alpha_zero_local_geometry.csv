@@ -1,0 +1,10 @@
+stage,metric,alpha_step,central_derivative_at_zero,central_curvature_at_zero,zero_is_local_maximum,selected_alpha,C72_locked_alpha,material_nonzero_gain_found
+C72_T2_lock,selected_alpha,,,,0,-0.2,0.0,0
+T2,mean_pairwise_accuracy,0.05,-0.06843800322061222,-2.65700483091793,0,,,
+T2,mean_top3,0.05,0.0,0.0,0,,,
+T2,mean_coverage,0.05,-0.5555555555555558,-22.22222222222223,0,,,
+T2,mean_regret,0.05,0.024163497084916767,3.564975759230086,0,,,
+T3-HO,mean_pairwise_accuracy,0.05,-0.01627167240124794,0.10885664753472743,0,,,
+T3-HO,mean_top3,0.05,-0.2020202020202022,8.080808080808087,0,,,
+T3-HO,mean_coverage,0.05,0.0,0.0,0,,,
+T3-HO,mean_regret,0.05,-0.0006172958469127798,0.02469183387651119,0,,,

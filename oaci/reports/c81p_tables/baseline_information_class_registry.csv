@@ -1,0 +1,35 @@
+method_id,method,information_class,zero_target_labels,construction_labels,evaluation_labels_for_selection,oracle_selector,primary_or_secondary
+B0,Uniform random candidate,I0,1,0,0,0,FEASIBLE_PRIMARY
+B1,ERM anchor,I0,1,0,0,0,FEASIBLE_PRIMARY
+B2,Final OACI checkpoint,I0,1,0,0,0,FEASIBLE_SECONDARY
+B3,Final SRC checkpoint,I0,1,0,0,0,FEASIBLE_SECONDARY
+B4O,OACI cadence midpoint,I0,1,0,0,0,FEASIBLE_SECONDARY
+B4S,SRC cadence midpoint,I0,1,0,0,0,FEASIBLE_SECONDARY
+B5,Oracle-best candidate,IOr,0,0,0,1,CEILING_ONLY_NOT_SELECTOR
+S1,Source-validation balanced accuracy,IS,1,0,0,0,FEASIBLE_PRIMARY
+S2,Source-validation negative NLL,IS,1,0,0,0,FEASIBLE_SECONDARY
+S3,Source-LODO,IS,1,0,0,0,EXCLUDED_INPUT_UNAVAILABLE
+S4,Historical strict-source F2 candidate,IS,1,0,0,0,EXCLUDED_INPUT_UNAVAILABLE
+U1,Mean maximum softmax probability,IU,1,0,0,0,FEASIBLE_SECONDARY
+U2,Negative predictive entropy,IU,1,0,0,0,FEASIBLE_SECONDARY
+U3,Negative average energy,IU,1,0,0,0,FEASIBLE_SECONDARY
+U4,Information maximization,IU,1,0,0,0,FEASIBLE_SECONDARY
+U5,Normalized nuclear norm,IU,1,0,0,0,FEASIBLE_PRIMARY
+U6,Difference of Confidence,ISU,1,0,0,0,FEASIBLE_SECONDARY
+U7,Average Thresholded Confidence MC,ISU,1,0,0,0,FEASIBLE_PRIMARY
+U8,Importance-weighted cross-validation,ISU,1,0,0,0,EXCLUDED_INPUT_UNAVAILABLE
+U9,Deep Embedded Validation,ISU,1,0,0,0,EXCLUDED_INPUT_UNAVAILABLE
+U10,Importance-weighted group accuracy estimation,ISU,1,0,0,0,EXCLUDED_INPUT_UNAVAILABLE
+U11,MaNo p4,IU,1,0,0,0,FEASIBLE_PRIMARY
+U12,Confidence Optimal Transport,ISU,1,0,0,0,FEASIBLE_SECONDARY
+U13,Confidence Optimal Transport with Thresholding,ISU,1,0,0,0,FEASIBLE_PRIMARY
+U14,Soft Neighborhood Density,IU,1,0,0,0,FEASIBLE_PRIMARY
+U15,Agreement-on-the-Line,ISU,1,0,0,0,FEASIBLE_PRIMARY
+U16,Accuracy-on-the-Line diagnostic,DIAGNOSTIC,0,0,0,0,FEASIBLE_DIAGNOSTIC_ONLY
+L1,Frozen Q0 B=1,ILc,0,1,0,0,FEASIBLE_PRIMARY_FIXED_COMPARATOR
+L2,Frozen Q0 B=2,ILc,0,1,0,0,FEASIBLE_SECONDARY_FIXED_COMPARATOR
+L3,Frozen Q0 B=4,ILc,0,1,0,0,FEASIBLE_SECONDARY_FIXED_COMPARATOR
+L4,Frozen Q0 B=8,ILc,0,1,0,0,FEASIBLE_SECONDARY_FIXED_COMPARATOR
+L5,Frozen Q0 B=16,ILc,0,1,0,0,FEASIBLE_SECONDARY_FIXED_COMPARATOR
+L6,Frozen Q0 B=32,ILc,0,1,0,0,FEASIBLE_SECONDARY_FIXED_COMPARATOR
+L7,Frozen Q0 FULL,ILc,0,1,0,0,FEASIBLE_PRIMARY_FIXED_COMPARATOR

@@ -1,0 +1,5 @@
+held_out_regime,deletion,passes,loto_auc,per_target_spread
+S4_missing_cells,True,False,0.49987774451097805,0.16502005635399464
+S5_block_class_by_domain,False,False,0.5114446107784432,0.1937044715369839
+S6_boundary_aligned_mask,True,True,0.5318413173652694,0.18248782467532465
+S7_random_matched_mask,True,True,0.5359505988023953,0.18756957328385904

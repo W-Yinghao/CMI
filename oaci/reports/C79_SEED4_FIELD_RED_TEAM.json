@@ -1,0 +1,18 @@
+{
+  "all_gates_passed": true,
+  "cadence_cells_passed": 36,
+  "checkpoint_state_replay_passed": 1458,
+  "engineering_units": 1458,
+  "external_payload_bytes": 30109676522,
+  "genealogy_cells_passed": 36,
+  "instrumentation_failed_units": 0,
+  "label_views_created": false,
+  "optimizer_state_replay_passed": 1458,
+  "primary_units": 1296,
+  "same_label_oracle_created": false,
+  "schema_version": "c79e_seed4_field_freeze_audit_v1",
+  "scientific_outcome_reads_before_freeze": 0,
+  "target4_units": 162,
+  "target_training_label_reads": 0,
+  "target_training_rows": 0
+}

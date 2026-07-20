@@ -1,0 +1,441 @@
+{
+  "authorization_consumption_root": "/projects/EEG-foundation-model/yinghao/oaci-c85v-authorization-consumption-v1",
+  "authorization_record_path": "oaci/reports/C85V_PI_AUTHORIZATION_RECORD.json",
+  "authorization_schema": "c85v_direct_pi_authorization_record_v1",
+  "authorized": false,
+  "bound_external_objects": [
+    {
+      "object": "C85T_RESULT.json",
+      "path": "/projects/EEG-foundation-model/yinghao/oaci-c85t-synthetic-v3/c85t-v3-3ee51a994969ebaa-9ec012bedbf24f1f/C85T_RESULT.json",
+      "role": "C85T_CONTROL",
+      "sha256": "ecaff65e942dbb81d93a3bdb61589fa9f1f6590f7188947688e6b30617140cec",
+      "size_bytes": 3144
+    },
+    {
+      "object": "C85T_RESULT_ARTIFACT_MANIFEST.json",
+      "path": "/projects/EEG-foundation-model/yinghao/oaci-c85t-synthetic-v3/c85t-v3-3ee51a994969ebaa-9ec012bedbf24f1f/C85T_RESULT_ARTIFACT_MANIFEST.json",
+      "role": "C85T_CONTROL",
+      "sha256": "a727beebcb45598ea0f92f37bed8ef32369b1c793ecad9efc2f5d9941bd5bb0e",
+      "size_bytes": 3705
+    },
+    {
+      "object": "C85T_V3_SEMANTIC_REPLAY_RECEIPT.json",
+      "path": "/projects/EEG-foundation-model/yinghao/oaci-c85t-synthetic-v3/c85t-v3-3ee51a994969ebaa-9ec012bedbf24f1f/C85T_V3_SEMANTIC_REPLAY_RECEIPT.json",
+      "role": "C85T_CONTROL",
+      "sha256": "735edf13a24c074cb3c18e56d168ebd905b3a7bcb29e3c273b3652bb1b7dcc6e",
+      "size_bytes": 868
+    },
+    {
+      "object": "C85T_V3_COMPLETION_RECEIPT.json",
+      "path": "/projects/EEG-foundation-model/yinghao/oaci-c85t-synthetic-v3/c85t-v3-3ee51a994969ebaa-9ec012bedbf24f1f/C85T_V3_COMPLETION_RECEIPT.json",
+      "role": "C85T_CONTROL",
+      "sha256": "418f74e4c3cf60847b11bf18a890ffebf870ed8adee1a75d304b01075646e65d",
+      "size_bytes": 1281
+    },
+    {
+      "object": "T1",
+      "path": "/projects/EEG-foundation-model/yinghao/oaci-c85t-synthetic-v3/c85t-v3-3ee51a994969ebaa-9ec012bedbf24f1f/c85t_proof_candidates/T1_blackwell_monotonicity.md",
+      "role": "FROZEN_PROOF_CANDIDATE",
+      "sha256": "57ef99b65846ff62dc1471de311433c8a605774721bd0dbaf89c8a1bd0de98cf",
+      "size_bytes": 1461
+    },
+    {
+      "object": "T2",
+      "path": "/projects/EEG-foundation-model/yinghao/oaci-c85t-synthetic-v3/c85t-v3-3ee51a994969ebaa-9ec012bedbf24f1f/c85t_proof_candidates/T2_restricted_policy_counterexamples.md",
+      "role": "FROZEN_PROOF_CANDIDATE",
+      "sha256": "417a7496bebff41a8ca1c0240c5a5c7d690124b8fe33c49194d4c51458f2b6fc",
+      "size_bytes": 1350
+    },
+    {
+      "object": "T3",
+      "path": "/projects/EEG-foundation-model/yinghao/oaci-c85t-synthetic-v3/c85t-v3-3ee51a994969ebaa-9ec012bedbf24f1f/c85t_proof_candidates/T3_policy_collapse.md",
+      "role": "FROZEN_PROOF_CANDIDATE",
+      "sha256": "cdeda8e9feae09a13617dabc82735633fe39affe7fcd7b9a3aca628e957088d1",
+      "size_bytes": 1391
+    },
+    {
+      "object": "T4",
+      "path": "/projects/EEG-foundation-model/yinghao/oaci-c85t-synthetic-v3/c85t-v3-3ee51a994969ebaa-9ec012bedbf24f1f/c85t_proof_candidates/T4_two_state_lecam_regret_bound.md",
+      "role": "FROZEN_PROOF_CANDIDATE",
+      "sha256": "9238f914c1bb5efbf5980050b02e0e72e20c934ea30f1287967f2ecc70755d03",
+      "size_bytes": 1519
+    },
+    {
+      "object": "T5",
+      "path": "/projects/EEG-foundation-model/yinghao/oaci-c85t-synthetic-v3/c85t-v3-3ee51a994969ebaa-9ec012bedbf24f1f/c85t_proof_candidates/T5_fano_extension.md",
+      "role": "FROZEN_PROOF_CANDIDATE",
+      "sha256": "a6a38358dc3bf1bc2b39e1fda8bdece0a2a416b7627bb16bd671047724d90188",
+      "size_bytes": 1317
+    },
+    {
+      "object": "T6",
+      "path": "/projects/EEG-foundation-model/yinghao/oaci-c85t-synthetic-v3/c85t-v3-3ee51a994969ebaa-9ec012bedbf24f1f/c85t_proof_candidates/T6_mean_tail_counterexample.md",
+      "role": "FROZEN_PROOF_CANDIDATE",
+      "sha256": "d9325fab96d634b5164a3528c0bb9da484d4b20714116027f5bb39d5826b917f",
+      "size_bytes": 1361
+    },
+    {
+      "object": "T7",
+      "path": "/projects/EEG-foundation-model/yinghao/oaci-c85t-synthetic-v3/c85t-v3-3ee51a994969ebaa-9ec012bedbf24f1f/c85t_proof_candidates/T7_near_optimal_union_bound.md",
+      "role": "FROZEN_PROOF_CANDIDATE",
+      "sha256": "1316236128ae0389f681459ff28dfa99a248b3ad73357208821bb3220476a857",
+      "size_bytes": 1406
+    },
+    {
+      "object": "exact_scenario_results.json",
+      "path": "/projects/EEG-foundation-model/yinghao/oaci-c85t-synthetic-v3/c85t-v3-3ee51a994969ebaa-9ec012bedbf24f1f/exact_scenario_results.json",
+      "role": "EXACT_FINITE_REVIEW_INPUT",
+      "sha256": "dde13367e7c43403d54e196a250dc7c6b5692f7fc0323b1ceb015d0aa0e39d0f",
+      "size_bytes": 1861
+    },
+    {
+      "object": "proof_candidate_dispositions.csv",
+      "path": "/projects/EEG-foundation-model/yinghao/oaci-c85t-synthetic-v3/c85t-v3-3ee51a994969ebaa-9ec012bedbf24f1f/proof_candidate_dispositions.csv",
+      "role": "CANDIDATE_DISPOSITION_REGISTRY",
+      "sha256": "17a279f0f240ab2316c5371f08be0727cd58a992c31fe6bd99a1509c5db4601e",
+      "size_bytes": 1114
+    }
+  ],
+  "bound_repository_objects": [
+    {
+      "git_blob": "8a21512f3be66858b745c3a54c72a7cf73336b26",
+      "path": "oaci/multidataset/c84r_regression_suite.py",
+      "sha256": "aeae6e5d9ae638bfd0e6a5ec0c6c15bde3db72060a5a1e60269759596770df47",
+      "size_bytes": 3217
+    },
+    {
+      "git_blob": "af9768cb203ea0d1b04f58816de7c1ae0f642fa0",
+      "path": "oaci/reports/C85R_SYNTHETIC_CONTRACT_SEMANTIC_REPAIR_PROTOCOL.json",
+      "sha256": "e37bb444fdd174ba4ca1f95e91d9193378f11dd0ef2aeac3e03cbf6249a34b68",
+      "size_bytes": 7893
+    },
+    {
+      "git_blob": "137f9062f897cf4d1dc4c96c13b3d8a0012dfb40",
+      "path": "oaci/reports/C85TR1_EXECUTION_GUARD_RNG_PERSISTENCE_AND_PROOF_REVIEW_PROTOCOL.json",
+      "sha256": "9c0a7084a7ddd83ef96b8d7f95faf89138829729c0acc5c3d6baeb0ef87ab13d",
+      "size_bytes": 11317
+    },
+    {
+      "git_blob": "29b3d541f601ea397098f2dfc0d06f02d4ec6fc9",
+      "path": "oaci/reports/C85TR2_AUTHORIZATION_CERTIFICATE_ATOMIC_TRANSACTION_AND_RESULT_REPLAY_PROTOCOL.json",
+      "sha256": "f9a1db908f34818b7551c0d4f8de65fa7a11e71c41b8e5fe28824f042904a844",
+      "size_bytes": 14359
+    },
+    {
+      "git_blob": "b1a2bc19604a58032012010fc06c42d5c5e6487a",
+      "path": "oaci/reports/C85T_EXECUTION_LOCK_V3.json",
+      "sha256": "3ee51a994969ebaaad9c1228d52df76e5222284c38eadbc77a50ce6178cdc8a9",
+      "size_bytes": 38929
+    },
+    {
+      "git_blob": "cb12791e0606ae5997a59d44178e29846062deb7",
+      "path": "oaci/reports/C85T_EXECUTION_LOCK_V3.sha256",
+      "sha256": "0ab8f8c3f6623598cc36a5983fb86b68f478b255d81d0c76bde20955b36cbc79",
+      "size_bytes": 94
+    },
+    {
+      "git_blob": "0c17a838b08f40820574c133d1a93134b3aa81af",
+      "path": "oaci/reports/C85T_PROOF_AND_SYNTHETIC_EXECUTION_OPERATIONALIZATION_PROTOCOL.json",
+      "sha256": "6543d6ebbfccb8158f8f48a4fe6409c6243a708bbb0358d350932dd249e6b7c2",
+      "size_bytes": 16218
+    },
+    {
+      "git_blob": "fb1512b900463b4b2dd28c76676b871fb171069c",
+      "path": "oaci/reports/C85V_INDEPENDENT_PROOF_REVIEW_PROTOCOL.json",
+      "sha256": "4b622ee1dd2dda6f681a3cf60b16eda0d873dbbe4f1ee996e565bf037423c586",
+      "size_bytes": 13452
+    },
+    {
+      "git_blob": "fa7c8173346fdd8be447e6a5be29589df8a97c77",
+      "path": "oaci/reports/C85V_INDEPENDENT_PROOF_REVIEW_PROTOCOL.sha256",
+      "sha256": "91415d308826e54b656110fe088e229a71646cab470ca94bb27997f79676ce3b",
+      "size_bytes": 110
+    },
+    {
+      "git_blob": "1f7a23046bc46a079715b28562a09752ef99b03c",
+      "path": "oaci/reports/C85V_PROTOCOL_TIMING_AUDIT.md",
+      "sha256": "13f4afdc7cb9e09aeaf25dae446ff6f2f39b5b1cecb853d45b2fc627358c3888",
+      "size_bytes": 2789
+    },
+    {
+      "git_blob": "403f437fc5ba493c177e559982ba671aa2c0898b",
+      "path": "oaci/reports/C85_TPAMI_DECISION_THEORY_PROTOCOL.json",
+      "sha256": "af4c2cb35a6b6555d6c9ded3105eb7ad4f061ba237d3e8cc3ed6f5a18aede006",
+      "size_bytes": 9187
+    },
+    {
+      "git_blob": "1aa116166e0836df519a7a07c50f35b489b49827",
+      "path": "oaci/reports/c85p_tables/assumption_lattice.csv",
+      "sha256": "09430e5d3a36d58a66e63c7a54a651b3b3e00488bc4d0231aa6607e1799e345f",
+      "size_bytes": 783
+    },
+    {
+      "git_blob": "74ede139e5d1cddd1468c02743587b2232d696c1",
+      "path": "oaci/reports/c85p_tables/proof_obligation_registry.csv",
+      "sha256": "b24907687eb185adf0dbfdacd19a56594f4e9023c7c6bcb1807c7778862c52b3",
+      "size_bytes": 950
+    },
+    {
+      "git_blob": "d11b8ebccc0e5ee748d3edb05ac69e2c85580365",
+      "path": "oaci/reports/c85p_tables/theorem_registry.csv",
+      "sha256": "16977378b047fa9abea379682d00a139af7d5de311e900bdd16f96843f7f23ed",
+      "size_bytes": 2256
+    },
+    {
+      "git_blob": "e8f1f73c2dc92c27d99505dae0dce9372fffc5bf",
+      "path": "oaci/reports/c85r_tables/proof_obligation_precision_addendum.csv",
+      "sha256": "10b64d6f25f4e18ccfeb48299190a215543f8890ac1c495b0c3540f7394c54f8",
+      "size_bytes": 884
+    },
+    {
+      "git_blob": "889b467959fa50acbeee00de254b84344d13ff47",
+      "path": "oaci/reports/c85tr1_tables/C85T_C85V_stage_separation.csv",
+      "sha256": "12f9651f28d69d75b569caf18fea8e0e1e59b5c05a6cf14c7a5ccb1cca6a5107",
+      "size_bytes": 144
+    },
+    {
+      "git_blob": "3d2537922a7113d6dae0b5a52f212b2473efa569",
+      "path": "oaci/reports/c85vp_tables/c85t_identity_replay.csv",
+      "sha256": "ac46d237a8358d79711b0f26a14e85b08c726f046f7fedacd510939c99a19fa2",
+      "size_bytes": 3328
+    },
+    {
+      "git_blob": "49fa7f3f9f66163125d38fa7eac1cf617898077c",
+      "path": "oaci/reports/c85vp_tables/exact_adversarial_fixture_registry.csv",
+      "sha256": "d288a087f7beb81121cf23f95933d5c445d02492eea8779a90152fd00ec0d530",
+      "size_bytes": 277
+    },
+    {
+      "git_blob": "7071ad14923d71774a039369f0a2dbe3e1b9b3bc",
+      "path": "oaci/reports/c85vp_tables/failure_reason_ledger.csv",
+      "sha256": "75e00da813636a4b75ba4cd308538a97d91f46214de1fc21afa7b47cc67e7026",
+      "size_bytes": 387
+    },
+    {
+      "git_blob": "aee7a23ff0612da43d7449183565144a4ee200ac",
+      "path": "oaci/reports/c85vp_tables/implementation_isolation_audit.csv",
+      "sha256": "ab57614d4029eca991e885f0c09ded51d4ba5da528b9e2146eb2a41d56fc7409",
+      "size_bytes": 456
+    },
+    {
+      "git_blob": "e6f8d92fcfe945cee56fd6d03696165c7a4069ef",
+      "path": "oaci/reports/c85vp_tables/primary_literature_registry.csv",
+      "sha256": "7dbf2b6cab0d9f60c2d9a5091e6f1a0e9921b6dd900eaab7b33603f57e4ee9b2",
+      "size_bytes": 1875
+    },
+    {
+      "git_blob": "2e6d5d2ba11a4707266656687486b9edc82b00df",
+      "path": "oaci/reports/c85vp_tables/proof_candidate_identity_registry.csv",
+      "sha256": "42e7b46f57f0a5e7b683936617f7efb4fb78d4dd80c7e069e759f98b66ba3f96",
+      "size_bytes": 1104
+    },
+    {
+      "git_blob": "7c98dcd3119c798a75be045c41007a74548dab07",
+      "path": "oaci/reports/c85vp_tables/result_bundle_schema.csv",
+      "sha256": "94b4ed42f7ed00eccd00ec42492838535d7a61730a28b7313e2cafb90b13d649",
+      "size_bytes": 306
+    },
+    {
+      "git_blob": "2aa9184fe7aa0de59790be9fd760a26b7d716540",
+      "path": "oaci/reports/c85vp_tables/review_stage_contract.csv",
+      "sha256": "24f3d2a8e22757e7e84249527ac8af41fd932a108fd69f31fcfdc1e76ff32b94",
+      "size_bytes": 472
+    },
+    {
+      "git_blob": "c8674fcf372d8b68d00c163f3aca404feaf04c1b",
+      "path": "oaci/reports/c85vp_tables/risk_register.csv",
+      "sha256": "15ef36ceb9bcdc62d6e89f3ac305c7bb1360c97e8464404123376f2499d3e96e",
+      "size_bytes": 789
+    },
+    {
+      "git_blob": "01b96e48771fcc818cac2b9d325f941f500b3973",
+      "path": "oaci/reports/c85vp_tables/shadow_validation.csv",
+      "sha256": "c6acc0ea1ac4b42f8e0cf478ebb1e14adbe2bcc4b6252724bb428f9cffa7ba22",
+      "size_bytes": 380
+    },
+    {
+      "git_blob": "84bf848d83f0beec98975a777a0139127f719e74",
+      "path": "oaci/reports/c85vp_tables/theorem_review_obligations.csv",
+      "sha256": "9b7292f1227e6b67463ab7ada8d170f4680c5cc729b1b1c3e8b5b102b7bdb689",
+      "size_bytes": 1254
+    },
+    {
+      "git_blob": "be705281e2730b4a13e934851b45eed7ea40faa5",
+      "path": "oaci/reports/c85vp_tables/theorem_statement_registry.csv",
+      "sha256": "2721db7b46ad4a5cc933fb205cffa419f66c304b8e039d407d332bcda165cb10",
+      "size_bytes": 1413
+    },
+    {
+      "git_blob": "1f10caeb4ec568c37c8f30d683acaf92e8a52726",
+      "path": "oaci/reports/c85vp_tables/verdict_contract.csv",
+      "sha256": "763d6f68a84b2613bf5cc82054036a5b6e0a2d17195663fa66709dbc54a582f3",
+      "size_bytes": 591
+    },
+    {
+      "git_blob": "427fa1326ed0e656fb1c46afb217c224751c8f6a",
+      "path": "oaci/slurm_c85vp_regression.sh",
+      "sha256": "3fa389f433fdfb92ff2526fe2c948bc87c517fd3cb761130a44056c4f3cef7f4",
+      "size_bytes": 2155
+    },
+    {
+      "git_blob": "9e1d9dbab0e099b8cb2129fd825c00f21f9d21ec",
+      "path": "oaci/tests/c85vp_test_support.py",
+      "sha256": "d93c9825c7a11b473b0dff142a1d08b5302347a975fcad78d91b7d47cc6bad1a",
+      "size_bytes": 2956
+    },
+    {
+      "git_blob": "390d69a5ac51b5afd9b1d7c06ede90505b60f7d9",
+      "path": "oaci/tests/test_c85vp_execution_lock.py",
+      "sha256": "bf5694f84d6ea413c11f87fa6d254fe8d0d1f74faa37416d206c26f1d7261454",
+      "size_bytes": 9622
+    },
+    {
+      "git_blob": "fd03cb22874ae2554f77584c382802f2b526ad1f",
+      "path": "oaci/tests/test_c85vp_stage_isolation.py",
+      "sha256": "a29663e163168a3cf5c55c714f5f0087d8836f5bbf78f452a771bd1e2279ff7f",
+      "size_bytes": 5329
+    },
+    {
+      "git_blob": "12b2765dfeb2f0663977c54dc3ced36e717d20de",
+      "path": "oaci/tests/test_c85vp_theorem_contracts.py",
+      "sha256": "c40f591fffc3f635cf9104e0c270c291d00cfd0b8a7a3d534d9a77838bdcedf5",
+      "size_bytes": 4285
+    },
+    {
+      "git_blob": "94ca2fc2583807b5eecb9226dde334fc62f53a4f",
+      "path": "oaci/theory/c85v_adjudication.py",
+      "sha256": "82d70180e5342dd4bd8162a323dab0aeafe0e93c0f07b033f0f1fc52373848d7",
+      "size_bytes": 11155
+    },
+    {
+      "git_blob": "b4d8bd6c11fc1b797c83369497c15d509fd137b0",
+      "path": "oaci/theory/c85v_execute.py",
+      "sha256": "edcd73b8e758b6d4f2dd75d4fa703fe71941033a93100bee618518139f5fec11",
+      "size_bytes": 14702
+    },
+    {
+      "git_blob": "42f2175f4fea7238696d99da5785b9d9e2af2444",
+      "path": "oaci/theory/c85v_result_manifest.py",
+      "sha256": "d0ac42016a06a5f8b65c3a34db2dbdbff76ee9d44f1d4dfeda3148a03a24d735",
+      "size_bytes": 13035
+    },
+    {
+      "git_blob": "56cb8238a8ca694bd7b1739914d7b179f3668a31",
+      "path": "oaci/theory/c85v_stage_a_derivation.py",
+      "sha256": "277c880c03525921687f58b670f6f32cbdb1ce8b3c7b40d32a270ea37ed049c6",
+      "size_bytes": 16358
+    },
+    {
+      "git_blob": "b47470df97b057bcd4e11a894285e85da73c64df",
+      "path": "oaci/theory/c85v_stage_b_candidate_audit.py",
+      "sha256": "d3fabc1196e46ca14f950fd746b2e36164c6e6be9acc97e37fee77b7f41f8ce3",
+      "size_bytes": 15458
+    },
+    {
+      "git_blob": "16ff06b945a738534bc9684e9118c6fac9a3764d",
+      "path": "oaci/theory/c85v_statement_registry.py",
+      "sha256": "122977e56ec85b49e66c64b449eace1828784e34d626d78b0c4d4f33d0ac0beb",
+      "size_bytes": 7359
+    },
+    {
+      "git_blob": "21e8cabc1d3292241e6f171ce59198f8cc7ecae2",
+      "path": "oaci/theory/c85vp_readiness.py",
+      "sha256": "5b7dbcbfa73efd68d454494665cb479158074917ab575ef6868cc78a57dbacbf",
+      "size_bytes": 21355
+    }
+  ],
+  "created_at_utc": "2026-07-17T11:05:01Z",
+  "entrypoint": "python -m oaci.theory.c85v_execute run-locked --execution-lock <LOCK> --authorization-record <AUTHORIZATION> --output-root <BOUND_ROOT>",
+  "environment": {
+    "GPU": 0,
+    "monte_carlo": 0,
+    "prefix": "/home/infres/yinwang/anaconda3/envs/c84c-eeg2025-v3-exact",
+    "python": "3.13.7"
+  },
+  "forbidden": {
+    "C85E": true,
+    "C85T_candidate_generator_import": true,
+    "C85T_monte_carlo_dispatch": true,
+    "active_acquisition": true,
+    "manuscript_work": true,
+    "new_data_or_model_zoo": true,
+    "real_data": true
+  },
+  "frozen_c85t": {
+    "bundle_root": "/projects/EEG-foundation-model/yinghao/oaci-c85t-synthetic-v3/c85t-v3-3ee51a994969ebaa-9ec012bedbf24f1f",
+    "completion_receipt_sha256": "418f74e4c3cf60847b11bf18a890ffebf870ed8adee1a75d304b01075646e65d",
+    "formal_statuses": {
+      "T1": "OPEN",
+      "T2": "OPEN",
+      "T3": "OPEN",
+      "T4": "OPEN",
+      "T5": "OPEN",
+      "T6": "OPEN",
+      "T7": "OPEN"
+    },
+    "proof_candidate_count": 7,
+    "result_manifest_sha256": "a727beebcb45598ea0f92f37bed8ef32369b1c793ecad9efc2f5d9941bd5bb0e",
+    "result_sha256": "ecaff65e942dbb81d93a3bdb61589fa9f1f6590f7188947688e6b30617140cec",
+    "semantic_replay_sha256": "735edf13a24c074cb3c18e56d168ebd905b3a7bcb29e3c273b3652bb1b7dcc6e"
+  },
+  "future_direct_statement_exact": "\u6388\u6743 C85V",
+  "implementation_commit": "a0beda65ee7db2d0a68f9f04dc01af477c48cefb",
+  "milestone": "C85VP",
+  "output_root_policy": {
+    "basename": "c85v-{lock_sha16}-{authorization_id16}",
+    "exact_absolute_binding_required": true,
+    "parent": "/projects/EEG-foundation-model/yinghao/oaci-c85v-proof-review-v1"
+  },
+  "protocol_commit": "436d6ff6a3710cd9a3c75cf2f22d0306a10f2d40",
+  "protocol_sha256": "4b622ee1dd2dda6f681a3cf60b16eda0d873dbbe4f1ee996e565bf037423c586",
+  "readiness": {
+    "authorization_records": 0,
+    "failure_gate": "C85V_STATEMENT_ASSUMPTION_REVIEW_INDEPENDENCE_OR_VERDICT_CONTRACT_RECONCILIATION_REQUIRED",
+    "formal_status_transitions": 0,
+    "monte_carlo_reruns": 0,
+    "registered_review_executions": 0,
+    "success_gate": "C85V_INDEPENDENT_PROOF_REVIEW_IMPLEMENTED_AND_LOCKED_READY_FOR_PI_AUTHORIZATION"
+  },
+  "repo_root": "/home/infres/yinwang/CMI_AAAI_oaci",
+  "resources": {
+    "CPU": 1,
+    "GPU": 0,
+    "RAM_GiB": 4,
+    "storage_MiB": 64,
+    "wall_minutes": 30
+  },
+  "result": {
+    "adversarial_audits": 7,
+    "atomic_publication": true,
+    "bundle_schema": "c85v_atomic_proof_review_bundle_v1",
+    "final_verdicts": 7,
+    "manifest_schema": "c85v_result_artifact_manifest_v1",
+    "proof_candidates_overwritten": false,
+    "stage_A_derivations": 7,
+    "stage_B_comparisons": 7,
+    "success_gate": "C85V_INDEPENDENT_PROOF_VERDICTS_AND_THEOREM_STATUSES_FROZEN_C85E_PROTOCOL_REVIEW_REQUIRED"
+  },
+  "review_process": {
+    "candidate_text_withheld_until_stage_A_freeze": true,
+    "monte_carlo_rerun": false,
+    "role_artifacts_separately_hashed": true,
+    "stage_A": "candidate-blind independent derivation and atomic freeze",
+    "stage_B": "post-freeze candidate comparison and adversarial audit",
+    "stage_C": "prospective deterministic adjudication without majority vote"
+  },
+  "runtime_bound_object_count": 41,
+  "runtime_bound_registry": {
+    "git_blob": "592d08a564eac5cd87c5df8c8563a850d8d277aa",
+    "path": "oaci/reports/c85vp_tables/runtime_bound_object_registry.csv",
+    "sha256": "e8288b20b79067d2156f284da52978849e21c7a9e4616d98db755b7242ff82d1",
+    "size_bytes": 6705
+  },
+  "schema_version": "c85v_execution_lock_v1",
+  "status": "LOCKED_READY_FOR_DIRECT_PI_AUTHORIZATION_NOT_AUTHORIZED",
+  "verdict_contract": {
+    "T5_missing_decoder_rule": "OPEN",
+    "dissent_retained": true,
+    "finite_enumeration_maximum": "PROVED_FINITE_MODEL_ONLY",
+    "general_proof_required_for_PROVED": true
+  }
+}

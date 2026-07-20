@@ -1,0 +1,4 @@
+candidate_id,source_indistinguishability_proxy,target_loss_gap_proxy,bound_candidate,nontrivial,blocking_assumption
+T1_within_target_two_point,0.004842615012106538,source-equivalent target-divergent pair set,0.5*(1-source_proxy),1,source proxy is not total variation between two distributions
+T2_cross_target_two_point,0.9369369369369369,cross-target utility comparability break,descriptive only,0,mixing targets changes problem class rather than two-world lower-bound pair
+T3_endpoint_oracle_separator,1.0,0.43827160493827155,information gap to same-label endpoint oracle,1,"endpoint scalar is diagnostic oracle, not alternative source-observable world"

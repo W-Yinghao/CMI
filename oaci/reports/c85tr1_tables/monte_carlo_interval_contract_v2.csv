@@ -1,0 +1,4 @@
+estimand,raw_interval,reported_interval,interval_clipped_field,value_clipped
+top_1_probability,mean+/-1.96*MC_SE,"clip(raw,0,1)",1,0
+outside_A_epsilon_probability,mean+/-1.96*MC_SE,"clip(raw,0,1)",1,0
+mean_regret,mean+/-1.96*MC_SE,raw,0,0

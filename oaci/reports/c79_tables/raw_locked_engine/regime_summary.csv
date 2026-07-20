@@ -1,0 +1,4 @@
+regime,units,targets,levels,continuous_utility_mean,construction_eval_spearman,trajectory_role
+ERM,16,8,2,0.562890625,0.8918324710234692,anchor
+OACI,640,8,2,0.5871744791666667,0.7735692911501247,historical_primary
+SRC,640,8,2,0.41125325520833333,0.7969067582539416,historical_negative_control

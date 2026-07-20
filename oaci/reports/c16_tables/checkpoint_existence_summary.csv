@@ -1,0 +1,5 @@
+selector,k2_status,reproduced_endpoints,n_chose_nonERM,n_fold_levels,non_deployable
+ERM,stop_no_reproducible_gain,[],0,54,False
+source_audit_oracle,stop_no_reproducible_gain,[],50,54,False
+target_oracle_bacc,reproducible_gain,['worst_domain_bacc'],51,54,True
+target_oracle_joint,stop_no_reproducible_gain,[],49,54,True

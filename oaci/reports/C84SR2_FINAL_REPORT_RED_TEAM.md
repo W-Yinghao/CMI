@@ -1,0 +1,54 @@
+# C84SR2 Final Report Red Team
+
+Result: **50 / 50 PASS**
+
+- PASS: `repair_protocol_precedes_implementation`
+- PASS: `V3_lock_preserved`
+- PASS: `V3_authorization_consumed_nonreusable`
+- PASS: `failed_root_preserved`
+- PASS: `Stage_A_complete_exact`
+- PASS: `Stage_A_handoff_exact`
+- PASS: `evaluation_seal_exact`
+- PASS: `construction_manifest_exact`
+- PASS: `evaluation_manifest_exact`
+- PASS: `no_label_loader_in_replay`
+- PASS: `evaluation_absent_from_Stage_B`
+- PASS: `complete_field_descriptor_authoritative`
+- PASS: `native_1701_exact`
+- PASS: `historical_243_exact`
+- PASS: `compatibility_provenance_exact`
+- PASS: `panel_A_exact`
+- PASS: `seed5_exact`
+- PASS: `level0_exact`
+- PASS: `other_missing_fails`
+- PASS: `sidecar_mismatch_fails`
+- PASS: `level_mapping_exact`
+- PASS: `level0_ID_unchanged`
+- PASS: `level1_ID_unchanged`
+- PASS: `field_units_1944`
+- PASS: `contexts_944`
+- PASS: `candidates_81`
+- PASS: `Q0_records_9110448`
+- PASS: `method_rows_18608`
+- PASS: `full_scale_synthetic`
+- PASS: `selection_freeze_atomic`
+- PASS: `Stage_C_immutable`
+- PASS: `no_method_change`
+- PASS: `no_threshold_change`
+- PASS: `no_training`
+- PASS: `no_forward`
+- PASS: `no_GPU`
+- PASS: `no_oracle`
+- PASS: `no_C85`
+- PASS: `fresh_root`
+- PASS: `fresh_authorization`
+- PASS: `external_field_replayed`
+- PASS: `Git_payload_hygiene`
+- PASS: `real_scores_zero`
+- PASS: `real_science_zero`
+- PASS: `overall_report_markdown_and_json_exact`
+- PASS: `overall_report_hash_sidecar_replays`
+- PASS: `regression_attempt_ledger_preserves_both_rounds`
+- PASS: `accepted_regression_stderr_empty`
+- PASS: `project_memory_and_handoff_current`
+- PASS: `no_active_C84_or_C85_job_at_finalization`

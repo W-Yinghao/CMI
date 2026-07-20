@@ -1,0 +1,4 @@
+dataset,target_subject,partition_first_target,partition_replay_pass,target_y_access
+Lee2019_MI,19,19,1,0
+Cho2017,24,24,1,0
+PhysionetMI,106,106,1,0

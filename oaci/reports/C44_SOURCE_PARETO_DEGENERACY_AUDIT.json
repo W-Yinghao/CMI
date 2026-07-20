@@ -1,0 +1,326 @@
+{
+  "config_hash": "664007686afb520f",
+  "diagnostic_only_non_deployable": true,
+  "dominance_depth_summary": {
+    "mean_front_joint_good_rate": 0.43105701988584916,
+    "mean_front_pareto_good_rate": 0.14305788684575074,
+    "mean_layer_auc_vs_target_utility": 0.49906596898123196,
+    "mean_layer_spearman_vs_target_utility": -0.00942870357741009,
+    "mean_max_pareto_layer": 0.2654320987654321,
+    "mean_n_dominated_auc_vs_target_utility": 0.5010971753227703,
+    "mean_n_dominators_auc_vs_target_utility": 0.49903229894756185
+  },
+  "family_reduced_frontiers_summary": {
+    "all_families": {
+      "mean_depth_auc_vs_target_utility": 0.49906596898123196,
+      "mean_front_fraction": 0.9724614975980579,
+      "mean_front_joint_good_enrichment": 1.0374830061099583,
+      "mean_joint_good_front_fraction": 0.9326894886898518,
+      "mean_p_joint_good_given_front": 0.43105701988584916,
+      "mean_p_joint_good_given_not_front": 0.5291666666666666,
+      "mean_pareto_good_front_fraction": 0.9963991769547327,
+      "mean_target_bad_front_fraction": 0.9191977785387372,
+      "n_trajectories": 162,
+      "subset": "all_families"
+    },
+    "endpoint_only": {
+      "mean_depth_auc_vs_target_utility": 0.5079224710862168,
+      "mean_front_fraction": 0.49181018288622697,
+      "mean_front_joint_good_enrichment": 1.1015911748522833,
+      "mean_joint_good_front_fraction": 0.4991427122857828,
+      "mean_p_joint_good_given_front": 0.4342444584558821,
+      "mean_p_joint_good_given_not_front": 0.41317680917776706,
+      "mean_pareto_good_front_fraction": 0.5054368471035138,
+      "mean_target_bad_front_fraction": 0.4797941785198837,
+      "n_trajectories": 162,
+      "subset": "endpoint_only"
+    },
+    "leakage_only": {
+      "mean_depth_auc_vs_target_utility": 0.49670616845806664,
+      "mean_front_fraction": 0.13630345284446746,
+      "mean_front_joint_good_enrichment": 0.710724248421947,
+      "mean_joint_good_front_fraction": 0.1003835830819312,
+      "mean_p_joint_good_given_front": 0.3728395061728395,
+      "mean_p_joint_good_given_not_front": 0.4387833074045768,
+      "mean_pareto_good_front_fraction": 0.09964387464387464,
+      "mean_target_bad_front_fraction": 0.15793775716505334,
+      "n_trajectories": 162,
+      "subset": "leakage_only"
+    },
+    "leakage_rank": {
+      "mean_depth_auc_vs_target_utility": 0.5526881572691524,
+      "mean_front_fraction": 0.44334707725736455,
+      "mean_front_joint_good_enrichment": 1.1278129065667923,
+      "mean_joint_good_front_fraction": 0.44169148355164217,
+      "mean_p_joint_good_given_front": 0.4559383587985525,
+      "mean_p_joint_good_given_not_front": 0.4138997430565495,
+      "mean_pareto_good_front_fraction": 0.5456869262424817,
+      "mean_target_bad_front_fraction": 0.4122031049636829,
+      "n_trajectories": 162,
+      "subset": "leakage_rank"
+    },
+    "leakage_rank_risk": {
+      "mean_depth_auc_vs_target_utility": 0.5083517729358827,
+      "mean_front_fraction": 0.8171151240754628,
+      "mean_front_joint_good_enrichment": 1.1639916262095533,
+      "mean_joint_good_front_fraction": 0.8420018740606435,
+      "mean_p_joint_good_given_front": 0.44211446945098476,
+      "mean_p_joint_good_given_not_front": 0.3778148288493116,
+      "mean_pareto_good_front_fraction": 0.8669001266223488,
+      "mean_target_bad_front_fraction": 0.7736022884891994,
+      "n_trajectories": 162,
+      "subset": "leakage_rank_risk"
+    },
+    "leakage_risk": {
+      "mean_depth_auc_vs_target_utility": 0.4878931479618829,
+      "mean_front_fraction": 0.6713078332562448,
+      "mean_front_joint_good_enrichment": 1.0695469269793345,
+      "mean_joint_good_front_fraction": 0.6518286279588668,
+      "mean_p_joint_good_given_front": 0.4307056278226453,
+      "mean_p_joint_good_given_not_front": 0.4130852821642295,
+      "mean_pareto_good_front_fraction": 0.6615503323836658,
+      "mean_target_bad_front_fraction": 0.6640150616083709,
+      "n_trajectories": 162,
+      "subset": "leakage_risk"
+    },
+    "rank_only": {
+      "mean_depth_auc_vs_target_utility": 0.5904967774230292,
+      "mean_front_fraction": 0.04375006002171776,
+      "mean_front_joint_good_enrichment": 1.1542183729112576,
+      "mean_joint_good_front_fraction": 0.04607432810413793,
+      "mean_p_joint_good_given_front": 0.5061728395061729,
+      "mean_p_joint_good_given_not_front": 0.42626399902278633,
+      "mean_pareto_good_front_fraction": 0.055401234567901234,
+      "mean_target_bad_front_fraction": 0.029859447384888844,
+      "n_trajectories": 162,
+      "subset": "rank_only"
+    },
+    "rank_risk": {
+      "mean_depth_auc_vs_target_utility": 0.5145265091080063,
+      "mean_front_fraction": 0.4500570292563605,
+      "mean_front_joint_good_enrichment": 1.2511648837314708,
+      "mean_joint_good_front_fraction": 0.5022831144196935,
+      "mean_p_joint_good_given_front": 0.4359978228399281,
+      "mean_p_joint_good_given_not_front": 0.4176125180219043,
+      "mean_pareto_good_front_fraction": 0.5743312757201646,
+      "mean_target_bad_front_fraction": 0.45130614623032345,
+      "n_trajectories": 162,
+      "subset": "rank_risk"
+    },
+    "risk_only": {
+      "mean_depth_auc_vs_target_utility": 0.48646387570941746,
+      "mean_front_fraction": 0.29556859183003914,
+      "mean_front_joint_good_enrichment": 0.962444407045016,
+      "mean_joint_good_front_fraction": 0.26725591476103006,
+      "mean_p_joint_good_given_front": 0.398942364220142,
+      "mean_p_joint_good_given_not_front": 0.43994715702802256,
+      "mean_pareto_good_front_fraction": 0.3248456790123457,
+      "mean_target_bad_front_fraction": 0.34349314495083333,
+      "n_trajectories": 162,
+      "subset": "risk_only"
+    }
+  },
+  "front_membership_summary": {
+    "joint_good": {
+      "label": "joint_good",
+      "mean_front_enrichment_over_trajectory": 1.0374830061099583,
+      "mean_front_minus_not_front": -0.03749961627838866,
+      "mean_p_label_given_front": 0.43105701988584916,
+      "mean_p_label_given_not_front": 0.5291666666666666,
+      "mean_trajectory_baseline": 0.4297233780360411,
+      "n_trajectories": 162
+    },
+    "pareto_good": {
+      "label": "pareto_good",
+      "mean_front_enrichment_over_trajectory": 1.044091394177726,
+      "mean_front_minus_not_front": 0.11698015061943585,
+      "mean_p_label_given_front": 0.14305788684575074,
+      "mean_p_label_given_not_front": 0.0375,
+      "mean_trajectory_baseline": 0.1377191744332418,
+      "n_trajectories": 162
+    },
+    "preference_robust": {
+      "label": "preference_robust",
+      "mean_front_enrichment_over_trajectory": 1.0226632483041695,
+      "mean_front_minus_not_front": -0.06973693474854466,
+      "mean_p_label_given_front": 0.030485743064170744,
+      "mean_p_label_given_not_front": 0.1,
+      "mean_trajectory_baseline": 0.03019713146878921,
+      "n_trajectories": 162
+    }
+  },
+  "n_candidate_rows": 3804,
+  "n_trajectories": 162,
+  "no_selector_artifact_gate": [
+    {
+      "check": "config_hash_unchanged",
+      "passed": true
+    },
+    {
+      "check": "read_only_committed_artifacts",
+      "passed": true
+    },
+    {
+      "check": "no_training_no_gpu_no_reinference",
+      "passed": true
+    },
+    {
+      "check": "no_feature_selection",
+      "passed": true
+    },
+    {
+      "check": "source_objective_registry_inherited_from_c43",
+      "passed": true
+    },
+    {
+      "check": "family_subsets_frozen_before_analysis",
+      "passed": true
+    },
+    {
+      "check": "pareto_nulls_frozen_before_analysis",
+      "passed": true
+    },
+    {
+      "check": "target_labels_diagnostic_only",
+      "passed": true
+    },
+    {
+      "check": "no_selected_checkpoint_artifact",
+      "passed": true
+    },
+    {
+      "check": "no_monolithic_large_json",
+      "passed": true
+    },
+    {
+      "check": "finite_filtering_applied",
+      "passed": true
+    },
+    {
+      "check": "diagnostic_only_non_deployable",
+      "passed": true
+    }
+  ],
+  "objective_effective_dimension_summary": {
+    "effective_rank": 5.695876335809214,
+    "leakage_rank_mean_spearman": -0.07109398916881127,
+    "mean_abs_correlation": 0.3182955887408665,
+    "n_objectives": 10,
+    "negative_pair_fraction": 0.4444444444444444,
+    "pca_cum3": 0.7134764204246475,
+    "pca_var1": 0.41356684026343554
+  },
+  "red_team": {
+    "front_contains_good_check": "F1-style front containment is separated from discriminativeness.",
+    "method_boundary_check": "No candidate ids, checkpoint hashes, or selected-checkpoint artifacts are emitted.",
+    "pareto_artifact_check": "Observed front fraction is compared with fixed high-dimensional nulls."
+  },
+  "source_frontier_null_summary": {
+    "family_shuffled_front_fraction": 0.9624459760901136,
+    "gaussian_null_front_fraction": 0.9810450967215901,
+    "n_objectives": 10,
+    "objective_shuffled_front_fraction": 0.9811108958203643,
+    "observed_front_fraction": 0.9724614975980579,
+    "observed_mean_layer_depth": 0.029081712278485355
+  },
+  "source_objective_geometry_summary": {
+    "depth_auc": 0.49906596898123196,
+    "effective_rank": 5.695876335809214,
+    "front_contains_both_good_bad_fraction": 0.8888888888888888,
+    "negative_pair_fraction": 0.4444444444444444,
+    "observed_front_fraction": 0.9724614975980579
+  },
+  "target_good_bad_front_cooccupancy_summary": {
+    "front_contains_both_good_and_bad_fraction": 0.8888888888888888,
+    "mean_front_fraction": 0.9724614975980579,
+    "mean_not_front_count": 0.7469135802469136
+  },
+  "taxonomy": {
+    "case_rows": [
+      {
+        "case": "PF1_source_pareto_front_degenerate",
+        "established": 1,
+        "evidence": "observed_front=0.9724614975980579, gaussian_null=0.9810450967215901, objective_shuffled_null=0.9811108958203643"
+      },
+      {
+        "case": "PF2_front_membership_non_discriminative",
+        "established": 1,
+        "evidence": "front_both_good_bad=0.8888888888888888, p_good_front=0.43105701988584916, baseline=0.4297233780360411"
+      },
+      {
+        "case": "PF3_objective_conflict_inflates_front",
+        "established": 1,
+        "evidence": "negative_pair_fraction=0.4444444444444444, leakage_rank_mean=-0.07109398916881127"
+      },
+      {
+        "case": "PF4_objective_redundancy_not_the_issue",
+        "established": 1,
+        "evidence": "effective_rank=5.695876335809214, pca_var1=0.41356684026343554"
+      },
+      {
+        "case": "PF5_family_reduced_frontier_narrows_but_loses_target_coverage",
+        "established": 1,
+        "evidence": "min_reduced_front=0.04375006002171776, reduced_loses_coverage=True"
+      },
+      {
+        "case": "PF6_family_reduced_frontier_has_diagnostic_signal",
+        "established": 1,
+        "evidence": "best_subset=rank_only, enrichment=1.1542183729112576, depth_auc=0.5904967774230292"
+      },
+      {
+        "case": "PF7_dominance_depth_not_target_informative",
+        "established": 1,
+        "evidence": "depth_auc=0.49906596898123196"
+      },
+      {
+        "case": "PF8_dominance_depth_weakly_informative_but_non_actionable",
+        "established": 0,
+        "evidence": "depth_auc=0.49906596898123196"
+      },
+      {
+        "case": "PF9_source_objective_geometry_non_identifiable",
+        "established": 1,
+        "evidence": "frontier broad + non-discriminative; no reduced-family reliable geometry"
+      },
+      {
+        "case": "PF10_inconclusive_due_to_objective_availability",
+        "established": 0,
+        "evidence": "objective availability complete"
+      }
+    ],
+    "cases": [
+      "PF1_source_pareto_front_degenerate",
+      "PF2_front_membership_non_discriminative",
+      "PF3_objective_conflict_inflates_front",
+      "PF4_objective_redundancy_not_the_issue",
+      "PF5_family_reduced_frontier_narrows_but_loses_target_coverage",
+      "PF6_family_reduced_frontier_has_diagnostic_signal",
+      "PF7_dominance_depth_not_target_informative",
+      "PF9_source_objective_geometry_non_identifiable"
+    ],
+    "established": {
+      "PF10_inconclusive_due_to_objective_availability": false,
+      "PF1_source_pareto_front_degenerate": true,
+      "PF2_front_membership_non_discriminative": true,
+      "PF3_objective_conflict_inflates_front": true,
+      "PF4_objective_redundancy_not_the_issue": true,
+      "PF5_family_reduced_frontier_narrows_but_loses_target_coverage": true,
+      "PF6_family_reduced_frontier_has_diagnostic_signal": true,
+      "PF7_dominance_depth_not_target_informative": true,
+      "PF8_dominance_depth_weakly_informative_but_non_actionable": false,
+      "PF9_source_objective_geometry_non_identifiable": true
+    },
+    "evidence": {
+      "PF10_inconclusive_due_to_objective_availability": "objective availability complete",
+      "PF1_source_pareto_front_degenerate": "observed_front=0.9724614975980579, gaussian_null=0.9810450967215901, objective_shuffled_null=0.9811108958203643",
+      "PF2_front_membership_non_discriminative": "front_both_good_bad=0.8888888888888888, p_good_front=0.43105701988584916, baseline=0.4297233780360411",
+      "PF3_objective_conflict_inflates_front": "negative_pair_fraction=0.4444444444444444, leakage_rank_mean=-0.07109398916881127",
+      "PF4_objective_redundancy_not_the_issue": "effective_rank=5.695876335809214, pca_var1=0.41356684026343554",
+      "PF5_family_reduced_frontier_narrows_but_loses_target_coverage": "min_reduced_front=0.04375006002171776, reduced_loses_coverage=True",
+      "PF6_family_reduced_frontier_has_diagnostic_signal": "best_subset=rank_only, enrichment=1.1542183729112576, depth_auc=0.5904967774230292",
+      "PF7_dominance_depth_not_target_informative": "depth_auc=0.49906596898123196",
+      "PF8_dominance_depth_weakly_informative_but_non_actionable": "depth_auc=0.49906596898123196",
+      "PF9_source_objective_geometry_non_identifiable": "frontier broad + non-discriminative; no reduced-family reliable geometry"
+    }
+  }
+}

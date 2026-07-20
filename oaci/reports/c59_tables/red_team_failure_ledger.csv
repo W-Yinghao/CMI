@@ -1,0 +1,12 @@
+gate,failed,finding
+registered_partition_theorem_written,0,C59-A theorem constants are emitted.
+rank_gauge_theorem_model_bound,0,Rank-gauge theorem is model-bound and analytic for the two-candidate normal-gauge case.
+lecam_not_distributional_theorem,0,Le Cam remains empirical witness attempt.
+fano_not_forced,0,Fano/Assouad remains trivial or unstable.
+source_escape_hatch_closed,0,No source-observable counterexample found.
+training_blueprint_not_authorized,0,C59 emits blueprint only and does not train.
+reserved_dataset_and_seeds_blocked,0,"BNCI2014_004 and seeds [3,4] remain reserved."
+endpoint_oracle_unavailable,0,Endpoint scalar remains unavailable at selection time.
+no_m1,0,C59 does not start M1 or manuscript drafting.
+forbidden_scan_passed,0,Forbidden affirmative claim scan passed.
+no_selector_artifact,0,C59 emits no selected-candidate or chosen-checkpoint artifact.

@@ -1,0 +1,5 @@
+figure_id,data_path,row_count,empirical,scientific_role,source_identity,claim_boundary
+F1,oaci/reports/c83p_tables/figure_1_contract.csv,9,0,information_and_evidence_ladders,claim_contract,conceptual_no_empirical_scale
+F2,oaci/reports/c83p_tables/figure_2_contract.csv,9,0,field_and_view_design,C81_C82_protocols,physical_design_only
+F3,oaci/reports/c83p_tables/figure_3_data.csv,50,1,regret_and_topk,authoritative_number_registry,descriptive_I0_best_and_B5_ceiling_flagged
+F4,oaci/reports/c83p_tables/figure_4_data.csv,52,1,budget_and_stability,authoritative_number_registry,global_LOTO_not_per_panel_COTT_ledger

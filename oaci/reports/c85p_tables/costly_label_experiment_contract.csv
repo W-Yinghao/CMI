@@ -1,0 +1,4 @@
+contract_id,query_unit,observation,cost,standard_bandit_equivalent,training_allowed
+CL1,one target trial,full loss vector L_t for all M frozen candidates,one label,0,0
+CL2,one arm pull,one selected arm loss,one pull,1,0
+CL3,batch passive labels,stratified full-information loss vectors,number of labels,0,0

@@ -1,0 +1,11 @@
+limitation,scope,what_is_NOT_claimed
+one dataset family,BNCI2014-001 LOSO only,we do NOT claim all EEG DG fails
+one backbone,"ShallowConvNet, current protocol",we do NOT claim the result is backbone-independent
+tested mechanisms only,OACI leakage-control + SRC source-endpoint control,we do NOT claim every DG penalty fails
+source-audit oracle only,"S5 reads held-out source_audit, never target; no target-side oracle run","case C shows no checkpoint identifiable from held-out SOURCE signal, NOT that no gain checkpoint exists"
+measurement retained,support-aware leakage + K1/K2 + replay + anti-transfer,we do NOT claim support-aware invariance is useless
+negative-but-interpretable,"control hypothesis falsified, not DG in general","the contribution is the falsification battery, not a win over ERM"
+support-mismatch not quantified,no committed count of estimable vs unsupported cells on BNCI2014-001 (balanced 4-class MI),we do NOT demonstrate that support mismatch actually arises on this dataset
+SRC anti-transfer is single-seed + un-swept,"seed 0, n=6, tau_lse in {0.1,0.3} only; source guard NLL ~0.09 (memorization)","we do NOT claim a WELL-REGULARIZED source objective anti-transfers, nor that ATI/STI=1.0 are seed-stable"
+no positive control,battery has only ever returned 'falsified'; no ERM-beating method run through it,the battery's discriminative validity (certifying transfer) is unshown — future work
+N=1 instantiation,one dataset x one backbone x minimum seeds,"'reusable' is a design property, not yet verified across settings"

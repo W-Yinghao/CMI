@@ -1,0 +1,5 @@
+attempt,phase,result,authorization_consumed,protected_reads,detail
+DRY-PREFLIGHT-1,command_parse,FAILED,0,0,"Python -c f-string shell escaping produced SyntaxError before lock replay"
+DRY-PREFLIGHT-2,read_only_preflight,PASS,0,0,"54 objects environment authorization binding output absence and receipt absence replayed"
+C85U-V2-147245c8846d40e5a6059e353fce5b8b,authorized_execution,PASS,1,1,"job 900451; one protected replay; U1/U2/final acceptance complete"
+SACCT-QUERY,post_execution_scheduler_query,UNAVAILABLE,1,0,"Slurm accounting database connection refused; no sacct terminal evidence claimed"

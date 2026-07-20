@@ -1,0 +1,10 @@
+check,value,passed,notes
+c65_commit,192a82d,1,C66 starts from committed C65
+primary_store_exists,1,1,/projects/EEG-foundation-model/yinghao/oaci-loso-seeds012
+c65_oaci_pt_count,5454,1,from C65 compact JSON
+c65_sidecar_count,5454,1,from C65 compact JSON
+c65_artifact_index_count,27,1,artifact_index authority
+c50_singleton_mapping_rows,3804,1,C65 mapping replay input
+unique_checkpoint_ids,1268,1,C50 singleton universe expands regimes
+all_mapped_paths_exist,3804,1,pt/json verified by C65
+checkout_weight_files,0,1,checkout remains payload-free

@@ -1,0 +1,12 @@
+component,value,locked,confirmation_only
+principal_cluster,target_subject,1,1
+materiality_margin,0.05,1,1
+familywise_alpha,0.05,1,1
+maxT_draws,65536,1,1
+family,4_active_methods_x_4_finite_budgets_within_dataset,1,1
+favorable_target_fraction,0.75,1,1
+worst_target_effect_floor,-0.10,1,1
+positive_panel_seed_level_cells,6_of_8,1,1
+tail_CVaR90_margin,0.05,1,1
+LOTO_preservation,0.75,1,1
+pooled_dataset_pvalue,FORBIDDEN,1,1

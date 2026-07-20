@@ -1,0 +1,11 @@
+case,established,evidence
+F1_source_objective_frontier_contains_target_good,1,front_good max joint/pareto/robust=0.9875535762598431/0.9963991769547327/0.9649122807017544
+F2_target_good_source_pareto_rejected,0,max_rejected_good_fraction=0.03508771929824561
+F3_leakage_extreme_blocks_rank_frontier,1,leakage_blocks_rank_better_fraction=0.5370370370370371
+F4_no_source_scalarization_reliable_topk,1,"best_top1=0.5740740740740741, reliable_positive_claim_allowed=False"
+F5_hindsight_scalarization_ceiling_weak,1,"best=leakage_rank_risk__leakage_0.5__rank_0.1__risk_0.4, top1=0.5740740740740741, gain_vs_random=0.14435069603803297"
+F6_source_scalarization_overfit_or_target_heterogeneous,0,"best_sign_consistency=1.0, best_bh_q=9.703820315555286e-05"
+F7_source_rank_leakage_tradeoff_real,1,mean_leakage_rank_spearman=-0.29180753712959345
+F8_source_only_scalarization_escape_hatch_closed,1,no fixed source-only scalarization passes reliability and multiplicity gates
+F9_scalarization_escape_hatch_reopened_diagnostic_only,0,"best=leakage_rank_risk__leakage_0.5__rank_0.1__risk_0.4, metric={'scalarization_id': 'leakage_rank_risk__leakage_0.5__rank_0.1__risk_0.4', 'grid_family': 'leakage_source_rank_source_risk', 'selection_rule': 'top1', 'label': 'primary_joint_good', 'n_trajectories': 162, 'mean_pairwise_auc_vs_target_utility': 0.5558712220168693, 'mean_hit_rate': 0.5740740740740741, 'mean_random_baseline': 0.4297233780360411, 'mean_enrichment_ratio': 1.989645037749687, 'mean_regret_vs_target_oracle': 0.6476149164364777, 'mean_target_utility_delta_vs_oaci': 0.17635870264106385, 'hindsight_diagnostic_only': 1}"
+F10_inconclusive_due_to_field_availability,0,candidate registry and scalarization grid complete

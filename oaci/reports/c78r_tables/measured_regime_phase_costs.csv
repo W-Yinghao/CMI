@@ -1,0 +1,5 @@
+campaign,level,phase,wall_seconds_measured,retained_units,phase_separation_available,use_in_projection
+C78,0,ERM_plus_OACI_combined,956.851809501648,41,0,combined_context_cost
+C78,1,ERM_plus_OACI_combined,938.6169188022614,41,0,combined_context_cost
+C78R,0,SRC,762.7181911468506,40,1,SRC_context_cost
+C78R,1,SRC,754.2485616207123,40,1,SRC_context_cost

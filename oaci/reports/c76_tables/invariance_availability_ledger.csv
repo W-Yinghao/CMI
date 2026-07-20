@@ -1,0 +1,13 @@
+group,name,source,strict_source,target_unlabeled,target_labels,function_invariant,orthogonal_invariant,coordinate_dependent,redundant_with_logits,qualification_candidate,C76_claim_scope,analysis_interpretation_repair
+G0,metadata_source_baseline,C75_F0,1,0,0,1,1,0,0,0,function_level,none
+G1S,strict_source_functional,C75_F1,1,0,0,1,1,0,0,0,function_level,none
+G1T,target_unlabeled_functional,C75_F3,0,1,0,1,1,0,0,0,function_level,none
+G2S,strict_source_Wz_functional,C75_source_Wz_summary,1,0,0,1,1,0,1,0,function_level,none
+G2T,target_unlabeled_Wz_functional,C75_target_Wz_summary,0,1,0,1,1,0,1,0,function_level,none
+G3S,strict_source_orthogonal_geometry,orbit_recomputed_C75_F2,1,0,0,0,1,0,0,1,orthogonal_only,none
+G3T,target_unlabeled_orthogonal_geometry,orbit_recomputed_C75_F4_columns_0_19,0,1,0,0,1,0,0,1,orthogonal_only,exclude_mixed_function_invariant_Wz_tail_columns_20_34
+G4S,strict_source_fixed_coordinate_probes,8_SHA_locked_coordinate_probes,1,0,0,0,0,1,0,0,coordinate_tied,none
+G4T,target_unlabeled_fixed_coordinate_probes,8_SHA_locked_coordinate_probes,0,1,0,0,0,1,0,0,coordinate_tied,none
+G6,construction_label_positive_control,C75_F5,0,0,1,1,1,0,0,0,function_level,none
+G2T_F4TAIL,target_unlabeled_F4_function_invariant_tail,C75_F4_columns_20_34,0,1,0,1,1,0,1,0,function_level,isolated_from_G3T_candidate
+G3T_FULL_C75,target_unlabeled_C75_F4_mixed_replay,C75_F4_columns_0_34,0,1,0,0,1,0,1,0,mixed_diagnostic_only,exact_C75_replay_only

@@ -1,0 +1,4 @@
+decision_id,decision,passed,rationale
+SAT1,FROZEN_SUMMARY_PATHS_SATURATED,1,"C61-C63 closed static, estimator, and dynamic summary escape hatches."
+SAT2,MORE_SUMMARY_FEATURE_ENGINEERING_NOT_PRIORITIZED,1,No remaining source-observable summary family has a justified path to split-label/full-CS evidence.
+SAT3,NEXT_EVIDENCE_IS_TRIAL_LEVEL_CACHE,1,Split-label and full conditional-CS both require sample-level paired variables.

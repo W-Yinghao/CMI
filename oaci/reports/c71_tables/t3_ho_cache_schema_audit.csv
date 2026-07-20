@@ -1,0 +1,8 @@
+stage,check,observed,expected,passed,notes
+t3_ho,required_columns_present,25,25,1,
+t3_ho,row_count_matches_manifest,605952,605952,1,external cache row replay
+t3_ho,all_logits_probs_finite,1,1,1,finite numeric payload
+t3_ho,probabilities_sum_to_one,1,1,1,softmax probability check
+t3_ho,dataset_bnci001_only,BNCI2014_001,BNCI2014_001,1,BNCI2014_004 remains unused
+t3_ho,reserved_seeds_absent,0;1;2,0;1;2,1,seeds 3/4 preserved
+t3_ho,raw_cache_not_git_tracked,0,0,1,raw rows external only

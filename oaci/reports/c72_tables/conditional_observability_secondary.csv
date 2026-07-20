@@ -1,0 +1,5 @@
+model,fit_stage,evaluation_stage,feature_count,T2_r2,T3_HO_r2,median_per_target_r2,incremental_T3_HO_r2_over_source,target_labels_in_source_template,evaluation_labels_fit,available_at_selection_time,proxy_not_exact_conditional_cs,diagnostic_only
+source_template,T2,T3-HO,2,0.08973143512608117,-1.182711655516251,-1.1251212811185796,0.0,0,0,1,1,1
+source_plus_shared_target_calibration,T2,T3-HO,3,0.10382075378034972,-1.4412619833663225,-1.4946044272451333,-0.2585503278500716,0,0,0,1,1
+source_plus_candidate_construction_gauge,T2,T3-HO,4,0.1691706521835996,-1.199460258870853,-1.2372285413920512,-0.016748603354602043,0,0,0,1,1
+source_plus_same_label_oracle,T2,T3-HO,5,0.18477106157100176,-1.1136133047472057,-1.099260952335705,0.06909835076904525,0,1,0,1,1

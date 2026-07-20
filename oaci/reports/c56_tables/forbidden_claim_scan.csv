@@ -1,0 +1,10 @@
+pattern,total_hits,affirmative_hits,files,passed
+source-only rescue claim,0,0,,1
+OACI rescue claim,0,0,,1
+deployable selector claim,0,0,,1
+checkpoint recommendation artifact,0,0,,1
+few-label sufficiency claim,0,0,,1
+same-label endpoint oracle available at selection time,0,0,,1
+target-unlabeled deployable method,0,0,,1
+target-grouped diagnostic described as source-only,0,0,,1
+theorem claim without formal proof,0,0,,1

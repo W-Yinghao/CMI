@@ -1,0 +1,141 @@
+{
+  "schema_version": "c80p_analysis_execution_lock_v1",
+  "milestone": "C80P",
+  "status": "LOCKED_C80E_NOT_AUTHORIZED",
+  "protocol": {
+    "commit": "f5d83b3ca2297a4cc9511aa55ef300bb976d107c",
+    "path": "oaci/reports/C80_LABEL_BUDGET_FRONTIER_PROTOCOL.json",
+    "sha256": "c6292597f5610cb96e8eaf0313eaa741f8fa9b11dd89ff9e4d84db1fa33add85"
+  },
+  "implementation": {
+    "commit": "c98e084dd9c8db7583027b72e4f367fdccc74c54",
+    "files": [
+      {
+        "path": "oaci/conditioned_ceiling_coverage/c80_label_budget_frontier.py",
+        "sha256": "4d3ad709c5e3cabe8bc9b793c2e0fa5ee4410bea2770520653ca4300ef9bfa13"
+      },
+      {
+        "path": "oaci/conditioned_ceiling_coverage/c80_synthetic_label_budget.py",
+        "sha256": "ee2474b2c1111eaebc815751cd6dd0916ee87e1b36afd0b1c04237f124930c27"
+      },
+      {
+        "path": "oaci/tests/test_c80_label_budget_frontier.py",
+        "sha256": "3e4fc0334b0021a4bc7b96762e072ac6359254035c2874a894936fd64ba06bf1"
+      },
+      {
+        "path": "oaci/slurm_c80p_regression.sh",
+        "sha256": "e2034f6670bbc1244bd235b86f9c42d777269b0eb0acb0540d93b2ab1d2ad82c"
+      }
+    ]
+  },
+  "existing_fields": {
+    "seed3": {
+      "complete_units": 1458,
+      "primary_units": 1296,
+      "complete_manifest_sha256": "b90f2d3b9da8ce091c585897c614217fc7064901908c1fb87cbd128d6221e3fc",
+      "primary_route_sha256": "c99c91fbbcfb7d4316420d12e26c167ea2d81ec7a7d7a5bd59654e71a8286b67"
+    },
+    "seed4": {
+      "complete_units": 1458,
+      "primary_units": 1296,
+      "complete_manifest_sha256": "5093ee7f984b336683e629dd10656629f98cd3dd884335a538cfedbd10c8879d",
+      "external_field_sha256": "98cc58ca719938564298e6804b913114f01397cdd9ca805f86187f40db8f40b4",
+      "primary_route_sha256": "f3de19edc9cece07437db03337d2222005c60106388669f2599cf0f96abf9290"
+    },
+    "shared_label_split_sha256": "7d718e6c608d388f2993297b08e674cde6ec32ef2effdffdc69c54d89c847721",
+    "primary_targets": [1, 2, 3, 5, 6, 7, 8, 9],
+    "target4_primary": false,
+    "same_label_oracle_reachable": false
+  },
+  "registry": {
+    "path": "oaci/reports/c80p_tables/scientific_registry.csv",
+    "sha256": "e031d785004fc1acacfe63e3e18c971dad7a61b3b901ca9bbb254d2992deeec5",
+    "paths": 5,
+    "categories_per_path": 16,
+    "bound_cells": 80,
+    "blank_cells": 0,
+    "conditional_paths": 0,
+    "all_paths_unconditional": true
+  },
+  "analysis": {
+    "budget_grid": [1, 2, 4, 8, 16, 32, "FULL"],
+    "removed_budget": {"budget": 64, "reason": "availability_only_min_class_count_61"},
+    "acquisition_policy": "Q0_stratified_uniform_without_replacement_nested_within_class",
+    "selector": "exact_C79_P1_midrank_bAcc_negNLL_negECE",
+    "candidate_count": 81,
+    "MC_chains": 2048,
+    "MC_RNG": "PCG64_SHA256_stream_base_8001",
+    "primary_endpoint": "expected_held_evaluation_standardized_regret",
+    "material_regret_threshold": 0.05,
+    "minimum_positive_targets": 6,
+    "catastrophic_target_threshold": -0.10,
+    "Bstar_closure": "budget_and_every_larger_registered_budget_qualify",
+    "Bstar_cross_seed_grid_distance_max": 1,
+    "primary_cluster": "target",
+    "exact_sign_patterns": 256,
+    "target_bootstrap_replicates": 8192,
+    "same_seed_target_trial_dependence": "paired_repeated_not_iid",
+    "trial_ID_role": "join_split_cluster_only",
+    "row_order_role": "alignment_only"
+  },
+  "synthetic_calibration": {
+    "passed": true,
+    "real_data_budget_statistics": 0,
+    "same_label_oracle_accessed": false,
+    "tables": [
+      {
+        "path": "oaci/reports/c80p_tables/synthetic_frontier_calibration.csv",
+        "sha256": "24494fda82c65729156dca8a5bb45319c9f88e10682f10b21a97c1396444183e"
+      },
+      {
+        "path": "oaci/reports/c80p_tables/synthetic_bstar_recovery.csv",
+        "sha256": "b1c7b4c7b917075b51b8565569026ae98ebac4203c2a27036774a45716a2f86a"
+      },
+      {
+        "path": "oaci/reports/c80p_tables/synthetic_familywise_error.csv",
+        "sha256": "579f2a153406bc2a9b27d07e9c41ac9beeaa15dbcf4dc3eda016af1fec13b585"
+      },
+      {
+        "path": "oaci/reports/c80p_tables/synthetic_dependence_calibration.csv",
+        "sha256": "ef8fd59d4bbb9d096ee2f267be70c2a7f93367ff219f35c1fbde28852c28219c"
+      },
+      {
+        "path": "oaci/reports/c80p_tables/monte_carlo_precision_selection.csv",
+        "sha256": "ce1c77ec3334ad034f8907ab38340a4138530a739f92ee6602d37bc070fc4d25"
+      }
+    ]
+  },
+  "future_report_schema": {
+    "required_paths": ["P1", "P2", "S1", "S2", "S3"],
+    "required_primary_tables": [
+      "p1_budget_curve.csv", "p1_Bstar.csv", "p1_target_level.csv",
+      "p2_frontier_stability.csv", "p2_training_seed_heterogeneity.csv"
+    ],
+    "required_secondary_tables": [
+      "s1_reliability_actionability.csv", "s2_topk.csv",
+      "s2_target_heterogeneity.csv", "s3_geometry_moderation.csv"
+    ],
+    "seed_specific_results_before_cross_seed_synthesis": true,
+    "same_label_oracle_result": false
+  },
+  "authorization": {
+    "C80E_required": true,
+    "received": false,
+    "record_path": "oaci/reports/C80E_PI_AUTHORIZATION_RECORD.json",
+    "handoff_or_protocol_text_is_authorization": false
+  },
+  "forbidden": {
+    "real_data_budget_analysis_before_authorization": true,
+    "training": true,
+    "forward": true,
+    "reinference": true,
+    "GPU": true,
+    "seed5": true,
+    "target4_primary": true,
+    "same_label_oracle": true,
+    "BNCI2014_004": true,
+    "active_learning": true,
+    "new_feature_kernel_model_search": true,
+    "manuscript": true
+  }
+}

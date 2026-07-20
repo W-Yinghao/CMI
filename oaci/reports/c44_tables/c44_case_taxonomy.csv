@@ -1,0 +1,11 @@
+case,established,evidence
+PF1_source_pareto_front_degenerate,1,"observed_front=0.9724614975980579, gaussian_null=0.9810450967215901, objective_shuffled_null=0.9811108958203643"
+PF2_front_membership_non_discriminative,1,"front_both_good_bad=0.8888888888888888, p_good_front=0.43105701988584916, baseline=0.4297233780360411"
+PF3_objective_conflict_inflates_front,1,"negative_pair_fraction=0.4444444444444444, leakage_rank_mean=-0.07109398916881127"
+PF4_objective_redundancy_not_the_issue,1,"effective_rank=5.695876335809214, pca_var1=0.41356684026343554"
+PF5_family_reduced_frontier_narrows_but_loses_target_coverage,1,"min_reduced_front=0.04375006002171776, reduced_loses_coverage=True"
+PF6_family_reduced_frontier_has_diagnostic_signal,1,"best_subset=rank_only, enrichment=1.1542183729112576, depth_auc=0.5904967774230292"
+PF7_dominance_depth_not_target_informative,1,depth_auc=0.49906596898123196
+PF8_dominance_depth_weakly_informative_but_non_actionable,0,depth_auc=0.49906596898123196
+PF9_source_objective_geometry_non_identifiable,1,frontier broad + non-discriminative; no reduced-family reliable geometry
+PF10_inconclusive_due_to_objective_availability,0,objective availability complete

@@ -1,0 +1,265 @@
+{
+  "schema_version": "c73_attribution_robustness_protocol_v1",
+  "milestone": "C73",
+  "protocol_lock_timestamp_utc": "2026-07-10T04:55:13Z",
+  "protocol_lock_source_commit": "ea844d5ad7021a48da96bdf6c20beb80ebf849b1",
+  "parent_c72_protocol_commit": "11534dc",
+  "parent_c72_protocol_sha256": "72ef3a350ce8eea8eacb84688f81b012936d5b03c9c734b787407148178c94aa",
+  "parent_c72_result_commit": "ea844d5ad7021a48da96bdf6c20beb80ebf849b1",
+  "parent_c72_summary_sha256": "a9785ee5d4ee1dfddd29c3629ca13d50124198023739beae3ceb3fe71530a4c5",
+  "known_before_lock": {
+    "C72_summary_results_known": true,
+    "C72_row_level_outcomes_read_for_C73": false,
+    "full_frozen_physical_universe_consumed": true,
+    "T2_units": 216,
+    "T3_HO_units": 1052,
+    "total_units": 1268,
+    "C73_status": "prospectively specified retrospective robustness and instrumentation readiness; not independent confirmation",
+    "target_population_claim_allowed": false
+  },
+  "execution_boundary": {
+    "real_EEG_forward_passes": false,
+    "real_EEG_reinference": false,
+    "training_or_parameter_updates": false,
+    "gpu": false,
+    "BNCI2014_004": false,
+    "reserved_seeds_3_4": false,
+    "selector_or_checkpoint_recommendation_artifacts": false,
+    "checkpoint_identifiers_in_reports": false,
+    "manuscript_drafting": false,
+    "raw_cache_in_git": false,
+    "allowed": [
+      "committed compact C72 summaries and tables",
+      "manifested T2/T3-HO cache views read-only",
+      "checkpoint, model, and preprocessing ABI metadata inspection",
+      "state_dict key and shape inspection",
+      "CPU dummy-tensor hook tests with no real EEG trials",
+      "schema and storage dry-runs"
+    ]
+  },
+  "data_roles": {
+    "T2": "retrospective calibration and robustness estimation only",
+    "T3_HO": "retrospective locked-rule replay only; not new confirmation",
+    "new_independent_confirmation_requires": "new checkpoint fields, new reserved-seed checkpoint universe, new targets, or new dataset"
+  },
+  "decomposition": {
+    "components": {
+      "N": "finite-label noise",
+      "E": "extreme-order geometry",
+      "U": "construction/evaluation utility mismatch",
+      "S": "shared target calibration",
+      "G": "candidate-specific unexplained residual"
+    },
+    "all_sequential_orders": true,
+    "order_count": 120,
+    "primary_order": ["N", "U", "S", "E", "G"],
+    "order_averaging": "uniform mean over all 120 component orders",
+    "shapley_rule": "exact subset-value Shapley only where one coherent counterfactual value function exists; otherwise label order-averaged attribution",
+    "dominance_rule": "a component is dominant only when its 95 percent target-cluster bootstrap lower bound exceeds every competing component upper bound and it is largest in at least 90 percent of sequential orders",
+    "material_interaction_threshold": 0.10,
+    "mixed_unresolved_rule": "use mixed unresolved attribution whenever dominance_rule fails or order range exceeds 0.20 of the observed gap"
+  },
+  "endpoint_registry": {
+    "bAcc": "macro class recall; higher is better",
+    "NLL": "negative mean true-class log probability; higher oriented value is better",
+    "ECE": "negative 15-bin ECE; higher oriented value is better",
+    "continuous_joint_utility": "equal mean of within-target midrank percentiles for bAcc, -NLL, -ECE",
+    "primary_joint_good": "all three oriented endpoint midranks at or above 0.75",
+    "binary_endpoint_top1": "ties receive fractional credit",
+    "utility_cone_step": 0.10
+  },
+  "candidate_geometry": {
+    "top_k": [1, 3, 5],
+    "fractional_top_k": "ceil(0.10*M), clipped to [1,M]",
+    "epsilon_rule_T2_only": "epsilon values are T2 target-universe best-minus-second gap quantiles q25, q50, q75 plus fixed 0 and 0.02; deduplicate after calculation; replay unchanged on T3-HO",
+    "epsilon_optimal_set": "number of candidates with utility at least best-epsilon",
+    "effective_multiplicity_temperature_T2_only": "T2 median positive target-universe best-minus-second bAcc gap",
+    "effective_multiplicity": "inverse Simpson size of weights proportional to exp((utility-best)/temperature)",
+    "random_top1": "1/M",
+    "random_topk": "k/M",
+    "control_warning": "top1 enrichment over random is contextual only and is never sufficient evidence of reliable control"
+  },
+  "bootstrap_and_inference": {
+    "target_cluster_bootstrap_replicates": 2000,
+    "checkpoint_cluster_bootstrap_replicates": 2000,
+    "trial_id_cluster_bootstrap_replicates": 2000,
+    "crossed_pigeonhole_bootstrap_replicates": 2000,
+    "blocked_permutations": 4999,
+    "seed": 73073,
+    "leave_one_target_out": true,
+    "leave_one_trajectory_out": true,
+    "row_IID_inference": false,
+    "multiplicity": "Holm correction within H3/H4/H5/H6 robustness family; max-stat simultaneous bootstrap intervals across primary endpoints"
+  },
+  "residual_construct_validation": {
+    "name_before_validation": "candidate-specific unexplained residual",
+    "validated_name": "candidate-specific target-gauge proxy",
+    "cross_fit": "fit source/construction/shared-calibration prediction on T2 folds or construction split A and evaluate on disjoint split B/T3-HO",
+    "split_count": 256,
+    "minimum_split_to_split_spearman": 0.50,
+    "minimum_incremental_heldout_R2": 0.05,
+    "maximum_target_common_variance_fraction": 0.10,
+    "required_nulls": [
+      "candidate permutation",
+      "target-common residual replacement",
+      "trajectory-preserving shuffle"
+    ],
+    "required": [
+      "within-target candidate specificity",
+      "disjoint construction-split stability",
+      "incremental prediction after source, construction, and shared calibration",
+      "cross-fit replication",
+      "not reducible to endpoint mismatch",
+      "not reducible to target-common offset",
+      "not reducible to checkpoint/regime metadata"
+    ],
+    "failure_rename": "unexplained candidate-specific residual"
+  },
+  "H3_shared_calibration": {
+    "SESOI": {
+      "gauge_recovery_increment": 0.05,
+      "coverage_increment": 0.10,
+      "topk_increment": 0.10,
+      "regret_reduction_bAcc": 0.01
+    },
+    "effects": "T2-locked shared class-vector and temperature minus no-intervention, evaluated per target",
+    "equivalence": "practically insufficient only if simultaneous 95 percent target-cluster upper confidence bounds are below every beneficial SESOI and no endpoint has a harmful lower bound",
+    "small_effect": "small effect confirmed only if interval excludes zero but remains inside SESOI",
+    "otherwise": "potentially meaningful but unresolved",
+    "p_greater_than_0_05_is_not_insufficiency": true
+  },
+  "H4_intervention_audit": {
+    "deterministic_identity": "for pair margin d and signed perturbation difference q, rank flips iff d*(d+q)<0; ties reported separately",
+    "controls": [
+      "random sign perturbations",
+      "magnitude-matched candidate perturbations",
+      "target-shared perturbations",
+      "trajectory-preserving perturbations",
+      "construction-estimated perturbations",
+      "candidate-permuted construction perturbations"
+    ],
+    "primary_empirical_increment": "target-cluster mean calibration slope or flip-rate increment beyond deterministic threshold-only prediction",
+    "blocked_units": ["target", "trajectory"],
+    "algebraic_relationship_alone_validates_gauge": false
+  },
+  "H5_alpha_zero": {
+    "symmetric_alpha_grid": [-0.20, -0.10, -0.05, 0.0, 0.05, 0.10, 0.20],
+    "local_derivative": "central differences around zero for pairwise accuracy, top-k, coverage, and regret",
+    "T2_cross_fit": "construction split A estimates candidate class-gradient; split B evaluates measurement; target evaluation is held out",
+    "T3_HO": "descriptive replay of the full locked symmetric grid; no T3 option selection",
+    "family_scope": ["shared class-vector", "shared temperature", "candidate class-gradient", "magnitude-matched random candidate vector"],
+    "broad_method_search": false
+  },
+  "H6_candidate_count": {
+    "models": [
+      "raw M only",
+      "effective near-tie multiplicity only",
+      "raw M plus top gap",
+      "raw M plus effective multiplicity plus top gap",
+      "target and trajectory adjusted stratified contrasts"
+    ],
+    "primary_attribution": "effective multiplicity/top-gap rather than raw M if raw-M coefficient loses sign or material magnitude after adjustment",
+    "blocked_permutation": "shuffle actionability outcomes within target and trajectory-compatible blocks"
+  },
+  "theory_repair": {
+    "diagnostics": [
+      "union-bound looseness",
+      "gauge-tail scale versus top-gap scale",
+      "candidate dependence",
+      "heteroskedasticity",
+      "non-Gaussian residual tails",
+      "finite-population sampling"
+    ],
+    "attempts": [
+      "exact class-stratified finite-population pair ordering",
+      "effective-candidate top-k union bound",
+      "empirical target-blocked tail bound",
+      "simulation-calibrated model proxy"
+    ],
+    "simulation_proxy_is_theorem": false
+  },
+  "synthetic_grid": {
+    "candidate_counts": [8, 32, 128],
+    "effective_near_tie_counts": [2, 4, 8, 16, 32],
+    "gauge_tail": ["gaussian", "skewed", "heteroskedastic"],
+    "dependence": [0.0, 0.5, 0.9],
+    "label_budgets": [8, 64, 256],
+    "replicates_per_cell": 256,
+    "seed": 73673
+  },
+  "instrumentation_readiness": {
+    "real_data_forward_allowed": false,
+    "dummy_CPU_forward_allowed": true,
+    "required_checks": [
+      "source and target preprocessing paths resolve",
+      "checkpoint and sidecar map resolves",
+      "model factory and input shape resolve",
+      "penultimate representation hook returns stable [batch,dim] tensor",
+      "classifier W and b resolve from state_dict/module ABI",
+      "dummy logits equal Wdotz+b within 1e-6",
+      "source trial logits/probabilities schema validates",
+      "representation z and Wdotz schema validates",
+      "storage/runtime estimate fits external content-addressed cache policy"
+    ],
+    "source_and_Wz_feasible": "all required checks pass without training and without real-data forward",
+    "source_only_feasible": "source path/logit schema pass but representation hook or Wdotz identity fails",
+    "new_training_required": "frozen model ABI cannot expose representation needed for the trace",
+    "blocker": "data, preprocessing, checkpoint, or model ABI cannot be resolved"
+  },
+  "replication_architecture": {
+    "R1": "frozen re-inference-only strict-source and representation/Wdotz instrumentation; future explicit authorization required",
+    "R2": "reserved seeds 3 and 4 checkpoint-field replication; future locked protocol and explicit authorization required",
+    "R3": "independent targets or dataset including possible BNCI2014_004; future locked protocol and explicit authorization required",
+    "minimum_stage_rule": "recommend R1 if instrumentation feasible; recommend R2/R3 only after R1 evidence or an R1 blocker"
+  },
+  "decision_taxonomy": {
+    "primary": [
+      "C73-A_C72_mixed_mechanism_attribution_robust",
+      "C73-B_extreme_order_robust_residual_not_validated_as_gauge",
+      "C73-C_residual_candidate_gauge_construct_validated",
+      "C73-D_shared_calibration_remains_materially_unresolved",
+      "C73-E_C72_decomposition_order_sensitive_or_unstable",
+      "C73-F_C72_intervention_evidence_reduces_to_sensitivity_identity",
+      "C73-G_measurement_control_gap_still_partially_unresolved",
+      "C73-H_claim_or_provenance_repair_required"
+    ],
+    "secondary": [
+      "C73-S1_effective_multiplicity_dominates_raw_candidate_count",
+      "C73-S2_finite_label_noise_confirmed_minor_at_full_budget",
+      "C73-S3_shared_calibration_practically_insufficient",
+      "C73-S4_alpha_zero_noncontrol_confirmed",
+      "C73-S5_multi_candidate_bound_repaired",
+      "C73-S6_multi_candidate_bound_still_vacuous",
+      "C73-S7_reinference_only_source_and_Wz_instrumentation_feasible",
+      "C73-S8_new_training_required_for_representation_trace",
+      "C73-S9_frozen_universe_confirmation_exhausted",
+      "C73-S10_independent_target_dataset_replication_justified",
+      "C73-S11_new_training_not_authorized"
+    ]
+  },
+  "final_gates": [
+    "C72_ATTRIBUTION_ROBUST_INSTRUMENTATION_READY",
+    "C72_EXTREME_ORDER_ROBUST_RESIDUAL_GAUGE_UNVALIDATED",
+    "C72_DECOMPOSITION_UNSTABLE_REQUIRES_REPAIR",
+    "C72_INTERVENTION_EVIDENCE_REDUCES_TO_IDENTITY",
+    "REINFERENCE_ONLY_SOURCE_WZ_CAMPAIGN_READY_BUT_NOT_AUTHORIZED",
+    "NEW_TRAINING_REPLICATION_PROTOCOL_READY_BUT_NOT_AUTHORIZED",
+    "CLAIM_OR_PROVENANCE_REPAIR_REQUIRED"
+  ],
+  "failure_gates": [
+    "C72 protocol, result, cache, view, metric, or repair-ledger replay mismatch",
+    "C73 row-level outcome access before protocol commit",
+    "retrospective robustness called independent confirmation",
+    "decomposition dominance claimed without order and interval robustness",
+    "unexplained residual relabeled as gauge without construct-validity gates",
+    "shared calibration called insufficient from p-value alone",
+    "deterministic H4 crossing identity called empirical gauge validation",
+    "T3-HO tunes alpha or intervention family",
+    "raw M effect claimed without effective multiplicity and top-gap adjustment",
+    "simulation-calibrated proxy called a theorem",
+    "representation claim without dummy Wdotz ABI identity",
+    "strict-source checkpoint metadata relabeled as source trial evidence",
+    "raw cache, checkpoint identifier, selector, recommendation, training, real EEG forward, GPU, heldout dataset, reserved seed, manuscript, target-population, or minimax claim"
+  ],
+  "diagnostic_only_non_deployable": true
+}

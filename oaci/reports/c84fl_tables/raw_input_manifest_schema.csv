@@ -1,0 +1,8 @@
+artifact,field_order,field,type_contract,target_label_or_derived,source_label_allowed,required
+raw_input_manifest,0,dataset,scalar_or_row_key,0,0,1
+raw_input_manifest,1,source_path,scalar_or_row_key,0,0,1
+raw_input_manifest,2,bytes,scalar_or_row_key,0,0,1
+raw_input_manifest,3,sha256,scalar_or_row_key,0,0,1
+raw_input_manifest,4,consumed_by_view,scalar_or_row_key,0,0,1
+raw_input_manifest,5,warning_count,scalar_or_row_key,0,0,1
+raw_input_manifest,6,warning_classes,scalar_or_row_key,0,0,1

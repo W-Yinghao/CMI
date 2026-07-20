@@ -1,0 +1,14 @@
+model,fit_stage,evaluation_stage,r2,incremental_r2,evaluation_labels_fit,total_increment_over_base
+source_construction_shared,T2,T3-HO,0.6043294146917895,0.0,0,
+plus_utility_mismatch,T2,T3-HO,0.6256278521674693,0.021298437475679832,0,
+plus_checkpoint_regime_metadata,T2,T3-HO,0.4115532756170952,-0.2140745765503741,0,
+plus_candidate_construction_gradient,T2,T3-HO,0.3845000134799734,-0.02705326213712178,0,-0.21982940121181604
+T2_LOTO_1,T2_minus_target,T2_left_target,0.6302238788930196,-0.04363990011694463,0,
+T2_LOTO_2,T2_minus_target,T2_left_target,-0.6342542618254554,-0.19003859542305324,0,
+T2_LOTO_3,T2_minus_target,T2_left_target,0.6929900488426182,-0.017850256230795947,0,
+T2_LOTO_4,T2_minus_target,T2_left_target,0.2863046157530894,-0.27647776511468514,0,
+T2_LOTO_5,T2_minus_target,T2_left_target,-0.2876089067429346,0.1260829483139887,0,
+T2_LOTO_6,T2_minus_target,T2_left_target,0.11228550682658389,-0.14645445525775258,0,
+T2_LOTO_7,T2_minus_target,T2_left_target,-0.009985255376410151,0.012796674582677747,0,
+T2_LOTO_8,T2_minus_target,T2_left_target,0.529290235644062,-0.023411624130485476,0,
+T2_LOTO_9,T2_minus_target,T2_left_target,0.6421668902295834,0.011120262745040854,0,

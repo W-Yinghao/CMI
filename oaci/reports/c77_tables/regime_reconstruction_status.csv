@@ -1,0 +1,6 @@
+regime_id,exact_config_recoverable,strict_target_isolation_verifiable,checkpoint_cadence_reproducible,C14_C76_target_outcome_selected_for_C77,qualifies_primary_R1,comparable_40_checkpoint_trajectory_per_level,levels,reason
+ERM,1,1,1,0,1,0,0|1,shared_baseline_anchor_not_equal_length_trajectory
+OACI,1,1,1,0,1,1,0|1,primary_preexisting_trajectory
+SRC,1,1,1,0,1,1,0|1,preexisting_negative_control_trajectory_C11_C12
+global_lpc,1,1,1,0,0,0,0|1,excluded_to_avoid_unregistered_regime_multiplicity
+uniform,1,1,1,0,0,0,0|1,excluded_to_avoid_unregistered_regime_multiplicity

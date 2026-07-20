@@ -1,0 +1,17 @@
+feature,usable_ranking,regime_between_fraction
+source_guard_nll,True,0.004282366719235043
+source_guard_ece,True,0.00984265875733515
+source_guard_entropy,True,0.0003645406217102647
+source_guard_confidence,True,0.0005218201568925345
+source_guard_margin,True,0.0005263542175676771
+source_guard_logit_norm,True,5.7537591770879696e-05
+source_guard_conf_on_wrong,True,5.530013531381353e-05
+source_audit_nll,True,0.013298692174915106
+source_audit_ece,True,0.01976357088855215
+source_audit_entropy,True,1.2431178339499676e-06
+source_audit_confidence,True,5.953073575375523e-05
+source_audit_margin,True,0.00018372911685559043
+source_audit_logit_norm,True,0.00029834456095340534
+source_audit_conf_on_wrong,True,0.0006387948664773513
+selection_leakage_point,True,0.0005885248086409478
+audit_leakage_point,True,0.9336749733287361

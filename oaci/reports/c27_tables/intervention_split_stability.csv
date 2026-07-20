@@ -1,0 +1,3 @@
+metric,value
+predmix_split_reliability_C26,~0.99 (carried forward from C26 re-persistence)
+note,"predicted-class occupancy is split-stable; C27 factorizes the interaction, not its stability"

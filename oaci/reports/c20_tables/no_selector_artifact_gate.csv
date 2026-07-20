@@ -1,0 +1,9 @@
+check,pass
+development_heldout_disjoint,True
+endpoints_excluded_from_primary,True
+feature_lock,True
+finite_filter,True
+locked_c19_config_hash,664007686afb520f
+no_selector_artifact,True
+success_margin_vs_strict_chance,0.03
+targets_joined_post_hoc,True

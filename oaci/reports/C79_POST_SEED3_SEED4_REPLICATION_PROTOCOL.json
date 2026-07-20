@@ -1,0 +1,403 @@
+{
+  "schema_version": "c79p_post_seed3_seed4_replication_protocol_v1",
+  "milestone": "C79P",
+  "created_at_utc": "2026-07-11T12:41:23Z",
+  "parent_mode_r_handoff_commit": "2ea4ec3a9816d0ea7372b9fabda4b1cb7d9c6cae",
+  "status": "POST_SEED3_PROTOCOL_LOCKED_EXECUTION_NOT_AUTHORIZED",
+  "epistemic_status": {
+    "designed_after_C78S_outcomes": true,
+    "prospective_to_seed4_checkpoint_outcomes": true,
+    "pre_C78S_confirmatory_protocol": false,
+    "outcome_informed_replication": true,
+    "training_seed_robustness_only": true,
+    "new_target_population_confirmation": false,
+    "new_raw_EEG_sample_confirmation": false,
+    "same_targets_and_trials_as_seed3": true,
+    "seed4_untouched_at_protocol_commit": true,
+    "historical_protocol_timing_repaired_retroactively": false
+  },
+  "protected_new_object": "seed4_learned_checkpoint_and_model_outcome_field_not_raw_EEG_labels",
+  "historical_supersession": {
+    "historical_protocol_path": "oaci/reports/C79_SEED4_LOCKED_CONFIRMATION_PROTOCOL.json",
+    "historical_protocol_commit": "43a046c5ba6632de415bfdbaacfa524d82c5395e",
+    "historical_protocol_sha256": "7732986513793725d58933d487f5bc8f4fc68bfad0857bb4734a450b41ca5dd4",
+    "historical_protocol_content_identity_valid": true,
+    "historical_protocol_seed4_authority": false,
+    "historical_registry_bound_categories": 2,
+    "historical_registry_required_categories": 16,
+    "preoutcome_skeleton_path": "oaci/reports/C79_SEED4_LOCKED_CONFIRMATION_PROTOCOL_SKELETON.json",
+    "preoutcome_skeleton_commit": "23f549d73803bd23e435f7dae581de29bf62285f",
+    "preoutcome_skeleton_status": "SKELETON_ONLY_NOT_FINAL_NOT_AUTHORIZED",
+    "adaptive_generator_commit": "e561a15865934036bdccbc1e3b2ff126ad84821f",
+    "adaptive_generator_selection": "active_after_Holm_yielded_H3_H4_H5",
+    "supersession_ledger_path": "oaci/reports/c79p_tables/protocol_supersession_ledger.csv",
+    "supersession_ledger_sha256": "acfb5a578a61e54b11d081edb812fffa17489769a78c68cfac59187275a2b344",
+    "history_rewritten": false
+  },
+  "accepted_evidence": {
+    "C78S_protocol_path": "oaci/reports/C78S_SEED3_SCIENTIFIC_ANALYSIS_PROTOCOL.json",
+    "C78S_protocol_commit": "1d210fdbf6333755ded53dead92c0f9f7ce7cefe",
+    "C78S_protocol_sha256": "df85699090a65d1e1766d754bcebd9eb5648cc13e4441d8074a3f4884487c7f8",
+    "C78S_implementation_commit": "e561a15865934036bdccbc1e3b2ff126ad84821f",
+    "C78S_result_commit": "43a046c5ba6632de415bfdbaacfa524d82c5395e",
+    "C79_Mode_R_audit_commit": "70c31bb7be239ee16d3f7f2730920dc1a87895f6",
+    "C79_Mode_R_regression_commit": "d180cbe",
+    "C79_Mode_R_handoff_commit": "2ea4ec3a9816d0ea7372b9fabda4b1cb7d9c6cae",
+    "reference_value_table_path": "oaci/reports/c79p_tables/c78s_reference_value_replay.csv",
+    "reference_value_table_sha256": "8163c4740142a75baa48ed1b51daf3ec70edb6096d1c37e6a9ddab28079539d8"
+  },
+  "seed_perturbation": {
+    "primary_seed": 4,
+    "reference_seed": 3,
+    "changed": [
+      "training_seed",
+      "learned_parameters",
+      "optimizer_trajectory",
+      "checkpoint_outcome_field"
+    ],
+    "fixed": [
+      "BNCI2014_001_raw_trials_and_trial_IDs",
+      "source_target_roles",
+      "construction_evaluation_partition",
+      "historical_ERM_OACI_SRC_definitions",
+      "checkpoint_cadence",
+      "instrumentation_fields_and_tolerances",
+      "scientific_formulas",
+      "null_construction",
+      "analysis_RNG_streams",
+      "materiality_and_qualification_thresholds",
+      "report_ordering"
+    ],
+    "registry_path": "oaci/reports/c79p_tables/seed_perturbation_registry.csv",
+    "registry_sha256": "421c9d430dfed02679940a7e1846c9966317211d52f494ed9be749e858f95b7e"
+  },
+  "population": {
+    "dataset": "BNCI2014_001",
+    "seed": 4,
+    "primary_targets": [1, 2, 3, 5, 6, 7, 8, 9],
+    "engineering_canary_target": 4,
+    "target4_excluded_from": [
+      "primary_estimands",
+      "primary_nulls",
+      "primary_multiplicity",
+      "primary_target_counts",
+      "primary_success_rules",
+      "cross_seed_primary_summaries"
+    ],
+    "levels": [0, 1],
+    "regimes": ["ERM", "OACI", "SRC"],
+    "ERM_role": "one_anchor_per_target_level_not_a_trajectory",
+    "OACI_role": "forty_checkpoint_historical_trajectory",
+    "SRC_role": "forty_checkpoint_historical_negative_control_trajectory",
+    "candidates_per_target_level": 81,
+    "primary_target_level_contexts": 16,
+    "primary_units": 1296,
+    "engineering_units": 1458,
+    "complete_regime_counts": {"ERM": 18, "OACI": 720, "SRC": 720},
+    "primary_regime_counts": {"ERM": 16, "OACI": 640, "SRC": 640}
+  },
+  "field_generation": {
+    "target_order": [4, 8, 9, 3, 6, 5, 2, 7, 1],
+    "waves": {
+      "C0_engineering_canary": [4],
+      "A": [8, 9, 3, 6],
+      "B": [5, 2, 7, 1]
+    },
+    "phases_per_target": 6,
+    "total_training_phases": 54,
+    "units_per_target": 162,
+    "checkpoint_cadence": {
+      "ERM": "one_stage1_final_anchor_per_level",
+      "OACI": "epochs_4_to_199_step5_forty_per_level",
+      "SRC": "epochs_4_to_199_step5_forty_per_level"
+    },
+    "historical_training": {
+      "ERM": "exact_historical_stage1_final_anchor",
+      "OACI": "exact_historical_objective_and_engine",
+      "SRC": "exact_C11_negative_control_commit_2555b36_smooth_temperature_0.1",
+      "stage1_epochs": 200,
+      "stage2_epochs": 200,
+      "checkpoint_every_epochs": 5,
+      "target_fit_rows": 0
+    },
+    "wave_gate_inputs_allowed": [
+      "job_completion",
+      "checkpoint_counts",
+      "state_config_optimizer_hashes",
+      "target_isolation",
+      "instrumentation_identity",
+      "schema",
+      "storage_runtime",
+      "retry_ledger"
+    ],
+    "wave_gate_inputs_forbidden": [
+      "accuracy",
+      "calibration",
+      "association",
+      "transport",
+      "actionability",
+      "checkpoint_quality",
+      "target_label_derived_scientific_outcome"
+    ],
+    "retry_policy": "engineering_failure_only_first_valid_success_retained_all_attempts_logged",
+    "retention_policy": "fixed_cadence_outcome_blind",
+    "resource_ceiling": {
+      "GPU_phase_hours": 12.0,
+      "external_payload_GiB": 40.0,
+      "silent_escalation": false
+    }
+  },
+  "instrumentation": {
+    "strict_source_fields": [
+      "source_domain_id",
+      "source_trial_id",
+      "source_class_label",
+      "logits",
+      "probabilities",
+      "prediction",
+      "z",
+      "Wz",
+      "Wz_plus_b",
+      "class_margins"
+    ],
+    "target_unlabeled_fields": [
+      "target_id",
+      "target_trial_id",
+      "logits",
+      "probabilities",
+      "prediction",
+      "z",
+      "Wz",
+      "Wz_plus_b",
+      "class_margins"
+    ],
+    "physical_views": [
+      "strict_source_trial_view",
+      "target_unlabeled_trial_view",
+      "target_construction_view",
+      "target_evaluation_view",
+      "same_label_oracle_view",
+      "trajectory_trace_view"
+    ],
+    "identity_tolerances": {
+      "Wz_plus_b_logits_max_abs": 1e-6,
+      "softmax_max_abs": 1e-7,
+      "hook_z_max_abs": 1e-6,
+      "repeat_logits_and_z_max_abs": 0.0
+    },
+    "label_views_after_complete_field_freeze": true,
+    "same_label_oracle_primary_reachable": false,
+    "trial_ID_role": "join_split_and_dependence_cluster_only",
+    "row_order_role": "alignment_only",
+    "raw_payload_external_only": true
+  },
+  "label_split": {
+    "policy": "reuse_exact_C78S_target_trial_partition",
+    "source_table_path": "oaci/reports/c78s_tables/label_split_isolation.csv",
+    "source_table_commit": "43a046c5ba6632de415bfdbaacfa524d82c5395e",
+    "source_table_sha256": "7d718e6c608d388f2993297b08e674cde6ec32ef2effdffdc69c54d89c847721",
+    "construction_evaluation_overlap": 0,
+    "union_rows_per_target": 576,
+    "trial_ID_as_predictor": false,
+    "row_order_as_predictor": false,
+    "target_hashes_locked_for": [1, 2, 3, 5, 6, 7, 8, 9]
+  },
+  "scientific_registry": {
+    "path": "oaci/reports/c79p_tables/c79_post_seed3_scientific_registry.csv",
+    "sha256": "3f47bdc84db569549ce0cc5f16ea7dceb4c838332ce1a11c17c83302e5530535",
+    "registered_paths": 10,
+    "categories_per_path": 16,
+    "bound_cells": 160,
+    "blank_cells": 0,
+    "implicit_same_as_before_cells": 0,
+    "active_after_Holm_selection_paths": 0,
+    "seed4_outcome_dependent_branches": 0,
+    "all_paths_execute_unconditionally": true
+  },
+  "analysis": {
+    "co_primary": {
+      "P1": "information_conditioned_measurement_and_material_actionability_transition",
+      "P2": "local_target_unlabeled_nonlinear_association_and_registered_transport_nonqualification"
+    },
+    "mandatory_secondary": ["H2R", "H4R", "H5R", "H6R"],
+    "outcomes": [
+      "continuous_joint_utility",
+      "target_bAcc",
+      "neg_target_NLL",
+      "neg_target_ECE",
+      "primary_joint_good"
+    ],
+    "RNG_base": 7803,
+    "null_replicates": 499,
+    "bootstrap_replicates": 2000,
+    "trial_bootstrap_replicates": 499,
+    "ridge_alphas": [0.01, 0.1, 1.0, 10.0, 100.0],
+    "association_kernel_families": ["rbf", "laplacian"],
+    "association_bandwidth_factors": [0.5, 1.0, 2.0],
+    "association_statistics": ["normalized_alignment", "centered_hsic"],
+    "primary_P2_path": {
+      "feature": "F4_columns_0_to_19",
+      "kernel": "laplacian",
+      "bandwidth_factor": 1.0,
+      "association_statistic": "centered_hsic",
+      "KRR_alpha": 1.0
+    },
+    "materiality": {
+      "top5_or_top10_absolute_improvement_min": 0.05,
+      "standardized_regret_reduction_min": 0.05,
+      "incremental_R2_min": 0.02,
+      "positive_primary_targets_min": 6,
+      "leave_target_median_min_exclusive": 0.0,
+      "leave_regime_median_min_exclusive": 0.0
+    },
+    "multiplicity": {
+      "family": "seed4_replication_six_member",
+      "fixed_order": ["P1_M", "H2R", "P2_L", "H4R", "H5R", "H6R"],
+      "method": "Holm",
+      "alpha": 0.05,
+      "H4R_H5R_nonqualification_does_not_accept_null": true,
+      "P1_A_P2_transport_are_nested_gates": true
+    },
+    "dependence": {
+      "hierarchy": ["seed", "regime", "target", "level", "trajectory", "checkpoint", "trial_ID", "class"],
+      "row_iid": false,
+      "checkpoint_iid": false,
+      "cross_seed_shared_target_and_trial_dependence": true,
+      "two_seed_random_effects_claim_allowed": false
+    },
+    "reference_implementation": {
+      "c78s_protocol_path": "oaci/conditioned_ceiling_coverage/c78s_protocol.py",
+      "c78s_protocol_sha256": "4c9ad2c3e3516167716b79b73893f3714ce14aba99bc3ed21dd9c6d20a0a8ef7",
+      "c78s_modeling_path": "oaci/conditioned_ceiling_coverage/c78s_modeling.py",
+      "c78s_modeling_sha256": "372f4b5e0315d487c452e74ce78736583c105a16c027362e4d96cc713d8175ca",
+      "c78s_analysis_path": "oaci/conditioned_ceiling_coverage/c78s_seed3_scientific_analysis.py",
+      "c78s_analysis_sha256": "785e1a29f64ae03898aeb832914afc0cc4097db5ae5dfd0d0dfddbac1306c4f8",
+      "feature_registry_path": "oaci/reports/c78s_tables/feature_block_registry.csv",
+      "feature_registry_sha256": "accc2e5c3a45fcb39fc31f2196ee227ce504a08e17f743e46a0f654cf42420c1"
+    }
+  },
+  "cross_seed_synthesis": {
+    "primary": false,
+    "seed4_primary_frozen_first": true,
+    "p_value_combination": "forbidden",
+    "better_seed_selection": "forbidden",
+    "candidate_alignment": "target_level_regime_trajectory_order_only",
+    "paired_dependence": "shared_target_and_trial_ID",
+    "estimand_registry_path": "oaci/reports/c79p_tables/cross_seed_estimand_registry.csv",
+    "estimand_registry_sha256": "55ffc3a8f2fee2ee1b9288c304e896a4cf56c07b471c746097b34b341c3d3c7a"
+  },
+  "authorization": {
+    "C79E_required": true,
+    "received": false,
+    "mode": "future_direct_explicit_PI_authorization_bound_to_protocol_and_two_execution_locks",
+    "magic_token_required": false,
+    "handoff_text_is_authorization": false,
+    "prior_authorizations_apply": false
+  },
+  "required_execution_locks": {
+    "field_generation": "C79P_FIELD_GENERATION_EXECUTION_LOCK.json",
+    "scientific_analysis": "C79P_SCIENTIFIC_ANALYSIS_EXECUTION_LOCK.json",
+    "both_must_be_committed_before_authorization": true
+  },
+  "C79P_execution_boundary": {
+    "seed4_EEG_load": 0,
+    "seed4_Slurm_job": 0,
+    "training": 0,
+    "forward_or_reinference": 0,
+    "GPU": 0,
+    "seed4_checkpoint_or_optimizer_state": 0,
+    "seed4_logits_z_Wz_cache": 0,
+    "seed4_label_view": 0,
+    "same_label_oracle": 0,
+    "BNCI2014_004": 0,
+    "manuscript": 0
+  },
+  "forbidden": [
+    "pre_C78S_locked_confirmation_claim",
+    "independent_subject_or_target_population_claim",
+    "external_validation_claim",
+    "active_after_Holm_runtime_selection",
+    "interim_seed4_branching",
+    "feature_kernel_model_mining",
+    "unregistered_cross_seed_pooling",
+    "near_threshold_pvalue_rescue",
+    "source_only_or_OACI_or_SRC_rescue_from_construction_labels",
+    "same_label_oracle_primary_analysis",
+    "C80_auto_start",
+    "BNCI2014_004",
+    "manuscript_drafting",
+    "raw_payload_in_git"
+  ],
+  "eventual_output_contract": {
+    "P1": [
+      "p1_measurement_reliability.csv",
+      "p1_topk_actionability.csv",
+      "p1_regret_materiality.csv",
+      "p1_target_level_effects.csv",
+      "p1_regime_selection_composition.csv",
+      "p1_failure_reason_ledger.csv"
+    ],
+    "H2R": [
+      "h2r_model_registry_replay.csv",
+      "h2r_held_target_deviance.csv",
+      "h2r_permutation_summary.csv",
+      "h2r_target_heterogeneity.csv"
+    ],
+    "P2": [
+      "p2_local_association.csv",
+      "p2_trajectory_cell_effects.csv",
+      "p2_blocked_control_summary.csv",
+      "p2_loto_transport.csv",
+      "p2_loro_transport.csv",
+      "p2_target_regime_heterogeneity.csv",
+      "p2_failure_reason_ledger.csv"
+    ],
+    "H4R_H5R": [
+      "h4r_f2_qualification.csv",
+      "h5r_f4_qualification.csv",
+      "h4r_h5r_failure_reason_ledger.csv"
+    ],
+    "H6R": [
+      "h6r_positive_control_effect.csv",
+      "h6r_Holm_family_replay.csv",
+      "h6r_target_level_effects.csv"
+    ],
+    "cross_seed": [
+      "cross_seed_effect_concordance.csv",
+      "cross_seed_gate_concordance.csv",
+      "cross_seed_training_seed_heterogeneity.csv",
+      "cross_seed_no_rescue_audit.csv"
+    ]
+  },
+  "report_order": [
+    "complete_seed4_field_freeze",
+    "construction_evaluation_label_view_opening",
+    "all_ten_registered_paths_unconditional_execution",
+    "seed4_primary_output_freeze",
+    "secondary_paired_cross_seed_synthesis",
+    "scientific_result_red_team",
+    "primary_report",
+    "final_report_red_team",
+    "result_commit",
+    "handoff_commit"
+  ],
+  "eventual_taxonomy": {
+    "primary": [
+      "C79-A_seed4_replicates_P1_information_conditioned_transition_and_P2_local_nontransport",
+      "C79-B_seed4_replicates_P1_only",
+      "C79-C_seed4_replicates_P2_only",
+      "C79-D_seed4_partial_replication_with_training_seed_heterogeneity",
+      "C79-E_seed4_does_not_replicate_either_core_pattern",
+      "C79-F_execution_analysis_or_provenance_blocker"
+    ],
+    "selection_rule": "deterministic_from_P1_P2_and_mandatory_secondary_registered_gates_after_all_paths_finish",
+    "active_after_Holm_runtime_path_selection": false
+  },
+  "stop_rules": {
+    "seed4_access_before_protocol_commit": "C79_SEED4_PRELOCK_CONTAMINATION_CAMPAIGN_STOP_REQUIRED",
+    "registry_incomplete": "C79_POST_SEED3_PROTOCOL_INCOMPLETE_REPAIR_REQUIRED",
+    "provenance_or_isolation_failure": "C79_PROVENANCE_OR_ISOLATION_BLOCKER",
+    "successful_C79P": "C79_POST_SEED3_REPLICATION_PROTOCOL_LOCKED_READY_FOR_PI_AUTHORIZATION",
+    "successful_C79P_does_not_authorize_C79E": true
+  }
+}
