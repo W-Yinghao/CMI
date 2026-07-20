@@ -108,3 +108,15 @@ def bca_lcb(obs, boot, jack, alpha=0.05):
 def percentile_lcb(boot, alpha=0.05):
     boot = boot[np.isfinite(boot)]
     return float(np.quantile(boot, alpha)) if boot.size else float("nan")
+
+
+def bc_ci(obs, boot, alpha=0.05):
+    """Bias-corrected (BC) two-sided bootstrap CI — corrects the plug-in bias of a non-smooth statistic
+    (e.g. the cross-fit argmin) without the O(n) jackknife of full BCa acceleration. Returns (lo, hi)."""
+    boot = boot[np.isfinite(boot)]
+    if boot.size < 10:
+        return float("nan"), float("nan")
+    z0 = norm.ppf(np.clip((boot < obs).mean(), 1e-6, 1 - 1e-6))
+    def adj(p):
+        return float(np.quantile(boot, np.clip(norm.cdf(2 * z0 + norm.ppf(p)), 1e-6, 1 - 1e-6)))
+    return adj(alpha / 2), adj(1 - alpha / 2)

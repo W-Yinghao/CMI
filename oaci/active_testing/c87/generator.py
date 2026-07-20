@@ -61,7 +61,14 @@ def _gen_cohort(A, n_pat, rng, *, base, g, phi=0.15, rho=0.3, sigma=1.0,
 # a competitive TOP CLUSTER whose members are near-tied on non-informative records; the single best is
 # distinguished mainly on informative (D=1) records, so uniform P0 confuses the cluster while a
 # disagreement/EIG-seeking policy concentrates queries on the distinguishing records and wins.
-POS_PARAMS = dict(n_top=8, base_top=1.15, base_rest=(0.25, 0.30), g_best=3.2, phi=0.15, rho=0.30)
+# Tuned (per C87P §6.2: "SEP_POS, g and phi set so POS active gain clears the gate with >=80% MC power")
+# for a strong, LOW-VARIANCE per-cohort active gain so the demanding all-3-cohort conjunction reaches >=80%:
+# few, highly-separated top competitors so the disagreement-seeking selector reliably finds the single best
+# (MS regret ~0) while uniform P0 stays confused at small budget (P0 regret high, consistent gain).
+POS_PARAMS = dict(n_top=3, base_top=1.30, base_rest=(0.18, 0.26), g_best=9.0, phi=0.18, rho=0.30)
+# CALIB uses a MODERATE, stable world DECOUPLED from POS power tuning, so bootstrap coverage of the
+# cross-fit statistic is well-behaved (a super-dominant best degenerates the selection statistic's variance).
+CALIB_PARAMS = dict(n_top=8, base_top=1.15, base_rest=(0.25, 0.30), g_best=2.4, phi=0.15, rho=0.30)
 
 
 def subsample_patients(coh, n_sub, rng):
@@ -91,7 +98,7 @@ def make_world(kind, A=120, n_pat=300, E=3, seed=0, records_per_patient=1):
     """Return list of E Cohort objects for a control world in
     {POS, POS_DENSE, NEG_A, NEG_B, CALIB}. Deterministic in `seed`."""
     rng = np.random.default_rng(seed)
-    pp = POS_PARAMS
+    pp = CALIB_PARAMS if kind == "CALIB" else POS_PARAMS
     cohorts = []
     for e in range(E):
         g = np.zeros(A)

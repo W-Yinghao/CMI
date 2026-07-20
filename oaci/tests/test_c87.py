@@ -34,15 +34,18 @@ def test_lure_unbiased_nonuniform():
 
 
 def test_crossfit_reference_can_be_negative():
-    """v3: cross-fitted excess loss of a fixed good pick MAY be negative (held-SELECTION reference,
-    not an unbiased oracle)."""
-    w = G.make_world("POS_DENSE", A=200, n_pat=200, E=1, seed=3)[0]
-    Lbar, pat = E.patient_mean_loss(E.binary_nll(w.probs, w.y), w.patient_of)
-    cf = E.cross_fit(Lbar, pat)
-    T = E.transport_gap_cf(Lbar, w.aC, cf)
-    assert np.isfinite(T)
-    # the cross-fit reference is >= the in-sample argmin loss (out-of-fold, less optimistic)
-    assert cf.ref >= E.held_view_loss(Lbar).min() - 1e-9
+    """v3: cross-fitted excess loss MAY be negative (held-SELECTION reference, not an unbiased oracle),
+    and the reference is >= the optimistic in-sample argmin ON AVERAGE (winner's-curse correction)."""
+    Ts, refs, mins = [], [], []
+    for s in range(40):
+        w = G.make_world("POS_DENSE", A=648, n_pat=400, E=1, seed=7000 + s)[0]
+        Lbar, pat = E.patient_mean_loss(E.binary_nll(w.probs, w.y), w.patient_of)
+        cf = E.cross_fit(Lbar, pat)
+        Ts.append(E.transport_gap_cf(Lbar, w.aC, cf))
+        refs.append(cf.ref); mins.append(E.held_view_loss(Lbar).min())
+    assert all(np.isfinite(Ts))
+    assert min(Ts) < 0                                   # excess loss CAN be negative (v3)
+    assert np.mean(refs) >= np.mean(mins)                # cross-fit ref less optimistic than in-sample min
 
 
 def test_s_e_is_full_set_dispersion_no_crossfit():

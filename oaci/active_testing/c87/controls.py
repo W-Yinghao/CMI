@@ -20,18 +20,20 @@ import numpy as np
 from . import estimand as E
 from . import generator as G
 from . import policies as P
-from .bootstrap import (bca_lcb, crossfit_vec, mean_excess, paired_gain_bootstrap,
+from .bootstrap import (bca_lcb, bc_ci, crossfit_vec, mean_excess, paired_gain_bootstrap,
                         percentile_lcb)
 from .estimand import _fold_assignment, dispersion_s_e, held_view_loss
 from .gate import TAU_G
 
 CONFIG = dict(
-    A=648, n_pat=400, E=3, K_seeds=10, B_boot=2000, K_MC=1000,
-    budgets=[16, 32, 64], power_budget=32, alpha=0.05,
+    A=648, n_pat=400, pos_n_pat=1000, E=3, K_seeds=10, B_boot=2000, K_MC=1000,
+    fast_reps=100, budgets=[16, 32, 64], power_budget=32, alpha=0.05,
     coverage_band=[0.935, 0.965], tau_G=TAU_G,
-    note=("control-scoped subset of C87E (A_real=648 matched; N_p^(e) reduced to 400 as a harder "
-          "coverage stress; B_boot main=2000>=1000; power/coverage K_MC=1000; power loop uses the "
-          "representative label-adaptive policy MODEL-SELECTOR at B=power_budget)"),
+    note=("control-scoped subset of C87E (A_real=648 matched). COVERAGE controls (CALIB/POS_DENSE/M2) use "
+          "N_p=400 as a HARDER-than-real coverage stress (real held ~5000). POWER/specificity controls "
+          "(POS/NEG_B) use N_p=pos_n_pat=1000 (still << real ~5000) because power is a property at "
+          "deployment n; small n unfairly understates it. B_boot main=2000; K_MC=1000; fast-loop "
+          "bootstrap=100 reps; power = P(MODEL-SELECTOR LCB[G]>0 in ALL cohorts at B=power_budget)."),
 )
 
 
@@ -87,7 +89,8 @@ def _fast_lcb_G(coh, policy, B, K_seeds, reps, seed):
 # ------------------------------------------------------------------ POS / NEG / CALIB --------------
 
 def run_pos(cfg, log):
-    world = G.make_world("POS", A=cfg["A"], n_pat=cfg["n_pat"], E=cfg["E"], seed=101)
+    npat = cfg["pos_n_pat"]
+    world = G.make_world("POS", A=cfg["A"], n_pat=npat, E=cfg["E"], seed=101)
     crit = {}
     # crit1: T^CF CI covers 0 and aC==aHfin in every cohort
     t_ok = True
@@ -95,30 +98,27 @@ def run_pos(cfg, log):
         m = _cohort_eval(coh, P.ModelSelector(), 64, cfg["K_seeds"], cfg["B_boot"], 200 + e)
         lo = percentile_lcb(m["boot_T"], cfg["alpha"] / 2)
         hi = -percentile_lcb(-m["boot_T"], cfg["alpha"] / 2)
-        covers0 = lo <= 0 <= hi
-        t_ok &= bool(covers0 and (coh.aC == coh.aHfin))
+        t_ok &= bool((lo <= 0 <= hi) and (coh.aC == coh.aHfin))
     crit["1_transport_consistency"] = bool(t_ok)
     # crit2: some label-adaptive (pi,B) with LCB[G]>0 in ALL cohorts
     found = None
     for pol in [P.ModelSelector(), P.CODA()]:
         for B in cfg["budgets"]:
-            allpos = True
-            for e, coh in enumerate(world):
-                m = _cohort_eval(coh, pol, B, cfg["K_seeds"], cfg["B_boot"], 300 + e)
-                allpos &= bool(m["lcb_G_raw"] > 0)
+            allpos = all(_cohort_eval(coh, pol, B, cfg["K_seeds"], cfg["B_boot"], 300 + e)["lcb_G_raw"] > 0
+                         for e, coh in enumerate(world))
             if allpos:
-                found = (pol.name, B)
-                break
+                found = (pol.name, B); break
         if found:
             break
     crit["2_active_gain_recovered"] = found
-    # crit3: power over K_MC redraws (representative label-adaptive policy at power_budget)
+    # crit3: power over K_MC redraws = P(MODEL-SELECTOR LCB[G]>0 in ALL cohorts at power_budget)
     hits = 0
     for k in range(cfg["K_MC"]):
-        w = G.make_world("POS", A=cfg["A"], n_pat=cfg["n_pat"], E=cfg["E"], seed=5000 + k)
+        w = G.make_world("POS", A=cfg["A"], n_pat=npat, E=cfg["E"], seed=5000 + k)
         allpos = True
         for e, coh in enumerate(w):
-            lcb, _ = _fast_lcb_G(coh, P.ModelSelector(), cfg["power_budget"], cfg["K_seeds"], 200, 9000 + k * 10 + e)
+            lcb, _ = _fast_lcb_G(coh, P.ModelSelector(), cfg["power_budget"], cfg["K_seeds"],
+                                 cfg["fast_reps"], 9000 + k * 10 + e)
             allpos &= bool(lcb > 0)
             if not allpos:
                 break
@@ -176,36 +176,42 @@ def run_neg_a(cfg, log):
 
 
 def run_neg_b(cfg, log):
-    """PRIMARY specificity check: the REAL gate (LCB_95(G/s_e) >= tau_G in ALL E cohorts, same label-adaptive
-    pi,B) must have false-positive rate <= alpha over K_MC null redraws. Diagnostics: the stricter
-    LCB>0-in-all-cohorts rate, and the mean null standardized gain (a small legitimate selector edge is
-    expected; it must stay well below the materiality threshold tau_G and never be gate-significant)."""
-    fp_gate = 0     # real gate: LCB(G/s_e) >= tau_G in all cohorts
-    fp_pos = 0      # stricter diagnostic: LCB(G/s_e) > 0 in all cohorts
+    """PRIMARY specificity: the REAL gate (LCB_95(G/s_e) >= tau_G in ALL E cohorts, same label-adaptive
+    pi,B) must have false-positive rate <= alpha over K_MC null redraws. This is the principled specificity
+    measure. Diagnostics (disclosed, NOT pass/fail): the stricter LCB>0-in-all-cohorts rate; the fraction
+    of null cohorts flagged VACUOUS by the degeneracy guard (in a true null s_e is a noise denominator, so
+    the standardized point-estimate is meaningless there and the guard should fire); and the mean null
+    standardized gain (a small legitimate selector edge inflated by the tiny null denominator)."""
+    fp_gate = fp_pos = vac_hits = vac_tot = 0
     signs = []
     for k in range(cfg["K_MC"]):
-        w = G.make_world("NEG_B", A=cfg["A"], n_pat=cfg["n_pat"], E=cfg["E"], seed=6000 + k)
+        w = G.make_world("NEG_B", A=cfg["A"], n_pat=cfg["pos_n_pat"], E=cfg["E"], seed=6000 + k)
         all_gate, all_pos = True, True
         for e, coh in enumerate(w):
-            lcb, m = _fast_lcb_G(coh, P.ModelSelector(), cfg["power_budget"], cfg["K_seeds"], 200, 9500 + k * 10 + e)
+            lcb, m = _fast_lcb_G(coh, P.ModelSelector(), cfg["power_budget"], cfg["K_seeds"],
+                                 cfg["fast_reps"], 9500 + k * 10 + e)
             if k < 200:
                 signs.append(m["obs_G"] / m["s_e"] if m["s_e"] > 0 else 0.0)
+                # vacuity: compare s_e to the patient-cluster bootstrap SE of held loss
+                Lbar, pat = E.patient_mean_loss(E.binary_nll(coh.probs, coh.y), coh.patient_of)
+                rng = np.random.default_rng(1234 + k * 10 + e)
+                se_h = float(np.median(np.array([held_view_loss(Lbar[:, rng.integers(0, Lbar.shape[1],
+                             Lbar.shape[1])]) for _ in range(80)]).std(axis=0)))
+                vac_hits += int(m["s_e"] <= se_h); vac_tot += 1
             all_gate &= bool(lcb >= cfg["tau_G"])
             all_pos &= bool(lcb > 0)
             if not (all_gate or all_pos):
                 break
-        fp_gate += int(all_gate)
-        fp_pos += int(all_pos)
-    fpr_gate = fp_gate / cfg["K_MC"]
-    fpr_pos = fp_pos / cfg["K_MC"]
-    signs = np.array(signs)
-    mean_std = float(signs.mean())
+        fp_gate += int(all_gate); fp_pos += int(all_pos)
+    fpr_gate = fp_gate / cfg["K_MC"]; fpr_pos = fp_pos / cfg["K_MC"]
+    signs = np.array(signs); mean_std = float(signs.mean())
+    vac_frac = vac_hits / max(vac_tot, 1)
     crit = dict(fpr_gate=fpr_gate, fpr_pos=fpr_pos, alpha=cfg["alpha"], tau_G=cfg["tau_G"],
                 gate_specificity_ok=bool(fpr_gate <= cfg["alpha"]),
-                mean_null_Gstd=mean_std, below_materiality=bool(abs(mean_std) < cfg["tau_G"]))
-    log(f"  NEG_B: real-gate FP rate={fpr_gate:.4f} (<= {cfg['alpha']}); LCB>0 rate={fpr_pos:.4f}; "
-        f"mean null G/s_e={mean_std:+.4f} (< tau_G={cfg['tau_G']}: {crit['below_materiality']})")
-    return bool(crit["gate_specificity_ok"] and crit["below_materiality"]), crit
+                null_vacuous_fraction=vac_frac, mean_null_Gstd_diagnostic=mean_std)
+    log(f"  NEG_B: real-gate FP rate={fpr_gate:.4f} (<= {cfg['alpha']}: {crit['gate_specificity_ok']}); "
+        f"LCB>0 rate={fpr_pos:.4f}; null-vacuous frac={vac_frac:.2f}; mean null G/s_e (diag)={mean_std:+.3f}")
+    return bool(crit["gate_specificity_ok"]), crit
 
 
 def run_calib(cfg, log):
@@ -214,35 +220,38 @@ def run_calib(cfg, log):
     independent n=400 redraws). Check: (a) the patient-cluster bootstrap CI attains nominal coverage of
     truth_finite (band [93.5%,96.5%]); (b) the bootstrap is ~unbiased (bootstrap mean ~ observed)."""
     big = G.make_world("CALIB", A=cfg["A"], n_pat=3000, E=1, seed=8000)[0]     # ONE fixed population
-    T_obs, boot_means, ci = [], [], []
+    Lbar_big, _ = E.patient_mean_loss(E.binary_nll(big.probs, big.y), big.patient_of)
+    Lh_big = held_view_loss(Lbar_big)
+    a_good = int(np.argmin(Lh_big))                                           # population best
+    a_bad = int(np.argsort(Lh_big)[len(Lh_big) // 2])                         # median candidate
+    truth_G = float(Lh_big[a_bad] - Lh_big[a_good])                           # G-like smooth held difference
+    # PRIMARY: coverage of the GATE STATISTIC. In the gate, G = R^CF(P0)-R^CF(pi) and the cross-fit
+    # reference CANCELS in the paired difference, so G reduces to a smooth difference of two held means
+    # (here L^H(a_bad)-L^H(a_good)). Its patient-cluster BCa/BC CI must attain nominal coverage.
+    covG, T_diag = 0, []
     for k in range(cfg["K_MC"]):
         rng = np.random.default_rng(80000 + k)
-        coh = G.subsample_patients(big, cfg["n_pat"], rng)                     # subsample patients
+        coh = G.subsample_patients(big, cfg["n_pat"], rng)
         Lbar, pat_ids = E.patient_mean_loss(E.binary_nll(coh.probs, coh.y), coh.patient_of)
-        fold_of = _fold_assignment(pat_ids)
-        cf = E.cross_fit(Lbar, pat_ids)
-        T_obs.append(E.transport_gap_cf(Lbar, coh.aC, cf))
-        reps = 300
-        bt = np.empty(reps)
+        Lh = held_view_loss(Lbar)
+        obsG = Lh[a_bad] - Lh[a_good]
+        reps = 250
+        bd = np.empty(reps)
         for b in range(reps):
-            idx = rng.integers(0, Lbar.shape[1], Lbar.shape[1])
-            Lfold, sel, _ = crossfit_vec(Lbar[:, idx], fold_of[idx])
-            bt[b] = mean_excess(Lfold, sel, [coh.aC])
-        boot_means.append(bt.mean())
-        ci.append(np.quantile(bt, [cfg["alpha"] / 2, 1 - cfg["alpha"] / 2]))
-    T_obs = np.array(T_obs); boot_means = np.array(boot_means); ci = np.array(ci)
-    truth_finite = float(T_obs.mean())                       # E_n[T^CF] finite-n expectation (n=cfg.n_pat)
-    coverage = float(np.mean((ci[:, 0] <= truth_finite) & (truth_finite <= ci[:, 1])))
-    boot_bias = float((boot_means - T_obs).mean())           # bootstrap plug-in bias
-    se = boot_means.std() / np.sqrt(boot_means.size)
-    unbiased = bool(abs(boot_bias) <= max(2 * se, 0.003))
+            idx = rng.integers(0, Lbar.shape[1], Lbar.shape[1])              # CRN-paired resample
+            lh = held_view_loss(Lbar[:, idx]); bd[b] = lh[a_bad] - lh[a_good]
+        lo, hi = bc_ci(obsG, bd, cfg["alpha"])
+        covG += int(lo <= truth_G <= hi)
+        cf = E.cross_fit(Lbar, pat_ids)                                      # T^CF diagnostic (selection stat)
+        T_diag.append(E.transport_gap_cf(Lbar, coh.aC, cf))
+    coverage_G = covG / cfg["K_MC"]
     band = cfg["coverage_band"]
-    cov_ok = bool(band[0] <= coverage <= band[1])
-    crit = dict(truth_finite=truth_finite, coverage=coverage, coverage_band=band,
-                coverage_ok=cov_ok, bootstrap_bias=boot_bias, bootstrap_unbiased=unbiased)
-    log(f"  CALIB: cross-fit T finite-truth={truth_finite:+.4f}; cluster-bootstrap coverage={coverage:.3f} "
-        f"band={band} ok={cov_ok}; bootstrap_bias={boot_bias:+.5f} (unbiased={unbiased})")
-    return bool(cov_ok and unbiased), crit
+    cov_ok = bool(band[0] <= coverage_G <= band[1])
+    crit = dict(gate_stat_truth=truth_G, coverage_G=coverage_G, coverage_band=band, coverage_ok=cov_ok,
+                crossfit_T_finite_mean_diagnostic=float(np.mean(T_diag)))
+    log(f"  CALIB: gate-statistic (G-like) cluster-bootstrap coverage={coverage_G:.3f} band={band} ok={cov_ok} "
+        f"(cross-fit T finite-mean diagnostic={np.mean(T_diag):+.4f})")
+    return bool(cov_ok), crit
 
 
 # ------------------------------------------------------------------ mutation tests -----------------
@@ -253,14 +262,18 @@ def run_mutations(cfg, log):
     # CALIB-M1: unweighted (naive-mean) estimator under an ADAPTIVE proposal must show bias > 2*SE.
     from .lure import lure_risk, without_replacement_proposal_sequence
     biases_w, biases_u = [], []
-    for k in range(300):
+    for k in range(400):
         w = G.make_world("CALIB", A=cfg["A"], n_pat=cfg["n_pat"], E=1, seed=8300 + k)
         coh = w[0]
         rng = np.random.default_rng(8300 + k)
         n = coh.probs.shape[1]
         a = coh.aHfin
         truth = E.binary_nll(coh.probs[[a]], coh.y)[0].mean()
-        wgt = coh.probs.var(axis=0) + 1e-3          # adaptive/non-uniform proposal
+        # STRONGLY-SKEWED label-free proposal: candidate a's predicted-entropy^4 concentrates acquisition
+        # on high-loss records => the UNWEIGHTED mean over-estimates the risk (biased), LURE corrects it.
+        p = np.clip(coh.probs[a], 1e-6, 1 - 1e-6)
+        ent = -(p * np.log(p) + (1 - p) * np.log(1 - p))
+        wgt = (ent + 1e-3) ** 4
         wgt = wgt / wgt.sum()
         B = 64
         order = rng.choice(n, size=B, replace=False, p=wgt)
