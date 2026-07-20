@@ -1,0 +1,135 @@
+{
+  "verdict": "CONTROL_PASS",
+  "config": {
+    "A": 648,
+    "n_pat": 400,
+    "pos_n_pat": 1000,
+    "E": 3,
+    "K_seeds": 10,
+    "B_boot": 2000,
+    "K_MC": 1000,
+    "fast_reps": 100,
+    "budgets": [
+      16,
+      32,
+      64
+    ],
+    "power_budget": 32,
+    "alpha": 0.05,
+    "coverage_band": [
+      0.935,
+      0.965
+    ],
+    "tau_G": 0.25,
+    "note": "control-scoped subset of C87E (A_real=648 matched). COVERAGE controls (CALIB/POS_DENSE/M2) use N_p=400 as a HARDER-than-real coverage stress (real held ~5000). POWER/specificity controls (POS/NEG_B) use N_p=pos_n_pat=1000 (still << real ~5000) because power is a property at deployment n; small n unfairly understates it. B_boot main=2000; K_MC=1000; fast-loop bootstrap=100 reps; power = P(MODEL-SELECTOR LCB[G]>0 in ALL cohorts at B=power_budget)."
+  },
+  "results": {
+    "POS": {
+      "passed": true,
+      "detail": {
+        "1_transport_consistency": true,
+        "2_active_gain_recovered": [
+          "MODEL-SELECTOR",
+          16
+        ],
+        "3_power": {
+          "power": 0.806,
+          "floor": 0.8,
+          "passed": true
+        }
+      }
+    },
+    "POS_DENSE": {
+      "passed": true,
+      "detail": {
+        "insample_argmin": 0.2655980167026381,
+        "xfit_reference": 0.26862673435203077,
+        "optimism_gap": 0.0030287176493926714,
+        "winners_curse_corrected": true,
+        "naive_T": 8.315384057419217e-05,
+        "xfit_T": -0.002752339023682151,
+        "naive_inflates_transport": true
+      }
+    },
+    "NEG_A": {
+      "passed": true,
+      "detail": {
+        "passed": true,
+        "details": [
+          {
+            "cohort": 0,
+            "lcb_T": 0.6039401909555329,
+            "aC_ne_aHfin": true
+          },
+          {
+            "cohort": 1,
+            "lcb_T": 0.4632633820925913,
+            "aC_ne_aHfin": true
+          },
+          {
+            "cohort": 2,
+            "lcb_T": 0.6016528357155488,
+            "aC_ne_aHfin": true
+          }
+        ]
+      }
+    },
+    "NEG_B": {
+      "passed": true,
+      "detail": {
+        "fpr_gate": 0.0,
+        "fpr_pos": 0.001,
+        "alpha": 0.05,
+        "tau_G": 0.25,
+        "gate_specificity_ok": true,
+        "null_vacuous_fraction": 1.0,
+        "mean_null_Gstd_diagnostic": 0.18498994903149005
+      }
+    },
+    "CALIB": {
+      "passed": true,
+      "detail": {
+        "gate_stat_truth": 0.3705042862275915,
+        "coverage_G": 0.96,
+        "coverage_band": [
+          0.935,
+          0.965
+        ],
+        "coverage_ok": true,
+        "crossfit_T_finite_mean_diagnostic": -0.003907814588879092
+      }
+    },
+    "MUTATIONS": {
+      "passed": true,
+      "detail": {
+        "CALIB_M1_unweighted_biased": {
+          "unweighted_bias": 0.19208543630473304,
+          "lure_bias": 0.0014208910912787785,
+          "triggered": true
+        },
+        "CALIB_M2_record_bootstrap_undercovers": {
+          "cluster_cov": 0.94,
+          "record_cov": 0.8333333333333334,
+          "triggered": true
+        },
+        "NEG_M3_oracle_leak_manufactures_gain": {
+          "rate": 0.85,
+          "triggered": true
+        }
+      }
+    }
+  },
+  "elapsed_s": 4613.6,
+  "logs": [
+    "[C87 CONTROL GATE] config={\"A\": 648, \"n_pat\": 400, \"pos_n_pat\": 1000, \"E\": 3, \"K_seeds\": 10, \"B_boot\": 2000, \"K_MC\": 1000, \"fast_reps\": 100, \"budgets\": [16, 32, 64], \"power_budget\": 32, \"alpha\": 0.05, \"coverage_band\": [0.935, 0.965], \"tau_G\": 0.25}",
+    "  note: control-scoped subset of C87E (A_real=648 matched). COVERAGE controls (CALIB/POS_DENSE/M2) use N_p=400 as a HARDER-than-real coverage stress (real held ~5000). POWER/specificity controls (POS/NEG_B) use N_p=pos_n_pat=1000 (still << real ~5000) because power is a property at deployment n; small n unfairly understates it. B_boot main=2000; K_MC=1000; fast-loop bootstrap=100 reps; power = P(MODEL-SELECTOR LCB[G]>0 in ALL cohorts at B=power_budget).",
+    "  POS: transport=True gain=('MODEL-SELECTOR', 16) power=0.806",
+    "  POS_DENSE: insample_min=0.2656 xfit_ref=0.2686 optimism_gap=+0.0030 (corrected=True); naiveT=+0.0001 xfitT=-0.0028 (naive_inflates=True)",
+    "  NEG_A: no-false-transport=True",
+    "  NEG_B: real-gate FP rate=0.0000 (<= 0.05: True); LCB>0 rate=0.0010; null-vacuous frac=1.00; mean null G/s_e (diag)=+0.185",
+    "  CALIB: gate-statistic (G-like) cluster-bootstrap coverage=0.960 band=[0.935, 0.965] ok=True (cross-fit T finite-mean diagnostic=-0.0039)",
+    "  MUTATIONS: M1=True M2=True M3=True",
+    "[C87 CONTROL GATE] VERDICT = CONTROL_PASS  (4613.6s)  sig=b31cd7314b1a4c59"
+  ],
+  "signature": "b31cd7314b1a4c59"
+}
