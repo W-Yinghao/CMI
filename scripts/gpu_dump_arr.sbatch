@@ -1,6 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=lb-dump
 #SBATCH --partition=A100,H100,L40S,A40,V100,V100-32GB
+#SBATCH --exclude=node54
 #SBATCH --gres=gpu:1
 #SBATCH --cpus-per-task=6
 #SBATCH --mem=64G
