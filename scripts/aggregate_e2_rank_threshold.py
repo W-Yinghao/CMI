@@ -55,7 +55,13 @@ def aggregate_backbone(recs, n_boot):
             "dim_SD_in_row": _cluster_boot(by_subject, "dim_SD_in_row", n_boot),
             "min_angle_SD_row_deg": _cluster_boot(by_subject, "min_angle_SD_row_deg", n_boot),
             "logit_change_remove_SD_relative": _cluster_boot(by_subject, "logit_change_remove_SD_relative", n_boot),
-            "predict": "S_D subset ker(W tilde): dim_SD_in_row small, min_angle_SD_row large, logit_change small",
+            # TASK-LOSS version + free/entangled decomposition
+            "ce_change_remove_SD": _cluster_boot(by_subject, "ce_change_remove_SD", n_boot),
+            "acc_drop_remove_SD": _cluster_boot(by_subject, "acc_drop_remove_SD", n_boot),
+            "frac_SD_energy_in_head_rowspace": _cluster_boot(by_subject, "frac_SD_energy_in_head_rowspace", n_boot),
+            "logit_change_remove_SD_kernel_part": _cluster_boot(by_subject, "logit_change_remove_SD_kernel_part", n_boot),
+            "predict": "if S_D subset ker: dim_SD_in_row small, logit/ce/acc change ~0. Entangled: acc_drop>0, "
+                       "and kernel-part removal ~0 while full-SD removal hurts (free vs entangled split).",
         }
     else:
         out["note"] = "no verified exact linear head; exact-head clause NOT reported (head-free endpoints only)"

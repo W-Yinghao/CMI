@@ -30,6 +30,17 @@ from cmi.eval.subject_spectrum import (pooled_within_class_cov, whitened_subject
 from cmi.eval.conditional_subject_leakage import subject_residual
 
 
+def _ce_mean(logits, y):
+    """Mean cross-entropy of softmax(logits) vs integer labels (log-sum-exp stable)."""
+    L = np.asarray(logits, float); m = L.max(1, keepdims=True)
+    logZ = m[:, 0] + np.log(np.exp(L - m).sum(1) + EPS)
+    return float((logZ - L[np.arange(len(y)), np.asarray(y)]).mean())
+
+
+def _acc(logits, y):
+    return float((np.asarray(logits).argmax(1) == np.asarray(y)).mean())
+
+
 def _fast_linear_subject_bacc(Z, y, d, seed=0):
     """FAST closed-form LINEAR subject decodability (LDA within label, averaged over labels). Used across the
     whole eraser-rank sweep (the heavier logreg+MLP `subject_residual` is reserved for checkpoint ranks)."""
@@ -168,8 +179,25 @@ def rank_threshold_fold(Z, y, d, logits, *, target_subject=None, seed=0, n_perm=
         logit_change_SD = float(np.linalg.norm(Zt @ P_SD @ W_tilde.T, axis=1).mean())
         logit_scale = float(np.linalg.norm(Zt @ W_tilde.T, axis=1).mean() + EPS)
         logit_change_SD_rel = logit_change_SD / logit_scale
+        # TASK-LOSS version of exact-head safety: CE increase + accuracy drop when S_D is removed (softmax uses
+        # class-centered logits + recovered per-class bias bc; softmax is invariant to the per-row mean).
+        bc = np.asarray(bc, float)
+        Lc_full = Zt @ W_tilde.T + bc
+        Lc_rmSD = (Zt - Zt @ P_SD) @ W_tilde.T + bc
+        ce_change_SD = _ce_mean(Lc_rmSD, y) - _ce_mean(Lc_full, y)
+        acc_drop_SD = _acc(Lc_full, y) - _acc(Lc_rmSD, y)
+        # free/entangled decomposition: fraction of S_D energy in the head ROW space (entangled, task-bearing)
+        # vs kernel (free, removal-safe). Reconciles the ~53% logit move with the head-null "free" leakage.
+        frac_SD_in_row = float((np.linalg.norm(row @ S_D.T) ** 2) / max(len(S_D), 1)) if len(row) else 0.0
+        # remove ONLY the kernel-projection of S_D (the free part) -> logit change must be ~0
+        if len(ker):
+            SD_ker = (S_D @ ker.T) @ ker                       # S_D projected into ker(W_tilde)
+            logit_change_SDker = float(np.linalg.norm(Zt @ (SD_ker.T @ SD_ker) @ W_tilde.T, axis=1).mean())
+        else:
+            logit_change_SDker = 0.0
     else:
         logit_change_SD = logit_change_SD_rel = None
+        ce_change_SD = acc_drop_SD = frac_SD_in_row = logit_change_SDker = None
 
     # eraser-rank sweep k=1..k_max: residual subject decodability (FAST linear LDA across all k) + exact-head
     # logit change. Heavy logreg+MLP residual (`subject_residual`) is computed only at CHECKPOINT ranks.
@@ -224,6 +252,8 @@ def rank_threshold_fold(Z, y, d, logits, *, target_subject=None, seed=0, n_perm=
         "dim_SD_in_ker": int(dim_in_ker), "dim_SD_in_row": int(dim_in_row),
         "min_angle_SD_row_deg": min_angle_row, "min_angle_SD_ker_deg": min_angle_ker,
         "logit_change_remove_SD": logit_change_SD, "logit_change_remove_SD_relative": logit_change_SD_rel,
+        "ce_change_remove_SD": ce_change_SD, "acc_drop_remove_SD": acc_drop_SD,
+        "frac_SD_energy_in_head_rowspace": frac_SD_in_row, "logit_change_remove_SD_kernel_part": logit_change_SDker,
         "k_mean_complete": k_mean_complete, "k_probe_chance": k_probe_chance,
         "redundancy_rank": (None if k_probe_chance is None else int(r_D - k_probe_chance)),
         "complete_removal_definition": ("mean-span (analytic): residual top between-subject-within-label mean "
