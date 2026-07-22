@@ -1,0 +1,564 @@
+{
+  "n_cells": 15,
+  "identity_all_ok": true,
+  "beneficial_Kstar_mean": -3.821455048066066,
+  "legitimate_Kstar_mean": 5.24352518720798,
+  "frac_worlds_separate": 1.0,
+  "cells": [
+    {
+      "seed": 0,
+      "spur_strength": 2.0,
+      "target_dom": 7,
+      "spur_cols": [
+        2,
+        3
+      ],
+      "d_z": 8,
+      "n_cls": 2,
+      "beneficial": {
+        "E_delta2": 0.15503893262455676,
+        "E_r_delta": -0.28710946332037685,
+        "K_star": -3.7037079456118667,
+        "gain_star": 0.7292578592653105,
+        "gain_direct": 0.7292578592653103,
+        "identity_residual": 2.220446049250313e-16,
+        "risk_full": 1.5318918432559954,
+        "risk_erased": 0.8026339839906851,
+        "helps": true,
+        "K_star_lt_1": true
+      },
+      "legitimate": {
+        "E_delta2": 0.11398131407450705,
+        "E_r_delta": 0.27257567212567885,
+        "K_star": 4.78281329424755,
+        "gain_star": -0.4311700301768506,
+        "gain_direct": -0.4311700301768507,
+        "identity_residual": 5.551115123125783e-17,
+        "risk_full": 0.3714639538138344,
+        "risk_erased": 0.8026339839906851,
+        "helps": false,
+        "K_star_lt_1": false
+      },
+      "identity_ok": true,
+      "worlds_separate": true
+    },
+    {
+      "seed": 1,
+      "spur_strength": 2.0,
+      "target_dom": 7,
+      "spur_cols": [
+        2,
+        3
+      ],
+      "d_z": 8,
+      "n_cls": 2,
+      "beneficial": {
+        "E_delta2": 0.13808630370125724,
+        "E_r_delta": -0.24695208467446045,
+        "K_star": -3.5767788412778265,
+        "gain_star": 0.6319904730501782,
+        "gain_direct": 0.6319904730501783,
+        "identity_residual": 1.1102230246251565e-16,
+        "risk_full": 1.4082269362483129,
+        "risk_erased": 0.7762364631981346,
+        "helps": true,
+        "K_star_lt_1": true
+      },
+      "legitimate": {
+        "E_delta2": 0.08511418232202943,
+        "E_r_delta": 0.2331090526087014,
+        "K_star": 5.477560760126521,
+        "gain_star": -0.3811039228953734,
+        "gain_direct": -0.38110392289537326,
+        "identity_residual": 1.6653345369377348e-16,
+        "risk_full": 0.3951325403027613,
+        "risk_erased": 0.7762364631981346,
+        "helps": false,
+        "K_star_lt_1": false
+      },
+      "identity_ok": true,
+      "worlds_separate": true
+    },
+    {
+      "seed": 2,
+      "spur_strength": 2.0,
+      "target_dom": 7,
+      "spur_cols": [
+        2,
+        3
+      ],
+      "d_z": 8,
+      "n_cls": 2,
+      "beneficial": {
+        "E_delta2": 0.11879555582196911,
+        "E_r_delta": -0.25147819275676786,
+        "K_star": -4.233797990450775,
+        "gain_star": 0.6217519413355048,
+        "gain_direct": 0.6217519413355048,
+        "identity_residual": 0.0,
+        "risk_full": 1.5156509783095395,
+        "risk_erased": 0.8938990369740347,
+        "helps": true,
+        "K_star_lt_1": true
+      },
+      "legitimate": {
+        "E_delta2": 0.09475144263838853,
+        "E_r_delta": 0.26691802737983705,
+        "K_star": 5.634067829415724,
+        "gain_star": -0.4390846121212856,
+        "gain_direct": -0.4390846121212857,
+        "identity_residual": 1.1102230246251565e-16,
+        "risk_full": 0.45481442485274903,
+        "risk_erased": 0.8938990369740347,
+        "helps": false,
+        "K_star_lt_1": false
+      },
+      "identity_ok": true,
+      "worlds_separate": true
+    },
+    {
+      "seed": 3,
+      "spur_strength": 2.0,
+      "target_dom": 7,
+      "spur_cols": [
+        2,
+        3
+      ],
+      "d_z": 8,
+      "n_cls": 2,
+      "beneficial": {
+        "E_delta2": 0.14201648538512926,
+        "E_r_delta": -0.2667598622661204,
+        "K_star": -3.7567450221388623,
+        "gain_star": 0.6755362099173701,
+        "gain_direct": 0.6755362099173698,
+        "identity_residual": 2.220446049250313e-16,
+        "risk_full": 1.418095387608467,
+        "risk_erased": 0.7425591776910971,
+        "helps": true,
+        "K_star_lt_1": true
+      },
+      "legitimate": {
+        "E_delta2": 0.10707548880262718,
+        "E_r_delta": 0.26192878607565917,
+        "K_star": 4.892413548696918,
+        "gain_star": -0.41678208334869116,
+        "gain_direct": -0.4167820833486911,
+        "identity_residual": 5.551115123125783e-17,
+        "risk_full": 0.32577709434240604,
+        "risk_erased": 0.7425591776910971,
+        "helps": false,
+        "K_star_lt_1": false
+      },
+      "identity_ok": true,
+      "worlds_separate": true
+    },
+    {
+      "seed": 4,
+      "spur_strength": 2.0,
+      "target_dom": 7,
+      "spur_cols": [
+        2,
+        3
+      ],
+      "d_z": 8,
+      "n_cls": 2,
+      "beneficial": {
+        "E_delta2": 0.13066449547248252,
+        "E_r_delta": -0.25601640538642484,
+        "K_star": -3.9186835637434654,
+        "gain_star": 0.6426973062453323,
+        "gain_direct": 0.6426973062453323,
+        "identity_residual": 0.0,
+        "risk_full": 1.4547104065913987,
+        "risk_erased": 0.8120131003460664,
+        "helps": true,
+        "K_star_lt_1": true
+      },
+      "legitimate": {
+        "E_delta2": 0.096454141337613,
+        "E_r_delta": 0.25613569158920035,
+        "K_star": 5.3110356494214805,
+        "gain_star": -0.4158172418407877,
+        "gain_direct": -0.4158172418407877,
+        "identity_residual": 0.0,
+        "risk_full": 0.3961958585052787,
+        "risk_erased": 0.8120131003460664,
+        "helps": false,
+        "K_star_lt_1": false
+      },
+      "identity_ok": true,
+      "worlds_separate": true
+    },
+    {
+      "seed": 0,
+      "spur_strength": 3.0,
+      "target_dom": 7,
+      "spur_cols": [
+        2,
+        3
+      ],
+      "d_z": 8,
+      "n_cls": 2,
+      "beneficial": {
+        "E_delta2": 0.16140517337312255,
+        "E_r_delta": -0.29711345745145856,
+        "K_star": -3.681585307858966,
+        "gain_star": 0.7556320882760397,
+        "gain_direct": 0.7556320882760397,
+        "identity_residual": 0.0,
+        "risk_full": 1.5582660722667248,
+        "risk_erased": 0.8026339839906851,
+        "helps": true,
+        "K_star_lt_1": true
+      },
+      "legitimate": {
+        "E_delta2": 0.1171130971846152,
+        "E_r_delta": 0.2844427310004557,
+        "K_star": 4.857573368622721,
+        "gain_star": -0.4517723648162962,
+        "gain_direct": -0.45177236481629623,
+        "identity_residual": 5.551115123125783e-17,
+        "risk_full": 0.35086161917438885,
+        "risk_erased": 0.8026339839906851,
+        "helps": false,
+        "K_star_lt_1": false
+      },
+      "identity_ok": true,
+      "worlds_separate": true
+    },
+    {
+      "seed": 1,
+      "spur_strength": 3.0,
+      "target_dom": 7,
+      "spur_cols": [
+        2,
+        3
+      ],
+      "d_z": 8,
+      "n_cls": 2,
+      "beneficial": {
+        "E_delta2": 0.14340005771174844,
+        "E_r_delta": -0.2550787454052781,
+        "K_star": -3.5575821861664436,
+        "gain_star": 0.6535575485223046,
+        "gain_direct": 0.6535575485223047,
+        "identity_residual": 1.1102230246251565e-16,
+        "risk_full": 1.4297940117204393,
+        "risk_erased": 0.7762364631981346,
+        "helps": true,
+        "K_star_lt_1": true
+      },
+      "legitimate": {
+        "E_delta2": 0.09012531870210402,
+        "E_r_delta": 0.24646242310846211,
+        "K_star": 5.469327080509027,
+        "gain_star": -0.4027995275148202,
+        "gain_direct": -0.40279952751482007,
+        "identity_residual": 1.1102230246251565e-16,
+        "risk_full": 0.3734369356833145,
+        "risk_erased": 0.7762364631981346,
+        "helps": false,
+        "K_star_lt_1": false
+      },
+      "identity_ok": true,
+      "worlds_separate": true
+    },
+    {
+      "seed": 2,
+      "spur_strength": 3.0,
+      "target_dom": 7,
+      "spur_cols": [
+        2,
+        3
+      ],
+      "d_z": 8,
+      "n_cls": 2,
+      "beneficial": {
+        "E_delta2": 0.1252745054224091,
+        "E_r_delta": -0.2639520644989383,
+        "K_star": -4.213978951406383,
+        "gain_star": 0.6531786344202858,
+        "gain_direct": 0.6531786344202859,
+        "identity_residual": 1.1102230246251565e-16,
+        "risk_full": 1.5470776713943206,
+        "risk_erased": 0.8938990369740347,
+        "helps": true,
+        "K_star_lt_1": true
+      },
+      "legitimate": {
+        "E_delta2": 0.09872755865827348,
+        "E_r_delta": 0.27913811898597546,
+        "K_star": 5.6547153151463725,
+        "gain_star": -0.45954867931367743,
+        "gain_direct": -0.4595486793136775,
+        "identity_residual": 5.551115123125783e-17,
+        "risk_full": 0.43435035766035723,
+        "risk_erased": 0.8938990369740347,
+        "helps": false,
+        "K_star_lt_1": false
+      },
+      "identity_ok": true,
+      "worlds_separate": true
+    },
+    {
+      "seed": 3,
+      "spur_strength": 3.0,
+      "target_dom": 7,
+      "spur_cols": [
+        2,
+        3
+      ],
+      "d_z": 8,
+      "n_cls": 2,
+      "beneficial": {
+        "E_delta2": 0.14862696925102406,
+        "E_r_delta": -0.2789854182960324,
+        "K_star": -3.7541695117908107,
+        "gain_star": 0.7065978058430888,
+        "gain_direct": 0.7065978058430888,
+        "identity_residual": 0.0,
+        "risk_full": 1.449156983534186,
+        "risk_erased": 0.7425591776910971,
+        "helps": true,
+        "K_star_lt_1": true
+      },
+      "legitimate": {
+        "E_delta2": 0.11076854965521303,
+        "E_r_delta": 0.27203460885583036,
+        "K_star": 4.911766195415338,
+        "gain_star": -0.4333006680564476,
+        "gain_direct": -0.4333006680564476,
+        "identity_residual": 0.0,
+        "risk_full": 0.3092585096346495,
+        "risk_erased": 0.7425591776910971,
+        "helps": false,
+        "K_star_lt_1": false
+      },
+      "identity_ok": true,
+      "worlds_separate": true
+    },
+    {
+      "seed": 4,
+      "spur_strength": 3.0,
+      "target_dom": 7,
+      "spur_cols": [
+        2,
+        3
+      ],
+      "d_z": 8,
+      "n_cls": 2,
+      "beneficial": {
+        "E_delta2": 0.1380719239079942,
+        "E_r_delta": -0.2675276498005596,
+        "K_star": -3.875192613073599,
+        "gain_star": 0.6731272235091134,
+        "gain_direct": 0.6731272235091135,
+        "identity_residual": 1.1102230246251565e-16,
+        "risk_full": 1.48514032385518,
+        "risk_erased": 0.8120131003460664,
+        "helps": true,
+        "K_star_lt_1": true
+      },
+      "legitimate": {
+        "E_delta2": 0.10016194111261166,
+        "E_r_delta": 0.26830544173459686,
+        "K_star": 5.35743294816825,
+        "gain_star": -0.43644894235658205,
+        "gain_direct": -0.4364489423565821,
+        "identity_residual": 5.551115123125783e-17,
+        "risk_full": 0.37556415798948434,
+        "risk_erased": 0.8120131003460664,
+        "helps": false,
+        "K_star_lt_1": false
+      },
+      "identity_ok": true,
+      "worlds_separate": true
+    },
+    {
+      "seed": 0,
+      "spur_strength": 4.0,
+      "target_dom": 7,
+      "spur_cols": [
+        2,
+        3
+      ],
+      "d_z": 8,
+      "n_cls": 2,
+      "beneficial": {
+        "E_delta2": 0.16360252038488488,
+        "E_r_delta": -0.30043462405975035,
+        "K_star": -3.6727383337733386,
+        "gain_star": 0.7644717685043856,
+        "gain_direct": 0.7644717685043851,
+        "identity_residual": 4.440892098500626e-16,
+        "risk_full": 1.5671057524950702,
+        "risk_erased": 0.8026339839906851,
+        "helps": true,
+        "K_star_lt_1": true
+      },
+      "legitimate": {
+        "E_delta2": 0.11811623415399673,
+        "E_r_delta": 0.28879233804006244,
+        "K_star": 4.889968599295891,
+        "gain_star": -0.4594684419261281,
+        "gain_direct": -0.45946844192612823,
+        "identity_residual": 1.1102230246251565e-16,
+        "risk_full": 0.34316554206455685,
+        "risk_erased": 0.8026339839906851,
+        "helps": false,
+        "K_star_lt_1": false
+      },
+      "identity_ok": true,
+      "worlds_separate": true
+    },
+    {
+      "seed": 1,
+      "spur_strength": 4.0,
+      "target_dom": 7,
+      "spur_cols": [
+        2,
+        3
+      ],
+      "d_z": 8,
+      "n_cls": 2,
+      "beneficial": {
+        "E_delta2": 0.1449558642075562,
+        "E_r_delta": -0.2576558575354928,
+        "K_star": -3.5549559715164913,
+        "gain_star": 0.6602675792785418,
+        "gain_direct": 0.6602675792785418,
+        "identity_residual": 0.0,
+        "risk_full": 1.4365040424766764,
+        "risk_erased": 0.7762364631981346,
+        "helps": true,
+        "K_star_lt_1": true
+      },
+      "legitimate": {
+        "E_delta2": 0.09230893527341669,
+        "E_r_delta": 0.25185117940511553,
+        "K_star": 5.456702076762967,
+        "gain_star": -0.4113934235368144,
+        "gain_direct": -0.41139342353681424,
+        "identity_residual": 1.6653345369377348e-16,
+        "risk_full": 0.3648430396613203,
+        "risk_erased": 0.7762364631981346,
+        "helps": false,
+        "K_star_lt_1": false
+      },
+      "identity_ok": true,
+      "worlds_separate": true
+    },
+    {
+      "seed": 2,
+      "spur_strength": 4.0,
+      "target_dom": 7,
+      "spur_cols": [
+        2,
+        3
+      ],
+      "d_z": 8,
+      "n_cls": 2,
+      "beneficial": {
+        "E_delta2": 0.1277010166720839,
+        "E_r_delta": -0.26868629614412926,
+        "K_star": -4.208052576966923,
+        "gain_star": 0.6650736089603424,
+        "gain_direct": 0.6650736089603422,
+        "identity_residual": 2.220446049250313e-16,
+        "risk_full": 1.558972645934377,
+        "risk_erased": 0.8938990369740347,
+        "helps": true,
+        "K_star_lt_1": true
+      },
+      "legitimate": {
+        "E_delta2": 0.10015963324160403,
+        "E_r_delta": 0.283611657889775,
+        "K_star": 5.6631928195194146,
+        "gain_star": -0.46706368253794595,
+        "gain_direct": -0.46706368253794595,
+        "identity_residual": 0.0,
+        "risk_full": 0.4268353544360888,
+        "risk_erased": 0.8938990369740347,
+        "helps": false,
+        "K_star_lt_1": false
+      },
+      "identity_ok": true,
+      "worlds_separate": true
+    },
+    {
+      "seed": 3,
+      "spur_strength": 4.0,
+      "target_dom": 7,
+      "spur_cols": [
+        2,
+        3
+      ],
+      "d_z": 8,
+      "n_cls": 2,
+      "beneficial": {
+        "E_delta2": 0.1509818726391083,
+        "E_r_delta": -0.2836029707757461,
+        "K_star": -3.7567817356940822,
+        "gain_star": 0.7181878141906004,
+        "gain_direct": 0.7181878141906004,
+        "identity_residual": 0.0,
+        "risk_full": 1.4607469918816975,
+        "risk_erased": 0.7425591776910971,
+        "helps": true,
+        "K_star_lt_1": true
+      },
+      "legitimate": {
+        "E_delta2": 0.11207414658072931,
+        "E_r_delta": 0.27558945082015934,
+        "K_star": 4.917984374240077,
+        "gain_star": -0.4391047550595894,
+        "gain_direct": -0.4391047550595894,
+        "identity_residual": 0.0,
+        "risk_full": 0.30345442263150774,
+        "risk_erased": 0.7425591776910971,
+        "helps": false,
+        "K_star_lt_1": false
+      },
+      "identity_ok": true,
+      "worlds_separate": true
+    },
+    {
+      "seed": 4,
+      "spur_strength": 4.0,
+      "target_dom": 7,
+      "spur_cols": [
+        2,
+        3
+      ],
+      "d_z": 8,
+      "n_cls": 2,
+      "beneficial": {
+        "E_delta2": 0.1409083989306261,
+        "E_r_delta": -0.2717471433461499,
+        "K_star": -3.8570751695211594,
+        "gain_star": 0.6844026856229259,
+        "gain_direct": 0.6844026856229262,
+        "identity_residual": 2.220446049250313e-16,
+        "risk_full": 1.4964157859689926,
+        "risk_erased": 0.8120131003460664,
+        "helps": true,
+        "K_star_lt_1": true
+      },
+      "legitimate": {
+        "E_delta2": 0.10150856586675935,
+        "E_r_delta": 0.2728714668252697,
+        "K_star": 5.37632394853144,
+        "gain_star": -0.44423436778378006,
+        "gain_direct": -0.4442343677837802,
+        "identity_residual": 1.6653345369377348e-16,
+        "risk_full": 0.3677787325622862,
+        "risk_erased": 0.8120131003460664,
+        "helps": false,
+        "K_star_lt_1": false
+      },
+      "identity_ok": true,
+      "worlds_separate": true
+    }
+  ]
+}
