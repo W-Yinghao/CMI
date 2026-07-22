@@ -37,6 +37,23 @@ case "$EXP" in
   e1) "$PY" scripts/run_e1_spectrum.py --dataset "${DS:?set DS}" --seeds $SEEDS --k_spec "$KSPEC" --n_perm "$NPERM" ;;
   e2) "$PY" scripts/run_e2_rank_threshold.py --backbone "${BB:?set BB}" --seeds $SEEDS --n_perm "$NPERM" ;;
   e3) "$PY" scripts/run_e3_kstar.py --seeds 0 1 2 3 4 --spur_strengths 2.0 3.0 4.0 ;;
+  all)
+    # ONE job (1 submit slot) running the whole E1+E2 fleet 8-way parallel across cores. Per-cell
+    # skip-if-done makes it resumable. intra-op threads=1 to avoid oversubscription across the 8 workers.
+    export OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1
+    pids=()
+    for ds in BNCI2014_001 BNCI2015_001; do for s in 0 1 2; do
+      "$PY" scripts/run_e1_spectrum.py --dataset "$ds" --seeds "$s" --k_spec "$KSPEC" --n_perm "$NPERM" \
+        > "logs/theory_spectrum/e1_${ds}_s${s}.log" 2>&1 & pids+=($!)
+    done; done
+    for bb in TSMNet EEGNet; do
+      "$PY" scripts/run_e2_rank_threshold.py --backbone "$bb" --seeds 0 1 2 --n_perm "$NPERM" \
+        > "logs/theory_spectrum/e2_${bb}.log" 2>&1 & pids+=($!)
+    done
+    rc=0; for p in "${pids[@]}"; do wait "$p" || rc=1; done
+    echo "fleet workers done (rc=$rc); running guarded E1 aggregate"
+    "$PY" scripts/aggregate_e1_spectrum.py || true
+    exit $rc ;;
   *) echo "unknown EXP=$EXP" >&2; exit 2 ;;
 esac
 echo "done EXP=${EXP}"
