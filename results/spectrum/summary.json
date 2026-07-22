@@ -1,0 +1,118 @@
+{
+  "experiment": "E1_subject_spectrum",
+  "inference_unit": "held_out_subject_fold; seeds grouped",
+  "n_boot": 10000,
+  "datasets": {
+    "BNCI2014_001": {
+      "dataset": "BNCI2014_001",
+      "status": "COMPLETE",
+      "n_folds": 9,
+      "corr_tau_dlambda": {
+        "point": -0.3193036208981405,
+        "ci95": [
+          -0.38931382606822473,
+          -0.2505008424110334
+        ],
+        "predict": ">0",
+        "pairing": "cosine (common raw ambient, optimal assignment)"
+      },
+      "corr_tau_dlambda_rank_pairing": {
+        "point": -0.26483464496125064,
+        "ci95": [
+          -0.32463075145760373,
+          -0.20146562241289853
+        ],
+        "predict": ">0",
+        "pairing": "energy-rank (robustness)"
+      },
+      "delta_top_dir_reliance_cigl_minus_erm": {
+        "point": -0.0033021110000278587,
+        "ci95": [
+          -0.004355218142411788,
+          -0.0022295623493370164
+        ],
+        "predict": ">0 (rises)"
+      },
+      "delta_effective_rank_cigl_minus_erm": {
+        "point": 0.3758695132814202,
+        "ci95": [
+          0.1296071892467369,
+          0.5876966027603912
+        ],
+        "predict": "<0 (falls)"
+      },
+      "top_dir_reliance": {
+        "erm": 0.003543621946618067,
+        "cigl": 0.00024151094659020778
+      },
+      "effective_rank": {
+        "erm": 12.444520213030252,
+        "cigl": 12.82038972631167
+      },
+      "top2_energy_concentration": {
+        "erm": 0.26286652028847957,
+        "cigl": 0.27239026790686865
+      },
+      "top_dir_head_alignment": {
+        "erm": 0.004174713048001861,
+        "cigl": 0.0017633195132767785
+      }
+    },
+    "BNCI2015_001": {
+      "dataset": "BNCI2015_001",
+      "status": "COMPLETE",
+      "n_folds": 12,
+      "corr_tau_dlambda": {
+        "point": -0.1295275720032681,
+        "ci95": [
+          -0.19910115138508028,
+          -0.05364795224065365
+        ],
+        "predict": ">0",
+        "pairing": "cosine (common raw ambient, optimal assignment)"
+      },
+      "corr_tau_dlambda_rank_pairing": {
+        "point": -0.12853846824762755,
+        "ci95": [
+          -0.19772732887754596,
+          -0.05937770304743648
+        ],
+        "predict": ">0",
+        "pairing": "energy-rank (robustness)"
+      },
+      "delta_top_dir_reliance_cigl_minus_erm": {
+        "point": -0.00031423331944655886,
+        "ci95": [
+          -0.000879962024782665,
+          0.0002229149888294885
+        ],
+        "predict": ">0 (rises)"
+      },
+      "delta_effective_rank_cigl_minus_erm": {
+        "point": -1.1610828887867914,
+        "ci95": [
+          -1.3510483593193738,
+          -0.964725720155076
+        ],
+        "predict": "<0 (falls)"
+      },
+      "top_dir_reliance": {
+        "erm": 0.00011211366735227231,
+        "cigl": -0.00020211965209428662
+      },
+      "effective_rank": {
+        "erm": 12.244546061368794,
+        "cigl": 11.083463172582002
+      },
+      "top2_energy_concentration": {
+        "erm": 0.24883464465187347,
+        "cigl": 0.3053840815399193
+      },
+      "top_dir_head_alignment": {
+        "erm": 0.0025739072031923807,
+        "cigl": 0.005029207926422843
+      }
+    }
+  },
+  "aggregate_valid": true
+}
