@@ -62,6 +62,28 @@ claim is the FALSIFICATION of `corr>0`, not a positive claim about the negative 
 separate in every cell: beneficial K*<1 & gain>0 (K* mean −3.82, gain [+0.62,+0.76]); legitimate K*>1 &
 gain<0 (K* mean +5.24, gain [−0.47,−0.38]); `sign(1−K*)=sign(Gain⋆)`. Proposition 2's sign law is confirmed.
 
+## Firming-up analyses (owner-steered 2026-07-22) — mechanism nailed
+
+**E1 partial correlation (control the λ_erm regression confound).** `corr(τ, Δλ | λ_erm)`:
+BNCI2014_001 **+0.064 [−0.024, +0.152]**, BNCI2015_001 **+0.039 [−0.047, +0.122]** (both CIs include 0;
+same under rank pairing). Confound legs: corr(τ,λ_erm)=+0.47/+0.19, corr(λ_erm,Δλ)=−0.76/−0.80. → The raw
+negative `corr(τ,Δλ)` is **entirely** the mechanical regression (high-λ directions fall more); the partial
+correlation is **null**. Clean E1 statement: the λ-ordering carries NO reliance information — no support for
+the predicted `corr>0`, and no reverse mechanism. Consistent with entanglement (reliance ⊥ λ-ordering).
+
+**E2 task-loss exact-head safety + free/entangled decomposition (TSMNet, full matrix, subject-cluster CI).**
+Removing the label-conditional subject subspace `S_D`:
+- **accuracy drop = 0.141 [0.135, 0.147]** (~14 points), **CE increase = 0.313 [0.297, 0.332] nats** — the
+  exact-head-safety failure is real TASK damage, not just a 53% logit-magnitude move.
+- **logit change from the KERNEL (free) part of S_D = 0.000 [0.000, 0.000]** — removing only the head-null
+  part is exactly safe.
+- **frac(S_D energy in head rowspace) = 0.050 [0.048, 0.052]** — only ~5% of S_D is entangled; ~95% is
+  head-null/free.
+→ **Free/entangled decomposition confirmed and quantified:** total label-conditional subject subspace =
+~95% head-null (removal-safe; reconciles with the prior 71–78% head-nullspace "free" leakage) + ~5%
+entangled with the head's used directions, and that ~5% sliver carries a ~14-point accuracy cost. Removing
+the free part alone is a no-op; removing S_D as a whole hurts because of the entangled part.
+
 ## Synthesis (tentative — owner-controlled framing)
 E3 (an algebraic identity) holds. The two theorems whose EEG mechanism depends on the subject subspace being
 task-ORTHOGONAL / head-SAFE are NOT borne out on real EEG: E1's predicted spectrum fails (corr negative,

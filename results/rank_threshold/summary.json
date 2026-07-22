@@ -94,10 +94,10 @@
         "n_subjects": 9
       },
       "subject_effective_rank": {
-        "point": 15.673268897321366,
+        "point": 15.673268897321362,
         "ci95": [
           15.539940669545329,
-          15.810796938472954
+          15.810796938472953
         ],
         "n_subjects": 9
       },
@@ -119,10 +119,10 @@
           "n_subjects": 9
         },
         "min_angle_SD_row_deg": {
-          "point": 45.02786723508717,
+          "point": 45.027867235087164,
           "ci95": [
             43.788510733468165,
-            46.27816493857346
+            46.278164938573454
           ],
           "n_subjects": 9
         },
@@ -134,7 +134,39 @@
           ],
           "n_subjects": 9
         },
-        "predict": "S_D subset ker(W tilde): dim_SD_in_row small, min_angle_SD_row large, logit_change small"
+        "ce_change_remove_SD": {
+          "point": 0.31307439199870346,
+          "ci95": [
+            0.29690744134277297,
+            0.33196908971879663
+          ],
+          "n_subjects": 9
+        },
+        "acc_drop_remove_SD": {
+          "point": 0.14073752572016462,
+          "ci95": [
+            0.1346209490740741,
+            0.14721579218106998
+          ],
+          "n_subjects": 9
+        },
+        "frac_SD_energy_in_head_rowspace": {
+          "point": 0.049660537646814634,
+          "ci95": [
+            0.04774813389890217,
+            0.05176585995443292
+          ],
+          "n_subjects": 9
+        },
+        "logit_change_remove_SD_kernel_part": {
+          "point": 1.5933282208228736e-15,
+          "ci95": [
+            1.5373114845022057e-15,
+            1.6464896006802085e-15
+          ],
+          "n_subjects": 9
+        },
+        "predict": "if S_D subset ker: dim_SD_in_row small, logit/ce/acc change ~0. Entangled: acc_drop>0, and kernel-part removal ~0 while full-SD removal hurts (free vs entangled split)."
       }
     }
   },
