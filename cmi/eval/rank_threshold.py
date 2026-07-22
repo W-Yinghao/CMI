@@ -160,10 +160,16 @@ def rank_threshold_fold(Z, y, d, logits, *, target_subject=None, seed=0, n_perm=
     min_angle_row = float(principal_angles_deg(S_D, row).min())
     min_angle_ker = float(principal_angles_deg(S_D, ker).min())
 
-    # exact-head logit change removing the FULL S_D (predict ~0 iff S_D subseteq ker(W_tilde))
+    # exact-head logit change removing the FULL S_D (predict ~0 iff S_D subseteq ker(W_tilde)). Reported ONLY
+    # for a VERIFIED exact linear head (head_exact); with a probe-head the "exact-head clause" is meaningless,
+    # so we do NOT report an indicative value (the clause is scoped to linear-head backbones).
     P_SD = S_D.T @ S_D
-    logit_change_SD = float(np.linalg.norm(Zt @ P_SD @ W_tilde.T, axis=1).mean())
-    logit_scale = float(np.linalg.norm(Zt @ W_tilde.T, axis=1).mean() + EPS)
+    if head_exact:
+        logit_change_SD = float(np.linalg.norm(Zt @ P_SD @ W_tilde.T, axis=1).mean())
+        logit_scale = float(np.linalg.norm(Zt @ W_tilde.T, axis=1).mean() + EPS)
+        logit_change_SD_rel = logit_change_SD / logit_scale
+    else:
+        logit_change_SD = logit_change_SD_rel = None
 
     # eraser-rank sweep k=1..k_max: residual subject decodability (FAST linear LDA across all k) + exact-head
     # logit change. Heavy logreg+MLP residual (`subject_residual`) is computed only at CHECKPOINT ranks.
@@ -179,29 +185,51 @@ def rank_threshold_fold(Z, y, d, logits, *, target_subject=None, seed=0, n_perm=
         Zt_rm_rand = Zt - Zt @ Pr
         row = {
             "k": k,
+            # ANALYTIC (theorem) quantity: the largest surviving between-subject-within-label mean eigenvalue
+            # after removing the informed top-k. Conditional independence (Z⊥D|Y in means) holds iff this is
+            # below the permutation floor; that happens at k=r_D by construction. This is "complete removal".
+            "residual_top_mean_eigenvalue": float(energy[k]) if k < len(energy) else 0.0,
+            "residual_mean_scatter_energy_ratio": float(energy[k:].sum() / max(energy.sum(), EPS)),
+            # WEAKER, empirical: whether a finite-sample LINEAR PROBE can still read subject. Reaching chance
+            # is weaker than conditional independence, so this can hit chance at k<r_D (redundancy), NOT a
+            # theorem violation.
             "resid_subject_bacc_linear": _fast_linear_subject_bacc(Zt_rm, y, d, seed=seed),
             "resid_subject_bacc_random_linear": _fast_linear_subject_bacc(Zt_rm_rand, y, d, seed=seed),
-            "logit_change_informed": float(np.linalg.norm(Zt @ Pk @ W_tilde.T, axis=1).mean()),
-            "logit_change_random": float(np.linalg.norm(Zt @ Pr @ W_tilde.T, axis=1).mean()),
+            "logit_change_informed": (None if not head_exact
+                                      else float(np.linalg.norm(Zt @ Pk @ W_tilde.T, axis=1).mean())),
+            "logit_change_random": (None if not head_exact
+                                    else float(np.linalg.norm(Zt @ Pr @ W_tilde.T, axis=1).mean())),
         }
         if k in checkpoints:                                  # cross-check with the heavier logreg+MLP decoder
             row["resid_subject_bacc_logreg"] = subject_residual(Zt_rm, y, d, seed=seed, kind="linear")
             row["resid_subject_bacc_mlp"] = subject_residual(Zt_rm, y, d, seed=seed, kind="mlp")
         sweep.append(row)
-    # chance subject bAcc = 1/n_subjects; k* = smallest k where informed residual reaches near chance
+    # TWO DISTINCT RANKS (do not conflate):
+    #  * r_D / k_mean_complete = ANALYTIC conditional-independence rank (residual top mean eigenvalue below the
+    #    permutation floor). Removal is "complete" in the theorem's mean-span sense at exactly this rank.
+    #  * k_probe_chance = the WEAKER, finite-sample LINEAR-PROBE rank (LDA subject bAcc reaches chance). This
+    #    can be < r_D (residual subject info survives but is not linearly readable) — EXPECTED redundancy, NOT
+    #    a theorem violation. Their gap is the over-completeness/redundancy story.
     chance = 1.0 / max(len(subs), 2)
-    k_star = next((s["k"] for s in sweep if s["resid_subject_bacc_linear"] <= chance + 0.02), None)
+    k_probe_chance = next((s["k"] for s in sweep if s["resid_subject_bacc_linear"] <= chance + 0.02), None)
+    k_mean_complete = next((s["k"] for s in sweep if s["residual_top_mean_eigenvalue"] <= perm_floor), None)
 
     return {
         "target_subject": None if target_subject is None else int(target_subject),
         "d_z": dz, "n_source_subjects": int(len(subs)), "n_cls": int(logits.shape[1]),
         "head_exact": head_exact, "head_replay_max_abs_diff": head_maxdiff,
+        "exact_head_clause_reported": bool(head_exact),
         "r_D": int(r_D), "energy_rank_99": int(energy_rank), "perm_floor": perm_floor,
         "subject_effective_rank": effective_rank(energy),
         "dim_SD_in_ker": int(dim_in_ker), "dim_SD_in_row": int(dim_in_row),
         "min_angle_SD_row_deg": min_angle_row, "min_angle_SD_ker_deg": min_angle_ker,
-        "logit_change_remove_SD": logit_change_SD, "logit_change_remove_SD_relative": logit_change_SD / logit_scale,
-        "k_star_linear_removal": k_star, "k_star_ge_r_D": (None if k_star is None else bool(k_star >= r_D)),
+        "logit_change_remove_SD": logit_change_SD, "logit_change_remove_SD_relative": logit_change_SD_rel,
+        "k_mean_complete": k_mean_complete, "k_probe_chance": k_probe_chance,
+        "redundancy_rank": (None if k_probe_chance is None else int(r_D - k_probe_chance)),
+        "complete_removal_definition": ("mean-span (analytic): residual top between-subject-within-label mean "
+                                        "eigenvalue below permutation floor -> conditional independence in means, "
+                                        "at k=r_D by construction. k_probe_chance is a separate weaker "
+                                        "linear-probe diagnostic; k_probe_chance<r_D is expected redundancy."),
         "energy": energy[:max(k_max, r_D)].tolist(), "sweep": sweep,
         "firewall_passed": True,
     }

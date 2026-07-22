@@ -195,8 +195,44 @@ E1/E2/E3 **probe** QC has been seen; no aggregate has been computed.
 5. **Reason-coded failures.** Singular LDA in the E2 sweep → chance (not silent skip); E1 aggregate REFUSES
    any cell with `firewall_ok=False`.
 
-### Watch item for E2 interpretation (from the TSMNet probe, single fold — NOT an aggregate)
-On one TSMNet fold, complete linear removal reached chance at `k*=17 < r_D=22` — the FALSIFIER direction for
-Theorem 1's `k≥r_D`. This may reflect the permutation floor over-counting weak subject directions in `r_D`
-vs. the soft `k*` chance threshold. The aggregate over all 27 dumps (with the pre-registered r_D and k*
-definitions) decides; if `k*<r_D` holds robustly, report it as an honest scope refinement, not a pass.
+### E2 endpoint reinterpretation (owner steer 2026-07-22) — supersedes the earlier "falsifier" framing
+
+Theorem 1 is a theorem (hand-verified); real data cannot falsify it — data only tests how well the stylized
+shared-covariance Gaussian-location model fits EEG. Accordingly E2 reports TWO DISTINCT ranks, never conflated:
+
+- **`r_D` = `k_mean_complete` (analytic, primary).** Rank of the whitened conditional subject span; equivalently
+  the eraser rank at which the residual top between-subject-within-label mean eigenvalue drops below the
+  permutation floor → conditional independence `Z⊥D|Y` **in means**. This is "complete linear removal" in the
+  theorem's sense; it occurs at exactly `k=r_D` by construction, and `k<r_D` leaves a mean direction.
+- **`k_probe_chance` (weaker, diagnostic).** Rank at which a finite-sample LINEAR PROBE (LDA) reaches chance.
+  Reaching chance is WEAKER than conditional independence, so `k_probe_chance < r_D` is EXPECTED (residual
+  subject info survives but is not linearly readable by that probe). **This is redundancy/over-completeness,
+  NOT a theorem violation.** `redundancy_rank = r_D − k_probe_chance` is itself the reportable story (consistent
+  with the high-dim redundancy section).
+
+The earlier single-fold "`k*=17 < r_D=22` = falsifier" note was mis-framed. With the corrected endpoints the
+TSMNet probe shows `k_mean_complete=22=r_D` and `k_probe_chance=17` (redundancy 5) — as expected. Only if TRUE
+mean-completion (analytic condition) were achieved at `k<r_D` would there be an issue, and that would indicate
+`r_D` OVER-estimation (permutation floor counting near-zero directions) — an estimator refinement / scope note,
+never a falsification.
+
+### E2 exact-head clause scope (owner steer 2026-07-22)
+The exact-head-safety clause (`S_D ⊆ ker(WΣ^{1/2})`, logit-change) is reported ONLY for backbones with a
+VERIFIED exact linear head (TSMNet on 2a; DGCNN in E1). EEGNet(16)'s banked dump has no exactly-recoverable
+head, so it reports `exact_head_clause_reported=false` with **no indicative value** (a probe-head standing in
+for the original head would undermine the "test the deployed head, not a fresh probe" methodology). EEGNet
+still contributes the head-free endpoints (`r_D`, `k_mean_complete`, `k_probe_chance`, residual decodability) —
+this is scope, not a gap. Whether to re-export EEGNet's true head depends on the provenance diagnosis (below).
+
+### EEGNet head diagnosis (2026-07-22) — PROVENANCE, not a nonlinear head
+`cmi/models/backbones.py::HookedBackbone._capture` stores `Z = f.mean(dim=time)` — the penultimate feature map
+GLOBAL-POOLED over the spatial/temporal dims. EEGNetv4's `final_layer` is a linear `Conv2d` classifier over the
+FULL `[N,16,1,T']` map (it weights the time axis; no intervening nonlinearity). So logits ARE linear in `f`, but
+the stored 16-d `Z` is a lossy time-average that is NOT the head's linear preimage → no exact linear head over `Z`
+(empirically max|Δ|≈4.08). **Conclusion: provenance/representation choice, not a nonlinear head.**
+
+Implication for (b): re-exporting an exact EEGNet head is feasible (the head is linear) but only over the FULL
+flattened penultimate map `≈16×T'` (~hundreds of dims), NOT the compact d_z=16 — it would add a second high-dim
+exact-head backbone (redundant with TSMNet(210)), not a compact-regime exact-head point.
+**Recommendation: (a) — keep EEGNet at d_z=16 for head-free endpoints; scope the exact-head clause to
+TSMNet(210)+DGCNN(64); DO NOT run (b)** (GPU cost buys a non-compact, redundant backbone). Owner may override.
