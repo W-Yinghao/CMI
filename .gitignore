@@ -57,3 +57,8 @@ paper/cigl_latex/**/*.out
 paper/cigl_latex/**/*.fls
 paper/cigl_latex/**/*.fdb_latexmk
 paper/cigl_latex/**/*.synctex.gz
+
+# theory-spectrum fleet outputs (E1/E2 per-cell JSON regenerated on GO)
+results/spectrum/
+results/rank_threshold/
+logs/theory_spectrum/

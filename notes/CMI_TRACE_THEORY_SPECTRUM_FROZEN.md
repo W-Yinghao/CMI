@@ -165,3 +165,38 @@ green before any world separation is reported.
   cells by real (dataset,method,seed,fold) id, never bench index; coverage guard = proper unique count.
 - Two-commit: code+result-rows first, interpretation second. Frozen artifacts read-only. Push only on
   explicit instruction.
+
+---
+
+## APPENDUM (2026-07-22) — adversarial-review fixes, frozen before any aggregate viewed
+
+An independent adversarial verification of the three modules (confirmed the core math of E1 raw-direction
+correspondence, λ null reuse, E2 kernel/rowspace, E3 exact identity) drove the following corrections. Only
+E1/E2/E3 **probe** QC has been seen; no aggregate has been computed.
+
+1. **E1 firewall now fail-loud.** `subject_spectrum` derives `target_domain` ONLY from `target_indices` and
+   RAISES if they are absent (previously fell back to `target_subject`, a human label that can collide with a
+   source subject's remapped id and silently fold target rows into the fit). The fleet trusts no cell without
+   `target_indices`.
+2. **E1 direction matching (supersedes §E1 step 3 wording).** ERM↔CIGL directions are matched by principal
+   angle in the **common raw graph_z ambient** (the only coordinate system shared by two separately-trained
+   models; each model's whitened basis is model-relative and NOT cross-comparable), i.e. on
+   `u_raw = Σ_W^{-1/2} ũ`, via **optimal (Hungarian) assignment**. A second **energy-rank pairing** is
+   reported as a robustness variant that assumes no geometric correspondence. Only the SCALAR endpoints (λ,τ)
+   are compared across models; raw axis values are never compared. The primary `corr(τ,Δλ)` endpoint must
+   hold under BOTH pairings to be called confirmed.
+3. **E2 `W_tilde` identity clarified.** `Z̃ W̃ᵀ` equals the class-centered logits up to the per-class bias
+   `b_c`; every E2 endpoint uses bias-invariant logit DIFFERENCES, so results are unaffected (docstring
+   corrected).
+4. **E2 dim-count caveat.** The 5° `dim(S_D∩ker)` / `dim(S_D∩row)` counts are a COARSE descriptor and can
+   read 0 despite heavy reliance; the theorem's exact-head-safety endpoint is carried by the continuous
+   **logit-change magnitude** (`logit_change_remove_SD_relative`) and the reported **min principal angle**,
+   not the dim counts.
+5. **Reason-coded failures.** Singular LDA in the E2 sweep → chance (not silent skip); E1 aggregate REFUSES
+   any cell with `firewall_ok=False`.
+
+### Watch item for E2 interpretation (from the TSMNet probe, single fold — NOT an aggregate)
+On one TSMNet fold, complete linear removal reached chance at `k*=17 < r_D=22` — the FALSIFIER direction for
+Theorem 1's `k≥r_D`. This may reflect the permutation floor over-counting weak subject directions in `r_D`
+vs. the soft `k*` chance threshold. The aggregate over all 27 dumps (with the pre-registered r_D and k*
+definitions) decides; if `k*<r_D` holds robustly, report it as an honest scope refinement, not a pass.
