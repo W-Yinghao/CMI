@@ -6,10 +6,12 @@ set -uo pipefail
 cd /home/infres/yinwang/CMI_AAAI_readout_prior
 OUT=results/cmi_trace_readout_prior_lockbox
 PY=/home/infres/yinwang/anaconda3/envs/icml/bin/python
-CAP=25
+CAP=8                                    # user-authorized max concurrent SLURM tasks (2026-07-23)
+STOP=results/.stop_matrix_driver         # touch this file to stop the driver cleanly (any node)
 N=$("$PY" -m scripts.run_readout_prior_decomposition --list-cells 2>/dev/null | tail -1 | tr -dc '0-9')
-echo "[matrix-driver] N=$N cells (1-at-a-time submit)"
+echo "[matrix-driver] N=$N cells (1-at-a-time submit, CAP=$CAP)"
 while :; do
+  [ -f "$STOP" ] && { echo "[matrix-driver] STOP flag present -> exiting"; break; }
   done_n=$(ls $OUT/cells/*.done 2>/dev/null | wc -l)
   echo "[matrix-driver] done=$done_n/$N $(date -u +%H:%M:%S)"
   [ "$done_n" -ge "$N" ] && { echo "[matrix-driver] all $N done"; break; }

@@ -253,7 +253,19 @@ def _rep_gain(Zs_wd, ys, Xcal_wd, ycal, Zq_wd, yq, sq, C, tau0, taus, gate, draw
     return out
 
 
+SPEC_MAX_SOURCE = 20000                  # skip the matched-random specificity above this source size (see below)
+
+
 def _specificity(Zs_w, ys, dsub, Xcal_w, ycal, Xq_w, yq, sq, C, D, mu, sd_, Ws, bs, tau0, taus, gate, draws_std, ds, subj, sd, n_random, smoke):
+    # The specificity control samples up to 5000 random projectors, each scored by a FULL source-LOSO
+    # (_src_val_bacc: one head-fit per source subject). On a large source (Stieger ~225k trials, 60+ subjects)
+    # that is O(days) per cell. It is a SECONDARY subspace-causality diagnostic and is NOT a verdict input
+    # (routing uses only the primary AULC endpoints), so we SKIP it above SPEC_MAX_SOURCE and keep it where cheap
+    # (Shin + the 4 dev/context datasets). The subspace question is already answered (NULL) on those 5 datasets.
+    if len(ys) > SPEC_MAX_SOURCE:
+        return dict(status="skipped_large_source", n_source=int(len(ys)), spec_max_source=SPEC_MAX_SOURCE,
+                    note="matched-random specificity = O(days) at this source size; NOT a verdict input (routing "
+                         "uses only primary AULC endpoints); subspace-causal question already NULL on the 5 smaller datasets")
     B = TM.whitened_cond_basis(Zs_w, ys, dsub, max_rank=DICT_RANK); r = B.shape[0]
     if r == 0:
         return dict(status="EMPTY_B_COND")
