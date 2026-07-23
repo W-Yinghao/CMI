@@ -169,7 +169,8 @@ def _fold_entry(s):
     tau = np.array([r["tau_ce_reliance"] for r in D])
     taur = np.array([r["tau_random_mean"] for r in D])
     pp = np.array([r["lambda_perm_p"] for r in D])
-    return {"lam": lam, "tau": tau, "taur": taur,
+    rank = np.arange(len(D), dtype=float)                     # direction index j = descending-energy rank
+    return {"lam": lam, "tau": tau, "taur": taur, "rank": rank,
             "frac_sig": float((pp < 0.05).mean()),
             "mean_abs_tau": float(np.abs(tau).mean()),
             "mean_tau_minus_r": float((tau - taur).mean()),
@@ -183,19 +184,37 @@ def _corr(a, b):
     return float(np.corrcoef(a, b)[0, 1])
 
 
+def _partial(a, b, c):
+    """Partial corr(a,b | c). lambda is largely an energy-rank proxy, so the raw corr(lambda,tau) is confounded
+    by direction energy; controlling for rank j is the adversarially-verified correct estimand (V3)."""
+    rab, rac, rbc = _corr(a, b), _corr(a, c), _corr(b, c)
+    if any(np.isnan([rab, rac, rbc])):
+        return np.nan
+    den = (1 - rac ** 2) * (1 - rbc ** 2)
+    if den <= 1e-12:
+        return np.nan
+    return (rab - rac * rbc) / np.sqrt(den)
+
+
 def _endpoints(fold_entries, n_boot):
     def sc(key):
         return _fold_boot(fold_entries, lambda F: float(np.mean([e[key] for e in F])), n_boot)
     corr_lt = _fold_boot(fold_entries,
                          lambda F: _corr(np.concatenate([e["lam"] for e in F]),
                                          np.concatenate([e["tau"] for e in F])), n_boot)
+    # energy-controlled partial corr (V3): lambda is ~an energy-rank proxy, so the raw corr is confounded.
+    part_lt = _fold_boot(fold_entries,
+                         lambda F: _partial(np.concatenate([e["lam"] for e in F]),
+                                            np.concatenate([e["tau"] for e in F]),
+                                            np.concatenate([e["rank"] for e in F])), n_boot)
     return {
         "n_folds": len(fold_entries),
         "E7.1_frac_lambda_sig": sc("frac_sig"),
         "E7.2_mean_tau_minus_random": sc("mean_tau_minus_r"),
         "E7.2_mean_abs_tau": sc("mean_abs_tau"),
         "mean_lambda_excess": sc("mean_lam"),
-        "E7.3_corr_lambda_tau": corr_lt,
+        "E7.3_corr_lambda_tau_RAW_confounded": corr_lt,
+        "E7.3_partial_corr_lambda_tau_given_energyrank": part_lt,
     }
 
 
@@ -249,10 +268,11 @@ def aggregate(n_boot=10000, n_folds=12):
     # console table
     def f3(t):
         return f"{t[0]:+.3f} [{t[1]:+.3f},{t[2]:+.3f}]"
-    print(f"\n{'cell':<26}{'λ_frac_sig':<22}{'τ−random':<24}{'|τ|':<20}{'corr(λ,τ)':<22}")
+    print(f"\n{'cell':<26}{'λ_frac_sig':<22}{'τ−random':<24}{'|τ|':<20}{'corr(λ,τ)raw':<22}{'partial(λ,τ|E)':<22}")
     for name, e in {**{f"BACKBONE:{b}": out['per_backbone'][b] for b in BACKBONES}, **out["per_cell"]}.items():
         print(f"{name:<26}{f3(e['E7.1_frac_lambda_sig']):<22}{f3(e['E7.2_mean_tau_minus_random']):<24}"
-              f"{f3(e['E7.2_mean_abs_tau']):<20}{f3(e['E7.3_corr_lambda_tau']):<22}")
+              f"{f3(e['E7.2_mean_abs_tau']):<20}{f3(e['E7.3_corr_lambda_tau_RAW_confounded']):<22}"
+              f"{f3(e['E7.3_partial_corr_lambda_tau_given_energyrank']):<22}")
     if "E7.5_probe_vs_exact_TSMNet" in out:
         e = out["E7.5_probe_vs_exact_TSMNet"]
         print(f"\nE7.5 TSMNet probe-vs-exact: corr={f3(e['corr_tau_probe_exact'])}  |Δτ|={f3(e['mean_abs_diff'])}")
