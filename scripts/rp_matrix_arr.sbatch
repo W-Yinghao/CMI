@@ -1,8 +1,10 @@
 #!/bin/bash
 #SBATCH --job-name=lb-matrix
 #SBATCH --partition=CPU
+#SBATCH --exclude=nodecpu10,nodecpu11,nodecpu12
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=24G
+#SBATCH --time=03:00:00
 #SBATCH --output=/home/infres/yinwang/CMI_AAAI_readout_prior/logs/lb-matrix-%A_%a.out
 #SBATCH --error=/home/infres/yinwang/CMI_AAAI_readout_prior/logs/lb-matrix-%A_%a.out
 set -uo pipefail
