@@ -181,24 +181,40 @@ def aggregate(all_rows):
                    "subj_dec_after_mean": float(np.mean([r["subj_dec_after"] for r in rs])),
                    "worst_subject_tgt_bacc": worst, "chance_task": rs[0]["chance_task"]}
             if nm != "full":
-                d_bacc, d_nll, folds = [], [], []
+                d_bacc, d_nll, d_src, folds = [], [], [], []
+                d_spec, folds_spec = [], []
                 for (s, f) in units:
                     if (bb, s, f, nm) in idx and (bb, s, f, "full") in idx:
-                        d_bacc.append(idx[(bb, s, f, nm)]["tgt_bacc"] - idx[(bb, s, f, "full")]["tgt_bacc"])
-                        d_nll.append(idx[(bb, s, f, nm)]["tgt_nll"] - idx[(bb, s, f, "full")]["tgt_nll"])
+                        me = idx[(bb, s, f, nm)]; fu = idx[(bb, s, f, "full")]
+                        d_bacc.append(me["tgt_bacc"] - fu["tgt_bacc"])
+                        d_nll.append(me["tgt_nll"] - fu["tgt_nll"])
+                        d_src.append(fu["src_bacc"] - me["src_bacc"])     # source bAcc DROP (>0 = degradation)
                         folds.append(f)
+                        if nm != "random_k" and (bb, s, f, "random_k") in idx:  # specificity vs same-k random
+                            d_spec.append(me["tgt_bacc"] - idx[(bb, s, f, "random_k")]["tgt_bacc"])
+                            folds_spec.append(f)
                 b_m, b_lo, b_hi = _cluster_ci(d_bacc, folds)
                 n_m, n_lo, n_hi = _cluster_ci(d_nll, folds)
-                # improvement = bAcc delta CI excludes 0 above, OR NLL delta CI excludes 0 below (lower=better)
+                s_m, s_lo, s_hi = _cluster_ci(d_src, folds)               # UCB of the source drop = s_hi
+                sp_m, sp_lo, sp_hi = _cluster_ci(d_spec, folds_spec) if d_spec else (float("nan"),) * 3
                 improves = bool(b_lo > 0 or n_hi < 0)
                 worsens = bool(b_hi < 0 or n_lo > 0)
-                rec.update({"dtgt_bacc": b_m, "dtgt_bacc_lo": b_lo, "dtgt_bacc_hi": b_hi,
-                            "dtgt_nll": n_m, "dtgt_nll_lo": n_lo, "dtgt_nll_hi": n_hi,
-                            "improves_target": improves, "worsens_target": worsens})
-                paired.append({"backbone": bb, "method": nm,
-                               "dtgt_bacc": b_m, "dtgt_bacc_lo": b_lo, "dtgt_bacc_hi": b_hi,
-                               "dtgt_nll": n_m, "dtgt_nll_lo": n_lo, "dtgt_nll_hi": n_hi,
-                               "improves_target": improves})
+                # three-state verdict on the target benefit vs the +0.01 practical bar (paper's deployment gate)
+                verdict = ("confirmed_benefit" if b_lo > 0.01
+                           else "ruled_out" if b_hi <= 0.01 else "inconclusive")
+                # full THREE-condition practical gate: target benefit AND source-safe (UCB drop<=.02) AND specific
+                src_safe = bool(s_hi <= 0.02)
+                specific = bool(sp_lo > 0) if d_spec else False
+                beneficial_3cond = bool(b_lo > 0.01 and src_safe and specific)
+                new = {"dtgt_bacc": b_m, "dtgt_bacc_lo": b_lo, "dtgt_bacc_hi": b_hi,
+                       "dtgt_nll": n_m, "dtgt_nll_lo": n_lo, "dtgt_nll_hi": n_hi,
+                       "dsrc_bacc_drop": s_m, "dsrc_bacc_drop_lo": s_lo, "dsrc_bacc_drop_ucb": s_hi,
+                       "spec_bacc": sp_m, "spec_bacc_lo": sp_lo, "spec_bacc_hi": sp_hi,
+                       "src_safe_ucb02": src_safe, "specific_vs_random": specific,
+                       "verdict_3state": verdict, "beneficial_3cond": beneficial_3cond,
+                       "improves_target": improves, "worsens_target": worsens}
+                rec.update(new)
+                paired.append({"backbone": bb, "method": nm, **new})
             summary[(bb, nm)] = rec
     return summary, paired
 
@@ -216,8 +232,11 @@ def _write(all_rows, summary, paired):
                     w.writerow({k: r[k] for k in cols})
     with open("%s/erasure_target_deploy_paired.csv" % OUT, "w", newline="") as fh:
         pk = ["backbone", "method", "dtgt_bacc", "dtgt_bacc_lo", "dtgt_bacc_hi",
-              "dtgt_nll", "dtgt_nll_lo", "dtgt_nll_hi", "improves_target"]
-        w = csv.DictWriter(fh, fieldnames=pk); w.writeheader()
+              "dtgt_nll", "dtgt_nll_lo", "dtgt_nll_hi", "improves_target",
+              "dsrc_bacc_drop", "dsrc_bacc_drop_lo", "dsrc_bacc_drop_ucb",
+              "spec_bacc", "spec_bacc_lo", "spec_bacc_hi",
+              "src_safe_ucb02", "specific_vs_random", "verdict_3state", "beneficial_3cond"]
+        w = csv.DictWriter(fh, fieldnames=pk, extrasaction="ignore"); w.writeheader()
         for r in paired:
             w.writerow(r)
     json.dump({"summary": {"%s|%s" % k: v for k, v in summary.items()}, "paired": paired,
