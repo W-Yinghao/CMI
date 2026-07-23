@@ -17,11 +17,23 @@ mne.set_log_level("ERROR")
 DATASET_DEFAULTS = {
     "BNCI2014_001": dict(binary=False, fmin=4, fmax=38),   # 2a, 4-class
     "BNCI2014_004": dict(binary=True,  fmin=8, fmax=30),   # 2b, L/R
-    "BNCI2015_001": dict(binary=True,  fmin=8, fmax=30),
+    "BNCI2015_001": dict(binary=True,  fmin=8, fmax=30, lr=False),  # right_hand vs feet -> MotorImagery (NOT L/R)
     "Lee2019_MI":   dict(binary=True,  fmin=8, fmax=30),   # OpenBMI L/R
     "Cho2017":      dict(binary=True,  fmin=8, fmax=30),
     "Schirrmeister2017": dict(binary=False, fmin=4, fmax=38),  # HGD, 4-class
+    "Stieger2021":  dict(binary=False, fmin=4, fmax=38),  # longitudinal 4-class MI lockbox
+    "Shin2017A":    dict(binary=True,  fmin=8, fmax=30),  # 3-session L/R MI lockbox (needs accept=True)
 }
+
+
+def construct_dataset(name):
+    """Build a MOABB dataset by name, handling license-gated datasets (accept=True) uniformly."""
+    import moabb.datasets as D
+    cls = getattr(D, name)
+    try:
+        return cls(accept=True)          # license-gated (e.g. Shin2017A/B)
+    except TypeError:
+        return cls()                     # no accept parameter
 
 
 def load(name, subjects=None, tmin=0.5, tmax=3.5, resample=128,
@@ -35,10 +47,12 @@ def load(name, subjects=None, tmin=0.5, tmax=3.5, resample=128,
     fmin = d["fmin"] if fmin is None else fmin
     fmax = d["fmax"] if fmax is None else fmax
 
-    ds = getattr(D, name)()
+    ds = construct_dataset(name)
     if subjects is None:
         subjects = ds.subject_list
-    para = (LeftRightImagery if binary else MotorImagery)(
+    # binary datasets are left/right unless flagged otherwise (e.g. BNCI2015_001 = right_hand/feet -> not L/R).
+    lr = d.get("lr", True)
+    para = (LeftRightImagery if (binary and lr) else MotorImagery)(
         fmin=fmin, fmax=fmax, tmin=tmin, tmax=tmax, resample=resample)
     X, y, meta = para.get_data(ds, subjects=subjects)
     X = X.astype("float32")
